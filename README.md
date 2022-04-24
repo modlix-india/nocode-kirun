@@ -1,2 +1,4 @@
-# nocode-interpreter
-Interpreters for both java and javascript
+# nocode-kirun
+KIRun is Kinetic Instruction Runtime.
+
+It is an interpreter for both java and javascript runtimes.
