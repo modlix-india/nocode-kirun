@@ -20,8 +20,7 @@ public enum StatementType {
 	THEN,
 	THROW,
 	TRY,
-	WHILESTART,
-	WHILEEND,
+	PARALLELIZE,
+	MERGE,
 	;
 }
-
