@@ -24,20 +24,20 @@ public abstract class AbstractFunction implements Function {
 
 			if (!param.isVariableArgument() && (argList == null || argList.size() != 1))
 				throw new ExecutionException("Expects one argument with name " + param.getName());
-			
+
 			if (argList != null)
 				for (Argument arg : argList)
 					SchemaValidator.validate(null, param.getSchema(), null, arg.getValue());
 		}
-		
+
 		return args;
 	}
-	
+
 	@Override
 	public Result execute(List<Argument> arguments) {
 
-		return this.internalExecute(this.validateArguments(arguments));		
+		return this.internalExecute(this.validateArguments(arguments));
 	}
-	
+
 	protected abstract Result internalExecute(Map<String, List<Argument>> args);
 }
