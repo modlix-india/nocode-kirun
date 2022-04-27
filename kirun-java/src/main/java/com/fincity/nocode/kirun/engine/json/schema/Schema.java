@@ -23,13 +23,15 @@ public class Schema implements Serializable{
 
 	private String namespace;
 	
+	private int version;
+	
+	private String ref;
+	
 	private Type type;
 	private List<Schema> anyOf;
 	private List<Schema> allOf;
 	private List<Schema> oneOf;
 	private Schema not;
-
-	private Map<String, Schema> definitions;	
 
 	private String title;
 	private String description;

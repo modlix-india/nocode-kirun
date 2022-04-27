@@ -12,7 +12,7 @@ public class NullValidator {
 	public static void validate(List<String> parents, Schema schema, JsonElement element) {
 
 		if (element != null && !element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Expected a null but found " + element);
 	}
 

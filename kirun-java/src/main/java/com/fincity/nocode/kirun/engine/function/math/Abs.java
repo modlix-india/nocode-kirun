@@ -22,12 +22,12 @@ public class Abs extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setTitle(VALUE).setType(new MultipleType()
+	private static final Schema SCHEMA = new Schema().setId(VALUE).setTitle(VALUE).setType(new MultipleType()
 			.setType(Set.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG)));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs").setNameSpace(MATH)
-			.setParameters(List.of(new Parameter().setName(VALUE).setSchema(SCHEMA)))
-			.setReturns(new Returns().setSchema(SCHEMA));
+			.setParameters(List.of(new Parameter().setSchema(SCHEMA)))
+			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
 	public FunctionSignature getSignature() {

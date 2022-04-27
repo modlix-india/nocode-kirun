@@ -29,7 +29,7 @@ public class TypeValidator {
 			NullValidator.validate(parents, schema, element);
 		} else {
 
-			throw new SchemaValidationException(path(parents, schema.getTitle()), type + " is not a valid type.");
+			throw new SchemaValidationException(path(parents, schema.getId()), type + " is not a valid type.");
 		}
 	}
 

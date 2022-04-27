@@ -22,13 +22,12 @@ public class Concatenate extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setTitle(VALUE)
+	private static final Schema SCHEMA = new Schema().setId(VALUE).setTitle(VALUE)
 			.setType(new SingleType().setType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-			.setNameSpace(STRING)
-			.setParameters(List.of(new Parameter().setName(VALUE).setSchema(SCHEMA).setVariableArgument(true)))
-			.setReturns(new Returns().setSchema(SCHEMA));
+			.setNameSpace(STRING).setParameters(List.of(new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
+			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
 	public FunctionSignature getSignature() {

@@ -19,10 +19,10 @@ public class ArrayValidator {
 			JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getTitle()), "Expected an array but found null");
+			throw new SchemaValidationException(path(parents, schema.getId()), "Expected an array but found null");
 
 		if (!element.isJsonArray())
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					element.toString() + " is not an Array");
 
 		JsonArray array = (JsonArray) element;
@@ -56,7 +56,7 @@ public class ArrayValidator {
 		}
 
 		if (!flag) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"None of the items are of type contains schema");
 		}
 
@@ -71,19 +71,19 @@ public class ArrayValidator {
 			}
 
 			if (set.size() != array.size())
-				throw new SchemaValidationException(path(parents, schema.getTitle()),
+				throw new SchemaValidationException(path(parents, schema.getId()),
 						"Items on the array are not unique");
 		}
 	}
 
 	private static void checkMinMaxItems(List<String> parents, Schema schema, JsonArray array) {
 		if (schema.getMinItems() != null && schema.getMinItems().intValue() > array.size()) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Array should have minimum of " + schema.getMinItems() + " elements");
 		}
 
 		if (schema.getMaxItems() != null && schema.getMaxItems().intValue() < array.size()) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Array can have maximum of " + schema.getMaxItems() + " elements");
 		}
 	}
@@ -107,7 +107,7 @@ public class ArrayValidator {
 		if (type.getTupleSchema() != null) {
 
 			if (type.getTupleSchema().size() != array.size()) {
-				throw new SchemaValidationException(path(parents, schema.getTitle()),
+				throw new SchemaValidationException(path(parents, schema.getId()),
 						"Expected an array with only " + type.getTupleSchema().size() + " but found " + array.size());
 			}
 

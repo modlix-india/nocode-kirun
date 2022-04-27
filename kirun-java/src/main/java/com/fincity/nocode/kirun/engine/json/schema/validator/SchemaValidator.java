@@ -17,12 +17,16 @@ public class SchemaValidator {
 		if (schema == null)
 			return element;
 
-		if ((element == null || element.isJsonNull()) &&  schema.getDefaultValue() != null)
+		if (schema.getRef() != null && !schema.getRef().isBlank()) {
+			return validate(parents, repository.find(schema.getRef()), repository, element);
+		}
+
+		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null)
 			return schema.getDefaultValue();
 
 		if (schema.getConstant() != null)
 			return schema.getConstant();
-		
+
 		if (schema.getEnums() != null && !schema.getEnums().isEmpty()) {
 			return enumCheck(parents, schema, element);
 		}
@@ -44,7 +48,7 @@ public class SchemaValidator {
 				flag = false;
 			}
 			if (flag)
-				throw new SchemaValidationException(path(parents, schema.getTitle()),
+				throw new SchemaValidationException(path(parents, schema.getId()),
 						"Schema validated value in not condition.");
 		}
 
@@ -64,7 +68,7 @@ public class SchemaValidator {
 		if (x)
 			return element;
 		else {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Value is not one of " + schema.getEnums());
 		}
 	}
@@ -87,19 +91,20 @@ public class SchemaValidator {
 		}
 
 		if (!valid) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Value " + element.toString() + " is not of valid type(s)", list);
 		}
 	}
 
-	public static String path(List<String> parents, String title) {
-		
-		if (title == null) return  "";
+	public static String path(List<String> parents, String id) {
+
+		if (id == null)
+			return "";
 
 		if (parents == null || parents.isEmpty())
-			return title;
+			return id;
 
-		return parents.stream().collect(Collectors.joining("/")) + "/" + title + " ";
+		return parents.stream().collect(Collectors.joining("/")) + "/" + id + " ";
 	}
 
 	private SchemaValidator() {

@@ -23,15 +23,15 @@ public class StringValidator {
 	public static void validate(List<String> parents, Schema schema, JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getTitle()), "Expected a string but found null");
+			throw new SchemaValidationException(path(parents, schema.getId()), "Expected a string but found null");
 
 		if (!element.isJsonPrimitive())
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					element.toString() + " is not String");
 
 		JsonPrimitive jp = (JsonPrimitive) element;
 		if (!jp.isString())
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					element.toString() + " is not String");
 
 		if (schema.getFormat() == StringFormat.TIME) {
@@ -47,10 +47,10 @@ public class StringValidator {
 
 		int length = jp.getAsString().length();
 		if (schema.getMinLength() != null && length < schema.getMinLength()) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Expected a minimum of " + schema.getMinLength() + " characters");
 		} else if (schema.getMaxLength() != null && length > schema.getMinLength()) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					"Expected a maximum of " + schema.getMaxLength() + " characters");
 		}
 	}
@@ -60,7 +60,7 @@ public class StringValidator {
 
 		boolean matched = pattern.matcher(jp.getAsString()).matches();
 		if (!matched) {
-			throw new SchemaValidationException(path(parents, schema.getTitle()),
+			throw new SchemaValidationException(path(parents, schema.getId()),
 					element.toString() + " is not matched with the " + message);
 		}
 	}

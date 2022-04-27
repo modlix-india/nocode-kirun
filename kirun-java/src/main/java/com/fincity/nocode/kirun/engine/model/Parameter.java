@@ -12,8 +12,7 @@ import lombok.experimental.Accessors;
 public class Parameter implements Serializable{
 
 	private static final long serialVersionUID = 8040181175269846469L;
-	
-	private String name;
+
 	private Schema schema;
 	private boolean variableArgument = false;
 }

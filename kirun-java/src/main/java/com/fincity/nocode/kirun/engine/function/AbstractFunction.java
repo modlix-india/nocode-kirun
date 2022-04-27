@@ -20,10 +20,10 @@ public abstract class AbstractFunction implements Function {
 		Map<String, List<Argument>> args = arguments.stream().collect(Collectors.groupingBy(Argument::getName));
 
 		for (Parameter param : this.getSignature().getParameters()) {
-			List<Argument> argList = args.get(param.getName());
+			List<Argument> argList = args.get(param.getSchema().getId());
 
 			if (!param.isVariableArgument() && (argList == null || argList.size() != 1))
-				throw new ExecutionException("Expects one argument with name " + param.getName());
+				throw new ExecutionException("Expects one argument with name " + param.getSchema().getId());
 
 			if (argList != null)
 				for (Argument arg : argList)
