@@ -24,10 +24,6 @@ public class NumberValidator {
 
 		Number n = extractNumber(type, parents, schema, element, jp);
 
-		if (n == null)
-			throw new SchemaValidationException(path(parents, schema.getId()),
-					element.toString() + " is not a number of type " + type.getPrintableName());
-
 		checkRange(parents, schema, element, n);
 
 		checkMultipleOf(parents, schema, element, n);
@@ -92,7 +88,7 @@ public class NumberValidator {
 					element.toString() + " is not a number of type " + type.getPrintableName());
 		}
 		
-		if (n == null || ((type == SchemaType.LONG || type == SchemaType.INTEGER) && n.doubleValue() != jp.getAsDouble())) {
+		if (n == null ||(type == SchemaType.LONG || type == SchemaType.INTEGER) && n.doubleValue() != jp.getAsDouble()) {
 			
 			throw new SchemaValidationException(path(parents, schema.getId()),
 					element.toString() + " is not a number of type " + type.getPrintableName());

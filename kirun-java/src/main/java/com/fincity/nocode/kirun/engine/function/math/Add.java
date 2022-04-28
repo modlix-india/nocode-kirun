@@ -21,6 +21,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.Result;
 import com.fincity.nocode.kirun.engine.model.Returns;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 public class Add extends AbstractFunction {
@@ -43,7 +44,7 @@ public class Add extends AbstractFunction {
 	protected Result internalExecute(Map<String, List<Argument>> args) {
 
 		Double d = 0d;
-		String s = "";
+		StringBuilder s = new StringBuilder("");
 		SchemaType type = null;
 		SchemaType newType = null;
 		boolean started = false;
@@ -53,26 +54,33 @@ public class Add extends AbstractFunction {
 			if (type == null || type.ordinal() < newType.ordinal()) {
 				type = newType;
 				if (type == STRING)
-					s = started ? d.toString() : "";
+					s = new StringBuilder(started ? d.toString() : "");
 				started = true;
 			}
 			if (type == STRING)
-				s += pValue.getAsString();
+				s.append(pValue.getAsString());
 			else
 				d += pValue.getAsDouble();
 		}
+
+		if (type == null)
+			return new Result().setValue(JsonNull.INSTANCE);
 
 		JsonPrimitive rValue = null;
 
 		switch (type) {
 		case STRING:
-			rValue = new JsonPrimitive(s);
+			rValue = new JsonPrimitive(s.toString());
+			break;
 		case DOUBLE:
 			rValue = new JsonPrimitive(Math.abs(d));
+			break;
 		case FLOAT:
 			rValue = new JsonPrimitive(Math.abs(d.floatValue()));
+			break;
 		case LONG:
 			rValue = new JsonPrimitive(Math.abs(d.longValue()));
+			break;
 		default:
 			rValue = new JsonPrimitive(Math.abs(d.intValue()));
 		}

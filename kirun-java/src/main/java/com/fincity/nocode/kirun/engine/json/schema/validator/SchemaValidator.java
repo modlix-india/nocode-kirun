@@ -92,7 +92,7 @@ public class SchemaValidator {
 
 		if (!valid) {
 			throw new SchemaValidationException(path(parents, schema.getId()),
-					"Value " + element.toString() + " is not of valid type(s)", list);
+					"Value " + element + " is not of valid type(s)", list);
 		}
 	}
 

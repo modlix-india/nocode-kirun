@@ -44,10 +44,13 @@ public class Abs extends AbstractFunction {
 		switch (type) {
 		case DOUBLE:
 			rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
+			break;
 		case FLOAT:
 			rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
+			break;
 		case LONG:
 			rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
+			break;
 		default:
 			rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
 		}
