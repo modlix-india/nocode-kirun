@@ -36,11 +36,11 @@ public class Schema implements Serializable{
 	private String title;
 	private String description;
 	private String id;
-	private List<JsonElement> examples; // NOSONAR - JSON Element for some reason is not a serialised.
-	private JsonElement defaultValue; // NOSONAR - JSON Element for some reason is not a serialised.
+	private List<JsonElement> examples; // NOSONAR - JSON Element for some reason is not serialised.
+	private JsonElement defaultValue; // NOSONAR - JSON Element for some reason is not serialised.
 	private String comment;
-	private List<JsonElement> enums; // NOSONAR - JSON Element for some reason is not a serialised.
-	private JsonElement constant; // NOSONAR - JSON Element for some reason is not a serialised.
+	private List<JsonElement> enums; // NOSONAR - JSON Element for some reason is not serialised.
+	private JsonElement constant; // NOSONAR - JSON Element for some reason is not serialised.
 
 	// String
 	private String pattern;
