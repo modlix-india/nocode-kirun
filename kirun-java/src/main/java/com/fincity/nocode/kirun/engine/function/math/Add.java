@@ -1,11 +1,11 @@
 package com.fincity.nocode.kirun.engine.function.math;
 
-import static com.fincity.nocode.kirun.engine.function.namespaces.Namespaces.MATH;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.DOUBLE;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.FLOAT;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.INTEGER;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.LONG;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.STRING;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.string;
 
-import static com.fincity.nocode.kirun.engine.function.namespaces.Namespaces.STRING;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 
 import java.util.List;
 import java.util.Map;

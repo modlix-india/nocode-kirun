@@ -8,8 +8,11 @@ import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringSchema;
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.type.SingleType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
+import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.google.gson.JsonElement;
 
 import lombok.Data;
@@ -17,16 +20,24 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class Schema implements Serializable{
+public class Schema implements Serializable {
 
 	private static final long serialVersionUID = 4041990622586726910L;
 
+	public static final Schema SCHEMA = new Schema()
+			.setNamespace(Namespaces.SYSTEM).setVersion(1)
+			.setType(Type.of(SchemaType.OBJECT))
+			.setProperties(
+				"namespace", new Schema(). 
+			)
+			;
+
 	private String namespace;
-	
+
 	private int version;
-	
+
 	private String ref;
-	
+
 	private Type type;
 	private List<Schema> anyOf;
 	private List<Schema> allOf;

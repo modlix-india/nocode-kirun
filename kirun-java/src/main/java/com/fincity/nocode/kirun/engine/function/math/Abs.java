@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.math;
 
-import static com.fincity.nocode.kirun.engine.function.namespaces.Namespaces.MATH;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
 import java.util.List;
 import java.util.Map;

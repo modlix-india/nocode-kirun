@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.namespaces;
+package com.fincity.nocode.kirun.engine.namespaces;
 
 public class Namespaces {
 
