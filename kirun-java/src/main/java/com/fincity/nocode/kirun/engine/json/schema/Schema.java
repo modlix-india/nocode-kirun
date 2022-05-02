@@ -25,6 +25,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class Schema implements Serializable {
 
+	private static final String SHEMA_ROOT_PATH = "#/";
 	private static final String REQUIRED_STRING = "required";
 	private static final String VERSION_STRING = "version";
 	private static final String NAMESPACE_STRING = "namespace";
@@ -43,11 +44,11 @@ public class Schema implements Serializable {
 											new JsonPrimitive("STRING"), new JsonPrimitive("OBJECT"),
 											new JsonPrimitive("ARRAY"), new JsonPrimitive("BOOLEAN"),
 											new JsonPrimitive("NULL"))))),
-					entry("anyOf", Schema.ofArray("anyOf", Schema.ofRef("#/"))),
-					entry("allOf", Schema.ofArray("allOf", Schema.ofRef("#/"))),
-					entry("oneOf", Schema.ofArray("oneOf", Schema.ofRef("#/"))),
+					entry("anyOf", Schema.ofArray("anyOf", Schema.ofRef(SHEMA_ROOT_PATH))),
+					entry("allOf", Schema.ofArray("allOf", Schema.ofRef(SHEMA_ROOT_PATH))),
+					entry("oneOf", Schema.ofArray("oneOf", Schema.ofRef(SHEMA_ROOT_PATH))),
 
-					entry("not", Schema.ofRef("#/")),
+					entry("not", Schema.ofRef(SHEMA_ROOT_PATH)),
 					entry("title", Schema.of("title", STRING)),
 					entry("description", Schema.of("description", STRING)),
 					entry("id", Schema.of("id", STRING)),
@@ -72,9 +73,12 @@ public class Schema implements Serializable {
 					entry("exclusiveMinimum", Schema.of("exclusiveMinimum", INTEGER, LONG, DOUBLE, FLOAT)),
 					entry("exclusiveMaximum", Schema.of("exclusiveMaximum", INTEGER, LONG, DOUBLE, FLOAT)),
 					
-					entry("properties", Schema.of("properties", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef("#/")))),
-					entry("additionalProperties", Schema.of("additionalProperties", BOOLEAN, OBJECT).setRef("#/")),
-					entry(REQUIRED_STRING, Schema.ofArray(REQUIRED_STRING, Schema.of(REQUIRED_STRING, STRING)))
+					entry("properties", Schema.of("properties", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH)))),
+					entry("additionalProperties", Schema.of("additionalProperties", BOOLEAN, OBJECT).setRef(SHEMA_ROOT_PATH)),
+					entry(REQUIRED_STRING, Schema.ofArray(REQUIRED_STRING, Schema.of(REQUIRED_STRING, STRING))),
+					entry("propertyNames", Schema.ofRef(SHEMA_ROOT_PATH)),
+					entry("minProperties", Schema.of("minProperties", INTEGER)),
+					entry("maxProperties", Schema.of("maxProperties", INTEGER)),
 			))
 			.setRequired(List.of(NAMESPACE_STRING, VERSION_STRING));
 
