@@ -17,10 +17,6 @@ public class SchemaValidator {
 		if (schema == null)
 			return element;
 
-		if (schema.getRef() != null && !schema.getRef().isBlank()) {
-			return validate(parents, repository.find(schema.getRef()), repository, element);
-		}
-
 		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null)
 			return schema.getDefaultValue();
 
@@ -33,6 +29,11 @@ public class SchemaValidator {
 
 		if (schema.getType() != null) {
 			typeValidation(parents, schema, repository, element);
+		}
+
+		// Need to write test cases to find out if element can be null at this point.
+		if (schema.getRef() != null && !schema.getRef().isBlank() && element.isJsonObject()) {
+			return validate(parents, repository.find(schema.getRef()), repository, element);
 		}
 
 		if (schema.getOneOf() != null || schema.getAllOf() != null || schema.getAnyOf() != null) {
