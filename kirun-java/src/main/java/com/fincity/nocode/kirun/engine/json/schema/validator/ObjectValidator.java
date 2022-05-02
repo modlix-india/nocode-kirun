@@ -53,10 +53,6 @@ public class ObjectValidator {
 		if (schema.getAdditionalProperties() != null) {
 			checkAddtionalProperties(parents, schema, repository, jsonObject, keys);
 		}
-
-		if (schema.getDependencies() != null) {
-			chekDependencies(parents, schema, jsonObject);
-		}
 	}
 
 	private static void checkPropertyNameSchema(List<String> parents, Schema schema, Repository<Schema> repository,
@@ -67,23 +63,6 @@ public class ObjectValidator {
 			} catch (SchemaValidationException sve) {
 				throw new SchemaValidationException(path(parents, schema.getId()),
 						"Property name '" + key + "' does not fit the property schema");
-			}
-		}
-	}
-
-	private static void chekDependencies(List<String> parents, Schema schema, JsonObject jsonObject) {
-		JsonElement e = null;
-		for (Entry<String, List<String>> dependency : schema.getDependencies().entrySet()) {
-
-			e = jsonObject.get(dependency.getKey());
-			if (e == null || e.isJsonNull())
-				continue;
-
-			for (String key : dependency.getValue()) {
-				e = jsonObject.get(key);
-				if (e == null || e.isJsonNull())
-					throw new SchemaValidationException(path(parents, schema.getId()),
-							dependency.getKey() + " requires " + key);
 			}
 		}
 	}

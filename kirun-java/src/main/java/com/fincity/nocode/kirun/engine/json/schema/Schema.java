@@ -1,6 +1,14 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.*;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.ARRAY;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.BOOLEAN;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.DOUBLE;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.FLOAT;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.INTEGER;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.LONG;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.NULL;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.OBJECT;
+import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.STRING;
 import static java.util.Map.entry;
 
 import java.io.Serializable;
@@ -13,7 +21,6 @@ import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringSchema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -25,6 +32,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class Schema implements Serializable {
 
+	private static final String ITEMS_STRING = "items";
 	private static final String SHEMA_ROOT_PATH = "#/";
 	private static final String REQUIRED_STRING = "required";
 	private static final String VERSION_STRING = "version";
@@ -79,6 +87,19 @@ public class Schema implements Serializable {
 					entry("propertyNames", Schema.ofRef(SHEMA_ROOT_PATH)),
 					entry("minProperties", Schema.of("minProperties", INTEGER)),
 					entry("maxProperties", Schema.of("maxProperties", INTEGER)),
+					entry("patternProperties", Schema.of("patternProperties", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH)))),
+					
+					entry(ITEMS_STRING, new Schema().setId(ITEMS_STRING).setTitle(ITEMS_STRING).setAnyOf(List.of(
+							Schema.ofRef(SHEMA_ROOT_PATH).setId("item").setTitle("item"),
+							Schema.ofArray("tuple", Schema.ofRef(SHEMA_ROOT_PATH))
+							))),
+					
+					entry("contains", Schema.ofRef(SHEMA_ROOT_PATH)),
+					entry("minItems", Schema.of("minItems", INTEGER)),
+					entry("maxItems", Schema.of("maxItems", INTEGER)),
+					entry("uniqueItems", Schema.of("uniqueItems", BOOLEAN)),
+					
+					entry("definitions", Schema.of("definitions", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH))))
 			))
 			.setRequired(List.of(NAMESPACE_STRING, VERSION_STRING));
 
@@ -89,8 +110,8 @@ public class Schema implements Serializable {
 	public static Schema ofRef(String ref) {
 		return new Schema().setRef(ref);
 	}
-	
-	public static Schema ofArray(String id, Schema ...itemSchemas) {
+
+	public static Schema ofArray(String id, Schema... itemSchemas) {
 		return new Schema().setType(Type.of(SchemaType.ARRAY)).setId(id).setTitle(id)
 				.setItems(ArraySchemaType.of(itemSchemas));
 	}
@@ -136,7 +157,6 @@ public class Schema implements Serializable {
 	private StringSchema propertyNames;
 	private Integer minProperties;
 	private Integer maxProperties;
-	private Map<String, List<String>> dependencies;
 	private Map<String, Schema> patternProperties;
 
 	// Array
@@ -145,7 +165,6 @@ public class Schema implements Serializable {
 	private Integer minItems;
 	private Integer maxItems;
 	private Boolean uniqueItems;
-	private List<FunctionSignature> methods;
 
-	private Map<String, Schema> definitions;
+	private Map<String, Schema> def;
 }
