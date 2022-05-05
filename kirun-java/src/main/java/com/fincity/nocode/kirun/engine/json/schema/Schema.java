@@ -99,7 +99,9 @@ public class Schema implements Serializable {
 					entry("maxItems", Schema.of("maxItems", INTEGER)),
 					entry("uniqueItems", Schema.of("uniqueItems", BOOLEAN)),
 					
-					entry("definitions", Schema.of("definitions", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH))))
+					entry("definitions", Schema.of("definitions", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH)))),
+					
+					entry("permission", Schema.of("permission", SchemaType.STRING))
 			))
 			.setRequired(List.of(NAMESPACE_STRING, VERSION_STRING));
 
@@ -167,4 +169,5 @@ public class Schema implements Serializable {
 	private Boolean uniqueItems;
 
 	private Map<String, Schema> def;
+	private String permission;
 }
