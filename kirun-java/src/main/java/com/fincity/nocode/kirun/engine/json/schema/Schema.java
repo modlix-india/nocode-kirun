@@ -41,7 +41,7 @@ public class Schema implements Serializable {
 	private static final long serialVersionUID = 4041990622586726910L;
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM).setVersion(1)
-			.setType(Type.of(SchemaType.OBJECT))
+			.setType(Type.of(SchemaType.OBJECT)).setTitle("Schema").setId("Schema")
 			.setProperties(Map.ofEntries(
 					entry(NAMESPACE_STRING, Schema.of(NAMESPACE_STRING, STRING)),
 					entry(VERSION_STRING, Schema.of(VERSION_STRING, INTEGER)),
