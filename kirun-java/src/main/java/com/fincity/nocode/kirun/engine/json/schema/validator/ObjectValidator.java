@@ -23,10 +23,10 @@ public class ObjectValidator {
 	public static void validate(List<String> parents, Schema schema, Repository<Schema> repository, JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getId()), "Expected an object but found null");
+			throw new SchemaValidationException(path(parents, schema.getName()), "Expected an object but found null");
 
 		if (!element.isJsonObject())
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					element.toString() + " is not an Object");
 
 		JsonObject jsonObject = (JsonObject) element;
@@ -61,7 +61,7 @@ public class ObjectValidator {
 			try {
 				SchemaValidator.validate(parents, schema.getPropertyNames(), repository, new JsonPrimitive(key));
 			} catch (SchemaValidationException sve) {
-				throw new SchemaValidationException(path(parents, schema.getId()),
+				throw new SchemaValidationException(path(parents, schema.getName()),
 						"Property name '" + key + "' does not fit the property schema");
 			}
 		}
@@ -70,7 +70,7 @@ public class ObjectValidator {
 	private static void checkRequired(List<String> parents, Schema schema, JsonObject jsonObject) {
 		for (String key : schema.getRequired()) {
 			if (jsonObject.get(key) == null || jsonObject.get(key).isJsonNull()) {
-				throw new SchemaValidationException(path(parents, schema.getId()), key + " is mandatory");
+				throw new SchemaValidationException(path(parents, schema.getName()), key + " is mandatory");
 			}
 		}
 	}
@@ -82,7 +82,7 @@ public class ObjectValidator {
 		if (apt.getBooleanValue() != null) {
 
 			if (!apt.getBooleanValue().booleanValue() && !keys.isEmpty()) {
-				throw new SchemaValidationException(path(parents, schema.getId()),
+				throw new SchemaValidationException(path(parents, schema.getName()),
 						keys.toString() + " are additional properties which are not allowed.");
 			}
 		} else if (apt.getSchemaValue() != null) {
@@ -139,12 +139,12 @@ public class ObjectValidator {
 
 	private static void checkMinMaxProperties(List<String> parents, Schema schema, Set<String> keys) {
 		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties().intValue()) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"Object should have minimum of " + schema.getMinProperties() + " properties");
 		}
 
 		if (schema.getMaxProperties() != null && keys.size() > schema.getMaxProperties().intValue()) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"Object can have maximum of " + schema.getMaxProperties() + " properties");
 		}
 	}

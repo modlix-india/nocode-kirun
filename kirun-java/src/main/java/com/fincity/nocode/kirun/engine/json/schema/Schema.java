@@ -41,9 +41,10 @@ public class Schema implements Serializable {
 	private static final long serialVersionUID = 4041990622586726910L;
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM).setVersion(1)
-			.setType(Type.of(SchemaType.OBJECT)).setTitle("Schema").setId("Schema")
+			.setType(Type.of(SchemaType.OBJECT)).setTitle("Schema").setName("Schema")
 			.setProperties(Map.ofEntries(
 					entry(NAMESPACE_STRING, Schema.of(NAMESPACE_STRING, STRING)),
+					entry("name", Schema.of("name", STRING)),
 					entry(VERSION_STRING, Schema.of(VERSION_STRING, INTEGER)),
 					entry("ref", Schema.of("ref", STRING)),
 					entry("type", Schema.ofArray("type", new Schema().setType(Type.of(STRING))
@@ -89,8 +90,8 @@ public class Schema implements Serializable {
 					entry("maxProperties", Schema.of("maxProperties", INTEGER)),
 					entry("patternProperties", Schema.of("patternProperties", OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH)))),
 					
-					entry(ITEMS_STRING, new Schema().setId(ITEMS_STRING).setTitle(ITEMS_STRING).setAnyOf(List.of(
-							Schema.ofRef(SHEMA_ROOT_PATH).setId("item").setTitle("item"),
+					entry(ITEMS_STRING, new Schema().setName(ITEMS_STRING).setTitle(ITEMS_STRING).setAnyOf(List.of(
+							Schema.ofRef(SHEMA_ROOT_PATH).setName("item").setTitle("item"),
 							Schema.ofArray("tuple", Schema.ofRef(SHEMA_ROOT_PATH))
 							))),
 					
@@ -106,7 +107,7 @@ public class Schema implements Serializable {
 			.setRequired(List.of(NAMESPACE_STRING, VERSION_STRING));
 
 	public static Schema of(String id, SchemaType... type) {
-		return new Schema().setType(Type.of(type)).setId(id).setTitle(id);
+		return new Schema().setType(Type.of(type)).setName(id).setTitle(id);
 	}
 
 	public static Schema ofRef(String ref) {
@@ -114,11 +115,12 @@ public class Schema implements Serializable {
 	}
 
 	public static Schema ofArray(String id, Schema... itemSchemas) {
-		return new Schema().setType(Type.of(SchemaType.ARRAY)).setId(id).setTitle(id)
+		return new Schema().setType(Type.of(SchemaType.ARRAY)).setName(id).setTitle(id)
 				.setItems(ArraySchemaType.of(itemSchemas));
 	}
 
 	private String namespace;
+	private String name;
 
 	private int version;
 
@@ -132,7 +134,6 @@ public class Schema implements Serializable {
 
 	private String title;
 	private String description;
-	private String id;
 	private List<JsonElement> examples; // NOSONAR - JSON Element for some reason is not serialised.
 	private JsonElement defaultValue; // NOSONAR - JSON Element for some reason is not serialised.
 	private String comment;

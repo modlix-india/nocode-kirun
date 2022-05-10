@@ -41,7 +41,7 @@ public class AnyOfAllOfOneOfValidator {
 		}
 
 		if (!flag) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"The value don't satisfy any of the schemas.", list);
 		}
 	}
@@ -59,7 +59,7 @@ public class AnyOfAllOfOneOfValidator {
 		}
 
 		if (flag != schema.getAllOf().size()) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"The value doesn't satisfy some of the schemas.", list);
 		}
 	}
@@ -77,7 +77,7 @@ public class AnyOfAllOfOneOfValidator {
 		}
 
 		if (flag != 1) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					(flag == 0 ? "The value does not satisfy any schema"
 							: "The value satisfy more than one schema"),
 					list);

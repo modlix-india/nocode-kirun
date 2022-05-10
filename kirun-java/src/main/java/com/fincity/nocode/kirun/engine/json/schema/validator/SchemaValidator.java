@@ -49,7 +49,7 @@ public class SchemaValidator {
 				flag = false;
 			}
 			if (flag)
-				throw new SchemaValidationException(path(parents, schema.getId()),
+				throw new SchemaValidationException(path(parents, schema.getName()),
 						"Schema validated value in not condition.");
 		}
 
@@ -69,7 +69,7 @@ public class SchemaValidator {
 		if (x)
 			return element;
 		else {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"Value is not one of " + schema.getEnums());
 		}
 	}
@@ -92,7 +92,7 @@ public class SchemaValidator {
 		}
 
 		if (!valid) {
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					"Value " + element + " is not of valid type(s)", list);
 		}
 	}

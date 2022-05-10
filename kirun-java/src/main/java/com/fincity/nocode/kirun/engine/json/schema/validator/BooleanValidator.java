@@ -13,10 +13,10 @@ public class BooleanValidator {
 	public static void validate(List<String> parents, Schema schema, JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getId()), "Expected a boolean but found null");
+			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a boolean but found null");
 
 		if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isBoolean())
-			throw new SchemaValidationException(path(parents, schema.getId()),
+			throw new SchemaValidationException(path(parents, schema.getName()),
 					element.toString() + " is not a boolean");
 	}
 
