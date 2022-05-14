@@ -25,7 +25,7 @@ public class Abs extends AbstractFunction {
 	private static final Schema SCHEMA = new Schema().setName(VALUE).setTitle(VALUE).setType(new MultipleType()
 			.setType(Set.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG)));
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs").setNameSpace(MATH)
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs").setNamespace(MATH)
 			.setParameters(List.of(new Parameter().setSchema(SCHEMA)))
 			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
 

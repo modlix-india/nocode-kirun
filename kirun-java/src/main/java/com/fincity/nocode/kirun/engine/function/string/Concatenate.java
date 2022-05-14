@@ -26,7 +26,7 @@ public class Concatenate extends AbstractFunction {
 			.setType(new SingleType().setType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-			.setNameSpace(STRING).setParameters(List.of(new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
+			.setNamespace(STRING).setParameters(List.of(new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
 			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
