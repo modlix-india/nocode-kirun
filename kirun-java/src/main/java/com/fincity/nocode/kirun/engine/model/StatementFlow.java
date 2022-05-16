@@ -16,15 +16,17 @@ import lombok.experimental.Accessors;
 public class StatementFlow implements Serializable {
 
 	private static final long serialVersionUID = -3179284164405372725L;
-	
+
 	private static final String SCHEMA_NAME = "StatementFlow";
-	
-	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM).setName(SCHEMA_NAME)
-						.setTitle(SCHEMA_NAME).setProperties(Map.of(
-								"next", Schema.of("next",  SchemaType.STRING),
-								"branches", Schema.of("branches",  SchemaType.OBJECT).setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.of("branchProperty", SchemaType.STRING)))
-								));
-	
+
+	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
+	        .setName(SCHEMA_NAME)
+	        .setTitle(SCHEMA_NAME)
+	        .setProperties(Map.of("next", Schema.of("next", SchemaType.STRING), "branches",
+	                Schema.of("branches", SchemaType.OBJECT)
+	                        .setAdditionalProperties(new AdditionalPropertiesType()
+	                                .setSchemaValue(Schema.of("branchProperty", SchemaType.STRING)))));
+
 	private String next;
 	private Map<String, String> branches;
 }

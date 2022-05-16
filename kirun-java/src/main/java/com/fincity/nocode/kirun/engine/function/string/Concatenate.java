@@ -22,12 +22,15 @@ public class Concatenate extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE).setTitle(VALUE)
-			.setType(new SingleType().setType(SchemaType.STRING));
+	private static final Schema SCHEMA = new Schema().setName(VALUE)
+	        .setTitle(VALUE)
+	        .setType(new SingleType().setType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-			.setNamespace(STRING).setParameters(List.of(new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
-			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
+	        .setNamespace(STRING)
+	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
+	                .setVariableArgument(true)))
+	        .setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -37,7 +40,11 @@ public class Concatenate extends AbstractFunction {
 	@Override
 	protected Result internalExecute(Map<String, List<Argument>> args) {
 
-		return new Result().setValue(new JsonPrimitive(args.get(VALUE).stream().sorted().map(Argument::getValue)
-				.map(JsonElement::getAsString).collect(Collectors.joining(""))));
+		return new Result().setValue(new JsonPrimitive(args.get(VALUE)
+		        .stream()
+		        .sorted()
+		        .map(Argument::getValue)
+		        .map(JsonElement::getAsString)
+		        .collect(Collectors.joining(""))));
 	}
 }

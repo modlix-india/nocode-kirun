@@ -13,7 +13,7 @@ public class NullValidator {
 
 		if (element != null && !element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					"Expected a null but found " + element);
+			        "Expected a null but found " + element);
 	}
 
 	private NullValidator() {

@@ -28,12 +28,15 @@ public class Add extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE).setTitle(VALUE)
-			.setType(new MultipleType().setType(Set.of(DOUBLE, FLOAT, INTEGER, LONG, STRING)));
+	private static final Schema SCHEMA = new Schema().setName(VALUE)
+	        .setTitle(VALUE)
+	        .setType(new MultipleType().setType(Set.of(DOUBLE, FLOAT, INTEGER, LONG, STRING)));
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Add").setNamespace(MATH)
-			.setParameters(List.of(new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
-			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Add")
+	        .setNamespace(MATH)
+	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
+	                .setVariableArgument(true)))
+	        .setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
 	public FunctionSignature getSignature() {

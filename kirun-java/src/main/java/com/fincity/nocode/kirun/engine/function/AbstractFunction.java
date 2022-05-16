@@ -15,15 +15,20 @@ public abstract class AbstractFunction implements Function {
 	protected Map<String, List<Argument>> validateArguments(List<Argument> arguments) {
 
 		for (int i = 0; i < arguments.size(); i++) {
-			arguments.get(i).setArgumentIndex(i);
+			arguments.get(i)
+			        .setArgumentIndex(i);
 		}
-		Map<String, List<Argument>> args = arguments.stream().collect(Collectors.groupingBy(Argument::getName));
+		Map<String, List<Argument>> args = arguments.stream()
+		        .collect(Collectors.groupingBy(Argument::getName));
 
-		for (Parameter param : this.getSignature().getParameters()) {
-			List<Argument> argList = args.get(param.getSchema().getName());
+		for (Parameter param : this.getSignature()
+		        .getParameters()) {
+			List<Argument> argList = args.get(param.getSchema()
+			        .getName());
 
 			if (!param.isVariableArgument() && (argList == null || argList.size() != 1))
-				throw new ExecutionException("Expects one argument with name " + param.getSchema().getName());
+				throw new ExecutionException("Expects one argument with name " + param.getSchema()
+				        .getName());
 
 			if (argList != null)
 				for (Argument arg : argList)

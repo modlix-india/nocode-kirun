@@ -13,18 +13,20 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class Parameter implements Serializable{
+public class Parameter implements Serializable {
 
 	private static final long serialVersionUID = 8040181175269846469L;
-	
-	private static final String SCHEMA_NAME = "Parameter";
-	
-	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM).setName(SCHEMA_NAME)
-						.setTitle(SCHEMA_NAME).setProperties(Map.of(
-								"schema", Schema.SCHEMA,
-								"variableArgument", Schema.of("variableArgument", SchemaType.BOOLEAN).setDefaultValue(new JsonPrimitive(Boolean.FALSE))
-								));
 
-	private Schema schema; // NOSONAR - this is really getting on my nerves, I have a use case for same name.
+	private static final String SCHEMA_NAME = "Parameter";
+
+	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
+	        .setName(SCHEMA_NAME)
+	        .setTitle(SCHEMA_NAME)
+	        .setProperties(Map.of("schema", Schema.SCHEMA, "variableArgument",
+	                Schema.of("variableArgument", SchemaType.BOOLEAN)
+	                        .setDefaultValue(new JsonPrimitive(Boolean.FALSE))));
+
+	private Schema schema; // NOSONAR - this is really getting on my nerves, I have a use case for same
+	                       // name.
 	private boolean variableArgument = false;
 }

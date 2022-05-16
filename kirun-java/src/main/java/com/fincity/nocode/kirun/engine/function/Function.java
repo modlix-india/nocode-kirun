@@ -9,5 +9,6 @@ import com.fincity.nocode.kirun.engine.model.Result;
 public interface Function {
 
 	public FunctionSignature getSignature();
+
 	public Result execute(List<Argument> arguments);
 }

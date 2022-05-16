@@ -12,7 +12,7 @@ import com.google.gson.JsonElement;
 public class SchemaValidator {
 
 	public static JsonElement validate(List<String> parents, Schema schema, Repository<Schema> repository,
-			JsonElement element) {
+	        JsonElement element) {
 
 		if (schema == null)
 			return element;
@@ -23,7 +23,8 @@ public class SchemaValidator {
 		if (schema.getConstant() != null)
 			return schema.getConstant();
 
-		if (schema.getEnums() != null && !schema.getEnums().isEmpty()) {
+		if (schema.getEnums() != null && !schema.getEnums()
+		        .isEmpty()) {
 			return enumCheck(parents, schema, element);
 		}
 
@@ -32,7 +33,8 @@ public class SchemaValidator {
 		}
 
 		// Need to write test cases to find out if element can be null at this point.
-		if (schema.getRef() != null && !schema.getRef().isBlank() && element.isJsonObject()) {
+		if (schema.getRef() != null && !schema.getRef()
+		        .isBlank() && element.isJsonObject()) {
 			return validate(parents, repository.find(schema.getRef()), repository, element);
 		}
 
@@ -50,7 +52,7 @@ public class SchemaValidator {
 			}
 			if (flag)
 				throw new SchemaValidationException(path(parents, schema.getName()),
-						"Schema validated value in not condition.");
+				        "Schema validated value in not condition.");
 		}
 
 		return element;
@@ -70,16 +72,17 @@ public class SchemaValidator {
 			return element;
 		else {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					"Value is not one of " + schema.getEnums());
+			        "Value is not one of " + schema.getEnums());
 		}
 	}
 
 	private static void typeValidation(List<String> parents, Schema schema, Repository<Schema> repository,
-			JsonElement element) {
+	        JsonElement element) {
 
 		boolean valid = false;
 		List<SchemaValidationException> list = new ArrayList<>();
-		for (SchemaType type : schema.getType().getAllowedSchemaTypes()) {
+		for (SchemaType type : schema.getType()
+		        .getAllowedSchemaTypes()) {
 
 			try {
 				TypeValidator.validate(parents, type, schema, repository, element);
@@ -93,7 +96,7 @@ public class SchemaValidator {
 
 		if (!valid) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					"Value " + element + " is not of valid type(s)", list);
+			        "Value " + element + " is not of valid type(s)", list);
 		}
 	}
 
@@ -105,7 +108,8 @@ public class SchemaValidator {
 		if (parents == null || parents.isEmpty())
 			return id;
 
-		return parents.stream().collect(Collectors.joining("/")) + "/" + id + " ";
+		return parents.stream()
+		        .collect(Collectors.joining("/")) + "/" + id + " ";
 	}
 
 	private SchemaValidator() {

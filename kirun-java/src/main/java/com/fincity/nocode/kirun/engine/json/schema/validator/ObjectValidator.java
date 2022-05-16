@@ -20,14 +20,15 @@ import com.google.gson.JsonPrimitive;
 
 public class ObjectValidator {
 
-	public static void validate(List<String> parents, Schema schema, Repository<Schema> repository, JsonElement element) {
+	public static void validate(List<String> parents, Schema schema, Repository<Schema> repository,
+	        JsonElement element) {
 
 		if (element == null || element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()), "Expected an object but found null");
 
 		if (!element.isJsonObject())
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " is not an Object");
+			        element.toString() + " is not an Object");
 
 		JsonObject jsonObject = (JsonObject) element;
 		Set<String> keys = new HashSet<>(jsonObject.keySet());
@@ -56,34 +57,36 @@ public class ObjectValidator {
 	}
 
 	private static void checkPropertyNameSchema(List<String> parents, Schema schema, Repository<Schema> repository,
-			Set<String> keys) {
+	        Set<String> keys) {
 		for (String key : keys) {
 			try {
 				SchemaValidator.validate(parents, schema.getPropertyNames(), repository, new JsonPrimitive(key));
 			} catch (SchemaValidationException sve) {
 				throw new SchemaValidationException(path(parents, schema.getName()),
-						"Property name '" + key + "' does not fit the property schema");
+				        "Property name '" + key + "' does not fit the property schema");
 			}
 		}
 	}
 
 	private static void checkRequired(List<String> parents, Schema schema, JsonObject jsonObject) {
 		for (String key : schema.getRequired()) {
-			if (jsonObject.get(key) == null || jsonObject.get(key).isJsonNull()) {
+			if (jsonObject.get(key) == null || jsonObject.get(key)
+			        .isJsonNull()) {
 				throw new SchemaValidationException(path(parents, schema.getName()), key + " is mandatory");
 			}
 		}
 	}
 
 	private static void checkAddtionalProperties(List<String> parents, Schema schema, Repository<Schema> repository,
-			JsonObject jsonObject, Set<String> keys) {
+	        JsonObject jsonObject, Set<String> keys) {
 		AdditionalPropertiesType apt = schema.getAdditionalProperties();
 
 		if (apt.getBooleanValue() != null) {
 
-			if (!apt.getBooleanValue().booleanValue() && !keys.isEmpty()) {
+			if (!apt.getBooleanValue()
+			        .booleanValue() && !keys.isEmpty()) {
 				throw new SchemaValidationException(path(parents, schema.getName()),
-						keys.toString() + " are additional properties which are not allowed.");
+				        keys.toString() + " are additional properties which are not allowed.");
 			}
 		} else if (apt.getSchemaValue() != null) {
 
@@ -91,16 +94,17 @@ public class ObjectValidator {
 				List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 				newParents.add(key);
 				JsonElement element = SchemaValidator.validate(newParents, apt.getSchemaValue(), repository,
-						jsonObject.get(key));
+				        jsonObject.get(key));
 				jsonObject.add(key, element);
 			}
 		}
 	}
 
 	private static void checkPatternProperties(List<String> parents, Schema schema, Repository<Schema> repository,
-			JsonObject jsonObject, Set<String> keys) {
+	        JsonObject jsonObject, Set<String> keys) {
 		Map<String, Pattern> compiledPatterns = new HashMap<>();
-		for (String keyPattern : schema.getPatternProperties().keySet())
+		for (String keyPattern : schema.getPatternProperties()
+		        .keySet())
 			compiledPatterns.put(keyPattern, Pattern.compile(keyPattern));
 
 		List<String> goodKeys = new ArrayList<>();
@@ -110,10 +114,12 @@ public class ObjectValidator {
 			newParents.add(key);
 
 			for (Entry<String, Pattern> e : compiledPatterns.entrySet()) {
-				if (e.getValue().matcher(key).matches()) {
+				if (e.getValue()
+				        .matcher(key)
+				        .matches()) {
 
-					JsonElement element = SchemaValidator.validate(newParents,
-							schema.getPatternProperties().get(e.getKey()), repository, jsonObject.get(key));
+					JsonElement element = SchemaValidator.validate(newParents, schema.getPatternProperties()
+					        .get(e.getKey()), repository, jsonObject.get(key));
 					jsonObject.add(key, element);
 					goodKeys.add(key);
 					break;
@@ -125,27 +131,30 @@ public class ObjectValidator {
 	}
 
 	private static void checkProperties(List<String> parents, Schema schema, Repository<Schema> repository,
-			JsonObject jsonObject, Set<String> keys) {
-		for (Entry<String, Schema> each : schema.getProperties().entrySet()) {
+	        JsonObject jsonObject, Set<String> keys) {
+		for (Entry<String, Schema> each : schema.getProperties()
+		        .entrySet()) {
 
 			List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 			newParents.add(each.getKey());
 			JsonElement element = SchemaValidator.validate(newParents, each.getValue(), repository,
-					jsonObject.get(each.getKey()));
+			        jsonObject.get(each.getKey()));
 			jsonObject.add(each.getKey(), element);
 			keys.remove(each.getKey());
 		}
 	}
 
 	private static void checkMinMaxProperties(List<String> parents, Schema schema, Set<String> keys) {
-		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties().intValue()) {
+		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties()
+		        .intValue()) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					"Object should have minimum of " + schema.getMinProperties() + " properties");
+			        "Object should have minimum of " + schema.getMinProperties() + " properties");
 		}
 
-		if (schema.getMaxProperties() != null && keys.size() > schema.getMaxProperties().intValue()) {
+		if (schema.getMaxProperties() != null && keys.size() > schema.getMaxProperties()
+		        .intValue()) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					"Object can have maximum of " + schema.getMaxProperties() + " properties");
+			        "Object can have maximum of " + schema.getMaxProperties() + " properties");
 		}
 	}
 

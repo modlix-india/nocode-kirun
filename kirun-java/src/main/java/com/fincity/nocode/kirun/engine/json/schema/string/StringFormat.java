@@ -9,6 +9,7 @@ public enum StringFormat {
 	;
 
 	public static SchemaType genericValueOf(String type) {
-		return SchemaType.valueOf(type.toUpperCase().replace("-", ""));
+		return SchemaType.valueOf(type.toUpperCase()
+		        .replace("-", ""));
 	}
 }

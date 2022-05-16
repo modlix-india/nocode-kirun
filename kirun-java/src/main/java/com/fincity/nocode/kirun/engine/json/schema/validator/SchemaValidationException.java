@@ -9,14 +9,14 @@ public class SchemaValidationException extends RuntimeException {
 
 	private final String schemaPath;
 	private final List<SchemaValidationException> sveList;
-	
+
 	public SchemaValidationException(String schemaPath, String message, List<SchemaValidationException> sve) {
 
 		super(message);
 		this.schemaPath = schemaPath;
 		this.sveList = sve;
 	}
-	
+
 	public SchemaValidationException(String schemaPath, String message) {
 		this(schemaPath, message, null);
 	}
@@ -25,27 +25,29 @@ public class SchemaValidationException extends RuntimeException {
 
 		return this.schemaPath;
 	}
-	
+
 	@Override
 	public StackTraceElement[] getStackTrace() {
-		
+
 		if (sveList == null || sveList.isEmpty())
 			return super.getStackTrace();
-		
+
 		List<StackTraceElement[]> traces = new ArrayList<>();
-		
+
 		traces.add(super.getStackTrace());
 		for (SchemaValidationException sve : this.sveList) {
 			traces.add(sve.getStackTrace());
 		}
-		
-		StackTraceElement[] traceElements = new StackTraceElement[traces.stream().mapToInt(e -> e.length).sum()];
-		
+
+		StackTraceElement[] traceElements = new StackTraceElement[traces.stream()
+		        .mapToInt(e -> e.length)
+		        .sum()];
+
 		int i = 0;
 		for (StackTraceElement[] trace : traces)
-			for (StackTraceElement e : trace) 
+			for (StackTraceElement e : trace)
 				traceElements[i++] = e;
-		
+
 		return traceElements;
 	}
 
@@ -54,7 +56,7 @@ public class SchemaValidationException extends RuntimeException {
 
 		if (schemaPath != null)
 			return this.schemaPath + " - " + super.getMessage();
-		
+
 		return super.getMessage();
 	}
 }

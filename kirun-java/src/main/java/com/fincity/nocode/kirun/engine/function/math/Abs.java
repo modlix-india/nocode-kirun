@@ -22,12 +22,15 @@ public class Abs extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE).setTitle(VALUE).setType(new MultipleType()
-			.setType(Set.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG)));
+	private static final Schema SCHEMA = new Schema().setName(VALUE)
+	        .setTitle(VALUE)
+	        .setType(new MultipleType()
+	                .setType(Set.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG)));
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs").setNamespace(MATH)
-			.setParameters(List.of(new Parameter().setSchema(SCHEMA)))
-			.setReturns(new Returns().setSchema(List.of(SCHEMA)));
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs")
+	        .setNamespace(MATH)
+	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)))
+	        .setReturns(new Returns().setSchema(List.of(SCHEMA)));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -37,7 +40,9 @@ public class Abs extends AbstractFunction {
 	@Override
 	protected Result internalExecute(Map<String, List<Argument>> args) {
 
-		JsonPrimitive pValue = (JsonPrimitive) args.get(VALUE).get(0).getValue();
+		JsonPrimitive pValue = (JsonPrimitive) args.get(VALUE)
+		        .get(0)
+		        .getValue();
 		SchemaType type = PrimitiveUtil.findPrimitiveType(pValue);
 		JsonPrimitive rValue = null;
 

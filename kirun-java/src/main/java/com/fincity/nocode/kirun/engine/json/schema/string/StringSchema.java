@@ -12,8 +12,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class StringSchema extends Schema{
-
+public class StringSchema extends Schema {
 
 	private static final long serialVersionUID = 5665601576555771876L;
 

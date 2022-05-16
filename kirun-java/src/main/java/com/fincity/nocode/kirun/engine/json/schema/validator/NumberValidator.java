@@ -18,7 +18,7 @@ public class NumberValidator {
 
 		if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isNumber())
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " is not a " + type.getPrintableName());
+			        element.toString() + " is not a " + type.getPrintableName());
 
 		JsonPrimitive jp = (JsonPrimitive) element;
 
@@ -33,17 +33,20 @@ public class NumberValidator {
 		if (schema.getMultipleOf() != null) {
 			if (n instanceof Float || n instanceof Double) {
 				Double d1 = Double.valueOf(n.toString());
-				Double d2 = Double.valueOf(schema.getMultipleOf().toString());
+				Double d2 = Double.valueOf(schema.getMultipleOf()
+				        .toString());
 				Double d = d1 / d2;
-				if (!Double.valueOf("" + d.intValue()).equals(d))
+				if (!Double.valueOf("" + d.intValue())
+				        .equals(d))
 					throw new SchemaValidationException(path(parents, schema.getName()),
-							element.toString() + " is not multiple of " + schema.getMultipleOf());
+					        element.toString() + " is not multiple of " + schema.getMultipleOf());
 			} else {
 				Long l1 = Long.valueOf(n.toString());
-				Long l2 = Long.valueOf(schema.getMultipleOf().toString());
+				Long l2 = Long.valueOf(schema.getMultipleOf()
+				        .toString());
 				if (l1 % l2 != 0)
 					throw new SchemaValidationException(path(parents, schema.getName()),
-							element.toString() + " is not multiple of " + schema.getMultipleOf());
+					        element.toString() + " is not multiple of " + schema.getMultipleOf());
 			}
 		}
 	}
@@ -51,27 +54,27 @@ public class NumberValidator {
 	private static void checkRange(List<String> parents, Schema schema, JsonElement element, Number n) {
 		if (schema.getMinimum() != null && numberCompare(n, schema.getMinimum()) < 0) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " should be greater than or equal to " + schema.getMinimum());
+			        element.toString() + " should be greater than or equal to " + schema.getMinimum());
 		}
 
 		if (schema.getMaximum() != null && numberCompare(n, schema.getMaximum()) > 0) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " should be less than or equal to " + schema.getMaximum());
+			        element.toString() + " should be less than or equal to " + schema.getMaximum());
 		}
 
 		if (schema.getExclusiveMinimum() != null && numberCompare(n, schema.getExclusiveMinimum()) <= 0) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " should be greater than " + schema.getExclusiveMinimum());
+			        element.toString() + " should be greater than " + schema.getExclusiveMinimum());
 		}
 
 		if (schema.getExclusiveMaximum() != null && numberCompare(n, schema.getExclusiveMaximum()) > 0) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " should be less than " + schema.getExclusiveMaximum());
+			        element.toString() + " should be less than " + schema.getExclusiveMaximum());
 		}
 	}
 
 	private static Number extractNumber(SchemaType type, List<String> parents, Schema schema, JsonElement element,
-			JsonPrimitive jp) {
+	        JsonPrimitive jp) {
 		Number n = null;
 
 		try {
@@ -85,15 +88,16 @@ public class NumberValidator {
 				n = jp.getAsDouble();
 		} catch (Exception ex) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " is not a number of type " + type.getPrintableName());
+			        element.toString() + " is not a number of type " + type.getPrintableName());
 		}
-		
-		if (n == null ||(type == SchemaType.LONG || type == SchemaType.INTEGER) && n.doubleValue() != jp.getAsDouble()) {
-			
+
+		if (n == null
+		        || (type == SchemaType.LONG || type == SchemaType.INTEGER) && n.doubleValue() != jp.getAsDouble()) {
+
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " is not a number of type " + type.getPrintableName());
+			        element.toString() + " is not a number of type " + type.getPrintableName());
 		}
-		
+
 		return n;
 	}
 

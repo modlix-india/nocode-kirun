@@ -17,7 +17,7 @@ public class BooleanValidator {
 
 		if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isBoolean())
 			throw new SchemaValidationException(path(parents, schema.getName()),
-					element.toString() + " is not a boolean");
+			        element.toString() + " is not a boolean");
 	}
 
 	private BooleanValidator() {
