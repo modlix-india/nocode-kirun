@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 import lombok.Data;
@@ -23,15 +22,10 @@ public class FunctionDefinition extends FunctionSignature {
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
 	        .setTitle(SCHEMA_NAME)
-	        .setProperties(Map.of("name", Schema.of("name", SchemaType.STRING), "namespace",
-	                Schema.of("namespace", SchemaType.STRING), "returns", Returns.SCHEMA, "parameters",
-	                Schema.ofArray("parameters", Parameter.SCHEMA), "alias", Schema.of("alias", SchemaType.STRING),
-	                "steps", Schema.of("steps", SchemaType.OBJECT)
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA)),
-	                "flow", Schema.of("flow", SchemaType.OBJECT)
-	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(StatementFlow.SCHEMA))));
+	        .setProperties(Map.of("name", Schema.STRING, "namespace", Schema.STRING, "parameters",
+	                Schema.ofArray("parameters", Parameter.SCHEMA), "events", Schema.ofObject("events")
+                    .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA))));
 
-	private Map<String, Statement> steps;
-	private Map<String, StatementFlow> flow;
+//	private Map<String, Statement> steps;
+//	private Map<String, StatementFlow> flow;
 }
