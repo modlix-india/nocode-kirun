@@ -29,6 +29,6 @@ public class FunctionSignature implements Serializable {
 	private String namespace;
 	private String name;
 	private List<Parameter> parameters;
-	private Returns returns;
 	private String alias;
+	private Map<String, Event> events;
 }
