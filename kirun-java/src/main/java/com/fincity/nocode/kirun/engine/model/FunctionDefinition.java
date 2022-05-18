@@ -24,8 +24,9 @@ public class FunctionDefinition extends FunctionSignature {
 	        .setTitle(SCHEMA_NAME)
 	        .setProperties(Map.of("name", Schema.STRING, "namespace", Schema.STRING, "parameters",
 	                Schema.ofArray("parameters", Parameter.SCHEMA), "events", Schema.ofObject("events")
-                    .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA))));
+	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA)),
+	                "steps", Schema.ofObject("steps")
+	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA))));
 
-//	private Map<String, Statement> steps;
-//	private Map<String, StatementFlow> flow;
+	private Map<String, Statement> steps;
 }

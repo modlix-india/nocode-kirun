@@ -22,11 +22,12 @@ public class Parameter implements Serializable {
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
 	        .setTitle(SCHEMA_NAME)
-	        .setProperties(Map.of("schema", Schema.SCHEMA, "variableArgument",
+	        .setProperties(Map.of("schema", Schema.SCHEMA, "parameterName", Schema.STRING, "variableArgument",
 	                Schema.of("variableArgument", SchemaType.BOOLEAN)
 	                        .setDefaultValue(new JsonPrimitive(Boolean.FALSE))));
 
 	private Schema schema; // NOSONAR - this is really getting on my nerves, I have a use case for same
 	                       // name.
+	private String parameterName;
 	private boolean variableArgument = false;
 }

@@ -30,7 +30,7 @@ public class Concatenate extends AbstractFunction {
 	        .setNamespace(STRING)
 	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
 	                .setVariableArgument(true)))
-	        .setReturns(new Returns().setSchema(List.of(SCHEMA)));
+	        .setEvents();
 
 	@Override
 	public FunctionSignature getSignature() {
