@@ -50,8 +50,8 @@ public class Concatenate extends AbstractFunction {
 		        .defaultIfEmpty("")
 		        .reduce((a, b) -> a + b);
 
-		return Flux.merge((Publisher<? extends EventResult>) concatenatedString
-		        .map(v -> new EventResult().setName(Event.OUTPUT)
-		                .setResult(new JsonPrimitive(v))));
+		return Flux.merge((Publisher<? extends EventResult>) concatenatedString.map(JsonPrimitive::new)
+		        .map(e -> Map.of(VALUE, (JsonElement) e))
+		        .map(EventResult::outputResult));
 	}
 }

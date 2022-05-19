@@ -34,4 +34,18 @@ public class PrimitiveUtil {
 
 	private PrimitiveUtil() {
 	}
+
+	public static JsonPrimitive toPrimitiveType(Object e) {
+
+		if (e instanceof Integer i)
+			return new JsonPrimitive(i);
+		if (e instanceof Float f)
+			return new JsonPrimitive(f);
+		if (e instanceof Long l)
+			return new JsonPrimitive(l);
+		if (e instanceof Double d)
+			return new JsonPrimitive(d);
+
+		throw new ExecutionException("Parameter is not a primitive type " + e);
+	}
 }

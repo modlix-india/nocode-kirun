@@ -2,18 +2,21 @@ package com.fincity.nocode.kirun.engine.model;
 
 import com.google.gson.JsonElement;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class Argument implements Comparable<Argument> {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Argument {
 
-	private int argumentIndex = 0;
 	private String name;
 	private JsonElement value;
 
-	public int compareTo(Argument o) {
-		return Integer.compare(argumentIndex, o.argumentIndex);
+	public static final Argument of(String name, JsonElement value) {
+		return new Argument(name, value);
 	}
 }
