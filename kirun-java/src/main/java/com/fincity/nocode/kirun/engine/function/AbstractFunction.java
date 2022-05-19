@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.model.Argument;
+import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.model.Result;
+
+import reactor.core.publisher.Flux;
 
 public abstract class AbstractFunction implements Function {
 
@@ -39,10 +41,10 @@ public abstract class AbstractFunction implements Function {
 	}
 
 	@Override
-	public Result execute(List<Argument> arguments) {
+	public Flux<EventResult> execute(List<Argument> arguments) {
 
 		return this.internalExecute(this.validateArguments(arguments));
 	}
 
-	protected abstract Result internalExecute(Map<String, List<Argument>> args);
+	protected abstract Flux<EventResult> internalExecute(Map<String, List<Argument>> args);
 }

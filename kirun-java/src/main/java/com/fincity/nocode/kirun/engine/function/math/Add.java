@@ -1,26 +1,20 @@
 package com.fincity.nocode.kirun.engine.function.math;
 
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.DOUBLE;
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.FLOAT;
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.INTEGER;
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.LONG;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.STRING;
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.type.MultipleType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Argument;
+import com.fincity.nocode.kirun.engine.model.Event;
+import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.model.Result;
-import com.fincity.nocode.kirun.engine.model.Returns;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
@@ -28,15 +22,11 @@ public class Add extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE)
-	        .setTitle(VALUE)
-	        .setType(new MultipleType().setType(Set.of(DOUBLE, FLOAT, INTEGER, LONG, STRING)));
-
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Add")
 	        .setNamespace(MATH)
-	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
+	        .setParameters(List.of(new Parameter().setSchema(Schema.NUMBER)
 	                .setVariableArgument(true)))
-	        .setReturns(new Returns().setSchema(List.of(SCHEMA)));
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.NUMBER))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -44,7 +34,7 @@ public class Add extends AbstractFunction {
 	}
 
 	@Override
-	protected Result internalExecute(Map<String, List<Argument>> args) {
+	protected EventResult internalExecute(Map<String, List<Argument>> args) {
 
 		Double d = 0d;
 		StringBuilder s = new StringBuilder("");
@@ -67,7 +57,7 @@ public class Add extends AbstractFunction {
 		}
 
 		if (type == null)
-			return new Result().setValue(JsonNull.INSTANCE);
+			return new EventResult().setValue(JsonNull.INSTANCE);
 
 		JsonPrimitive rValue = null;
 
@@ -88,6 +78,6 @@ public class Add extends AbstractFunction {
 			rValue = new JsonPrimitive(Math.abs(d.intValue()));
 		}
 
-		return new Result().setValue(rValue);
+		return new EventResult().setValue(rValue);
 	}
 }

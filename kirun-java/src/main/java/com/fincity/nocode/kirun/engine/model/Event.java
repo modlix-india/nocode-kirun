@@ -18,9 +18,9 @@ public class Event implements Serializable {
 
 	private static final long serialVersionUID = -3042360312867594104L;
 	
-	public static final String EVENT_OUTPUT = "output";
+	public static final String OUTPUT = "output";
 	
-	public static final String EVENT_ERROR = "error";
+	public static final String ERROR = "error";
 
 	public static final String SCHEMA_NAME = "Event";
 
@@ -35,7 +35,7 @@ public class Event implements Serializable {
 	private Map<String, Schema> parameters;
 	
 	
-	public static Event outputEvent(Map<String, Schema> parameters) {
-		return new Event().setName(EVENT_OUTPUT).setParameters(parameters);
+	public static Map.Entry<String, Event> outputEventMapEntry(Map<String, Schema> parameters) {
+		return Map.entry(OUTPUT, new Event().setName(OUTPUT).setParameters(parameters));
 	}
 }

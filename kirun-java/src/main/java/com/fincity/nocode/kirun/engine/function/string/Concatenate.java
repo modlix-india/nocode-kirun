@@ -4,19 +4,23 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.reactivestreams.Publisher;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SingleType;
 import com.fincity.nocode.kirun.engine.model.Argument;
+import com.fincity.nocode.kirun.engine.model.Event;
+import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.model.Result;
-import com.fincity.nocode.kirun.engine.model.Returns;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class Concatenate extends AbstractFunction {
 
@@ -30,7 +34,7 @@ public class Concatenate extends AbstractFunction {
 	        .setNamespace(STRING)
 	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
 	                .setVariableArgument(true)))
-	        .setEvents();
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.STRING))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -38,13 +42,16 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected Result internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
 
-		return new Result().setValue(new JsonPrimitive(args.get(VALUE)
-		        .stream()
-		        .sorted()
+		Mono<String> concatenatedString = Flux.fromIterable(args.get(VALUE))
 		        .map(Argument::getValue)
 		        .map(JsonElement::getAsString)
-		        .collect(Collectors.joining(""))));
+		        .defaultIfEmpty("")
+		        .reduce((a, b) -> a + b);
+
+		return Flux.merge((Publisher<? extends EventResult>) concatenatedString
+		        .map(v -> new EventResult().setName(Event.OUTPUT)
+		                .setResult(new JsonPrimitive(v))));
 	}
 }
