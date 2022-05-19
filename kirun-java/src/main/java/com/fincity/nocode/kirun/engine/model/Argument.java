@@ -13,10 +13,11 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class Argument {
 
+	private Integer argumentIndex = 0;
 	private String name;
 	private JsonElement value;
 
 	public static final Argument of(String name, JsonElement value) {
-		return new Argument(name, value);
+		return new Argument(0, name, value);
 	}
 }
