@@ -25,7 +25,7 @@ public class Abs extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs")
 	        .setNamespace(MATH)
-	        .setParameters(List.of(new Parameter().setParameterName(VALUE)
+	        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
 	                .setSchema(Schema.NUMBER)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.NUMBER))));
 
@@ -41,26 +41,26 @@ public class Abs extends AbstractFunction {
 		        .get(0)
 		        .getValue())
 		        .map(pValue ->
-			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());
-				        JsonPrimitive rValue = null;
+				{
+			        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());
+			        JsonPrimitive rValue = null;
 
-				        switch (type) {
-				        case DOUBLE:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
-					        break;
-				        case FLOAT:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
-					        break;
-				        case LONG:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
-					        break;
-				        default:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
-				        }
+			        switch (type) {
+			        case DOUBLE:
+				        rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
+				        break;
+			        case FLOAT:
+				        rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
+				        break;
+			        case LONG:
+				        rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
+				        break;
+			        default:
+				        rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
+			        }
 
-				        return rValue;
-			        })
+			        return rValue;
+		        })
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputResult);
 	}

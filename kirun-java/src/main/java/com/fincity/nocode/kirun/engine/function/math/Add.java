@@ -28,7 +28,7 @@ public class Add extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Add")
 	        .setNamespace(MATH)
-	        .setParameters(List.of(new Parameter().setSchema(Schema.NUMBER)
+	        .setParameters(Map.of(VALUE, new Parameter().setSchema(Schema.NUMBER)
 	                .setVariableArgument(true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.NUMBER))));
 
@@ -44,28 +44,28 @@ public class Add extends AbstractFunction {
 		        .map(Argument::getValue)
 		        .map(JsonPrimitive.class::cast)
 		        .map(e ->
-			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveType(e);
+				{
+			        SchemaType type = PrimitiveUtil.findPrimitiveType(e);
 
-				        if (type == SchemaType.INTEGER)
-					        return e.getAsInt();
-				        if (type == SchemaType.LONG)
-					        return e.getAsLong();
-				        if (type == SchemaType.FLOAT)
-					        return e.getAsFloat();
+			        if (type == SchemaType.INTEGER)
+				        return e.getAsInt();
+			        if (type == SchemaType.LONG)
+				        return e.getAsLong();
+			        if (type == SchemaType.FLOAT)
+				        return e.getAsFloat();
 
-				        return e.getAsDouble();
-			        })
+			        return e.getAsDouble();
+		        })
 		        .reduce((a, b) ->
-			        {
-				        if (a instanceof Double || b instanceof Double)
-					        return a.doubleValue() + b.doubleValue();
-				        if (a instanceof Float || b instanceof Float)
-					        return a.floatValue() + b.floatValue();
-				        if (a instanceof Long || b instanceof Long)
-					        return a.longValue() + b.longValue();
-				        return (int) a + (int) b;
-			        })
+				{
+			        if (a instanceof Double || b instanceof Double)
+				        return a.doubleValue() + b.doubleValue();
+			        if (a instanceof Float || b instanceof Float)
+				        return a.floatValue() + b.floatValue();
+			        if (a instanceof Long || b instanceof Long)
+				        return a.longValue() + b.longValue();
+			        return (int) a + (int) b;
+		        })
 		        .map(Number.class::cast);
 
 		return Flux.merge((Publisher<? extends EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)

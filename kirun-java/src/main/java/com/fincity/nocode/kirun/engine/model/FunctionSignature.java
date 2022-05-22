@@ -23,11 +23,14 @@ public class FunctionSignature implements Serializable {
 	        .setName(SCHEMA_NAME)
 	        .setTitle(SCHEMA_NAME)
 	        .setProperties(Map.of("name", Schema.STRING, "namespace", Schema.STRING, "parameters",
-	                Schema.ofArray("parameters", Parameter.SCHEMA), "events", Schema.ofObject("events")
+	                Schema.ofObject("parameters")
+	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Parameter.SCHEMA)),
+	                "events", Schema.ofObject("events")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA))));
 
 	private String namespace;
 	private String name;
-	private List<Parameter> parameters;
+	private Map<String, Parameter> parameters;
 	private Map<String, Event> events;
+	private List<Part> parts;
 }

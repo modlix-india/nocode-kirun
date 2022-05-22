@@ -32,7 +32,7 @@ public class Concatenate extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
 	        .setNamespace(STRING)
-	        .setParameters(List.of(new Parameter().setSchema(SCHEMA)
+	        .setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA)
 	                .setVariableArgument(true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.STRING))));
 

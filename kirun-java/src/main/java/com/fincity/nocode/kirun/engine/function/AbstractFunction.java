@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
@@ -23,9 +24,13 @@ public abstract class AbstractFunction implements Function {
 		Map<String, List<Argument>> args = arguments.stream()
 		        .collect(Collectors.groupingBy(Argument::getName));
 
-		for (Parameter param : this.getSignature()
-		        .getParameters()) {
-			List<Argument> argList = args.get(param.getParameterName());
+		for (Entry<String, Parameter> paramEntry : this.getSignature()
+		        .getParameters()
+		        .entrySet()) {
+
+			Parameter param = paramEntry.getValue();
+
+			List<Argument> argList = args.get(paramEntry.getKey());
 
 			if (!param.isVariableArgument() && (argList == null || argList.size() != 1))
 				throw new ExecutionException("Expects one argument with name " + param.getSchema()
