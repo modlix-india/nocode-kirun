@@ -193,4 +193,15 @@ public class Schema implements Serializable {
 
 	private Map<String, Schema> def;
 	private String permission;
+
+	public String getTitle() {
+
+		if (title != null)
+			return this.title;
+
+		if (this.namespace == null)
+			return this.name;
+
+		return this.namespace + "." + this.name;
+	}
 }

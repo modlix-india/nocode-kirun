@@ -25,6 +25,9 @@ public class FunctionDefinition extends FunctionSignature {
 	        .setProperties(Map.of("name", Schema.STRING, "namespace", Schema.STRING, "parameters",
 	                Schema.ofArray("parameters", Parameter.SCHEMA), "events", Schema.ofObject("events")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA)),
+	                "parts", Schema.ofObject("parts")
+	                        .setAdditionalProperties(
+	                                new AdditionalPropertiesType().setSchemaValue(FunctionSignature.SCHEMA)),
 	                "steps", Schema.ofObject("steps")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA))));
 
