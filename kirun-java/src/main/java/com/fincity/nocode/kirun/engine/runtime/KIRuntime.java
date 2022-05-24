@@ -28,19 +28,13 @@ public class KIRuntime extends AbstractFunction {
 		return this.fd;
 	}
 	
-	public void executionPlan()  {
+	public List<E> executionPlan()  {
 		
 	}
 
 	@Override
 	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
 		
-		List<Statement> start = this.fd.getSteps().values().stream().filter(e -> {
-			if (e.getParameterMap() == null || e.getParameterMap().isEmpty()) return true;
-			return e.getParameterMap().values().stream().filter(v -> {
-				if (v.getValue() != null || v.getReferences() == null) return true;
-				return v.getReferences().stream().filter(s -> !s.startsWith("_parameter.")).findFirst().isEmpty();
-			}).findFirst().isEmpty();
-		}).collect(Collectors.toList());
+		this.getExecutionPlan();
 	}
 }

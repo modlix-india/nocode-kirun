@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.model;
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -8,15 +8,18 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesTy
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @NoArgsConstructor
-public class Statement implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class Statement extends AbstractStatement {
 
 	private static final long serialVersionUID = 8126173238268421930L;
 
@@ -29,15 +32,17 @@ public class Statement implements Serializable {
 	        .setProperties(Map.of("statementName", Schema.STRING, "comment", Schema.STRING, "description",
 	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatementName",
 	                Schema.STRING, "parameterMap", new Schema().setName("parameterMap")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(ParameterReference.SCHEMA))));
+	                        .setAdditionalProperties(
+	                                new AdditionalPropertiesType().setSchemaValue(ParameterReference.SCHEMA)),
+	                "position", Position.SCHEMA, "state", new Schema().setName("state")
+	                        .setType(Type.of(SchemaType.STRING))
+	                        .setEnums(List.of(new JsonPrimitive("EXPAND"), new JsonPrimitive("CLOSE")))));
 
 	public Statement(String statementName) {
 		this.statementName = statementName;
 	}
 
 	private String statementName;
-	private String comment;
-	private String description;
 	private String namespace;
 	private String name;
 	private Map<String, ParameterReference> parameterMap;

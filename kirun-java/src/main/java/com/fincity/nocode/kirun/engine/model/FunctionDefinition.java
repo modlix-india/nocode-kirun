@@ -32,4 +32,5 @@ public class FunctionDefinition extends FunctionSignature {
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA))));
 
 	private Map<String, Statement> steps;
+	private Map<String, StatementGroup> stepGroups;
 }
