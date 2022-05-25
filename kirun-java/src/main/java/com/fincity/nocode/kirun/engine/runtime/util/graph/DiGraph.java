@@ -1,10 +1,11 @@
 package com.fincity.nocode.kirun.engine.runtime.util.graph;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import reactor.core.publisher.Mono;
+import java.util.stream.Collectors;
 
 public class DiGraph<K, T extends GraphVertexType<K>> {
 
@@ -33,17 +34,32 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 			        .getData();
 		return null;
 	}
-	
+
 	public List<DiGraphVertex<K, T>> getVerticesWithNoIncomingEdges() {
-		
+
 		return nodeMap.values()
 		        .stream()
 		        .filter(e -> !e.hasIncomingEdges())
-		        .toList();
+		        .collect(Collectors.toCollection(LinkedList::new));
 	}
 
-	public Mono<Boolean> checkCycles() {
+	public boolean isCyclic() {
 
-		return Mono.just(false);
+		LinkedList<DiGraphVertex<K, T>> list = (LinkedList<DiGraphVertex<K, T>>) this.getVerticesWithNoIncomingEdges();
+		HashSet<K> visited = new HashSet<>();
+
+		DiGraphVertex<K, T> vertex;
+		while (!list.isEmpty()) {
+			
+			if (visited.contains(list.getFirst().getKey())) return true;
+			
+			vertex = list.removeFirst();
+			
+			visited.add(vertex.getKey());
+			if (vertex.hasOutgoingEdges())
+				list.addAll(vertex.getOutVertices());
+		}
+
+		return false;
 	}
 }

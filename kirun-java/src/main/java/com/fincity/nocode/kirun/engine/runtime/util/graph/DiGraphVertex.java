@@ -20,6 +20,10 @@ public class DiGraphVertex<K, T extends GraphVertexType<K>> {
 		this.data = data;
 		this.graph = graph;
 	}
+	
+	public K getKey() {
+		return this.data.getUniqueKey();
+	}
 
 	public DiGraphVertex<K, T> addOutEdgeTo(T data) {
 		return this.addOutEdgeTo(this.graph.addVertex(data));
