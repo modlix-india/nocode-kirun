@@ -8,6 +8,7 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesTy
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.runtime.util.graph.GraphVertexType;
 import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
@@ -19,7 +20,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Statement extends AbstractStatement {
+public class Statement extends AbstractStatement implements GraphVertexType<String> {
 
 	private static final long serialVersionUID = 8126173238268421930L;
 
@@ -50,5 +51,10 @@ public class Statement extends AbstractStatement {
 
 	public static Map.Entry<String, Statement> ofEntry(Statement statement) {
 		return Map.entry(statement.statementName, statement);
+	}
+
+	@Override
+	public String getUniqueKey() {
+		return this.statementName;
 	}
 }
