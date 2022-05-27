@@ -34,7 +34,7 @@ public class Statement extends AbstractStatement implements GraphVertexType<Stri
 	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatementName",
 	                Schema.STRING, "parameterMap", new Schema().setName("parameterMap")
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(ParameterReference.SCHEMA)),
+	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),
 	                "position", Position.SCHEMA, "state", new Schema().setName("state")
 	                        .setType(Type.of(SchemaType.STRING))
 	                        .setEnums(List.of(new JsonPrimitive("EXPAND"), new JsonPrimitive("CLOSE")))));
