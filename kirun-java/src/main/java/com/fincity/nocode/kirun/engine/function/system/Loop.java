@@ -10,7 +10,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 
 import reactor.core.publisher.Flux;
 
-public class Transform extends AbstractFunction {
+public class Loop extends AbstractFunction {
 
 	@Override
 	public FunctionSignature getSignature() {

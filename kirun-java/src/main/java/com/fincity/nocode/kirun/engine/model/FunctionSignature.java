@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.model;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -7,21 +8,15 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesTy
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
-public class FunctionSignature extends BasicFunctionSignature {
+public class FunctionSignature implements Serializable {
 
 	private static final long serialVersionUID = 1989008489249395287L;
 
-	private static final String SCHEMA_NAME = "Part";
-	
-	public static final String FUNCTION_PART_ITERATION = "iterationPart";
-	
-	public static final String FUNCTION_PART_RETURN = "returnPart";
+	private static final String SCHEMA_NAME = "FunctionSignature";
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
@@ -30,29 +25,10 @@ public class FunctionSignature extends BasicFunctionSignature {
 	                Schema.ofObject("parameters")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Parameter.SCHEMA)),
 	                "events", Schema.ofObject("events")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA)),
-	                "parts", Schema.ofObject("parts")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(BasicFunctionSignature.SCHEMA))));
-	
-	private Map<String, BasicFunctionSignature> parts;
-	
-	@Override
-	public FunctionSignature setNamespace(String namespace) {
-		return (FunctionSignature) super.setNamespace(namespace);
-	}
-	
-	@Override
-	public FunctionSignature setName(String name) {
-		return (FunctionSignature) super.setName(name);
-	}
-	
-	@Override
-	public FunctionSignature setParameters(Map<String, Parameter> parameters) {
-		return (FunctionSignature) super.setParameters(parameters);
-	}
-	
-	@Override
-	public FunctionSignature setEvents(Map<String, Event> events) {
-		return (FunctionSignature) super.setEvents(events);
-	}
+	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA))));
+
+	private String namespace;
+	private String name;
+	private Map<String, Parameter> parameters;
+	private Map<String, Event> events;
 }

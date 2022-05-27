@@ -46,7 +46,7 @@ public class Statement extends AbstractStatement implements GraphVertexType<Stri
 	private String statementName;
 	private String namespace;
 	private String name;
-	private Map<String, ParameterReference> parameterMap;
+	private Map<String, List<ParameterReference>> parameterMap;
 	private String dependentStatementName;
 
 	public static Map.Entry<String, Statement> ofEntry(Statement statement) {

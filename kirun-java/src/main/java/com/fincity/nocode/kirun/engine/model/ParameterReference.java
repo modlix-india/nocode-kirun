@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -22,8 +21,14 @@ public class ParameterReference implements Serializable {
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("references", Schema.ofArray("reference", Schema.STRING), "value", Schema.ANY));
+	        .setProperties(Map.of("references", Schema.STRING, "value", Schema.ANY, "expression", Schema.STRING));
 
-	private List<String> references;
+	private ParameterReferenceType type;
+	private String statement;
 	private JsonElement value; // NOSONAR - JSON element is not serialised for some reason.
+	private String expression;
+
+	public enum ParameterReferenceType {
+		STATEMENT, VALUE, EXPRESSION;
+	}
 }

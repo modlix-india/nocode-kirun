@@ -51,4 +51,5 @@ public abstract class AbstractFunction implements Function {
 	}
 
 	protected abstract Flux<EventResult> internalExecute(Map<String, List<Argument>> args);
+
 }
