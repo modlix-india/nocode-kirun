@@ -12,9 +12,4 @@ public abstract class AbstractStatement implements Serializable {
 	private String comment;
 	private String description;
 	private Position position;
-	private StatementState state;
-	
-	public enum StatementState {
-		EXPAND, CLOSE
-	}
 }

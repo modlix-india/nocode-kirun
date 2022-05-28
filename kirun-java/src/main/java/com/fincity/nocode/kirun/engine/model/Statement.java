@@ -9,7 +9,6 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.GraphVertexType;
-import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,11 +32,9 @@ public class Statement extends AbstractStatement implements GraphVertexType<Stri
 	        .setProperties(Map.of("statementName", Schema.STRING, "comment", Schema.STRING, "description",
 	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatementName",
 	                Schema.STRING, "parameterMap", new Schema().setName("parameterMap")
-	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),
-	                "position", Position.SCHEMA, "state", new Schema().setName("state")
-	                        .setType(Type.of(SchemaType.STRING))
-	                        .setEnums(List.of(new JsonPrimitive("EXPAND"), new JsonPrimitive("CLOSE")))));
+	                        .setAdditionalProperties(new AdditionalPropertiesType()
+	                                .setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),
+	                "position", Position.SCHEMA));
 
 	public Statement(String statementName) {
 		this.statementName = statementName;

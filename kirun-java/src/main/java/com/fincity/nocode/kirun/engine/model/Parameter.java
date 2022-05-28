@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.model;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
@@ -30,4 +31,15 @@ public class Parameter implements Serializable {
 	                       // name.
 	private String parameterName;
 	private boolean variableArgument = false;
+
+	public static Entry<String, Parameter> ofEntry(String name, Schema schema) {
+		return Map.entry(name, new Parameter().setParameterName(name)
+		        .setSchema(schema));
+	}
+
+	public static Entry<String, Parameter> ofEntry(String name, Schema schema, boolean variableArgument) {
+		return Map.entry(name, new Parameter().setParameterName(name)
+		        .setSchema(schema)
+		        .setVariableArgument(variableArgument));
+	}
 }
