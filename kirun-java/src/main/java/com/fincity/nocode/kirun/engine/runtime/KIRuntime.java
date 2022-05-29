@@ -32,7 +32,7 @@ public class KIRuntime extends AbstractFunction {
 
 		DiGraph<String, Statement> executionGraph = new DiGraph<>();
 		
-		this.fd.getSteps()
+//		this.fd.getSteps()
 
 		return executionGraph;
 	}

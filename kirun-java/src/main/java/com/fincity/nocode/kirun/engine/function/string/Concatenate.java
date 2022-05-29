@@ -42,7 +42,8 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, List<Argument>> args) {
 
 		Mono<String> concatenatedString = Flux.fromIterable(args.get(VALUE))
 		        .map(Argument::getValue)

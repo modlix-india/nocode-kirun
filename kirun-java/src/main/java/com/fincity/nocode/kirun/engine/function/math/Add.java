@@ -38,7 +38,8 @@ public class Add extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, List<Argument>> args) {
 
 		Mono<Number> sum = Flux.fromIterable(args.get(VALUE))
 		        .map(Argument::getValue)

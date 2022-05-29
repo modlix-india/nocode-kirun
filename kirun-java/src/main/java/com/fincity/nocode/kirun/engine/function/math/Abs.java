@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class Abs extends AbstractFunction {
 
@@ -35,7 +36,8 @@ public class Abs extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, List<Argument>> args) {
 
 		return Flux.just(args.get(VALUE)
 		        .get(0)

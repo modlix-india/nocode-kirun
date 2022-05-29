@@ -11,9 +11,11 @@ import com.fincity.nocode.kirun.engine.model.Argument;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class Random extends AbstractFunction {
 
@@ -29,7 +31,8 @@ public class Random extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, List<Argument>> args) {
 
 		return Flux.just(EventResult.outputResult(Map.of(VALUE, new JsonPrimitive(Math.random()))));
 	}

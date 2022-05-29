@@ -13,9 +13,11 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class RangeLoop extends AbstractFunction {
 
@@ -40,9 +42,12 @@ public class RangeLoop extends AbstractFunction {
 	                        Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
 	                                .setDefaultValue(new JsonPrimitive(1)))))
 	        .setEvents(Map.ofEntries(
-	        		Event.eventMapEntry(Event.ITERATION, Map.of(VALUE, Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE))),
-	        		Event.outputEventMapEntry(Map.of(VALUE, Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)))
-	        ));
+	                Event.eventMapEntry(Event.ITERATION,
+	                        Map.of(VALUE,
+	                                Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT,
+	                                        SchemaType.DOUBLE))),
+	                Event.outputEventMapEntry(Map.of(VALUE, Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG,
+	                        SchemaType.FLOAT, SchemaType.DOUBLE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -50,7 +55,8 @@ public class RangeLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, List<Argument>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, List<Argument>> args) {
 
 		return Flux.just(EventResult.outputResult(Map.of(VALUE, new JsonPrimitive(Math.random()))));
 	}
