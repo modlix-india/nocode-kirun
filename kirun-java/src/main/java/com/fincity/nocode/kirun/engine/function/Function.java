@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function;
 
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.google.gson.JsonElement;
@@ -13,5 +14,5 @@ public interface Function {
 
 	public FunctionSignature getSignature();
 
-	public Flux<EventResult> execute(Map<String, Mono<JsonElement>> context, Map<String, Mono<JsonElement>> arguments);
+	public Flux<EventResult> execute(Map<String, ContextElement> context, Map<String, Mono<JsonElement>> arguments);
 }

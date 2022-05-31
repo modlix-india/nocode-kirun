@@ -1,11 +1,14 @@
 package com.fincity.nocode.kirun.engine.runtime.util.graph;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import com.fincity.nocode.kirun.engine.model.Statement;
 
 public class DiGraph<K, T extends GraphVertexType<K>> {
 
@@ -50,16 +53,24 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 
 		DiGraphVertex<K, T> vertex;
 		while (!list.isEmpty()) {
-			
-			if (visited.contains(list.getFirst().getKey())) return true;
-			
+
+			if (visited.contains(list.getFirst()
+			        .getKey()))
+				return true;
+
 			vertex = list.removeFirst();
-			
+
 			visited.add(vertex.getKey());
 			if (vertex.hasOutgoingEdges())
 				list.addAll(vertex.getOutVertices());
 		}
 
 		return false;
+	}
+
+	public void addVertices(Collection<T> values) {
+
+		for (T value : values)
+			this.addVertex(value);
 	}
 }

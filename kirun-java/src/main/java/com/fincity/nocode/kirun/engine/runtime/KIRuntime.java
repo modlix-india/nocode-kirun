@@ -1,12 +1,13 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.DiGraph;
 import com.google.gson.JsonElement;
 
@@ -28,20 +29,30 @@ public class KIRuntime extends AbstractFunction {
 		return this.fd;
 	}
 
-	public DiGraph<String, Statement> getExecutionPlan() {
+	private DiGraph<String, StatementExecution> getExecutionPlan(Map<String, ContextElement> context,
+	        Map<String, Mono<JsonElement>> args) {
 
-		DiGraph<String, Statement> executionGraph = new DiGraph<>();
+		DiGraph<String, StatementExecution> executionGraph = new DiGraph<>();
 
-//		this.fd.getSteps()
+		this.fd.getSteps()
+		        .values()
+		        .stream()
+		        .map(e -> new StatementExecution().setStatement(e))
+		        .forEach(executionGraph::addVertex);
+		
+					
 
 		return executionGraph;
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
 	        Map<String, Mono<JsonElement>> args) {
 
-		DiGraph<String, Statement> eGraph = this.getExecutionPlan();
+		DiGraph<String, StatementExecution> eGraph = this.getExecutionPlan(context, args);
+
+		if (context == null)
+			context = new ConcurrentHashMap<>();
 
 		return Flux.empty();
 	}

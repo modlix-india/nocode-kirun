@@ -7,6 +7,7 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
+import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
@@ -43,7 +44,7 @@ public class CountLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
 	        Map<String, Mono<JsonElement>> args) {
 
 		var count = args.get(COUNT);

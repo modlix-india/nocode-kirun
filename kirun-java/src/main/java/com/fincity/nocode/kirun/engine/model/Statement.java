@@ -8,7 +8,6 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesTy
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.util.graph.GraphVertexType;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +18,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Statement extends AbstractStatement implements GraphVertexType<String> {
+public class Statement extends AbstractStatement {
 
 	private static final long serialVersionUID = 8126173238268421930L;
 
@@ -30,8 +29,9 @@ public class Statement extends AbstractStatement implements GraphVertexType<Stri
 	        .setTitle(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
 	        .setProperties(Map.of("statementName", Schema.STRING, "comment", Schema.STRING, "description",
-	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatementName",
-	                Schema.STRING, "parameterMap", new Schema().setName("parameterMap")
+	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatements",
+	                Schema.ofArray("dependentstatement", Schema.STRING), "parameterMap",
+	                new Schema().setName("parameterMap")
 	                        .setAdditionalProperties(new AdditionalPropertiesType()
 	                                .setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),
 	                "position", Position.SCHEMA));
@@ -44,14 +44,9 @@ public class Statement extends AbstractStatement implements GraphVertexType<Stri
 	private String namespace;
 	private String name;
 	private Map<String, List<ParameterReference>> parameterMap;
-	private String dependentStatementName;
+	private List<String> dependentStatements;
 
 	public static Map.Entry<String, Statement> ofEntry(Statement statement) {
 		return Map.entry(statement.statementName, statement);
-	}
-
-	@Override
-	public String getUniqueKey() {
-		return this.statementName;
 	}
 }

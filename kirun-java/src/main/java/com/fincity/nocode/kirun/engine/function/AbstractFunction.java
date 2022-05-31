@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.function;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
+import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.google.gson.JsonArray;
@@ -56,12 +57,12 @@ public abstract class AbstractFunction implements Function {
 	}
 
 	@Override
-	public Flux<EventResult> execute(Map<String, Mono<JsonElement>> context, Map<String, Mono<JsonElement>> arguments) {
+	public Flux<EventResult> execute(Map<String, ContextElement> context, Map<String, Mono<JsonElement>> arguments) {
 
 		return Flux.from(this.validateArguments(arguments))
 		        .flatMap(args -> this.internalExecute(context, args));
 	}
 
-	protected abstract Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	protected abstract Flux<EventResult> internalExecute(Map<String, ContextElement> context,
 	        Map<String, Mono<JsonElement>> args);
 }
