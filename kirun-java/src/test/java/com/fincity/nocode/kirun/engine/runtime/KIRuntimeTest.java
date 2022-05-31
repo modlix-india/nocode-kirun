@@ -1,18 +1,15 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Argument;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
@@ -45,9 +42,8 @@ class KIRuntimeTest {
 		        		Statement.ofEntry(new Statement("")),
 		        		Statement.ofEntry(new Statement(""))
 		        		)))
-		        .execute(List.of(new Argument().setName("Count")
-		                .setValue(new JsonPrimitive(num)))))
-		        .expectNext(EventResult.outputResult(Map.ofEntries(Map.entry("Series", array))));
+		        .execute(Map.of(), Map.of()))
+		        .expectNext(EventResult.outputOf(Map.ofEntries(Map.entry("Series", array))));
 	}
 
 }

@@ -14,8 +14,12 @@ public class EventResult {
 	private String name;
 	private Map<String, JsonElement> result;
 
-	public static final EventResult outputResult(Map<String, JsonElement> result) {
-		return new EventResult().setName(Event.OUTPUT)
+	public static final EventResult outputOf(Map<String, JsonElement> result) {
+		return of(Event.OUTPUT, result);
+	}
+
+	public static final EventResult of(String eventName, Map<String, JsonElement> result) {
+		return new EventResult().setName(eventName)
 		        .setResult(result);
 	}
 }

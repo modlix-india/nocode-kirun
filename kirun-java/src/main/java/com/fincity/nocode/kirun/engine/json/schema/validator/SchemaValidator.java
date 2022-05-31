@@ -20,8 +20,9 @@ public class SchemaValidator {
 		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null)
 			return schema.getDefaultValue();
 
-		if (schema.getConstant() != null)
-			return schema.getConstant();
+		if (schema.getConstant() != null) {
+			return constantValidation(parents, schema, element);
+		}
 
 		if (schema.getEnums() != null && !schema.getEnums()
 		        .isEmpty()) {
@@ -55,6 +56,15 @@ public class SchemaValidator {
 				        "Schema validated value in not condition.");
 		}
 
+		return element;
+	}
+
+	private static JsonElement constantValidation(List<String> parents, Schema schema, JsonElement element) {
+		if (!schema.getConstant()
+		        .equals(element)) {
+			throw new SchemaValidationException(path(parents, schema.getName()),
+			        "Expecting a constant value : " + element);
+		}
 		return element;
 	}
 

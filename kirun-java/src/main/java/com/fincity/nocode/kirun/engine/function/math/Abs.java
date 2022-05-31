@@ -2,14 +2,12 @@ package com.fincity.nocode.kirun.engine.function.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
-import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.model.Argument;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
@@ -22,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 public class Abs extends AbstractFunction {
 
-	private static final String VALUE = "value";
+	static final String VALUE = "value";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs")
 	        .setNamespace(MATH)
@@ -37,33 +35,31 @@ public class Abs extends AbstractFunction {
 
 	@Override
 	protected Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
-	        Map<String, List<Argument>> args) {
+	        Map<String, Mono<JsonElement>> args) {
 
-		return Flux.just(args.get(VALUE)
-		        .get(0)
-		        .getValue())
+		return Flux.from(args.get(VALUE))
 		        .map(pValue ->
-				{
-			        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());
-			        JsonPrimitive rValue = null;
+			        {
+				        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());
+				        JsonPrimitive rValue = null;
 
-			        switch (type) {
-			        case DOUBLE:
-				        rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
-				        break;
-			        case FLOAT:
-				        rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
-				        break;
-			        case LONG:
-				        rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
-				        break;
-			        default:
-				        rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
-			        }
+				        switch (type) {
+				        case DOUBLE:
+					        rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
+					        break;
+				        case FLOAT:
+					        rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
+					        break;
+				        case LONG:
+					        rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
+					        break;
+				        default:
+					        rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
+				        }
 
-			        return rValue;
-		        })
+				        return rValue;
+			        })
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
-		        .map(EventResult::outputResult);
+		        .map(EventResult::outputOf);
 	}
 }

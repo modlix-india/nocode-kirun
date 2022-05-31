@@ -14,6 +14,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
@@ -56,6 +57,10 @@ public class Schema implements Serializable {
 	        .setTitle("Any")
 	        .setType(Type.of(SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE,
 	                SchemaType.STRING, SchemaType.BOOLEAN, SchemaType.ARRAY, SchemaType.NULL, SchemaType.OBJECT));
+	public static final Schema NULL = new Schema().setNamespace(Namespaces.SYSTEM)
+	        .setTitle("Null")
+	        .setType(Type.of(SchemaType.NULL))
+	        .setConstant(JsonNull.INSTANCE);
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setType(Type.of(SchemaType.OBJECT))

@@ -23,6 +23,10 @@ public class Event implements Serializable {
 	public static final String ERROR = "error";
 	
 	public static final String ITERATION = "iteration";
+	
+	public static final String TRUE = "true";
+	
+	public static final String FALSE = "false";
 
 	public static final String SCHEMA_NAME = "Event";
 

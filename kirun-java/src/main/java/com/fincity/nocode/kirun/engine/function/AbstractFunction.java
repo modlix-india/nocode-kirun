@@ -2,48 +2,66 @@ package com.fincity.nocode.kirun.engine.function;
 
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public abstract class AbstractFunction implements Function {
 
-	protected Mono<Map<String, Flux<JsonElement>>> validateArguments(Map<String, Flux<JsonElement>> arguments) {
+	protected Mono<Map<String, Mono<JsonElement>>> validateArguments(final Map<String, Mono<JsonElement>> arguments) {
 
-//		for (Entry<String, Parameter> paramEntry : this.getSignature()
-//		        .getParameters()
-//		        .entrySet()) {
-//
-//			Parameter param = paramEntry.getValue();
-//
-//			List<Argument> argList = arguments.get(paramEntry.getKey());
-//
-//			if (!param.isVariableArgument() && (argList == null || argList.size() != 1))
-//				throw new ExecutionException("Expects one argument with name " + param.getSchema()
-//				        .getName());
-//
-//			if (argList != null)
-//				for (Argument arg : argList)
-//					SchemaValidator.validate(null, param.getSchema(), null, arg.getValue());
-//		}
+		return Flux.fromIterable(this.getSignature()
+		        .getParameters()
+		        .entrySet())
+		        .flatMap(e ->
+			        {
+				        Parameter param = e.getValue();
+				        Mono<JsonElement> argList = arguments.get(e.getKey());
 
-		return Mono.empty();
+				        if (argList == null) {
+					        return Mono.just(Map.entry(e.getKey(),
+					                Mono.just(SchemaValidator.validate(null, param.getSchema(), null, null))));
+				        }
+
+				        return argList.defaultIfEmpty(JsonNull.INSTANCE)
+				                .map(jsonElement ->
+					                {
+						                if (!param.isVariableArgument())
+							                return SchemaValidator.validate(null, param.getSchema(), null, jsonElement);
+
+						                JsonArray array = null;
+
+						                if (jsonElement.isJsonArray())
+							                array = jsonElement.getAsJsonArray();
+						                else {
+							                array = new JsonArray();
+							                array.add(jsonElement);
+						                }
+
+						                for (JsonElement je : array) {
+							                SchemaValidator.validate(null, param.getSchema(), null, je);
+						                }
+
+						                return array;
+					                })
+				                .map(jsonElement -> Map.entry(e.getKey(), Mono.just(jsonElement)));
+			        })
+		        .collectMap(Map.Entry::getKey, Map.Entry::getValue);
 	}
 
 	@Override
-	public Flux<EventResult> execute(Map<String, Flux<JsonElement>> context, Map<String, Flux<JsonElement>> arguments) {
-		
-		Mono<Map<String, Flux<JsonElement>>> validArgs = this.validateArguments(arguments);
-		
+	public Flux<EventResult> execute(Map<String, Mono<JsonElement>> context, Map<String, Mono<JsonElement>> arguments) {
 
-		Mono<Flux<EventResult>> eventResult = validArgs.map(args -> this.internalExecute(context, args));
-		
-		eventResult.map(null)
-		
+		return Flux.from(this.validateArguments(arguments))
+		        .flatMap(args -> this.internalExecute(context, args));
 	}
 
-	protected abstract Flux<EventResult> internalExecute(Map<String, Flux<JsonElement>> context,
-	        Map<String, Flux<JsonElement>> args);
+	protected abstract Flux<EventResult> internalExecute(Map<String, Mono<JsonElement>> context,
+	        Map<String, Mono<JsonElement>> args);
 }
