@@ -8,18 +8,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.fincity.nocode.kirun.engine.model.Statement;
+import reactor.core.publisher.Flux;
 
 public class DiGraph<K, T extends GraphVertexType<K>> {
 
 	private Map<K, DiGraphVertex<K, T>> nodeMap = new ConcurrentHashMap<>();
 
-	public List<T> getVertices() {
+	public List<T> getVerticesData() {
 
 		return nodeMap.values()
 		        .stream()
 		        .map(DiGraphVertex::getData)
 		        .toList();
+	}
+
+	public Flux<T> getVerticesDataFlux() {
+
+		return Flux.fromIterable(this.nodeMap.values())
+		        .map(DiGraphVertex::getData);
 	}
 
 	public DiGraphVertex<K, T> addVertex(T data) {

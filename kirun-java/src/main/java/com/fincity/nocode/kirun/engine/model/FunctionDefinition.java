@@ -31,6 +31,7 @@ public class FunctionDefinition extends FunctionSignature {
 	                "steps", Schema.ofObject("steps")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA))));
 
+	private int version = 1;
 	private Map<String, Statement> steps;
 	private Map<String, StatementGroup> stepGroups;
 }

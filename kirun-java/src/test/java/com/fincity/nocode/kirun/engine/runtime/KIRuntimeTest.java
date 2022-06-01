@@ -33,17 +33,17 @@ class KIRuntimeTest {
 			array.add(t);
 		}
 
-		StepVerifier.create(new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
-		        .setName("Fibonacci")
-		        .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
-		                .setSchema(Schema.INTEGER))))
-		        .setSteps(Map.ofEntries(
-		        		Statement.ofEntry(new Statement("")),
-		        		Statement.ofEntry(new Statement("")),
-		        		Statement.ofEntry(new Statement(""))
-		        		)))
-		        .execute(Map.of(), Map.of()))
-		        .expectNext(EventResult.outputOf(Map.ofEntries(Map.entry("Series", array))));
+//		StepVerifier.create(new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
+//		        .setName("Fibonacci")
+//		        .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
+//		                .setSchema(Schema.INTEGER))))
+//		        .setSteps(Map.ofEntries(
+//		        		Statement.ofEntry(new Statement("")),
+//		        		Statement.ofEntry(new Statement("")),
+//		        		Statement.ofEntry(new Statement(""))
+//		        		)))
+//		        .execute(Map.of(), Map.of()))
+//		        .expectNext(EventResult.outputOf(Map.ofEntries(Map.entry("Series", array))));
 	}
 
 }
