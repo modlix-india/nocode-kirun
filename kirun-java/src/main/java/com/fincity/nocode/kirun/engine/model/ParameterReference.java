@@ -29,6 +29,6 @@ public class ParameterReference implements Serializable {
 	private String expression;
 
 	public enum ParameterReferenceType {
-		STATEMENT, VALUE, EXPRESSION;
+		VALUE, EXPRESSION;
 	}
 }

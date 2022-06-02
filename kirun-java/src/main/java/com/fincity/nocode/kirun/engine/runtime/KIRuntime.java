@@ -11,14 +11,17 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
+import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.DiGraph;
+import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Flux;
@@ -77,29 +80,57 @@ public class KIRuntime extends AbstractFunction {
 	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) {
 
 		StatementExecution se = new StatementExecution(s);
-		
+
 		Function fun = this.fRepo.find(s.getNamespace() + "." + s.getName());
-		
-		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature().getParameters());
+
+		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
+		        .getParameters());
 
 		for (Entry<String, List<ParameterReference>> param : s.getParameterMap()
 		        .entrySet()) {
-			
+
 			Parameter p = paramSet.get(param.getKey());
-			
-			List<ParameterReference> ref = param.getValue();
-			
-			if (ref == null) {
-				
-				if (p.getSchema().getDefaultValue() == null) 
-					se.addMessage(StatementMessageType.ERROR, new StringBuilder("")
-							.toString());
+
+			List<ParameterReference> refList = param.getValue();
+
+			if (refList == null || refList.isEmpty()) {
+
+				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+					se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+				continue;
 			}
-			
-			if (p.isVariableArgument())  {
-				
+
+			if (p.isVariableArgument()) {
+
 			} else {
-				
+
+				ParameterReference ref = refList.get(0);
+				if (ref == null) {
+					se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+				} else if (ref.getType() == ParameterReferenceType.VALUE) {
+					if (ref.getValue() == null)
+						se.addMessage(StatementMessageType.ERROR,
+						        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+				} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
+					if (ref.getExpression() == null) {
+						se.addMessage(StatementMessageType.ERROR,
+						        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+					}else {
+					
+					}
+				}
+			}
+
+			paramSet.remove(p.getParameterName());
+		}
+
+		if (!paramSet.isEmpty()) {
+			for (Parameter param : paramSet.values()) {
+				if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
+					se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format("Parameter \"$\" need a value", param.getParameterName()));
 			}
 		}
 
