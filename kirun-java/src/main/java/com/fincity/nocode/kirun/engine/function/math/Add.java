@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
+import java.util.List;
 import java.util.Map;
 
 import org.reactivestreams.Publisher;
@@ -10,6 +11,7 @@ import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -73,5 +75,20 @@ public class Add extends AbstractFunction {
 		return Flux.merge((Publisher<? extends EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf));
+	}
+
+	@Override
+	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
+
+		Schema schema = probableParameters.get(VALUE)
+		        .stream()
+		        .flatMap(e -> e.getType()
+		                .getAllowedSchemaTypes()
+		                .stream())
+		        .reduce((a, b) -> a.ordinal() < b.ordinal() ? b : a)
+		        .map(e -> new Schema().setType(Type.of(e)))
+		        .orElse(Schema.NUMBER);
+
+		return Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, schema)));
 	}
 }

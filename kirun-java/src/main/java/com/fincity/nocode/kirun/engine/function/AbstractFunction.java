@@ -1,9 +1,12 @@
 package com.fincity.nocode.kirun.engine.function;
 
+import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.model.ContextElement;
+import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.google.gson.JsonArray;
@@ -65,4 +68,10 @@ public abstract class AbstractFunction implements Function {
 
 	protected abstract Flux<EventResult> internalExecute(Map<String, ContextElement> context,
 	        Map<String, Mono<JsonElement>> args);
+
+	@Override
+	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
+		return this.getSignature()
+		        .getEvents();
+	}
 }

@@ -16,6 +16,8 @@ public class StatementExecution implements GraphVertexType<String> {
 	private final Statement statement;
 
 	private List<StatementMessage> messages = new ArrayList<>(5);
+	
+	private List<String> dependencies = new ArrayList<>();
 
 	public StatementExecution(Statement statement) {
 
@@ -29,5 +31,9 @@ public class StatementExecution implements GraphVertexType<String> {
 
 	public void addMessage(StatementMessageType type, String message) {
 		this.messages.add(new StatementMessage(type, message));
+	}
+	
+	public void addDependency(String dependency) {
+		this.dependencies.add(dependency);
 	}
 }

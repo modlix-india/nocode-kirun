@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
@@ -62,5 +63,12 @@ public class Abs extends AbstractFunction {
 			        })
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf);
+	}
+	
+	@Override
+	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
+		
+		Schema s = probableParameters.get(VALUE).get(0);
+		return Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, s)));
 	}
 }

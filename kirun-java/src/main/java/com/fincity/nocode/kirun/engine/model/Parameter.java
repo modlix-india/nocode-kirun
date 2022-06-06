@@ -31,10 +31,17 @@ public class Parameter implements Serializable {
 	                       // name.
 	private String parameterName;
 	private boolean variableArgument = false;
+	private ParameterType type = ParameterType.EXPRESSION;
 
 	public static Entry<String, Parameter> ofEntry(String name, Schema schema) {
 		return Map.entry(name, new Parameter().setParameterName(name)
 		        .setSchema(schema));
+	}
+
+	public static Entry<String, Parameter> ofEntry(String name, Schema schema, ParameterType type) {
+		return Map.entry(name, new Parameter().setParameterName(name)
+		        .setSchema(schema)
+		        .setType(type));
 	}
 
 	public static Entry<String, Parameter> ofEntry(String name, Schema schema, boolean variableArgument) {

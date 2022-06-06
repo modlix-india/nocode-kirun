@@ -20,6 +20,7 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
+import com.fincity.nocode.kirun.engine.runtime.util.expression.Expression;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.DiGraph;
 import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
 import com.google.gson.JsonElement;
@@ -28,6 +29,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class KIRuntime extends AbstractFunction {
+
+	private static final String PARAMETER_$_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
 	private final FunctionDefinition fd;
 
@@ -97,7 +100,7 @@ public class KIRuntime extends AbstractFunction {
 
 				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
 				continue;
 			}
 
@@ -107,18 +110,21 @@ public class KIRuntime extends AbstractFunction {
 
 				ParameterReference ref = refList.get(0);
 				if (ref == null) {
-					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+					if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+						se.addMessage(StatementMessageType.ERROR,
+						        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
 				} else if (ref.getType() == ParameterReferenceType.VALUE) {
-					if (ref.getValue() == null)
+					if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
+						        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
 				} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
-					if (ref.getExpression() == null) {
-						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format("Parameter \"$\" need a value", p.getParameterName()));
-					}else {
-					
+					if (ref.getExpression() == null || ref.getExpression().isBlank()) {
+						if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+							se.addMessage(StatementMessageType.ERROR,
+							        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+					} else {
+						Expression exp = new Expression(ref.getExpression());
+						this.typeCheckExpression(context, p, exp);
 					}
 				}
 			}
@@ -130,10 +136,14 @@ public class KIRuntime extends AbstractFunction {
 			for (Parameter param : paramSet.values()) {
 				if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format("Parameter \"$\" need a value", param.getParameterName()));
+					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, param.getParameterName()));
 			}
 		}
 
 		return se;
+	}
+
+	private void typeCheckExpression(Map<String, ContextElement> context, Parameter p, Expression exp) {
+		
 	}
 }

@@ -33,39 +33,38 @@ public class Schema implements Serializable {
 	private static final long serialVersionUID = 4041990622586726910L;
 
 	public static final Schema STRING = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("String")
+	        .setName("String")
 	        .setType(Type.of(SchemaType.STRING));
 	public static final Schema NUMBER = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Number")
+	        .setName("Number")
 	        .setType(Type.of(SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE));
 	public static final Schema INTEGER = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Integer")
+	        .setName("Integer")
 	        .setType(Type.of(SchemaType.INTEGER));
 	public static final Schema LONG = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Long")
+	        .setName("Long")
 	        .setType(Type.of(SchemaType.LONG));
 	public static final Schema FLOAT = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Float")
+	        .setName("Float")
 	        .setType(Type.of(SchemaType.FLOAT));
 	public static final Schema DOUBLE = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Double")
+	        .setName("Double")
 	        .setType(Type.of(SchemaType.DOUBLE));
 	public static final Schema BOOLEAN = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Boolean")
+	        .setName("Boolean")
 	        .setType(Type.of(SchemaType.BOOLEAN));
 	public static final Schema ANY = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Any")
+	        .setName("Any")
 	        .setType(Type.of(SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE,
 	                SchemaType.STRING, SchemaType.BOOLEAN, SchemaType.ARRAY, SchemaType.NULL, SchemaType.OBJECT));
 	public static final Schema NULL = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle("Null")
+	        .setName("Null")
 	        .setType(Type.of(SchemaType.NULL))
 	        .setConstant(JsonNull.INSTANCE);
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setType(Type.of(SchemaType.OBJECT))
-	        .setTitle("Schema")
 	        .setName("Schema")
+	        .setType(Type.of(SchemaType.OBJECT))
 	        .setProperties(Map.ofEntries(
 	                entry(NAMESPACE_STRING, STRING), entry("name", STRING), entry(VERSION_STRING,
 	                        Schema.of(VERSION_STRING, SchemaType.INTEGER)
