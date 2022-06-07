@@ -1,10 +1,12 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -21,6 +23,7 @@ import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.util.expression.Expression;
+import com.fincity.nocode.kirun.engine.runtime.util.expression.ExpressionToken;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.DiGraph;
 import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
 import com.google.gson.JsonElement;
@@ -65,7 +68,8 @@ public class KIRuntime extends AbstractFunction {
 		return Flux.fromIterable(this.fd.getSteps()
 		        .values())
 		        .map(s -> this.prepareStatementExecution(context, s))
-		        .collect(DiGraph<String, StatementExecution>::new, DiGraph::addVertex);
+		        .collect(DiGraph<String, StatementExecution>::new, DiGraph::addVertex)
+		        .map(DiGraph::makeEdges);
 	}
 
 	@Override
@@ -76,6 +80,8 @@ public class KIRuntime extends AbstractFunction {
 
 		if (context == null)
 			context = new ConcurrentHashMap<>();
+		
+
 
 		return Flux.empty();
 	}
@@ -106,27 +112,12 @@ public class KIRuntime extends AbstractFunction {
 
 			if (p.isVariableArgument()) {
 
+				for (ParameterReference ref : refList)
+					parameterReferenceValidation(context, se, p, ref);
 			} else {
 
 				ParameterReference ref = refList.get(0);
-				if (ref == null) {
-					if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
-						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
-				} else if (ref.getType() == ParameterReferenceType.VALUE) {
-					if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
-						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
-				} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
-					if (ref.getExpression() == null || ref.getExpression().isBlank()) {
-						if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
-							se.addMessage(StatementMessageType.ERROR,
-							        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
-					} else {
-						Expression exp = new Expression(ref.getExpression());
-						this.typeCheckExpression(context, p, exp);
-					}
-				}
+				parameterReferenceValidation(context, se, p, ref);
 			}
 
 			paramSet.remove(p.getParameterName());
@@ -143,7 +134,54 @@ public class KIRuntime extends AbstractFunction {
 		return se;
 	}
 
+	private void parameterReferenceValidation(Map<String, ContextElement> context, StatementExecution se, Parameter p,
+	        ParameterReference ref) {
+
+		if (ref == null) {
+			if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+				se.addMessage(StatementMessageType.ERROR,
+				        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+		} else if (ref.getType() == ParameterReferenceType.VALUE) {
+			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+				se.addMessage(StatementMessageType.ERROR,
+				        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
+			if (ref.getExpression() == null || ref.getExpression()
+			        .isBlank()) {
+				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+					se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+			} else {
+				Expression exp = new Expression(ref.getExpression());
+				this.typeCheckExpression(context, p, exp);
+				this.addDependencies(se, exp);
+			}
+		}
+	}
+
+	private void addDependencies(StatementExecution se, Expression exp) {
+
+		LinkedList<Expression> que = new LinkedList<>();
+		que.add(exp);
+
+		while (!que.isEmpty()) {
+			for (ExpressionToken token : que.getFirst()
+			        .getTokens()) {
+				if (token instanceof Expression e) {
+					que.push(e);
+				} else if (token.getExpression()
+				        .startsWith("Steps.")) {
+					String str = token.getExpression();
+					str = str.substring(6, str.indexOf('.', 6));
+					se.addDependency(str);
+				}
+			}
+		}
+	}
+
 	private void typeCheckExpression(Map<String, ContextElement> context, Parameter p, Expression exp) {
-		
+
+		// TODO: we need to check the type of the parameters based on the input they
+		// get.
 	}
 }

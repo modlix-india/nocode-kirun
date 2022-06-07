@@ -17,9 +17,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -49,22 +47,30 @@ public class SetInContext extends AbstractFunction {
 	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
 	        Map<String, Mono<JsonElement>> args) {
 
-		String name = args.get(NAME)
+		Mono<String> key = args.get(NAME)
 		        .map(JsonElement::getAsString)
-		        .blockOptional()
-		        .orElse("");
+		        .defaultIfEmpty("");
 
-		if (context.containsKey(name))
-			throw new KIRuntimeException(StringFormatter.format("Context already has an element for '$' ", name));
+		return Flux.from(key.map(e -> {
 
-		JsonElement schema = args.get(VALUE);
-		        .block();
-		Schema s = new Gson().fromJson(schema, Schema.class);
+			if (e.isBlank()) {
+				throw new KIRuntimeException("Empty string is not a valid name for the context element");
+			}
 
-		context.put(name, new ContextElement(s,
-		        s.getDefaultValue() == null ? Mono.just(JsonNull.INSTANCE) : Mono.just(s.getDefaultValue())));
+			if (!context.containsKey(e)) {
+				throw new KIRuntimeException(
+				        StringFormatter.format("Context doesn't have any element with name '$' ", e));
+			}
 
-		return Flux.just(EventResult.outputOf(Map.of()));
+			//TODO: Here I need to validate the schema of the value I have to put in the context.
+
+			ContextElement ctxe = context.get(e);
+			ctxe.setElement(ctxe.getElement()
+			        .flatMap(x -> args.get(VALUE)));
+
+			return e;
+		}))
+		        .map(e -> EventResult.outputOf(Map.of()));
 	}
 
 }

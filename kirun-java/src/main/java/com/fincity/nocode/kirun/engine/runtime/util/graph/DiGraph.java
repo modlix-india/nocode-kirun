@@ -79,4 +79,18 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 		for (T value : values)
 			this.addVertex(value);
 	}
+
+	public DiGraph<K, T> makeEdges() {
+
+		this.nodeMap.values()
+		        .stream()
+		        .filter(e -> e.getData()
+		                .getDepenedencies() != null)
+		        .forEach(e -> e.getData()
+		                .getDepenedencies()
+		                .stream()
+		                .forEach(d -> e.addInEdgeTo(this.nodeMap.get(d))));
+
+		return this;
+	}
 }

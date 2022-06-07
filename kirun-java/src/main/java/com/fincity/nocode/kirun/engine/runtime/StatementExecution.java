@@ -1,7 +1,9 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.util.graph.GraphVertexType;
@@ -17,7 +19,7 @@ public class StatementExecution implements GraphVertexType<String> {
 
 	private List<StatementMessage> messages = new ArrayList<>(5);
 	
-	private List<String> dependencies = new ArrayList<>();
+	private Set<String> dependencies = new HashSet<>();
 
 	public StatementExecution(Statement statement) {
 
@@ -35,5 +37,10 @@ public class StatementExecution implements GraphVertexType<String> {
 	
 	public void addDependency(String dependency) {
 		this.dependencies.add(dependency);
+	}
+	
+	@Override
+	public Set<String> getDepenedencies() {
+		return this.dependencies;
 	}
 }
