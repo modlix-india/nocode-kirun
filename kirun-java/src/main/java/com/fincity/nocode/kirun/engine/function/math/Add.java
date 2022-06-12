@@ -12,11 +12,11 @@ import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
-import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -41,9 +41,9 @@ public class Add extends AbstractFunction {
 
 	@Override
 	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	        Map<String, JsonElement> args) {
 
-		Mono<Number> sum = args.get(VALUE)
+		Mono<Number> sum = Mono.just(args.get(VALUE))
 		        .map(JsonArray.class::cast)
 		        .flatMapMany(Flux::fromIterable)
 		        .map(JsonPrimitive.class::cast)

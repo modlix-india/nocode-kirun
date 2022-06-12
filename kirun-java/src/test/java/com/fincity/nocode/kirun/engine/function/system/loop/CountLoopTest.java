@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.system;
+package com.fincity.nocode.kirun.engine.function.system.loop;
 
 import java.util.Map;
 
@@ -8,7 +8,6 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.google.gson.JsonPrimitive;
 
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 class CountLoopTest {
@@ -24,7 +23,7 @@ class CountLoopTest {
 		        .expectComplete()
 		        .verify();
 
-		StepVerifier.create(loop.execute(Map.of(), Map.of(CountLoop.COUNT, Mono.just(new JsonPrimitive(6)))))
+		StepVerifier.create(loop.execute(Map.of(), Map.of(CountLoop.COUNT, new JsonPrimitive(6))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(1))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(2))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(3))))

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
+
 class StringFormatterTest {
 
 	@Test

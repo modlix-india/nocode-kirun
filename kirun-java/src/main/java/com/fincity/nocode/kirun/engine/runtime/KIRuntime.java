@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -14,7 +16,6 @@ import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
-import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
@@ -22,18 +23,24 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
-import com.fincity.nocode.kirun.engine.runtime.util.expression.Expression;
-import com.fincity.nocode.kirun.engine.runtime.util.expression.ExpressionToken;
-import com.fincity.nocode.kirun.engine.runtime.util.graph.DiGraph;
-import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
+import com.fincity.nocode.kirun.engine.runtime.expression.Expression;
+import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
+import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionToken;
+import com.fincity.nocode.kirun.engine.runtime.graph.ExecutionGraph;
+import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertex;
+import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 public class KIRuntime extends AbstractFunction {
 
-	private static final String PARAMETER_$_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
+	private static final String PARAMETER_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
 	private final FunctionDefinition fd;
 
@@ -62,28 +69,127 @@ public class KIRuntime extends AbstractFunction {
 		return this.fd;
 	}
 
-	private Mono<DiGraph<String, StatementExecution>> getExecutionPlan(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	private ExecutionGraph<String, StatementExecution> getExecutionPlan(Map<String, ContextElement> context) {
 
-		return Flux.fromIterable(this.fd.getSteps()
+		ExecutionGraph<String, StatementExecution> g = new ExecutionGraph<>();
+		for (Statement s : this.fd.getSteps()
 		        .values())
-		        .map(s -> this.prepareStatementExecution(context, s))
-		        .collect(DiGraph<String, StatementExecution>::new, DiGraph::addVertex)
-		        .map(DiGraph::makeEdges);
+			g.addVertex(this.prepareStatementExecution(context, s));
+		return g.makeEdges();
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	protected Flux<EventResult> internalExecute(final Map<String, ContextElement> context,
+	        final Map<String, JsonElement> args) {
 
-		Mono<DiGraph<String, StatementExecution>> eGraph = this.getExecutionPlan(context, args);
+		Mono.fromCallable(() ->
+			{
+				ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(context);
 
-		if (context == null)
-			context = new ConcurrentHashMap<>();
-		
+				boolean hasError = eGraph.getVerticesDataFlux()
+				        .flatMap(e -> Flux.fromIterable(e.getMessages()))
+				        .map(StatementMessage::getMessageType)
+				        .filter(e -> e == StatementMessageType.ERROR)
+				        .take(1)
+				        .blockFirst() == null;
 
+				if (hasError) {
+					throw new KIRuntimeException("Please fix the errors before execution");
+				}
+
+				Map<String, ContextElement> newContext = context;
+
+				if (newContext == null)
+					newContext = new ConcurrentHashMap<>();
+
+//			StepName, EventName, result
+				Map<String, Map<String, EventResult>> results = new ConcurrentHashMap<>();
+				LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>(
+				        eGraph.getVerticesWithNoIncomingEdges());
+
+				while (!executionQue.isEmpty()) {
+
+					LinkedList<GraphVertex<String, StatementExecution>> nextQue = new LinkedList<>();
+					for (GraphVertex<String, StatementExecution> exList : executionQue) {
+						Statement s = exList.getData()
+						        .getStatement();
+
+						Function fun = this.fRepo.find(s.getNamespace() + "." + s.getName());
+
+						Map<String, Parameter> paramSet = fun.getSignature()
+						        .getParameters();
+
+						Map<String, JsonElement> arguments = getArgumentsFromParametersMap(context, results, s,
+						        paramSet);
+
+						Flux<EventResult> output = fun.execute(context, arguments);
+						
+						
+					}
+
+					executionQue = nextQue;
+				}
+
+				return "";
+			})
+		        .subscribeOn(Schedulers.boundedElastic());
 
 		return Flux.empty();
+	}
+
+	private Map<String, JsonElement> getArgumentsFromParametersMap(final Map<String, ContextElement> context,
+	        Map<String, Map<String, EventResult>> results, Statement s, Map<String, Parameter> paramSet) {
+
+		return s.getParameterMap()
+		        .entrySet()
+		        .stream()
+		        .map(e ->
+			        {
+				        List<ParameterReference> prList = e.getValue();
+
+				        JsonElement ret = null;
+
+				        if (prList == null || prList.isEmpty())
+					        return Tuples.of(e.getKey(), ret);
+
+				        Parameter pDef = paramSet.get(e.getKey());
+
+				        if (pDef.isVariableArgument()) {
+
+					        ret = new JsonArray();
+
+					        prList.stream()
+					                .map(r -> this.parameterReferenceEvaluation(context, results, r))
+					                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
+					                        .spliterator(), false) : Stream.of(r))
+					                .forEachOrdered(((JsonArray) ret)::add);
+
+				        } else {
+
+					        ret = parameterReferenceEvaluation(context, results, prList.get(0));
+				        }
+
+				        return Tuples.of(e.getKey(), ret);
+			        })
+		        .filter(e -> !(e.getT2() == null || e.getT2()
+		                .isJsonNull()))
+		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+	}
+
+	private JsonElement parameterReferenceEvaluation(final Map<String, ContextElement> context,
+	        Map<String, Map<String, EventResult>> results, ParameterReference ref) {
+
+		JsonElement ret = null;
+
+		if (ref.getType() == ParameterReferenceType.VALUE) {
+			ret = ref.getValue();
+		} else if (ref.getType() == ParameterReferenceType.EXPRESSION && ref.getExpression() != null
+		        && !ref.getExpression()
+		                .isBlank()) {
+			ExpressionEvaluator exp = new ExpressionEvaluator(ref.getExpression());
+			ret = exp.evaluate(context, results);
+		}
+		return ret;
 	}
 
 	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) {
@@ -106,7 +212,7 @@ public class KIRuntime extends AbstractFunction {
 
 				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 				continue;
 			}
 
@@ -127,7 +233,7 @@ public class KIRuntime extends AbstractFunction {
 			for (Parameter param : paramSet.values()) {
 				if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, param.getParameterName()));
+					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
 			}
 		}
 
@@ -140,21 +246,26 @@ public class KIRuntime extends AbstractFunction {
 		if (ref == null) {
 			if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
-				        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 		} else if (ref.getType() == ParameterReferenceType.VALUE) {
 			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
-				        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
 			if (ref.getExpression() == null || ref.getExpression()
 			        .isBlank()) {
 				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format(PARAMETER_$_NEEDS_A_VALUE, p.getParameterName()));
+					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 			} else {
-				Expression exp = new Expression(ref.getExpression());
-				this.typeCheckExpression(context, p, exp);
-				this.addDependencies(se, exp);
+				try {
+					Expression exp = new Expression(ref.getExpression());
+					this.typeCheckExpression(context, p, exp);
+					this.addDependencies(se, exp);
+				} catch (KIRuntimeException ex) {
+					se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage()));
+				}
 			}
 		}
 	}
@@ -171,12 +282,18 @@ public class KIRuntime extends AbstractFunction {
 					que.push(e);
 				} else if (token.getExpression()
 				        .startsWith("Steps.")) {
-					String str = token.getExpression();
-					str = str.substring(6, str.indexOf('.', 6));
-					se.addDependency(str);
+					se.addDependency(token.getExpression());
 				}
 			}
 		}
+
+		if (se.getStatement()
+		        .getDependentStatements() == null)
+			return;
+
+		for (String statement : se.getStatement()
+		        .getDependentStatements())
+			se.addDependency(statement);
 	}
 
 	private void typeCheckExpression(Map<String, ContextElement> context, Parameter p, Expression exp) {

@@ -7,11 +7,11 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Flux;
@@ -21,7 +21,7 @@ public class If extends AbstractFunction {
 
 	static final String CONDITION = "condition";
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("IF")
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("If")
 	        .setNamespace(SYSTEM)
 	        .setParameters(Map.ofEntries(Parameter.ofEntry(CONDITION, Schema.of(CONDITION, SchemaType.BOOLEAN))))
 	        .setEvents(Map.ofEntries(Event.eventMapEntry(Event.TRUE, Map.of()),
@@ -34,9 +34,9 @@ public class If extends AbstractFunction {
 
 	@Override
 	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	        Map<String, JsonElement> args) {
 
-		var condition = args.get(CONDITION);
+		var condition = Mono.just(args.get(CONDITION));
 
 		Flux<EventResult> fluxrange = condition
 		        .flatMapMany(je -> Flux.just(EventResult.of(je.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of())));

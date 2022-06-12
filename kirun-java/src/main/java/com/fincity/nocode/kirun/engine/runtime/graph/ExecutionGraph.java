@@ -1,39 +1,40 @@
-package com.fincity.nocode.kirun.engine.runtime.util.graph;
+package com.fincity.nocode.kirun.engine.runtime.graph;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import reactor.core.publisher.Flux;
 
-public class DiGraph<K, T extends GraphVertexType<K>> {
+public class ExecutionGraph<K, T extends GraphVertexType<K>> {
 
-	private Map<K, DiGraphVertex<K, T>> nodeMap = new ConcurrentHashMap<>();
+	private Map<K, GraphVertex<K, T>> nodeMap = new ConcurrentHashMap<>();
 
 	public List<T> getVerticesData() {
 
 		return nodeMap.values()
 		        .stream()
-		        .map(DiGraphVertex::getData)
+		        .map(GraphVertex::getData)
 		        .toList();
 	}
 
 	public Flux<T> getVerticesDataFlux() {
 
 		return Flux.fromIterable(this.nodeMap.values())
-		        .map(DiGraphVertex::getData);
+		        .map(GraphVertex::getData);
 	}
 
-	public DiGraphVertex<K, T> addVertex(T data) {
+	public GraphVertex<K, T> addVertex(T data) {
 
-		return nodeMap.computeIfAbsent(data.getUniqueKey(), k -> new DiGraphVertex<>(this, data));
+		return nodeMap.computeIfAbsent(data.getUniqueKey(), k -> new GraphVertex<>(this, data));
 	}
 
-	public DiGraphVertex<K, T> getVertex(K key) {
+	public GraphVertex<K, T> getVertex(K key) {
 		return nodeMap.get(key);
 	}
 
@@ -44,7 +45,7 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 		return null;
 	}
 
-	public List<DiGraphVertex<K, T>> getVerticesWithNoIncomingEdges() {
+	public List<GraphVertex<K, T>> getVerticesWithNoIncomingEdges() {
 
 		return nodeMap.values()
 		        .stream()
@@ -54,10 +55,10 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 
 	public boolean isCyclic() {
 
-		LinkedList<DiGraphVertex<K, T>> list = (LinkedList<DiGraphVertex<K, T>>) this.getVerticesWithNoIncomingEdges();
+		LinkedList<GraphVertex<K, T>> list = (LinkedList<GraphVertex<K, T>>) this.getVerticesWithNoIncomingEdges();
 		HashSet<K> visited = new HashSet<>();
 
-		DiGraphVertex<K, T> vertex;
+		GraphVertex<K, T> vertex;
 		while (!list.isEmpty()) {
 
 			if (visited.contains(list.getFirst()
@@ -68,7 +69,11 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 
 			visited.add(vertex.getKey());
 			if (vertex.hasOutgoingEdges())
-				list.addAll(vertex.getOutVertices());
+				list.addAll(vertex.getOutVertices()
+				        .values()
+				        .stream()
+				        .flatMap(Set::stream)
+				        .toList());
 		}
 
 		return false;
@@ -80,7 +85,7 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 			this.addVertex(value);
 	}
 
-	public DiGraph<K, T> makeEdges() {
+	public ExecutionGraph<K, T> makeEdges() {
 
 		this.nodeMap.values()
 		        .stream()
@@ -89,7 +94,13 @@ public class DiGraph<K, T extends GraphVertexType<K>> {
 		        .forEach(e -> e.getData()
 		                .getDepenedencies()
 		                .stream()
-		                .forEach(d -> e.addInEdgeTo(this.nodeMap.get(d))));
+		                .forEach(d ->
+			                {
+				                int secondDot = d.indexOf('.', 6);
+				                String step = d.substring(6, secondDot);
+				                String event = d.substring(secondDot + 1, d.indexOf('.', secondDot + 1));
+				                e.addInEdgeTo(this.nodeMap.get(step), event);
+			                }));
 
 		return this;
 	}

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.model.Statement;
-import com.fincity.nocode.kirun.engine.runtime.util.graph.GraphVertexType;
+import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertexType;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

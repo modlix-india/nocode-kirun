@@ -9,16 +9,15 @@ import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class Abs extends AbstractFunction {
 
@@ -37,9 +36,9 @@ public class Abs extends AbstractFunction {
 
 	@Override
 	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	        Map<String, JsonElement> args) {
 
-		return Flux.from(args.get(VALUE))
+		return Flux.just(args.get(VALUE))
 		        .map(pValue ->
 			        {
 				        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());

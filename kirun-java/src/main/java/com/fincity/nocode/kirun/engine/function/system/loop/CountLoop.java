@@ -1,22 +1,21 @@
-package com.fincity.nocode.kirun.engine.function.system;
+package com.fincity.nocode.kirun.engine.function.system.loop;
 
-import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.model.ContextElement;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class CountLoop extends AbstractFunction {
 
@@ -27,7 +26,7 @@ public class CountLoop extends AbstractFunction {
 	static final String INDEX = "index";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("CountLoop")
-	        .setNamespace(SYSTEM)
+	        .setNamespace(SYSTEM_LOOP)
 	        .setParameters(Map.ofEntries(Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER)
 	                .setDefaultValue(new JsonPrimitive(1)))))
 	        .setEvents(Map.ofEntries(
@@ -44,16 +43,14 @@ public class CountLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, Mono<JsonElement>> args) {
+	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context, Map<String, JsonElement> args) {
 
 		var count = args.get(COUNT);
 
-		Flux<JsonPrimitive> fluxrange = count
-		        .flatMapMany(jsonElementCount -> integerSeries(jsonElementCount.getAsInt() + 1));
+		Flux<JsonPrimitive> fluxrange = integerSeries(count.getAsInt() + 1);
 
 		return Flux.merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
-		        Flux.from(count.map(v -> EventResult.outputOf(Map.of(VALUE, v)))));
+		        Flux.just(EventResult.outputOf(Map.of(VALUE, count))));
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer t) {

@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.runtime.util.string;
+package com.fincity.nocode.kirun.engine.util.string;
 
 public class StringFormatter {
 

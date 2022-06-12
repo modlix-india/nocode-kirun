@@ -46,6 +46,12 @@ public class Statement extends AbstractStatement {
 	private Map<String, List<ParameterReference>> parameterMap;
 	private List<String> dependentStatements;
 
+	public Map<String, List<ParameterReference>> getParameterMap() {
+		if (parameterMap == null)
+			return Map.of();
+		return parameterMap;
+	}
+
 	public static Map.Entry<String, Statement> ofEntry(Statement statement) {
 		return Map.entry(statement.statementName, statement);
 	}

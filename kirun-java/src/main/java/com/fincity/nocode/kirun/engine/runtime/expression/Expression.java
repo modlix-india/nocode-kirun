@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.runtime.util.expression;
+package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.runtime.util.string.StringFormatter;
+import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
