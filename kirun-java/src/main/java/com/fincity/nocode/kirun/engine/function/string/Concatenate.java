@@ -15,7 +15,7 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -43,10 +43,9 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		Mono<String> concatenatedString = Mono.just(args.get(VALUE))
+		Mono<String> concatenatedString = Mono.just(context.getArguments().get(VALUE))
 		        .map(JsonArray.class::cast)
 		        .flatMapMany(Flux::fromIterable)
 		        .filter(Objects::nonNull)

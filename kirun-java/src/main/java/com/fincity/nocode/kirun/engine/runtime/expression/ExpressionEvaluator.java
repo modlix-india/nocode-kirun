@@ -12,7 +12,7 @@ public class ExpressionEvaluator {
 		// TODO Auto-generated constructor stub
 	}
 
-	public JsonElement evaluate(Map<String, ContextElement> context, Map<String, Map<String, EventResult>> results) {
+	public JsonElement evaluate(Map<String, ContextElement> context, Map<String, Map<String, Map<String, JsonElement>>> results) {
 		// TODO Auto-generated method stub
 		return null;
 	}

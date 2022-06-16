@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,6 +17,7 @@ import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
+import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
@@ -75,70 +77,154 @@ public class KIRuntime extends AbstractFunction {
 		for (Statement s : this.fd.getSteps()
 		        .values())
 			g.addVertex(this.prepareStatementExecution(context, s));
-		return g.makeEdges();
+
+		var unresolvedList = this.makeEdges(g);
+
+		if (!unresolvedList.isEmpty()) {
+			throw new KIRuntimeException(
+			        StringFormatter.format("Found these unresolved dependencies : $ ", unresolvedList.stream()
+			                .map(e -> StringFormatter.format("Steps.$.$", e.getT1(), e.getT2()))));
+		}
+
+		return g;
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(final Map<String, ContextElement> context,
-	        final Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(final FunctionExecutionParameters inContext) {
 
-		Mono.fromCallable(() ->
-			{
-				ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(context);
+		if (inContext.getContext() == null)
+			inContext.setContext(new ConcurrentHashMap<>());
 
-				boolean hasError = eGraph.getVerticesDataFlux()
-				        .flatMap(e -> Flux.fromIterable(e.getMessages()))
-				        .map(StatementMessage::getMessageType)
-				        .filter(e -> e == StatementMessageType.ERROR)
-				        .take(1)
-				        .blockFirst() == null;
+		if (inContext.getEvents() == null)
+			inContext.setEvents(new ConcurrentHashMap<>());
 
-				if (hasError) {
-					throw new KIRuntimeException("Please fix the errors before execution");
-				}
+		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
 
-				Map<String, ContextElement> newContext = context;
+		boolean hasError = eGraph.getVerticesDataFlux()
+		        .flatMap(e -> Flux.fromIterable(e.getMessages()))
+		        .map(StatementMessage::getMessageType)
+		        .filter(e -> e == StatementMessageType.ERROR)
+		        .take(1)
+		        .blockFirst() == null;
 
-				if (newContext == null)
-					newContext = new ConcurrentHashMap<>();
+		if (hasError) {
+			throw new KIRuntimeException("Please fix the errors before execution");
+		}
 
-//			StepName, EventName, result
-				Map<String, Map<String, EventResult>> results = new ConcurrentHashMap<>();
-				LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>(
-				        eGraph.getVerticesWithNoIncomingEdges());
+		return Mono.fromCallable(() -> executeGraph(eGraph, inContext))
+		        .subscribeOn(Schedulers.boundedElastic())
+		        .flatMapIterable(e -> e);
 
-				while (!executionQue.isEmpty()) {
+	}
 
-					LinkedList<GraphVertex<String, StatementExecution>> nextQue = new LinkedList<>();
-					for (GraphVertex<String, StatementExecution> exList : executionQue) {
-						Statement s = exList.getData()
-						        .getStatement();
+	private List<EventResult> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
+	        FunctionExecutionParameters inContext) {
 
-						Function fun = this.fRepo.find(s.getNamespace() + "." + s.getName());
+		LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>();
+		executionQue.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
-						Map<String, Parameter> paramSet = fun.getSignature()
-						        .getParameters();
+		var context = inContext.getContext();
 
-						Map<String, JsonElement> arguments = getArgumentsFromParametersMap(context, results, s,
-						        paramSet);
+		Map<String, Map<String, Map<String, JsonElement>>> output = new ConcurrentHashMap<>();
 
-						Flux<EventResult> output = fun.execute(context, arguments);
-						
-						
-					}
+		int count = 0;
 
-					executionQue = nextQue;
-				}
+		while (!executionQue.isEmpty() && count != executionQue.size() && !inContext.getEvents()
+		        .containsKey(Event.OUTPUT)) {
 
-				return "";
-			})
-		        .subscribeOn(Schedulers.boundedElastic());
+			var vertex = executionQue.pop();
 
-		return Flux.empty();
+			if (!allDependenciesResolved(vertex, output)) {
+				executionQue.add(vertex);
+				count++;
+				continue;
+			}
+
+			count = 0;
+
+			Statement s = vertex.getData()
+			        .getStatement();
+
+			Function fun = this.fRepo.find(s.getNamespace() + "." + s.getName());
+
+			Map<String, Parameter> paramSet = fun.getSignature()
+			        .getParameters();
+
+			Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext.getContext(), output, s,
+			        paramSet);
+
+			Flux<EventResult> result = fun.execute(new FunctionExecutionParameters().setContext(context)
+			        .setArguments(arguments)
+			        .setEvents(inContext.getEvents())
+			        .setStatementExecution(vertex.getData()));
+
+			EventResult er = result.next()
+			        .block();
+
+			if (er == null)
+				throw new KIRuntimeException(
+				        StringFormatter.format("Executing $ returned no events", s.getStatementName()));
+
+			boolean isOutput = er.getName()
+			        .equals(Event.OUTPUT);
+
+			output.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
+			        .put(er.getName(), er.getResult());
+
+			if (!isOutput) {
+
+				var subGraph = vertex.getSubGraphOfType(er.getName());
+				var unResolvedDependencies = this.makeEdges(subGraph);
+			} else {
+
+				vertex.getOutVertices()
+				        .get(Event.OUTPUT)
+				        .stream()
+				        .forEach(executionQue::add);
+			}
+		}
+
+		if (inContext.getEvents()
+		        .isEmpty()) {
+
+			throw new KIRuntimeException("No events raised.");
+		}
+
+		return inContext.getEvents()
+		        .entrySet()
+		        .stream()
+		        .flatMap(e -> e.getValue()
+		                .stream()
+		                .map(v -> EventResult.of(e.getKey(), v)))
+		        .toList();
+	}
+
+	private boolean allDependenciesResolved(GraphVertex<String, StatementExecution> vertex,
+	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+
+		if (vertex.getInVertices()
+		        .isEmpty())
+			return true;
+
+		return vertex.getInVertices()
+		        .stream()
+		        .filter(e ->
+			        {
+
+				        String stepName = e.getT1()
+				                .getData()
+				                .getStatement()
+				                .getName();
+				        String type = e.getT2();
+
+				        return !(output.containsKey(stepName) && output.get(stepName)
+				                .containsKey(type));
+			        })
+		        .count() == 0;
 	}
 
 	private Map<String, JsonElement> getArgumentsFromParametersMap(final Map<String, ContextElement> context,
-	        Map<String, Map<String, EventResult>> results, Statement s, Map<String, Parameter> paramSet) {
+	        Map<String, Map<String, Map<String, JsonElement>>> results, Statement s, Map<String, Parameter> paramSet) {
 
 		return s.getParameterMap()
 		        .entrySet()
@@ -177,7 +263,7 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private JsonElement parameterReferenceEvaluation(final Map<String, ContextElement> context,
-	        Map<String, Map<String, EventResult>> results, ParameterReference ref) {
+	        Map<String, Map<String, Map<String, JsonElement>>> results, ParameterReference ref) {
 
 		JsonElement ret = null;
 
@@ -300,5 +386,34 @@ public class KIRuntime extends AbstractFunction {
 
 		// TODO: we need to check the type of the parameters based on the input they
 		// get.
+	}
+
+	public List<Tuple2<String, String>> makeEdges(ExecutionGraph<String, StatementExecution> graph) {
+
+		return graph.getNodeMap()
+		        .values()
+		        .stream()
+		        .filter(e -> e.getData()
+		                .getDepenedencies() != null)
+		        .flatMap(e -> e.getData()
+		                .getDepenedencies()
+		                .stream()
+		                .map(d ->
+			                {
+				                int secondDot = d.indexOf('.', 6);
+				                String step = d.substring(6, secondDot);
+				                String event = d.substring(secondDot + 1, d.indexOf('.', secondDot + 1));
+
+				                if (!graph.getNodeMap()
+				                        .containsKey(step))
+					                return Tuples.of(step, event);
+
+				                e.addInEdgeTo(graph.getNodeMap()
+				                        .get(step), event);
+				                return null;
+			                })
+		                .filter(Objects::nonNull))
+		        .toList();
+
 	}
 }

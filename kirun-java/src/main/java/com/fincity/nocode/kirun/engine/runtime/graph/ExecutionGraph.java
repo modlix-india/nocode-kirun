@@ -85,23 +85,8 @@ public class ExecutionGraph<K, T extends GraphVertexType<K>> {
 			this.addVertex(value);
 	}
 
-	public ExecutionGraph<K, T> makeEdges() {
-
-		this.nodeMap.values()
-		        .stream()
-		        .filter(e -> e.getData()
-		                .getDepenedencies() != null)
-		        .forEach(e -> e.getData()
-		                .getDepenedencies()
-		                .stream()
-		                .forEach(d ->
-			                {
-				                int secondDot = d.indexOf('.', 6);
-				                String step = d.substring(6, secondDot);
-				                String event = d.substring(secondDot + 1, d.indexOf('.', secondDot + 1));
-				                e.addInEdgeTo(this.nodeMap.get(step), event);
-			                }));
-
-		return this;
+	public Map<K, GraphVertex<K, T>> getNodeMap() {
+		
+		return this.nodeMap;
 	}
 }

@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime.graph;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,5 +58,31 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 
 	public boolean hasOutgoingEdges() {
 		return !this.outVertices.isEmpty();
+	}
+
+	public ExecutionGraph<K, T> getSubGraphOfType(String type) {
+
+		ExecutionGraph<K, T> subGraph = new ExecutionGraph<>();
+
+		var typeVertices = new LinkedList<>(outVertices.get(type));
+
+		typeVertices.stream()
+		        .map(GraphVertex::getData)
+		        .forEach(subGraph::addVertex);
+
+		while (!typeVertices.isEmpty()) {
+
+			var vertex = typeVertices.pop();
+			vertex.outVertices.values()
+			        .stream()
+			        .flatMap(Set::stream)
+			        .forEach(e ->
+				        {
+					        subGraph.addVertex(e.getData());
+					        typeVertices.add(e);
+				        });
+		}
+
+		return subGraph;
 	}
 }

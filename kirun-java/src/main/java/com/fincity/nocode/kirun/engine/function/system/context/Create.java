@@ -16,6 +16,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -45,18 +46,23 @@ public class Create extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context, Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		String name = args.get(NAME)
+		String name = context.getArguments()
+		        .get(NAME)
 		        .getAsString();
 
-		if (context.containsKey(name))
+		if (context.getContext()
+		        .containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context already has an element for '$' ", name));
 
-		JsonElement schema = args.get(SCHEMA);
+		JsonElement schema = context.getArguments()
+		        .get(SCHEMA);
 		Schema s = new Gson().fromJson(schema, Schema.class);
 
-		context.put(name, new ContextElement(s, s.getDefaultValue() == null ? JsonNull.INSTANCE : s.getDefaultValue()));
+		context.getContext()
+		        .put(name,
+		                new ContextElement(s, s.getDefaultValue() == null ? JsonNull.INSTANCE : s.getDefaultValue()));
 
 		return Flux.just(EventResult.outputOf(Map.of()));
 	}
