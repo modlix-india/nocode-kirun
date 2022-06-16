@@ -38,6 +38,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
 public class KIRuntime extends AbstractFunction {
@@ -123,43 +124,17 @@ public class KIRuntime extends AbstractFunction {
 		LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>();
 		executionQue.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
-		LinkedList<Tuple2<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>>> branchQue = new LinkedList<>();
+		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
 
 		var context = inContext.getContext();
 
 		Map<String, Map<String, Map<String, JsonElement>>> output = new ConcurrentHashMap<>();
 
-		int count = 0;
+		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
+		        .containsKey(Event.OUTPUT)) {
 
-		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && count != executionQue.size()
-		        && !inContext.getEvents()
-		                .containsKey(Event.OUTPUT)) {
-
-			if (!branchQue.isEmpty()) {
-
-				var branch = branchQue.pop();
-
-				if (!allDependenciesResolved(branch.getT2(), output)) {
-
-				} else {
-
-				}
-			}
-
-			if (!executionQue.isEmpty()) {
-
-				var vertex = executionQue.pop();
-
-				if (!allDependenciesResolved(vertex, output)) {
-
-					executionQue.add(vertex);
-					count++;
-				} else {
-
-					count = 0;
-					executeVertex(vertex, inContext, output, context, branchQue, executionQue);
-				}
-			}
+			processBranchQue(inContext, executionQue, branchQue, output);
+			processExecutionQue(inContext, executionQue, branchQue, context, output);
 		}
 
 		if (inContext.getEvents()
@@ -177,10 +152,76 @@ public class KIRuntime extends AbstractFunction {
 		        .toList();
 	}
 
+	private void processExecutionQue(FunctionExecutionParameters inContext,
+	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
+	        Map<String, ContextElement> context, Map<String, Map<String, Map<String, JsonElement>>> output) {
+		
+		if (!executionQue.isEmpty()) {
+
+			var vertex = executionQue.pop();
+
+			if (!allDependenciesResolved(vertex, output))
+
+				executionQue.add(vertex);
+
+			else
+				executeVertex(vertex, inContext, output, context, branchQue, executionQue);
+		}
+	}
+
+	private void processBranchQue(FunctionExecutionParameters inContext,
+	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
+	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+		if (!branchQue.isEmpty()) {
+
+			var branch = branchQue.pop();
+
+			if (!allDependenciesResolved(branch.getT2(), output))
+				branchQue.add(branch);
+			else
+				executeBranch(inContext, executionQue, output, branch);
+
+		}
+	}
+
+	private void executeBranch(FunctionExecutionParameters inContext,
+	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+	        Map<String, Map<String, Map<String, JsonElement>>> output,
+	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>> branch) {
+
+		var vertex = branch.getT4();
+		EventResult nextOutput = null;
+
+		do {
+			this.executeGraph(branch.getT1(), inContext);
+			nextOutput = branch.getT3()
+			        .next()
+			        .block();
+			if (nextOutput != null)
+				output.computeIfAbsent(vertex.getData()
+				        .getStatement()
+				        .getStatementName(), k -> new ConcurrentHashMap<>())
+				        .put(nextOutput.getName(), nextOutput.getResult());
+		} while (nextOutput != null && !nextOutput.getName()
+		        .equals(Event.OUTPUT));
+
+		if (nextOutput != null && nextOutput.getName()
+		        .equals(Event.OUTPUT)) {
+
+			vertex.getOutVertices()
+			        .get(Event.OUTPUT)
+			        .stream()
+			        .forEach(executionQue::add);
+		}
+	}
+
 	private void executeVertex(GraphVertex<String, StatementExecution> vertex, FunctionExecutionParameters inContext,
 	        Map<String, Map<String, Map<String, JsonElement>>> output, Map<String, ContextElement> context,
-	        LinkedList<Tuple2<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>>> branchQue,
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
+
 		Statement s = vertex.getData()
 		        .getStatement();
 
@@ -213,7 +254,7 @@ public class KIRuntime extends AbstractFunction {
 
 			var subGraph = vertex.getSubGraphOfType(er.getName());
 			List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph);
-			branchQue.add(Tuples.of(subGraph, unResolvedDependencies));
+			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
 		} else {
 
 			vertex.getOutVertices()
@@ -311,7 +352,14 @@ public class KIRuntime extends AbstractFunction {
 		return ret;
 	}
 
-	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) {
+	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) { // NOSONAR
+	                                                                                                         // -
+	                                                                                                         // Breaking
+	                                                                                                         // this
+	                                                                                                         // logic
+	                                                                                                         // will be
+	                                                                                                         // meaning
+	                                                                                                         // less
 
 		StatementExecution se = new StatementExecution(s);
 
@@ -359,7 +407,15 @@ public class KIRuntime extends AbstractFunction {
 		return se;
 	}
 
-	private void parameterReferenceValidation(Map<String, ContextElement> context, StatementExecution se, Parameter p,
+	private void parameterReferenceValidation(Map<String, ContextElement> context, StatementExecution se, Parameter p, // NOSONAR
+	                                                                                                                   // -
+	                                                                                                                   // Breaking
+	                                                                                                                   // this
+	                                                                                                                   // logic
+	                                                                                                                   // will
+	                                                                                                                   // be
+	                                                                                                                   // meaning
+	                                                                                                                   // less
 	        ParameterReference ref) {
 
 		if (ref == null) {
