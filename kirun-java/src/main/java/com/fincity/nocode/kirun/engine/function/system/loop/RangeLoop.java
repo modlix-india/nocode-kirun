@@ -59,32 +59,35 @@ public class RangeLoop extends AbstractFunction {
 	@Override
 	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		var from = args.get(FROM);
-		var to = args.get(TO);
-		var step = args.get(STEP);
+		var from = context.getArguments()
+		        .get(FROM);
+		var to = context.getArguments()
+		        .get(TO);
+		var step = context.getArguments()
+		        .get(STEP);
 
 		Flux<JsonPrimitive> fluxrange = Mono.just(Tuples.of(from, to, step))
 		        .flatMapMany(tup ->
-			        {
-				        final Number f = tup.getT1()
-				                .getAsNumber();
-				        final Number t = tup.getT2()
-				                .getAsNumber();
-				        final Number s = tup.getT3()
-				                .getAsNumber();
+				{
+			        final Number f = tup.getT1()
+			                .getAsNumber();
+			        final Number t = tup.getT2()
+			                .getAsNumber();
+			        final Number s = tup.getT3()
+			                .getAsNumber();
 
-				        final boolean forward = s.doubleValue() > 0.0d;
+			        final boolean forward = s.doubleValue() > 0.0d;
 
-				        if (f instanceof Double || t instanceof Double || s instanceof Double) {
-					        return doubleSeries(f.doubleValue(), t.doubleValue(), s.doubleValue(), forward);
-				        } else if (f instanceof Float || t instanceof Float || s instanceof Float) {
-					        return floatSeries(f.floatValue(), t.floatValue(), s.floatValue(), forward);
-				        } else if (f instanceof Long || t instanceof Long || s instanceof Long) {
-					        return longSeries(f.longValue(), t.longValue(), s.longValue(), forward);
-				        }
+			        if (f instanceof Double || t instanceof Double || s instanceof Double) {
+				        return doubleSeries(f.doubleValue(), t.doubleValue(), s.doubleValue(), forward);
+			        } else if (f instanceof Float || t instanceof Float || s instanceof Float) {
+				        return floatSeries(f.floatValue(), t.floatValue(), s.floatValue(), forward);
+			        } else if (f instanceof Long || t instanceof Long || s instanceof Long) {
+				        return longSeries(f.longValue(), t.longValue(), s.longValue(), forward);
+			        }
 
-				        return integerSeries(f.intValue(), t.intValue(), s.intValue(), forward);
-			        });
+			        return integerSeries(f.intValue(), t.intValue(), s.intValue(), forward);
+		        });
 
 		return Flux.merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
 		        Flux.just(EventResult.outputOf(Map.of(VALUE, to))));
@@ -92,62 +95,58 @@ public class RangeLoop extends AbstractFunction {
 
 	private Flux<JsonPrimitive> integerSeries(final Integer f, final Integer t, final Integer s,
 	        final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				int v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			int v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Integer.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Integer.valueOf(v));
 
-				return v + s;
-			})
+			return v + s;
+		})
 		        .map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> longSeries(final Long f, final Long t, final Long s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				long v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			long v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Long.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Long.valueOf(v));
 
-				return v + s;
-			})
+			return v + s;
+		})
 		        .map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> floatSeries(final Float f, final Float t, final Float s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				float v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			float v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Float.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Float.valueOf(v));
 
-				return v + s;
-			})
+			return v + s;
+		})
 		        .map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> doubleSeries(final Double f, final Double t, final Double s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				double v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			double v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Double.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Double.valueOf(v));
 
-				return v + s;
-			})
+			return v + s;
+		})
 		        .map(e -> new JsonPrimitive((Number) e));
 	}
 }

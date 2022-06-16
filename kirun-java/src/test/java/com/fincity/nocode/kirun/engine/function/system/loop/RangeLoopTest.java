@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
@@ -18,8 +19,8 @@ class RangeLoopTest {
 		var loop = new RangeLoop();
 
 		StepVerifier
-		        .create(loop.execute(Map.of(),
-		                Map.of(RangeLoop.FROM, new JsonPrimitive(2), RangeLoop.TO, new JsonPrimitive(5))))
+		        .create(loop.execute(new FunctionExecutionParameters().setArguments(
+		                Map.of(RangeLoop.FROM, new JsonPrimitive(2), RangeLoop.TO, new JsonPrimitive(5)))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(2))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(3))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(4))))
@@ -28,9 +29,9 @@ class RangeLoopTest {
 		        .verify();
 
 		StepVerifier
-		        .create(loop.execute(Map.of(),
-		                Map.of(RangeLoop.FROM, new JsonPrimitive(201.56), RangeLoop.TO, new JsonPrimitive(201.88),
-		                        RangeLoop.STEP, new JsonPrimitive(0.08))))
+		        .create(loop.execute(
+		                new FunctionExecutionParameters().setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive(201.56),
+		                        RangeLoop.TO, new JsonPrimitive(201.88), RangeLoop.STEP, new JsonPrimitive(0.08)))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(201.56))))
 		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(201.56 + 0.08))))
 		        .expectNext(EventResult.of(Event.ITERATION,
@@ -42,8 +43,8 @@ class RangeLoopTest {
 		        .verify();
 
 		StepVerifier
-		        .create(loop.execute(Map.of(),
-		                Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5))))
+		        .create(loop.execute(new FunctionExecutionParameters().setArguments(
+		                Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5)))))
 		        .expectErrorMessage("from - Value \"2\" is not of valid type(s)")
 		        .verify();
 

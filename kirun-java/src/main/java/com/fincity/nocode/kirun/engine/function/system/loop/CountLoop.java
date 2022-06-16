@@ -44,7 +44,7 @@ public class CountLoop extends AbstractFunction {
 	@Override
 	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		var count = args.get(COUNT);
+		var count = context.getArguments().get(COUNT);
 
 		Flux<JsonPrimitive> fluxrange = integerSeries(count.getAsInt() + 1);
 
