@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static java.util.Map.entry;
 
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class Schema implements Serializable {
 	private Number exclusiveMinimum;
 	private Number exclusiveMaximum;
 
-	// Object
+	// Object                                                            
 	private Map<String, Schema> properties;
 	private AdditionalPropertiesType additionalProperties;
 	private List<String> required;

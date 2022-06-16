@@ -54,7 +54,7 @@ public class SchemaValidationException extends RuntimeException {
 	@Override
 	public String getMessage() {
 
-		if (schemaPath != null)
+		if (schemaPath != null && !schemaPath.isBlank())
 			return this.schemaPath + " - " + super.getMessage();
 
 		return super.getMessage();

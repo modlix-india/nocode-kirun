@@ -87,7 +87,7 @@ public class ArrayValidator {
 		if (schema.getMaxItems() != null && schema.getMaxItems()
 		        .intValue() < array.size()) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "Array can have maximum of " + schema.getMaxItems() + " elements");
+			        "Array can have  maximum of " + schema.getMaxItems() + " elements");
 		}
 	}
 
