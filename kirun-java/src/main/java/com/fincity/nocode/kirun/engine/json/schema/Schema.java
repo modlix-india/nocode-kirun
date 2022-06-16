@@ -2,7 +2,6 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static java.util.Map.entry;
 
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ public class Schema implements Serializable {
 	private static final String REQUIRED_STRING = "required";
 	private static final String VERSION_STRING = "version";
 	private static final String NAMESPACE_STRING = "namespace";
+	private static final String TEMPORARY = "temporary";
 
 	private static final long serialVersionUID = 4041990622586726910L;
 
@@ -149,7 +149,7 @@ public class Schema implements Serializable {
 		        .setItems(ArraySchemaType.of(itemSchemas));
 	}
 
-	private String namespace;
+	private String namespace = TEMPORARY;
 	private String name;
 
 	private int version = 1;
@@ -183,7 +183,7 @@ public class Schema implements Serializable {
 	private Number exclusiveMinimum;
 	private Number exclusiveMaximum;
 
-	// Object                                                            
+	// Object
 	private Map<String, Schema> properties;
 	private AdditionalPropertiesType additionalProperties;
 	private List<String> required;
@@ -207,6 +207,11 @@ public class Schema implements Serializable {
 		if (title != null)
 			return this.title;
 
+		return this.getFullName();
+	}
+
+	public String getFullName() {
+		
 		if (this.namespace == null)
 			return this.name;
 
