@@ -13,7 +13,7 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -35,10 +35,9 @@ public class Abs extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		return Flux.just(args.get(VALUE))
+		return Flux.just(context.getArguments().get(VALUE))
 		        .map(pValue ->
 			        {
 				        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());

@@ -15,9 +15,8 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
-import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
-import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Flux;
 
@@ -42,15 +41,15 @@ public class Get extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context, Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		String name = args.get(NAME)
+		String name = context.getArguments().get(NAME)
 		        .getAsString();
 
-		if (!context.containsKey(name))
+		if (!context.getContext().containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context don't have an element for '$' ", name));
 
-		return Flux.just(EventResult.outputOf(Map.of(VALUE, context.get(name)
+		return Flux.just(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
 		        .getElement())));
 	}
 

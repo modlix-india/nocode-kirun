@@ -11,8 +11,7 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.ContextElement;
-import com.google.gson.JsonElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,10 +32,10 @@ public class If extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		var condition = Mono.just(args.get(CONDITION));
+		var condition = Mono.just(context.getArguments()
+		        .get(CONDITION));
 
 		Flux<EventResult> fluxrange = condition
 		        .flatMapMany(je -> Flux.just(EventResult.of(je.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of())));

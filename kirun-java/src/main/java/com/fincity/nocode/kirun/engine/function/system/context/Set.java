@@ -15,9 +15,8 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
-import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
-import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Flux;
 
@@ -43,23 +42,22 @@ public class Set extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(Map<String, ContextElement> context,
-	        Map<String, JsonElement> args) {
+	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		String key = args.get(NAME).getAsString();
+		String key = context.getArguments().get(NAME).getAsString();
 		
 		if (key.isBlank()) {
 			throw new KIRuntimeException("Empty string is not a valid name for the context element");
 		}
 
-		if (!context.containsKey(key)) {
+		if (!context.getContext().containsKey(key)) {
 			throw new KIRuntimeException(
 			        StringFormatter.format("Context doesn't have any element with name '$' ", key));
 		}
 		
 		//TODO: Here I need to validate the schema of the value I have to put in the context.
 
-		context.get(key).setElement(args.get(VALUE));
+		context.getContext().get(key).setElement(context.getArguments().get(VALUE));
 
 		return Flux.just(EventResult.outputOf(Map.of()));
 	}
