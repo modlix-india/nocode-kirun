@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;

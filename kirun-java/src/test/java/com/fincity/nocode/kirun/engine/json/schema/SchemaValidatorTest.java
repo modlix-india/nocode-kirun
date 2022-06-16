@@ -1,7 +1,9 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -81,5 +83,49 @@ public class SchemaValidatorTest{
 					
 	}
 		
+		@Test 
+		void schemaValidatortestForEnmumCheck() {
+			
+			JsonObject defaultValue = new JsonObject(); 
+			defaultValue.addProperty("value", 123);
+			
+			JsonObject element = new JsonObject();
+			element.addProperty("value", "constant");
+			
+			List<JsonElement> enums = new ArrayList<JsonElement>();
+			enums.add(defaultValue);
+			enums.add(element);
+			
+			Schema schema = new Schema(); 
+			schema.setType(Type.of(SchemaType.ARRAY)); 
+			schema.setDefaultValue(defaultValue);
+			schema.setConstant(element); 
+			schema.setEnums(enums);
+			
+			assertEquals(SchemaValidator.validate(null, schema, null,  element), element); }
+		
+		
+		@Test 
+		void schemaValidatorIntegratedTest() {
+			
+			JsonObject defaultValue = new JsonObject(); 
+			defaultValue.addProperty("value", 123);
+			
+			JsonObject element = new JsonObject();
+			element.addProperty("value", "constant");
+			
+			List<JsonElement> enums = new ArrayList<JsonElement>();
+			enums.add(defaultValue);
+			enums.add(element);
+			
+			Schema schema = new Schema(); 
+			schema.setType(Type.of(SchemaType.ARRAY)); 
+			schema.setDefaultValue(defaultValue);
+			schema.setConstant(element);
+			schema.setEnums(enums);
+			schema.setRef("test_ref");
+			schema.setNot(schema);
+						
+			assertEquals(SchemaValidator.validate(null, schema, null,  element), element); }
 		
 }
