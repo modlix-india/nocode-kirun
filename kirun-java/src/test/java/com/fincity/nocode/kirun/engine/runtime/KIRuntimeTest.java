@@ -9,7 +9,11 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.Statement;
+import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
@@ -46,4 +50,16 @@ class KIRuntimeTest {
 //		        .expectNext(EventResult.outputOf(Map.ofEntries(Map.entry("Series", array))));
 	}
 
+	@Test
+	void testSingleFunctionCall() {
+		new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
+		        .setName("SingleCall")
+		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
+		                .setSchema(Schema.INTEGER))))
+		        .setSteps(Map.ofEntries(
+		        		Statement.ofEntry(new Statement("first").setNamespace(Namespaces.MATH).setName(null))
+		        		)),
+		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(-10))));
+	}
 }

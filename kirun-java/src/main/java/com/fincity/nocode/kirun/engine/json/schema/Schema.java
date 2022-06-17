@@ -119,7 +119,7 @@ public class Schema implements Serializable {
 	                        entry("contains", Schema.ofRef(SHEMA_ROOT_PATH)), entry("minItems", INTEGER),
 	                        entry("maxItems", INTEGER), entry("uniqueItems", BOOLEAN),
 
-	                        entry("definitions", Schema.of("definitions", SchemaType.OBJECT)
+	                        entry("$defs", Schema.of("$defs", SchemaType.OBJECT)
 	                                .setAdditionalProperties(new AdditionalPropertiesType()
 	                                        .setSchemaValue(Schema.ofRef(SHEMA_ROOT_PATH)))),
 
@@ -199,7 +199,7 @@ public class Schema implements Serializable {
 	private Integer maxItems;
 	private Boolean uniqueItems;
 
-	private Map<String, Schema> def;
+	private Map<String, Schema> $defs; //NOSONAR - needed as per json schema
 	private String permission;
 
 	public String getTitle() {
@@ -211,10 +211,21 @@ public class Schema implements Serializable {
 	}
 
 	public String getFullName() {
-		
+
 		if (this.namespace == null)
 			return this.name;
 
 		return this.namespace + "." + this.name;
+	}
+
+	public Map<String, Schema> get$defs() { //NOSONAR - needed as per json schema
+		
+		return this.$defs;
+	}
+
+	public Schema set$defs(Map<String, Schema> $defs) { //NOSONAR - needed as per json schema
+		
+		this.$defs = $defs;
+		return this;
 	}
 }
