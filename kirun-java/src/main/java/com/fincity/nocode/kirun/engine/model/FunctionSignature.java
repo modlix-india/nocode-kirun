@@ -31,12 +31,4 @@ public class FunctionSignature implements Serializable {
 	private String name;
 	private Map<String, Parameter> parameters = Map.of();
 	private Map<String, Event> events = Map.of();
-	
-	public String getFullName() {
-		
-		if (this.namespace == null || this.namespace.isBlank())
-			return this.name;
-		
-		return this.namespace + "." + this.name;
-	}
 }

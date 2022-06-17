@@ -210,7 +210,7 @@ public class Schema implements Serializable {
 		return this.getFullName();
 	}
 
-	public String getFullName() {
+	private String getFullName() {
 
 		if (this.namespace == null)
 			return this.name;

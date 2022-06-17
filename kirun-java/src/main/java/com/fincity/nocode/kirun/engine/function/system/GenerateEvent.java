@@ -5,8 +5,8 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -16,19 +16,23 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import reactor.core.publisher.Flux;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 public class GenerateEvent extends AbstractFunction {
 
 	static final String EVENT_NAME = "eventName";
 
-	static final String RESULT = "result";
+	static final String RESULTS = "results";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("GenerateEvent")
 	        .setNamespace(SYSTEM)
 	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.STRING),
-	                Parameter.ofEntry(RESULT, Schema.ofObject(RESULT))))
+	                Parameter.ofEntry(RESULTS, Schema.ofObject(RESULTS)
+	                        .setProperties(Map.of("name", Schema.STRING, "value", Schema.ANY)), true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
@@ -45,13 +49,14 @@ public class GenerateEvent extends AbstractFunction {
 		String eventName = arguments.get(EVENT_NAME)
 		        .getAsString();
 
-		Map<String, JsonElement> map = context.getArguments()
-		        .get(RESULT)
-		        .getAsJsonObject()
-		        .entrySet()
-		        .stream()
-		        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-
+		Map<String, JsonElement> map = StreamSupport.stream(context.getArguments()
+		        .get(RESULTS)
+		        .getAsJsonArray()
+		        .spliterator(), false)
+				.map(JsonObject.class::cast)
+				.map(e -> Tuples.of(e.get("name").getAsString(), e.get("value")))
+				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+		        
 		events.computeIfAbsent(eventName, k -> new ArrayList<>())
 		        .add(map);
 

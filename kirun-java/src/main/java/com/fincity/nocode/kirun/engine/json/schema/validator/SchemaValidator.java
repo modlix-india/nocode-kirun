@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.google.gson.JsonElement;
 
@@ -36,7 +37,8 @@ public class SchemaValidator {
 		// Need to write test cases to find out if element can be null at this point.
 		if (schema.getRef() != null && !schema.getRef()
 		        .isBlank() && element.isJsonObject()) {
-			return validate(parents, repository.find(schema.getRef()), repository, element);
+			return validate(parents, SchemaUtil.getSchemaFromRef(schema, repository, schema.getRef()), repository,
+			        element);
 		}
 
 		if (schema.getOneOf() != null || schema.getAllOf() != null || schema.getAnyOf() != null) {

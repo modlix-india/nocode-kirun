@@ -4,18 +4,21 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonElement;
 
 public class ExpressionEvaluator {
 
+	private String expression;
+
 	public ExpressionEvaluator(String expression) {
-		// TODO Auto-generated constructor stub
+		this.expression = expression;
 	}
 
-	public JsonElement evaluate(Map<String, ContextElement> context, Map<String, Map<String, Map<String, JsonElement>>> results) {
-		// TODO Auto-generated method stub
+	public JsonElement evaluate(FunctionExecutionParameters context,
+	        Map<String, Map<String, Map<String, JsonElement>>> steps) {
+
 		return null;
 	}
 
-	
 }
