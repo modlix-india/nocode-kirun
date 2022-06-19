@@ -2,7 +2,6 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -17,18 +16,18 @@ import reactor.util.function.Tuples;
 
 public class Expression extends ExpressionToken {
 
-	private static final Set<String> ARITHMETIC_OPERATORS = Set.of("*", "/", "%", "+", "-");
+	public static final Set<String> ARITHMETIC_OPERATORS = Set.of("*", "/", "%", "+", "-");
 
-	private static final Set<String> LOGICAL_OPERATORS = Set.of("not", "and", "or", "<", "<=", ">", ">=", "=", "!=");
+	public static final Set<String> LOGICAL_OPERATORS = Set.of("not", "and", "or", "<", "<=", ">", ">=", "=", "!=");
 
-	private static final Set<String> BITWISE_OPERATORS = Set.of("&", "|", "^", "~", "<<", ">>", ">>>");
+	public static final Set<String> BITWISE_OPERATORS = Set.of("&", "|", "^", "~", "<<", ">>", ">>>");
 
 	private static final Set<String> OPERATORS = Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream())
 	        .flatMap(Function.identity())
 	        .collect(Collectors.toUnmodifiableSet());
 
-	private static final Set<String> UNARY_OPERATORS = Set.of("+", "-", "not", "~");
+	public static final Set<String> UNARY_OPERATORS = Set.of("+", "-", "not", "~");
 
 	private static final Map<String, Integer> OPERATOR_PRIORITY = Map.ofEntries(Map.entry("UN: +", 1),
 	        Map.entry("UN: -", 1), Map.entry("UN: not", 1), Map.entry("UN: ~", 1), Map.entry("*", 2), Map.entry("/", 2),
@@ -63,11 +62,11 @@ public class Expression extends ExpressionToken {
 		this.ops.push(op);
 	}
 
-	public List<ExpressionToken> getTokens() {
+	public LinkedList<ExpressionToken> getTokens() { // NOSONAR - LinkedList is required
 		return this.tokens;
 	}
 
-	public List<String> getOperations() {
+	public LinkedList<String> getOperations() {// NOSONAR - LinkedList is required
 		return this.ops;
 	}
 
