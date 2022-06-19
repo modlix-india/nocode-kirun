@@ -32,20 +32,20 @@ public class ExpressionEvaluator {
 
 	private JsonElement evaluateExpression(Expression exp, Map<String, TokenValueExtractor> valuesMap) {
 
-		LinkedList<String> ops = exp.getOperations();
+		LinkedList<Operation> ops = exp.getOperations();
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
 
 		while (!ops.isEmpty()) {
 
-			String operator = ops.pop();
+			Operation operator = ops.pop();
 
-			if (operator.startsWith("UN: ")) {
+			if (Operation.UNARY_OPERATORS.contains(operator)) {
 
-				JsonElement element = null;
-
-				getValueFromToken(valuesMap, tokens);
+				JsonElement element = getValueFromToken(valuesMap, tokens);
 			}
 		}
+		
+		return null;
 	}
 
 	private JsonElement getValueFromToken(Map<String, TokenValueExtractor> valuesMap,

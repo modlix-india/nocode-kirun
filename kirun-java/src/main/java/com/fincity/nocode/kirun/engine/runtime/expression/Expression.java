@@ -1,12 +1,12 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OPERATORS;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OPERATOR_PRIORITY;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MAP;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_OPERATORS;
+
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
@@ -16,28 +16,8 @@ import reactor.util.function.Tuples;
 
 public class Expression extends ExpressionToken {
 
-	public static final Set<String> ARITHMETIC_OPERATORS = Set.of("*", "/", "%", "+", "-");
-
-	public static final Set<String> LOGICAL_OPERATORS = Set.of("not", "and", "or", "<", "<=", ">", ">=", "=", "!=");
-
-	public static final Set<String> BITWISE_OPERATORS = Set.of("&", "|", "^", "~", "<<", ">>", ">>>");
-
-	private static final Set<String> OPERATORS = Stream
-	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream())
-	        .flatMap(Function.identity())
-	        .collect(Collectors.toUnmodifiableSet());
-
-	public static final Set<String> UNARY_OPERATORS = Set.of("+", "-", "not", "~");
-
-	private static final Map<String, Integer> OPERATOR_PRIORITY = Map.ofEntries(Map.entry("UN: +", 1),
-	        Map.entry("UN: -", 1), Map.entry("UN: not", 1), Map.entry("UN: ~", 1), Map.entry("*", 2), Map.entry("/", 2),
-	        Map.entry("%", 2), Map.entry("+", 3), Map.entry("-", 3), Map.entry("<<", 4), Map.entry(">>", 4),
-	        Map.entry(">>>", 4), Map.entry("<", 5), Map.entry("<=", 5), Map.entry(">", 5), Map.entry(">=", 5),
-	        Map.entry("=", 6), Map.entry("!=", 6), Map.entry("&", 7), Map.entry("^", 8), Map.entry("|", 9),
-	        Map.entry("and", 10), Map.entry("or", 11));
-
 	private LinkedList<ExpressionToken> tokens = new LinkedList<>();
-	private LinkedList<String> ops = new LinkedList<>();
+	private LinkedList<Operation> ops = new LinkedList<>();
 
 	public Expression(String expression) {
 
@@ -48,13 +28,13 @@ public class Expression extends ExpressionToken {
 		this.evaluate();
 	}
 
-	public Expression(ExpressionToken token, String op) {
+	public Expression(ExpressionToken token, Operation op) {
 		super("");
 		this.tokens.push(token);
 		this.ops.push(op);
 	}
 
-	public Expression(ExpressionToken l, ExpressionToken r, String op) {
+	public Expression(ExpressionToken l, ExpressionToken r, Operation op) {
 
 		super("");
 		this.tokens.push(l);
@@ -66,7 +46,7 @@ public class Expression extends ExpressionToken {
 		return this.tokens;
 	}
 
-	public LinkedList<String> getOperations() {// NOSONAR - LinkedList is required
+	public LinkedList<Operation> getOperations() {// NOSONAR - LinkedList is required
 		return this.ops;
 	}
 
@@ -124,7 +104,7 @@ public class Expression extends ExpressionToken {
 
 		if (chr == '!' && i + 1 < length && this.expression.charAt(i + 1) == '=') {
 			++i;
-			checkUnaryOperator(tokens, ops, "!=", isPrevOp);
+			checkUnaryOperator(tokens, ops, Operation.NOT_EQUAL, isPrevOp);
 			isPrevOp = true;
 			sb.setLength(0);
 		} else {
@@ -135,13 +115,13 @@ public class Expression extends ExpressionToken {
 					tokens.push(new ExpressionToken(buff));
 					isPrevOp = false;
 				}
-				checkUnaryOperator(tokens, ops, op, isPrevOp);
+				checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(op), isPrevOp);
 				isPrevOp = true;
 				sb.setLength(0);
 			} else {
 				op = sb.toString();
 				if (OPERATORS.contains(op)) {
-					checkUnaryOperator(tokens, ops, op, isPrevOp);
+					checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(op), isPrevOp);
 					isPrevOp = true;
 					sb.setLength(0);
 				} else {
@@ -156,7 +136,7 @@ public class Expression extends ExpressionToken {
 	private int processSubExpression(final int length, StringBuilder sb, String buff, int i, boolean isPrevOp) {
 
 		if (OPERATORS.contains(buff)) {
-			checkUnaryOperator(tokens, ops, buff, isPrevOp);
+			checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(buff), isPrevOp);
 			sb.setLength(0);
 		} else if (!buff.isBlank()) {
 			throw new KIRuntimeException(StringFormatter.format("Unkown token : $ found.", buff));
@@ -196,7 +176,7 @@ public class Expression extends ExpressionToken {
 		if (!buff.isBlank()) {
 
 			if (OPERATORS.contains(buff)) {
-				checkUnaryOperator(tokens, ops, buff, isPrevOp);
+				checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(buff), isPrevOp);
 				isPrevOp = true;
 			} else {
 				tokens.push(new ExpressionToken(buff));
@@ -208,19 +188,20 @@ public class Expression extends ExpressionToken {
 		return isPrevOp;
 	}
 
-	private void checkUnaryOperator(Deque<ExpressionToken> tokens, Deque<String> ops, String op, boolean isPrevOp) {
+	private void checkUnaryOperator(Deque<ExpressionToken> tokens, Deque<Operation> ops, Operation op,
+	        boolean isPrevOp) {
 
 		if (isPrevOp || tokens.isEmpty()) {
 			if (UNARY_OPERATORS.contains(op))
-				ops.push("UN: " + op);
+				ops.push(UNARY_MAP.get(op));
 			else
 				throw new KIRuntimeException(StringFormatter.format("Extra operator $ found.", op));
 		} else {
 			while (!ops.isEmpty() && hasPrecedence(op, ops.peek())) {
 
-				String prev = ops.pop();
+				Operation prev = ops.pop();
 
-				if (prev.startsWith("UN: ")) {
+				if (UNARY_OPERATORS.contains(prev)) {
 					ExpressionToken l = tokens.pop();
 					tokens.push(new Expression(l, prev));
 				} else {
@@ -234,7 +215,7 @@ public class Expression extends ExpressionToken {
 		}
 	}
 
-	private boolean hasPrecedence(String op1, String op2) {
+	private boolean hasPrecedence(Operation op1, Operation op2) {
 
 		int pre1 = OPERATOR_PRIORITY.get(op1);
 		int pre2 = OPERATOR_PRIORITY.get(op2);
@@ -249,10 +230,10 @@ public class Expression extends ExpressionToken {
 		int ind = 0;
 		for (int i = 0; i < this.ops.size(); i++) {
 
-			if (this.ops.get(i)
-			        .startsWith("UN: ")) {
+			if (this.ops.get(i).getOperator().startsWith("UN: ")) {
 				sb.append("(")
 				        .append(this.ops.get(i)
+				                .getOperator()
 				                .substring(4))
 				        .append(this.tokens.get(ind))
 				        .append(")");
@@ -262,7 +243,7 @@ public class Expression extends ExpressionToken {
 				if (ind == 0) {
 					sb.insert(0, this.tokens.get(ind++));
 				}
-				sb.insert(0, this.ops.get(i))
+				sb.insert(0, this.ops.get(i).getOperator())
 				        .insert(0, this.tokens.get(ind++))
 				        .insert(0, "(")
 				        .append(")");
