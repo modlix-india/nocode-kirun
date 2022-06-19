@@ -230,7 +230,9 @@ public class Expression extends ExpressionToken {
 		int ind = 0;
 		for (int i = 0; i < this.ops.size(); i++) {
 
-			if (this.ops.get(i).getOperator().startsWith("UN: ")) {
+			if (this.ops.get(i)
+			        .getOperator()
+			        .startsWith("UN: ")) {
 				sb.append("(")
 				        .append(this.ops.get(i)
 				                .getOperator()
@@ -243,7 +245,8 @@ public class Expression extends ExpressionToken {
 				if (ind == 0) {
 					sb.insert(0, this.tokens.get(ind++));
 				}
-				sb.insert(0, this.ops.get(i).getOperator())
+				sb.insert(0, this.ops.get(i)
+				        .getOperator())
 				        .insert(0, this.tokens.get(ind++))
 				        .insert(0, "(")
 				        .append(")");
