@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 public class KIRunSchemaRepository implements Repository<Schema> {
 
@@ -12,20 +13,24 @@ public class KIRunSchemaRepository implements Repository<Schema> {
 
 	public KIRunSchemaRepository() {
 
-		map.put(Schema.ANY.getFullName(), Schema.ANY);
-		map.put(Schema.BOOLEAN.getFullName(), Schema.BOOLEAN);
-		map.put(Schema.DOUBLE.getFullName(), Schema.DOUBLE);
-		map.put(Schema.FLOAT.getFullName(), Schema.FLOAT);
-		map.put(Schema.INTEGER.getFullName(), Schema.INTEGER);
-		map.put(Schema.LONG.getFullName(), Schema.LONG);
-		map.put(Schema.NULL.getFullName(), Schema.NULL);
-		map.put(Schema.NUMBER.getFullName(), Schema.NUMBER);
-		map.put(Schema.SCHEMA.getFullName(), Schema.SCHEMA);
-		map.put(Schema.STRING.getFullName(), Schema.STRING);
+		map.put(Schema.ANY.getName(), Schema.ANY);
+		map.put(Schema.BOOLEAN.getName(), Schema.BOOLEAN);
+		map.put(Schema.DOUBLE.getName(), Schema.DOUBLE);
+		map.put(Schema.FLOAT.getName(), Schema.FLOAT);
+		map.put(Schema.INTEGER.getName(), Schema.INTEGER);
+		map.put(Schema.LONG.getName(), Schema.LONG);
+		map.put(Schema.NULL.getName(), Schema.NULL);
+		map.put(Schema.NUMBER.getName(), Schema.NUMBER);
+		map.put(Schema.SCHEMA.getName(), Schema.SCHEMA);
+		map.put(Schema.STRING.getName(), Schema.STRING);
 	}
 
 	@Override
-	public Schema find(String name) {
+	public Schema find(String namespace, String name) {
+
+		if (!Namespaces.SYSTEM.equals(namespace))
+			return null;
+
 		return map.get(name);
 	}
 }
