@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.validator.NumberValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -21,6 +23,7 @@ public class SchemaValidatorTest{
 		void schemaValidatortestForNullSchema() {
 			
 			Schema schema = new Schema();
+			schema = null;
 			
 			JsonElement element = new JsonObject();
 			
@@ -83,49 +86,85 @@ public class SchemaValidatorTest{
 					
 	}
 		
+		
 		@Test 
-		void schemaValidatortestForEnmumCheck() {
+		void schemaValidatorTestForEnumCheck(){
 			
 			JsonObject defaultValue = new JsonObject(); 
 			defaultValue.addProperty("value", 123);
 			
-			JsonObject element = new JsonObject();
-			element.addProperty("value", "constant");
+			JsonArray element = new JsonArray();
+			element.add(1);
+			element.add(2);
 			
 			List<JsonElement> enums = new ArrayList<JsonElement>();
 			enums.add(defaultValue);
-			enums.add(element);
 			
 			Schema schema = new Schema(); 
 			schema.setType(Type.of(SchemaType.ARRAY)); 
 			schema.setDefaultValue(defaultValue);
-			schema.setConstant(element); 
 			schema.setEnums(enums);
-			
-			assertEquals(SchemaValidator.validate(null, schema, null,  element), element); }
-		
-		
-		@Test 
-		void schemaValidatorIntegratedTest() {
-			
-			JsonObject defaultValue = new JsonObject(); 
-			defaultValue.addProperty("value", 123);
-			
-			JsonObject element = new JsonObject();
-			element.addProperty("value", "constant");
-			
-			List<JsonElement> enums = new ArrayList<JsonElement>();
-			enums.add(defaultValue);
-			enums.add(element);
-			
-			Schema schema = new Schema(); 
-			schema.setType(Type.of(SchemaType.ARRAY)); 
-			schema.setDefaultValue(defaultValue);
-			schema.setConstant(element);
-			schema.setEnums(enums);
+						
 			schema.setRef("test_ref");
 			schema.setNot(schema);
-						
+			
+			SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+					() -> SchemaValidator.validate(null, schema, null, element));
+			
+			assertEquals("Value is not one of " + schema.getEnums(), schemaValidationException.getMessage());
+			
+			//For positive case
+			enums.add(element);
+			schema.setEnums(enums);
 			assertEquals(SchemaValidator.validate(null, schema, null,  element), element); }
 		
+		
+		
+		@Test 
+		void schemaValidatorIfGetNot(){
+			
+			JsonObject defaultValue = new JsonObject(); 
+			defaultValue.addProperty("value", 123);
+			
+			JsonArray element = new JsonArray();
+			element.add(1);
+			element.add(2);
+			
+			Schema schema = new Schema(); 
+			schema.setDefaultValue(defaultValue);
+			
+			Schema setNotSchema = new Schema();
+			schema.setNot(setNotSchema);
+			
+			SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+					() -> SchemaValidator.validate(null, schema, null, element));
+			assertEquals("Schema validated value in not condition.", schemaValidationException.getMessage());
+						
+}
+		
+		@Test 
+		void schemaValidatorForTypeValidation(){
+			
+			JsonObject defaultValue = new JsonObject(); 
+			defaultValue.addProperty("value", 123);
+			
+			JsonArray element = new JsonArray();
+			element.add(1);
+			element.add(2);
+			
+			Schema schema = new Schema(); 
+			schema.setDefaultValue(defaultValue);
+			schema.setType(Type.of(SchemaType.ARRAY));
+			
+			assertEquals(SchemaValidator.validate(null, schema, null,  element), element);
+			
+			schema.setType(Type.of(SchemaType.NULL));
+			
+			SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+					() -> SchemaValidator.validate(null, schema, null, element));
+			assertEquals("Value " + element + " is not of valid type(s)" , schemaValidationException.getMessage());
+						
+}
+		
+					
 }

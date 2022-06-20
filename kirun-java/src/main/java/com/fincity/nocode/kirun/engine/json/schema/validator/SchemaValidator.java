@@ -14,11 +14,14 @@ public class SchemaValidator {
 	public static JsonElement validate(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
-		if (schema == null)
+	
+		if (schema == null) {
 			return element;
-
-		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null)
+		}
+		
+		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null) {
 			return schema.getDefaultValue();
+		}
 
 		if (schema.getConstant() != null) {
 			return constantValidation(parents, schema, element);
@@ -31,7 +34,7 @@ public class SchemaValidator {
 
 		if (schema.getType() != null) {
 			typeValidation(parents, schema, repository, element);
-		}
+			}
 
 		// Need to write test cases to find out if element can be null at this point.
 		if (schema.getRef() != null && !schema.getRef()
@@ -59,7 +62,7 @@ public class SchemaValidator {
 		return element;
 	}
 
-	private static JsonElement constantValidation(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement constantValidation(List<String> parents, Schema schema, JsonElement element) {
 		if (!schema.getConstant()
 		        .equals(element)) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
@@ -68,10 +71,12 @@ public class SchemaValidator {
 		return element;
 	}
 
-	private static JsonElement enumCheck(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement enumCheck(List<String> parents, Schema schema, JsonElement element) {
 
 		boolean x = false;
 		for (JsonElement e : schema.getEnums()) {
+			
+			
 			if (e.equals(element)) {
 				x = true;
 				break;
@@ -86,7 +91,7 @@ public class SchemaValidator {
 		}
 	}
 
-	private static void typeValidation(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static void typeValidation(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		boolean valid = false;

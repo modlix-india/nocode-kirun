@@ -29,14 +29,16 @@ public class ArrayValidator {
 
 		checkMinMaxItems(parents, schema, array);
 
+		System.out.print("before check items");
 		checkItems(parents, schema, repository, array);
-
+		System.out.print("after check items"); 
+		
 		checkUniqueItems(parents, schema, array);
 
 		checkContains(parents, schema, repository, array);
 	}
 
-	private static void checkContains(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static void checkContains(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonArray array) {
 
 		if (schema.getContains() == null)
@@ -47,6 +49,8 @@ public class ArrayValidator {
 			List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 			newParents.add("" + i);
 			try {
+				System.out.print(newParents);
+				System.out.print(schema.getContains());
 				SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
 				flag = true;
 				break;
@@ -62,7 +66,7 @@ public class ArrayValidator {
 
 	}
 
-	private static void checkUniqueItems(List<String> parents, Schema schema, JsonArray array) {
+	public static void checkUniqueItems(List<String> parents, Schema schema, JsonArray array) {
 		if (schema.getUniqueItems() != null && schema.getUniqueItems()
 		        .booleanValue()) {
 
@@ -77,7 +81,7 @@ public class ArrayValidator {
 		}
 	}
 
-	private static void checkMinMaxItems(List<String> parents, Schema schema, JsonArray array) {
+	public static void checkMinMaxItems(List<String> parents, Schema schema, JsonArray array) {
 		if (schema.getMinItems() != null && schema.getMinItems()
 		        .intValue() > array.size()) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
@@ -91,17 +95,18 @@ public class ArrayValidator {
 		}
 	}
 
-	private static void checkItems(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static void checkItems(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonArray array) {
 		ArraySchemaType type = schema.getItems();
+		System.out.print(" enetered ");
 		if (type == null)
 			return;
 
 		if (type.getSingleSchema() != null) {
-
 			for (int i = 0; i < array.size(); i++) {
 				List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 				newParents.add("" + i);
+				
 				JsonElement element = SchemaValidator.validate(newParents, type.getSingleSchema(), repository,
 				        array.get(i));
 				array.set(i, element);
@@ -109,7 +114,6 @@ public class ArrayValidator {
 		}
 
 		if (type.getTupleSchema() != null) {
-
 			if (type.getTupleSchema()
 			        .size() != array.size()) {
 				throw new SchemaValidationException(path(parents, schema.getName()),
