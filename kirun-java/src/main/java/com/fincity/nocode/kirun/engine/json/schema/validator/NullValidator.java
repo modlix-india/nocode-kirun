@@ -9,11 +9,13 @@ import com.google.gson.JsonElement;
 
 public class NullValidator {
 
-	public static void validate(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
 
 		if (element != null && !element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()),
 			        "Expected a null but found " + element);
+		
+		return element;
 	}
 
 	private NullValidator() {

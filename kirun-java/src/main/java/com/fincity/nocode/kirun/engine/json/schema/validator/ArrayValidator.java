@@ -1,5 +1,5 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator;
-
+ 
 import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import com.google.gson.JsonElement;
 
 public class ArrayValidator {
 
-	public static void validate(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static JsonElement validate(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		if (element == null || element.isJsonNull())
@@ -29,13 +29,13 @@ public class ArrayValidator {
 
 		checkMinMaxItems(parents, schema, array);
 
-		System.out.print("before check items");
 		checkItems(parents, schema, repository, array);
-		System.out.print("after check items"); 
 		
 		checkUniqueItems(parents, schema, array);
 
 		checkContains(parents, schema, repository, array);
+		
+		return element;
 	}
 
 	public static void checkContains(List<String> parents, Schema schema, Repository<Schema> repository,
@@ -49,8 +49,6 @@ public class ArrayValidator {
 			List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 			newParents.add("" + i);
 			try {
-				System.out.print(newParents);
-				System.out.print(schema.getContains());
 				SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
 				flag = true;
 				break;
@@ -98,7 +96,7 @@ public class ArrayValidator {
 	public static void checkItems(List<String> parents, Schema schema, Repository<Schema> repository,
 	        JsonArray array) {
 		ArraySchemaType type = schema.getItems();
-		System.out.print(" enetered ");
+
 		if (type == null)
 			return;
 

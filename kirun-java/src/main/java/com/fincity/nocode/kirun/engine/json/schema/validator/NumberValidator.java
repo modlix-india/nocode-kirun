@@ -11,8 +11,8 @@ import com.google.gson.JsonPrimitive;
 
 public class NumberValidator {
 
-	public static void validate(SchemaType type, List<String> parents, Schema schema, JsonElement element) {
-
+	public static JsonElement validate(SchemaType type, List<String> parents, Schema schema, JsonElement element) {
+		
 		if (element == null || element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a number but found null");
 
@@ -27,11 +27,15 @@ public class NumberValidator {
 		checkRange(parents, schema, element, n);
 
 		checkMultipleOf(parents, schema, element, n);
+		
+		return element;
+	
 	}
 
 	private static void checkMultipleOf(List<String> parents, Schema schema, JsonElement element, Number n) {
 		if (schema.getMultipleOf() != null) {
 			if (n instanceof Float || n instanceof Double) {
+				
 				Double d1 = Double.valueOf(n.toString());
 				Double d2 = Double.valueOf(schema.getMultipleOf()
 				        .toString());

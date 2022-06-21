@@ -20,7 +20,7 @@ public class StringValidator {
 	private static final Pattern DATETIME = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])T" // NOSONAR
 	        + "([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$");
 
-	public static void validate(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
 
 		if (element == null || element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a string but found null");
@@ -52,13 +52,14 @@ public class StringValidator {
 			throw new SchemaValidationException(path(parents, schema.getName()),
 			        "Expected a maximum of " + schema.getMaxLength() + " characters");
 		}
+		
+		return element;
 	}
 
 	private static void patternMatcher(List<String> parents, Schema schema, JsonElement element, JsonPrimitive jp,
 	        Pattern pattern, String message) {
 
-		boolean matched = pattern.matcher(jp.getAsString())
-		        .matches();
+		boolean matched = pattern.matcher(jp.getAsString()).matches();
 		if (!matched) {
 			throw new SchemaValidationException(path(parents, schema.getName()),
 			        element.toString() + " is not matched with the " + message);

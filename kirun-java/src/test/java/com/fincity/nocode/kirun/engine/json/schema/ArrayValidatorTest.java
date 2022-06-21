@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidationExc
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
+ 
 class ArrayValidatorTest {
 	Schema schema = new Schema();
 	

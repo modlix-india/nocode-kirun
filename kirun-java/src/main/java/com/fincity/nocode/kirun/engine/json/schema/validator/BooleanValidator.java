@@ -10,14 +10,19 @@ import com.google.gson.JsonPrimitive;
 
 public class BooleanValidator {
 
-	public static void validate(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
 
+		System.out.print("element");
+		System.out.print(element);
+		
 		if (element == null || element.isJsonNull())
 			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a boolean but found null");
 
 		if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isBoolean())
 			throw new SchemaValidationException(path(parents, schema.getName()),
 			        element.toString() + " is not a boolean");
+		
+		return element;
 	}
 
 	private BooleanValidator() {

@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.Assert.assertEquals;
 
+
 import static org.junit.Assert.assertThrows;
 
 import org.json.JSONStringer;
@@ -19,8 +20,10 @@ public class NumberValidatorTest {
 	@Test
 	void NumberValidatorValidateTestForNull() {
 
+		JsonObject element = null;
+		Schema schema = new Schema();
 		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
-				() -> NumberValidator.validate(null, null, null, null));
+				() -> NumberValidator.validate(null, null, schema, element));
 
 		assertEquals("Expected a number but found null", schemaValidationException.getMessage());
 	}
@@ -81,6 +84,44 @@ public class NumberValidatorTest {
 	}
 	
 	@Test
+	void NumberValidatorValidateTestForRangeCheckExclusiveMaximum() {
+		
+		JsonObject element = new JsonObject();
+		element.addProperty("value", 10.7);
+				
+		SchemaType type = SchemaType.FLOAT;
+
+		Schema schema = new Schema();
+		schema.setType(Type.of(SchemaType.FLOAT));
+		schema.setExclusiveMaximum(9);
+
+		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+				() -> NumberValidator.validate(type, null, schema, element.get("value")));
+
+		assertEquals(element.get("value") + " should be less than " + schema.getExclusiveMaximum(),
+				schemaValidationException.getMessage());
+	}
+	
+	@Test
+	void NumberValidatorValidateTestForRangeCheckExclusiveMinimum() {
+		
+		JsonObject element = new JsonObject();
+		element.addProperty("value", 4);
+				
+		SchemaType type = SchemaType.FLOAT;
+
+		Schema schema = new Schema();
+		schema.setType(Type.of(SchemaType.FLOAT));
+		schema.setExclusiveMinimum(9);
+
+		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+				() -> NumberValidator.validate(type, null, schema, element.get("value")));
+
+		assertEquals(element.get("value") + " should be greater than " + schema.getExclusiveMinimum(),
+				schemaValidationException.getMessage());
+	}
+	
+	@Test
 	void NumberValidatorValidateTestForMultipleCheck() {
 
 		JsonObject element = new JsonObject();
@@ -91,6 +132,28 @@ public class NumberValidatorTest {
 		Schema schema = new Schema();
 		Long value = (long) 7738718;
 		schema.setType(Type.of(SchemaType.LONG));
+		schema.setMultipleOf(value);
+
+		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+				() -> NumberValidator.validate(type, null, schema, element.get("value")));
+
+		assertEquals(element.get("value").toString() + " is not multiple of " + schema.getMultipleOf(),
+				schemaValidationException.getMessage());
+	}
+	
+	@Test
+	void NumberValidatorValidateTestForMultipleCheckForDoubleValue() {
+
+		JsonObject element = new JsonObject();
+		element.addProperty("value", 10.7);
+
+		SchemaType type = SchemaType.FLOAT;
+
+		Schema schema = new Schema();
+		float number = 444.33f;
+		long value = (long) number;
+
+		schema.setType(Type.of(SchemaType.FLOAT));
 		schema.setMultipleOf(value);
 
 		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
