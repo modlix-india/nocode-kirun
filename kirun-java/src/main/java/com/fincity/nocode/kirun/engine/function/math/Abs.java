@@ -40,7 +40,7 @@ public class Abs extends AbstractFunction {
 		return Flux.just(context.getArguments().get(VALUE))
 		        .map(pValue ->
 			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveType(pValue.getAsJsonPrimitive());
+				        SchemaType type = PrimitiveUtil.findPrimitiveNumberType(pValue.getAsJsonPrimitive());
 				        JsonPrimitive rValue = null;
 
 				        switch (type) {

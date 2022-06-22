@@ -48,7 +48,7 @@ public class Add extends AbstractFunction {
 		        .map(JsonPrimitive.class::cast)
 		        .map(e ->
 			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveType(e);
+				        SchemaType type = PrimitiveUtil.findPrimitiveNumberType(e);
 
 				        if (type == SchemaType.INTEGER)
 					        return e.getAsInt();

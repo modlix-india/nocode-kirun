@@ -12,7 +12,9 @@ import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.Context
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.LiteralTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.OutputMapTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
+import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import reactor.util.function.Tuple3;
@@ -49,11 +51,13 @@ public class ExpressionEvaluator {
 			ExpressionToken token = tokens.pop();
 
 			if (Operation.UNARY_OPERATORS.contains(operator)) {
+
 				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
 			} else {
 				ExpressionToken token2 = tokens.pop();
-				
-				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token), getValueFromToken(valuesMap, token2)));
+
+				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token),
+				        getValueFromToken(valuesMap, token2)));
 			}
 		}
 
@@ -66,15 +70,29 @@ public class ExpressionEvaluator {
 		return null;
 	}
 
-	private ExpressionToken applyOperation(Operation operator, JsonElement valueFromToken) {
-		// TODO Auto-generated method stub
-		return null;
+	private ExpressionToken applyOperation(Operation operator, JsonElement value) {
+
+		if (value == null || !value.isJsonPrimitive() || value == JsonNull.INSTANCE)
+			throw new ExpressionEvaluationException(this.expression,
+			        StringFormatter.format("The operator $ cannot be applied to $", operator, value));
+
+		switch (operator) {
+		case UNARY_PLUS:
+
+		case UNARY_MINUS:
+
+		case UNARY_LOGICAL_NOT:
+
+		case UNARY_BITWISE_COMPLEMENT:
+
+		default:
+			throw new ExpressionEvaluationException(this.expression,
+			        StringFormatter.format("The operator $ cannot be applied to $", operator, value));
+		}
 	}
 
-	private JsonElement getValueFromToken(Map<String, TokenValueExtractor> valuesMap,
-	        ExpressionToken token) {
+	private JsonElement getValueFromToken(Map<String, TokenValueExtractor> valuesMap, ExpressionToken token) {
 
-		
 		if (token instanceof Expression ex) {
 			return this.evaluateExpression(ex, valuesMap);
 		} else if (token instanceof ExpressionTokenValue v) {

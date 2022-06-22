@@ -2,34 +2,61 @@ package com.fincity.nocode.kirun.engine.function.util;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
+import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.LazilyParsedNumber;
 
 public class PrimitiveUtil {
 
-	public static SchemaType findPrimitiveType(JsonPrimitive value) {
+	public static SchemaType findPrimitiveNumberType(JsonPrimitive value) {
+
+		if (value == null || !value.isNumber())
+			throw new ExecutionException(StringFormatter.format("Unable to convert $ to a number.", value));
 
 		try {
-			Double d = value.getAsDouble();
-			Long l = d.longValue();
-			if (d.doubleValue() == l.doubleValue()) {
+			Number number = value.getAsNumber();
 
-				Integer i = l.intValue();
+			if (!(number instanceof LazilyParsedNumber))
+				return baseNumberType(number);
 
-				if (l.longValue() == i.longValue())
+			int ind = value.getAsString()
+			        .indexOf('.');
+			if (ind == -1) {
+
+				Long num = number.longValue();
+				int intNum = num.intValue();
+				if (num == intNum)
 					return SchemaType.INTEGER;
-				else
-					return SchemaType.LONG;
+				return SchemaType.LONG;
 			} else {
+
+				Double d = number.doubleValue();
 				Float f = d.floatValue();
-				if (f.doubleValue() == d.doubleValue())
+
+				if (d == 0.0d)
 					return SchemaType.FLOAT;
-				else
-					return SchemaType.DOUBLE;
+
+				return f != 0.0f && f != Float.POSITIVE_INFINITY && f != Float.NEGATIVE_INFINITY ? SchemaType.FLOAT
+				        : SchemaType.DOUBLE;
 			}
 		} catch (Exception ex) {
 
-			throw new ExecutionException("Unable to convert the number.", ex);
+			throw new ExecutionException(StringFormatter.format("Unable to convert $ to a number.", value), ex);
 		}
+	}
+
+	private static SchemaType baseNumberType(Number number) {
+		
+		if (number instanceof Integer)
+			return SchemaType.INTEGER;
+		if (number instanceof Float)
+			return SchemaType.FLOAT;
+		if (number instanceof Long)
+			return SchemaType.LONG;
+		if (number instanceof Double)
+			return SchemaType.DOUBLE;
+		
+		throw new ExecutionException(StringFormatter.format("Unable to identified the Number type of $", number));
 	}
 
 	private PrimitiveUtil() {
