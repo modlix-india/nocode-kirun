@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

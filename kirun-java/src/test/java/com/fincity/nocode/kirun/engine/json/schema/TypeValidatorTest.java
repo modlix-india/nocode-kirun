@@ -1,27 +1,19 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
-import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.validator.ArrayValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.BooleanValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.NullValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.NumberValidator;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidationException;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.StringValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.TypeValidator;
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 

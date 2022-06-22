@@ -18,6 +18,6 @@ public class StringSchema extends Schema {
 
 	@Override
 	public Type getType() {
-		return new SingleType().setType(SchemaType.STRING);
+		return new SingleType(SchemaType.STRING);
 	}
 }

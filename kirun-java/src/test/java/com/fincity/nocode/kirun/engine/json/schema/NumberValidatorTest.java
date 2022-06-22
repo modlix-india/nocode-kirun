@@ -1,21 +1,17 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-import static org.junit.Assert.assertThrows;
-
-import org.json.JSONStringer;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.validator.NumberValidator;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidationException;
-import com.google.gson.JsonElement;
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonObject;
 
-public class NumberValidatorTest {
+class NumberValidatorTest {
 
 	@Test
 	void NumberValidatorValidateTestForNull() {

@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.json.schema.validator;
+package com.fincity.nocode.kirun.engine.json.schema.validator.exception;
 
 import java.util.ArrayList;
 import java.util.List;

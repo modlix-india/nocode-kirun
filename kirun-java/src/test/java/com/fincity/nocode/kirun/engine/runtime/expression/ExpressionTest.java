@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 

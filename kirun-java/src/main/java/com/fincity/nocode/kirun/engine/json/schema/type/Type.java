@@ -14,4 +14,13 @@ public interface Type extends Serializable {
 
 		return new MultipleType().setType(Set.of(types));
 	}
+
+	public default boolean contains(SchemaType type) {
+		
+		if (this instanceof SingleType st) {
+			return st.getType() == type;
+		}
+		
+		return ((MultipleType) this).contains(type);
+	}
 }

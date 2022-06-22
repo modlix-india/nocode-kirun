@@ -6,7 +6,9 @@ import com.google.gson.JsonElement;
 
 public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 
-	private Map<String, JsonElement> arguments;
+	public static final String PREFIX = "Arguments.";
+
+	private final Map<String, JsonElement> arguments;
 
 	public ArgumentsTokenValueExtractor(Map<String, JsonElement> arguments) {
 
@@ -14,8 +16,15 @@ public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 	}
 
 	@Override
-	public JsonElement getValue(String token) {
+	protected JsonElement getValueInternal(String token) {
 
-		return null;
+		String[] parts = token.split(".");
+
+		return retrieveElementFrom(token, parts, 2, arguments.get(parts[1]));
+	}
+
+	@Override
+	public String getPrefix() {
+		return PREFIX;
 	}
 }

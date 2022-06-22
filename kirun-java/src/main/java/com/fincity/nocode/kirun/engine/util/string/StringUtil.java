@@ -48,4 +48,9 @@ public class StringUtil {
 
 		return new String[] { str.substring(0, index), str.substring(index + 1) };
 	}
+	
+	public static boolean isNullOrBlank(String str) {
+		
+		return str == null || str.isBlank();
+	}
 }

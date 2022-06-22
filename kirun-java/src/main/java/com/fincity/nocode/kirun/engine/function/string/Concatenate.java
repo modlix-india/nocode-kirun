@@ -29,7 +29,7 @@ public class Concatenate extends AbstractFunction {
 
 	private static final Schema SCHEMA = new Schema().setName(VALUE)
 	        .setTitle(VALUE)
-	        .setType(new SingleType().setType(SchemaType.STRING));
+	        .setType(new SingleType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
 	        .setNamespace(STRING)

@@ -8,7 +8,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY
 import java.util.Deque;
 import java.util.LinkedList;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 
 import reactor.util.function.Tuple2;
@@ -24,7 +24,7 @@ public class Expression extends ExpressionToken {
 		super(expression);
 
 		if (expression == null || expression.isBlank())
-			throw new KIRuntimeException("No expression found to evaluate");
+			throw new ExpressionEvaluationException(expression, "No expression found to evaluate");
 		this.evaluate();
 	}
 
@@ -77,7 +77,7 @@ public class Expression extends ExpressionToken {
 				break;
 			}
 			case ')': {
-				throw new KIRuntimeException("Extra closing parenthesis found");
+				throw new ExpressionEvaluationException(this.expression, "Extra closing parenthesis found");
 			}
 			default:
 
@@ -92,7 +92,7 @@ public class Expression extends ExpressionToken {
 		buff = sb.toString();
 		if (!buff.isBlank()) {
 			if (OPERATORS.contains(buff)) {
-				throw new KIRuntimeException("Expression is ending with an operator");
+				throw new ExpressionEvaluationException(this.expression, "Expression is ending with an operator");
 			} else {
 				tokens.push(new ExpressionToken(buff));
 			}
@@ -139,7 +139,8 @@ public class Expression extends ExpressionToken {
 			checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(buff), isPrevOp);
 			sb.setLength(0);
 		} else if (!buff.isBlank()) {
-			throw new KIRuntimeException(StringFormatter.format("Unkown token : $ found.", buff));
+			throw new ExpressionEvaluationException(this.expression,
+			        StringFormatter.format("Unkown token : $ found.", buff));
 		}
 
 		int cnt = 1;
@@ -159,7 +160,7 @@ public class Expression extends ExpressionToken {
 		}
 
 		if (inChr != ')')
-			throw new KIRuntimeException("Missing a closed parenthesis");
+			throw new ExpressionEvaluationException(this.expression, "Missing a closed parenthesis");
 
 		while (subExp.length() > 2 && subExp.charAt(0) == '(' && subExp.charAt(subExp.length() - 1) == ')') {
 			subExp.deleteCharAt(0);
@@ -195,7 +196,8 @@ public class Expression extends ExpressionToken {
 			if (UNARY_OPERATORS.contains(op))
 				ops.push(UNARY_MAP.get(op));
 			else
-				throw new KIRuntimeException(StringFormatter.format("Extra operator $ found.", op));
+				throw new ExpressionEvaluationException(this.expression,
+				        StringFormatter.format("Extra operator $ found.", op));
 		} else {
 			while (!ops.isEmpty() && hasPrecedence(op, ops.peek())) {
 

@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.BooleanValidator;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidationException;
-import com.google.gson.JsonElement;
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 
-public class BooleanValidatorTest {
+class BooleanValidatorTest {
 
 	
 	@Test

@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.json.schema.type;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
 
