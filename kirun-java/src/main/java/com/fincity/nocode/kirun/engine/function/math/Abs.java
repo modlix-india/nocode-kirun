@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
+import reactor.util.function.Tuple2;
 
 public class Abs extends AbstractFunction {
 
@@ -37,21 +38,26 @@ public class Abs extends AbstractFunction {
 	@Override
 	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		return Flux.just(context.getArguments().get(VALUE))
+		return Flux.just(context.getArguments()
+		        .get(VALUE))
 		        .map(pValue ->
 			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveNumberType(pValue.getAsJsonPrimitive());
+				        Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil
+				                .findPrimitiveNumberType(pValue.getAsJsonPrimitive());
 				        JsonPrimitive rValue = null;
 
-				        switch (type) {
+				        switch (primitiveTypeTuple.getT1()) {
 				        case DOUBLE:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsDouble()));
+					        rValue = new JsonPrimitive(Math.abs(Double.class.cast(primitiveTypeTuple.getT2())));
 					        break;
 				        case FLOAT:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsFloat()));
+					        rValue = new JsonPrimitive(Math.abs(Float.class.cast(primitiveTypeTuple.getT2())));
 					        break;
 				        case LONG:
-					        rValue = new JsonPrimitive(Math.abs(pValue.getAsLong()));
+					        rValue = new JsonPrimitive(Math.abs(Long.class.cast(primitiveTypeTuple.getT2())));
+					        break;
+				        case INTEGER:
+					        rValue = new JsonPrimitive(Math.abs(Integer.class.cast(primitiveTypeTuple.getT2())));
 					        break;
 				        default:
 					        rValue = new JsonPrimitive(Math.abs(pValue.getAsInt()));
@@ -62,11 +68,12 @@ public class Abs extends AbstractFunction {
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf);
 	}
-	
+
 	@Override
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
-		
-		Schema s = probableParameters.get(VALUE).get(0);
+
+		Schema s = probableParameters.get(VALUE)
+		        .get(0);
 		return Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, s)));
 	}
 }

@@ -18,7 +18,7 @@ public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 	@Override
 	protected JsonElement getValueInternal(String token) {
 
-		String[] parts = token.split(".");
+		String[] parts = token.split("\\.");
 
 		return retrieveElementFrom(token, parts, 2, arguments.get(parts[1]));
 	}

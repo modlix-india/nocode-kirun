@@ -18,15 +18,15 @@ public class OutputMapTokenValueExtractor extends TokenValueExtractor {
 	
 	@Override
 	protected JsonElement getValueInternal(String token) {
-		String[] parts = token.split(".");
+		String[] parts = token.split("\\.");
 		
 		int ind = 1;
 		
 		Map<String, Map<String, JsonElement>> events = output.get(parts[ind++]);
-		if (events == null || ind <= parts.length) return JsonNull.INSTANCE;
+		if (events == null || ind >= parts.length) return JsonNull.INSTANCE;
 		
 		Map<String, JsonElement> eachEvent = events.get(parts[ind++]);
-		if (eachEvent == null || ind <= parts.length) return JsonNull.INSTANCE;
+		if (eachEvent == null || ind >= parts.length) return JsonNull.INSTANCE;
 		
 		JsonElement element = eachEvent.get(parts[ind++]);
 

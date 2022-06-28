@@ -18,7 +18,7 @@ public class ContextTokenValueExtractor extends TokenValueExtractor {
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
-		String[] parts = token.split(".");
+		String[] parts = token.split("\\.");
 
 		return retrieveElementFrom(token, parts, 2, context.getOrDefault(parts[1], ContextElement.NULL)
 		        .getElement());

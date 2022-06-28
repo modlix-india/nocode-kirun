@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 public class Add extends AbstractFunction {
 
@@ -42,22 +43,15 @@ public class Add extends AbstractFunction {
 	@Override
 	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		Mono<Number> sum = Mono.just(context.getArguments().get(VALUE))
+		Mono<Number> sum = Mono.just(context.getArguments()
+		        .get(VALUE))
 		        .map(JsonArray.class::cast)
 		        .flatMapMany(Flux::fromIterable)
 		        .map(JsonPrimitive.class::cast)
 		        .map(e ->
 			        {
-				        SchemaType type = PrimitiveUtil.findPrimitiveNumberType(e);
-
-				        if (type == SchemaType.INTEGER)
-					        return e.getAsInt();
-				        if (type == SchemaType.LONG)
-					        return e.getAsLong();
-				        if (type == SchemaType.FLOAT)
-					        return e.getAsFloat();
-
-				        return e.getAsDouble();
+				        Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil.findPrimitiveNumberType(e);
+				        return primitiveTypeTuple.getT2();
 			        })
 		        .reduce((a, b) ->
 			        {

@@ -44,7 +44,7 @@ public abstract class TokenValueExtractor {
 		return retrieveElementFrom(token, parts, partNumber + 1, bElement);
 	}
 
-	private JsonElement resolveForEachPartOfTokenWithBrackets(String token, String[] parts, int partNumber, String c,
+	protected JsonElement resolveForEachPartOfTokenWithBrackets(String token, String[] parts, int partNumber, String c,
 	        JsonElement a, Integer i) {
 		
 		if (a == null || a == JsonNull.INSTANCE)

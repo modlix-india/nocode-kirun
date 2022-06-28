@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,6 +16,7 @@ import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -33,10 +35,9 @@ import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertex;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
@@ -52,6 +53,8 @@ public class KIRuntime extends AbstractFunction {
 	private final Repository<Schema> sRepo;
 
 	private static final int VERSION = 1;
+	
+	private static final int MAX_EXECUTION_ITERATIONS = 1000000;
 
 	public KIRuntime(FunctionDefinition fd, Repository<Function> functionRepository,
 	        Repository<Schema> schemaRepository) {
@@ -101,21 +104,19 @@ public class KIRuntime extends AbstractFunction {
 
 		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
 
-		boolean hasError = eGraph.getVerticesDataFlux()
+		List<StatementMessage> messages = eGraph.getVerticesDataFlux()
 		        .flatMap(e -> Flux.fromIterable(e.getMessages()))
-		        .map(StatementMessage::getMessageType)
-		        .filter(e -> e == StatementMessageType.ERROR)
-		        .take(1)
-		        .blockFirst() == null;
+		        .collectList()
+		        .block();
 
-		if (hasError) {
-			throw new KIRuntimeException("Please fix the errors before execution");
+		if (messages != null && !messages.isEmpty()) {
+			throw new KIRuntimeException(
+			        "Please fix the errors in the function definition before execution : \n" + messages);
 		}
 
-		return Mono.fromCallable(() -> executeGraph(eGraph, inContext))
-		        .subscribeOn(Schedulers.boundedElastic())
-		        .flatMapIterable(e -> e);
+		List<EventResult> events = executeGraph(eGraph, inContext);
 
+		return Flux.fromIterable(events);
 	}
 
 	private List<EventResult> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
@@ -128,17 +129,23 @@ public class KIRuntime extends AbstractFunction {
 
 		Map<String, Map<String, Map<String, JsonElement>>> output = new ConcurrentHashMap<>();
 
+		int count = 0;
 		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
 		        .containsKey(Event.OUTPUT)) {
 
 			processBranchQue(inContext, executionQue, branchQue, output);
 			processExecutionQue(inContext, executionQue, branchQue, output);
+			
+			++count;
+			
+			if (count == MAX_EXECUTION_ITERATIONS)
+				throw new KIRuntimeException("Execution locked in an infinite loop");
 		}
 
 		if (inContext.getEvents()
 		        .isEmpty()) {
 
-			throw new KIRuntimeException("No events raised.");
+			throw new KIRuntimeException("No events raised");
 		}
 
 		return inContext.getEvents()
@@ -201,7 +208,8 @@ public class KIRuntime extends AbstractFunction {
 				output.computeIfAbsent(vertex.getData()
 				        .getStatement()
 				        .getStatementName(), k -> new ConcurrentHashMap<>())
-				        .put(nextOutput.getName(), nextOutput.getResult());
+				        .put(nextOutput.getName(),
+				                resolveInternalExpressions(nextOutput.getResult(), inContext, output));
 		} while (nextOutput != null && !nextOutput.getName()
 		        .equals(Event.OUTPUT));
 
@@ -248,7 +256,7 @@ public class KIRuntime extends AbstractFunction {
 		        .equals(Event.OUTPUT);
 
 		output.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
-		        .put(er.getName(), er.getResult());
+		        .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext, output));
 
 		if (!isOutput) {
 
@@ -257,11 +265,61 @@ public class KIRuntime extends AbstractFunction {
 			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
 		} else {
 
-			vertex.getOutVertices()
-			        .get(Event.OUTPUT)
-			        .stream()
-			        .forEach(executionQue::add);
+			Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
+			        .get(Event.OUTPUT);
+			if (out != null)
+				out.stream()
+				        .forEach(executionQue::add);
 		}
+	}
+
+	private Map<String, JsonElement> resolveInternalExpressions(Map<String, JsonElement> result,
+	        FunctionExecutionParameters inContext, Map<String, Map<String, Map<String, JsonElement>>> output) {
+
+		if (result == null)
+			return result;
+
+		return result.entrySet()
+		        .stream()
+		        .map(e -> Tuples.of(e.getKey(), resolveInternalExpression(e.getValue(), inContext, output)))
+		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+	}
+
+	private JsonElement resolveInternalExpression(JsonElement value, FunctionExecutionParameters inContext,
+	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+
+		if (value == null || value.isJsonNull() || value.isJsonPrimitive())
+			return value;
+
+		if (value instanceof JsonExpression valueExpression) {
+
+			ExpressionEvaluator exp = new ExpressionEvaluator(valueExpression.getExpression());
+			return exp.evaluate(inContext, output);
+		}
+
+		if (value instanceof JsonObject valueObject) {
+
+			JsonObject retObject = new JsonObject();
+
+			for (Entry<String, JsonElement> entry : valueObject.entrySet()) {
+				retObject.add(entry.getKey(), resolveInternalExpression(entry.getValue(), inContext, output));
+			}
+
+			return retObject;
+		}
+
+		if (value instanceof JsonArray valueArray) {
+
+			JsonArray retArray = new JsonArray();
+
+			for (JsonElement obj : valueArray) {
+				retArray.add(resolveInternalExpression(obj, inContext, output));
+			}
+
+			return retArray;
+		}
+
+		return null;
 	}
 
 	private boolean allDependenciesResolved(List<Tuple2<String, String>> unResolvedDependencies,
@@ -284,11 +342,10 @@ public class KIRuntime extends AbstractFunction {
 		        .stream()
 		        .filter(e ->
 			        {
-
 				        String stepName = e.getT1()
 				                .getData()
 				                .getStatement()
-				                .getName();
+				                .getStatementName();
 				        String type = e.getT2();
 
 				        return !(output.containsKey(stepName) && output.get(stepName)
@@ -342,7 +399,7 @@ public class KIRuntime extends AbstractFunction {
 		JsonElement ret = null;
 
 		if (ref.getType() == ParameterReferenceType.VALUE) {
-			ret = ref.getValue();
+			ret = this.resolveInternalExpression(ref.getValue(), inContext, output);
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION && ref.getExpression() != null
 		        && !ref.getExpression()
 		                .isBlank()) {
@@ -426,6 +483,25 @@ public class KIRuntime extends AbstractFunction {
 			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+			LinkedList<JsonElement> paramElements = new LinkedList<>();
+			paramElements.push(ref.getValue());
+
+			while (!paramElements.isEmpty()) {
+				JsonElement e = paramElements.pop();
+
+				if (e instanceof JsonExpression jexp) {
+					this.addDependencies(se, new Expression(jexp.getExpression()));
+				} else if (e.isJsonArray()) {
+					for (JsonElement je : e.getAsJsonArray())
+						paramElements.push(je);
+				} else if (e.isJsonObject()) {
+					for (Entry<String, JsonElement> entry : e.getAsJsonObject()
+					        .entrySet()) {
+						paramElements.push(entry.getValue());
+					}
+				}
+			}
+
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
 			if (ref.getExpression() == null || ref.getExpression()
 			        .isBlank()) {
@@ -448,10 +524,10 @@ public class KIRuntime extends AbstractFunction {
 	private void addDependencies(StatementExecution se, Expression exp) {
 
 		LinkedList<Expression> que = new LinkedList<>();
-		que.add(exp);
+		que.push(exp);
 
 		while (!que.isEmpty()) {
-			for (ExpressionToken token : que.getFirst()
+			for (ExpressionToken token : que.pop()
 			        .getTokens()) {
 				if (token instanceof Expression e) {
 					que.push(e);

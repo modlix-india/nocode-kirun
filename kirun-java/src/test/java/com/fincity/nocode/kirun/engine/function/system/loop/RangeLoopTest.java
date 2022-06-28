@@ -1,9 +1,12 @@
 package com.fincity.nocode.kirun.engine.function.system.loop;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -42,11 +45,9 @@ class RangeLoopTest {
 		        .expectComplete()
 		        .verify();
 
-		StepVerifier
-		        .create(loop.execute(new FunctionExecutionParameters().setArguments(
-		                Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5)))))
-		        .expectErrorMessage("from - Value \"2\" is not of valid type(s)")
-		        .verify();
+		var params = new FunctionExecutionParameters()
+		        .setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5)));
+		assertThrows(SchemaValidationException.class, () -> loop.execute(params));
 
 	}
 }

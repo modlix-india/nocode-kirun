@@ -34,10 +34,10 @@ public enum Operation {
 	BITWISE_RIGHT_SHIFT (">>"),
 	BITWISE_UNSIGNED_RIGHT_SHIFT (">>>"),
 	
-	UNARY_PLUS ("UN: +"),
-	UNARY_MINUS ("UN: -"),
-	UNARY_LOGICAL_NOT ("UN: not"),
-	UNARY_BITWISE_COMPLEMENT ("UN: ~"),
+	UNARY_PLUS ("UN: +", "+"),
+	UNARY_MINUS ("UN: -", "-"),
+	UNARY_LOGICAL_NOT ("UN: not", "not"),
+	UNARY_BITWISE_COMPLEMENT ("UN: ~", "~"),
 	;
 
 	public static final Set<Operation> UNARY_OPERATORS = Set.of(ADDITION, SUBTRACTION, NOT, BITWISE_COMPLEMENT,
@@ -73,14 +73,32 @@ public enum Operation {
 			ADDITION, UNARY_PLUS, SUBTRACTION, UNARY_MINUS, NOT, UNARY_LOGICAL_NOT, BITWISE_COMPLEMENT, UNARY_BITWISE_COMPLEMENT,
 			UNARY_PLUS, UNARY_PLUS, UNARY_MINUS, UNARY_MINUS, UNARY_LOGICAL_NOT, UNARY_LOGICAL_NOT, UNARY_BITWISE_COMPLEMENT, UNARY_BITWISE_COMPLEMENT
 			)));
+	
+	public static final int BIGGEST_OPERATOR_SIZE = Stream.of(Operation.values()).map(Object::toString)
+			.filter(e -> !e.startsWith("UN: "))
+			.mapToInt(String::length)
+			.max()
+			.getAsInt() + 1; 
 
 	private String operator;
-
+	
+	private String operatorName;
+	
 	private Operation(String operator) {
 		this.operator = operator;
+		this.operatorName = operator;
+	}
+
+	private Operation(String operator, String operatorName) {
+		this.operator = operator;
+		this.operatorName = operatorName;
 	}
 
 	public String getOperator() {
 		return this.operator;
+	}
+	
+	public String getOperatorName() {
+		return this.operatorName;
 	}
 }

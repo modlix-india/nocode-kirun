@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.function.math.Abs;
 import com.fincity.nocode.kirun.engine.function.system.GenerateEvent;
+import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
@@ -16,6 +17,7 @@ import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
@@ -61,22 +63,27 @@ class KIRuntimeTest {
 
 		var genEvent = new GenerateEvent().getSignature();
 
+		var resultObj = new JsonObject();
+		resultObj.add("name", new JsonPrimitive("result"));
+		resultObj.add("value", new JsonExpression("Steps.first.output.value"));
+
 		Flux<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
 		        .setName("SingleCall")
 		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
 		                .setSchema(Schema.INTEGER))))
 		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("first").setNamespace(abs.getNamespace())
 		                .setName(abs.getName())
-		                .setParameterMap(Map.of("value", List.of(ParameterReference.of("Arguments.Value"))))),
-		                Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
-		                        .setName(genEvent.getName())
-		                        .setParameterMap(Map.of("eventName",
-		                                List.of(ParameterReference.of(new JsonPrimitive("output"))), "result",
-		                                List.of(ParameterReference.of("Steps.first.output.value"))))))),
+		                .setParameterMap(Map.of("value", List.of(ParameterReference.of("Arguments.Value"))))), Statement
+		                        .ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
+		                                .setName(genEvent.getName())
+		                                .setParameterMap(Map.of("eventName",
+		                                        List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
+		                                        List.of(ParameterReference.of(resultObj))))))),
 		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(-10))));
 
 		StepVerifier.create(out)
-		.expectNext(new EventResult().setName("output").setResult(Map.of()));
+		        .expectNext(new EventResult().setName("output")
+		                .setResult(Map.of("result", new JsonPrimitive(10))));
 	}
 }

@@ -102,14 +102,11 @@ public class Expression extends ExpressionToken {
 	private Tuple2<Integer, Boolean> processOthers(char chr, final int length, StringBuilder sb, String buff, int i,
 	        boolean isPrevOp) {
 
-		if (chr == '!' && i + 1 < length && this.expression.charAt(i + 1) == '=') {
-			++i;
-			checkUnaryOperator(tokens, ops, Operation.NOT_EQUAL, isPrevOp);
-			isPrevOp = true;
-			sb.setLength(0);
-		} else {
-
-			String op = Character.toString(chr);
+		int start = length - i;
+		start = start < Operation.BIGGEST_OPERATOR_SIZE ? start : Operation.BIGGEST_OPERATOR_SIZE;
+		
+		for (int size = start; size > 0; size--) {
+			String op = this.expression.substring(i, i + size);
 			if (OPERATORS.contains(op)) {
 				if (!buff.isBlank()) {
 					tokens.push(new ExpressionToken(buff));
@@ -118,19 +115,12 @@ public class Expression extends ExpressionToken {
 				checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(op), isPrevOp);
 				isPrevOp = true;
 				sb.setLength(0);
-			} else {
-				op = sb.toString();
-				if (OPERATORS.contains(op)) {
-					checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(op), isPrevOp);
-					isPrevOp = true;
-					sb.setLength(0);
-				} else {
-					sb.append(chr);
-				}
+				return Tuples.of(i + size - 1, isPrevOp);
 			}
 		}
 
-		return Tuples.of(i, isPrevOp);
+		sb.append(chr);
+		return Tuples.of(i, false);
 	}
 
 	private int processSubExpression(final int length, StringBuilder sb, String buff, int i, boolean isPrevOp) {

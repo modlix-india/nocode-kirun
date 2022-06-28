@@ -74,7 +74,7 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 			throw new ExpressionEvaluationException(token,
 			        StringFormatter.format("String literal $ is not closed properly", token));
 
-		return new JsonPrimitive(token.substring(0, token.length() - 1));
+		return new JsonPrimitive(token.substring(1, token.length() - 1));
 	}
 
 	@Override
