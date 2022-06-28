@@ -84,6 +84,7 @@ class KIRuntimeTest {
 
 		StepVerifier.create(out)
 		        .expectNext(new EventResult().setName("output")
-		                .setResult(Map.of("result", new JsonPrimitive(10))));
+		                .setResult(Map.of("result", new JsonPrimitive(10))))
+		        .verifyComplete();
 	}
 }

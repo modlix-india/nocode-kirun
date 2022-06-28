@@ -5,10 +5,12 @@ import java.util.Map;
 import com.google.gson.JsonElement;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode
 public class EventResult {
 
 	private String name;
