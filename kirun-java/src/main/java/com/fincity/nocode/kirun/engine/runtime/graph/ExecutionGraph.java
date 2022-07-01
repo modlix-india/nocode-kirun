@@ -86,7 +86,16 @@ public class ExecutionGraph<K, T extends GraphVertexType<K>> {
 	}
 
 	public Map<K, GraphVertex<K, T>> getNodeMap() {
-		
+
 		return this.nodeMap;
+	}
+
+	@Override
+	public String toString() {
+
+		return "Execution Graph : \n" + this.nodeMap.values()
+		        .stream()
+		        .map(GraphVertex::toString)
+		        .collect(Collectors.joining("\n"));
 	}
 }

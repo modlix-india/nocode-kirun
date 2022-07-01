@@ -52,6 +52,7 @@ class KIRuntimeTest {
 		var arrayOfIntegerSchema = new JsonObject();
 		arrayOfIntegerSchema.addProperty("name", "ArrayType");
 		arrayOfIntegerSchema.addProperty("type", "ARRAY");
+		arrayOfIntegerSchema.add("defaultValue", new JsonArray());
 		var integerSchema = new JsonObject();
 		integerSchema.addProperty("name", "EachElement");
 		integerSchema.addProperty("type", "INTEGER");
@@ -90,14 +91,17 @@ class KIRuntimeTest {
 		        .setName(set.getName())
 		        .setParameterMap(Map.of("name",
 		                List.of(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
-		                "value", List.of(ParameterReference.of("Steps.loop.iteration.index"))));
+		                "value", List.of(ParameterReference.of("Steps.loop.iteration.index"))))
+		        .setDependentStatements(List.of("Steps.if.true"));
 
 		var set2 = new Statement("setOnFalse").setNamespace(set.getNamespace())
 		        .setName(set.getName())
 		        .setParameterMap(Map.of("name",
 		                List.of(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
-		                "value", List.of(ParameterReference.of(
-		                        "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))));
+		                "value",
+		                List.of(ParameterReference.of(
+		                        "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
+		        .setDependentStatements(List.of("Steps.if.false"));
 
 		StepVerifier
 		        .create(new KIRuntime(

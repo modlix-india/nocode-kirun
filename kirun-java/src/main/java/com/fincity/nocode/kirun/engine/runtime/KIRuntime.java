@@ -102,6 +102,9 @@ public class KIRuntime extends AbstractFunction {
 		if (inContext.getEvents() == null)
 			inContext.setEvents(new ConcurrentHashMap<>());
 
+		if (inContext.getOutput() == null)
+			inContext.setOutput(new ConcurrentHashMap<>());
+
 		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
 
 		List<StatementMessage> messages = eGraph.getVerticesDataFlux()
@@ -127,14 +130,12 @@ public class KIRuntime extends AbstractFunction {
 
 		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
 
-		Map<String, Map<String, Map<String, JsonElement>>> output = new ConcurrentHashMap<>();
-
 		int count = 0;
 		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
 		        .containsKey(Event.OUTPUT)) {
 
-			processBranchQue(inContext, executionQue, branchQue, output);
-			processExecutionQue(inContext, executionQue, branchQue, output);
+			processBranchQue(inContext, executionQue, branchQue);
+			processExecutionQue(inContext, executionQue, branchQue);
 
 			++count;
 
@@ -159,41 +160,38 @@ public class KIRuntime extends AbstractFunction {
 
 	private void processExecutionQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
 
 		if (!executionQue.isEmpty()) {
 
 			var vertex = executionQue.pop();
 
-			if (!allDependenciesResolved(vertex, output))
+			if (!allDependenciesResolved(vertex, inContext.getOutput()))
 
 				executionQue.add(vertex);
 
 			else
-				executeVertex(vertex, inContext, output, branchQue, executionQue);
+				executeVertex(vertex, inContext, branchQue, executionQue);
 		}
 	}
 
 	private void processBranchQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
 		if (!branchQue.isEmpty()) {
 
 			var branch = branchQue.pop();
 
-			if (!allDependenciesResolved(branch.getT2(), output))
+			if (!allDependenciesResolved(branch.getT2(), inContext.getOutput()))
 				branchQue.add(branch);
 			else
-				executeBranch(inContext, executionQue, output, branch);
+				executeBranch(inContext, executionQue, branch);
 
 		}
 	}
 
 	private void executeBranch(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        Map<String, Map<String, Map<String, JsonElement>>> output,
 	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>> branch) {
 
 		var vertex = branch.getT4();
@@ -205,11 +203,11 @@ public class KIRuntime extends AbstractFunction {
 			        .next()
 			        .block();
 			if (nextOutput != null)
-				output.computeIfAbsent(vertex.getData()
-				        .getStatement()
-				        .getStatementName(), k -> new ConcurrentHashMap<>())
-				        .put(nextOutput.getName(),
-				                resolveInternalExpressions(nextOutput.getResult(), inContext, output));
+				inContext.getOutput()
+				        .computeIfAbsent(vertex.getData()
+				                .getStatement()
+				                .getStatementName(), k -> new ConcurrentHashMap<>())
+				        .put(nextOutput.getName(), resolveInternalExpressions(nextOutput.getResult(), inContext));
 		} while (nextOutput != null && !nextOutput.getName()
 		        .equals(Event.OUTPUT));
 
@@ -224,7 +222,6 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private void executeVertex(GraphVertex<String, StatementExecution> vertex, FunctionExecutionParameters inContext,
-	        Map<String, Map<String, Map<String, JsonElement>>> output,
 	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
 
@@ -236,13 +233,14 @@ public class KIRuntime extends AbstractFunction {
 		Map<String, Parameter> paramSet = fun.getSignature()
 		        .getParameters();
 
-		Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, output, s, paramSet);
+		Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
 
 		Map<String, ContextElement> context = inContext.getContext();
 
 		Flux<EventResult> result = fun.execute(new FunctionExecutionParameters().setContext(context)
 		        .setArguments(arguments)
 		        .setEvents(inContext.getEvents())
+		        .setOutput(inContext.getOutput())
 		        .setStatementExecution(vertex.getData()));
 
 		EventResult er = result.next()
@@ -255,8 +253,9 @@ public class KIRuntime extends AbstractFunction {
 		boolean isOutput = er.getName()
 		        .equals(Event.OUTPUT);
 
-		output.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
-		        .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext, output));
+		inContext.getOutput()
+		        .computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
+		        .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
 
 		if (!isOutput) {
 
@@ -274,19 +273,18 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private Map<String, JsonElement> resolveInternalExpressions(Map<String, JsonElement> result,
-	        FunctionExecutionParameters inContext, Map<String, Map<String, Map<String, JsonElement>>> output) {
+	        FunctionExecutionParameters inContext) {
 
 		if (result == null)
 			return result;
 
 		return result.entrySet()
 		        .stream()
-		        .map(e -> Tuples.of(e.getKey(), resolveInternalExpression(e.getValue(), inContext, output)))
+		        .map(e -> Tuples.of(e.getKey(), resolveInternalExpression(e.getValue(), inContext)))
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 	}
 
-	private JsonElement resolveInternalExpression(JsonElement value, FunctionExecutionParameters inContext,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+	private JsonElement resolveInternalExpression(JsonElement value, FunctionExecutionParameters inContext) {
 
 		if (value == null || value.isJsonNull() || value.isJsonPrimitive())
 			return value;
@@ -294,7 +292,7 @@ public class KIRuntime extends AbstractFunction {
 		if (value instanceof JsonExpression valueExpression) {
 
 			ExpressionEvaluator exp = new ExpressionEvaluator(valueExpression.getExpression());
-			return exp.evaluate(inContext, output);
+			return exp.evaluate(inContext);
 		}
 
 		if (value instanceof JsonObject valueObject) {
@@ -302,7 +300,7 @@ public class KIRuntime extends AbstractFunction {
 			JsonObject retObject = new JsonObject();
 
 			for (Entry<String, JsonElement> entry : valueObject.entrySet()) {
-				retObject.add(entry.getKey(), resolveInternalExpression(entry.getValue(), inContext, output));
+				retObject.add(entry.getKey(), resolveInternalExpression(entry.getValue(), inContext));
 			}
 
 			return retObject;
@@ -313,7 +311,7 @@ public class KIRuntime extends AbstractFunction {
 			JsonArray retArray = new JsonArray();
 
 			for (JsonElement obj : valueArray) {
-				retArray.add(resolveInternalExpression(obj, inContext, output));
+				retArray.add(resolveInternalExpression(obj, inContext));
 			}
 
 			return retArray;
@@ -341,70 +339,70 @@ public class KIRuntime extends AbstractFunction {
 		return vertex.getInVertices()
 		        .stream()
 		        .filter(e ->
-			        {
-				        String stepName = e.getT1()
-				                .getData()
-				                .getStatement()
-				                .getStatementName();
-				        String type = e.getT2();
+				{
+			        String stepName = e.getT1()
+			                .getData()
+			                .getStatement()
+			                .getStatementName();
+			        String type = e.getT2();
 
-				        return !(output.containsKey(stepName) && output.get(stepName)
-				                .containsKey(type));
-			        })
+			        return !(output.containsKey(stepName) && output.get(stepName)
+			                .containsKey(type));
+		        })
 		        .count() == 0;
 	}
 
 	private Map<String, JsonElement> getArgumentsFromParametersMap(final FunctionExecutionParameters inContext,
-	        Map<String, Map<String, Map<String, JsonElement>>> output, Statement s, Map<String, Parameter> paramSet) {
+	        Statement s, Map<String, Parameter> paramSet) {
 
 		return s.getParameterMap()
 		        .entrySet()
 		        .stream()
 		        .map(e ->
-			        {
-				        List<ParameterReference> prList = e.getValue();
+				{
+			        List<ParameterReference> prList = e.getValue();
 
-				        JsonElement ret = null;
+			        JsonElement ret = null;
 
-				        if (prList == null || prList.isEmpty())
-					        return Tuples.of(e.getKey(), ret);
-
-				        Parameter pDef = paramSet.get(e.getKey());
-
-				        if (pDef.isVariableArgument()) {
-
-					        ret = new JsonArray();
-
-					        prList.stream()
-					                .map(r -> this.parameterReferenceEvaluation(inContext, output, r))
-					                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
-					                        .spliterator(), false) : Stream.of(r))
-					                .forEachOrdered(((JsonArray) ret)::add);
-
-				        } else {
-
-					        ret = this.parameterReferenceEvaluation(inContext, output, prList.get(0));
-				        }
-
+			        if (prList == null || prList.isEmpty())
 				        return Tuples.of(e.getKey(), ret);
-			        })
+
+			        Parameter pDef = paramSet.get(e.getKey());
+
+			        if (pDef.isVariableArgument()) {
+
+				        ret = new JsonArray();
+
+				        prList.stream()
+				                .map(r -> this.parameterReferenceEvaluation(inContext, r))
+				                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
+				                        .spliterator(), false) : Stream.of(r))
+				                .forEachOrdered(((JsonArray) ret)::add);
+
+			        } else {
+
+				        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
+			        }
+
+			        return Tuples.of(e.getKey(), ret);
+		        })
 		        .filter(e -> !(e.getT2() == null || e.getT2()
 		                .isJsonNull()))
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 	}
 
 	private JsonElement parameterReferenceEvaluation(final FunctionExecutionParameters inContext,
-	        Map<String, Map<String, Map<String, JsonElement>>> output, ParameterReference ref) {
+	        ParameterReference ref) {
 
 		JsonElement ret = null;
 
 		if (ref.getType() == ParameterReferenceType.VALUE) {
-			ret = this.resolveInternalExpression(ref.getValue(), inContext, output);
+			ret = this.resolveInternalExpression(ref.getValue(), inContext);
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION && ref.getExpression() != null
 		        && !ref.getExpression()
 		                .isBlank()) {
 			ExpressionEvaluator exp = new ExpressionEvaluator(ref.getExpression());
-			ret = exp.evaluate(inContext, output);
+			ret = exp.evaluate(inContext);
 		}
 		return ret;
 	}
@@ -529,6 +527,7 @@ public class KIRuntime extends AbstractFunction {
 		while (!que.isEmpty()) {
 			for (ExpressionToken token : que.pop()
 			        .getTokens()) {
+
 				if (token instanceof Expression e) {
 					que.push(e);
 				} else if (token.getExpression()
@@ -564,21 +563,21 @@ public class KIRuntime extends AbstractFunction {
 		                .getDepenedencies()
 		                .stream()
 		                .map(d ->
-			                {
-				                int secondDot = d.indexOf('.', 6);
-				                String step = d.substring(6, secondDot);
-				                int eventDot = d.indexOf('.', secondDot + 1);
-				                String event = eventDot == -1 ? d.substring(secondDot + 1)
-				                        : d.substring(secondDot + 1, eventDot);
+						{
+			                int secondDot = d.indexOf('.', 6);
+			                String step = d.substring(6, secondDot);
+			                int eventDot = d.indexOf('.', secondDot + 1);
+			                String event = eventDot == -1 ? d.substring(secondDot + 1)
+			                        : d.substring(secondDot + 1, eventDot);
 
-				                if (!graph.getNodeMap()
-				                        .containsKey(step))
-					                return Tuples.of(step, event);
+			                if (!graph.getNodeMap()
+			                        .containsKey(step))
+				                return Tuples.of(step, event);
 
-				                e.addInEdgeTo(graph.getNodeMap()
-				                        .get(step), event);
-				                return null;
-			                })
+			                e.addInEdgeTo(graph.getNodeMap()
+			                        .get(step), event);
+			                return null;
+		                })
 		                .filter(Objects::nonNull))
 		        .toList();
 

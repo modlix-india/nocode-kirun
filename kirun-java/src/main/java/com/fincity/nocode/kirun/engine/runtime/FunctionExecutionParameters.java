@@ -16,4 +16,5 @@ public class FunctionExecutionParameters {
 	private Map<String, JsonElement> arguments;
 	private Map<String, List<Map<String, JsonElement>>> events;
 	private StatementExecution statementExecution;
+	private Map<String, Map<String, Map<String, JsonElement>>> output;
 }

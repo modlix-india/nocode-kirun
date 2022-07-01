@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ADDITION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.AND;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ARRAY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_AND;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_LEFT_SHIFT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_OR;
@@ -24,10 +25,8 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_PLUS;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +38,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Arith
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticModulusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticMultiplicationOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticSubtractionOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArrayOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BinaryOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BitwiseAndOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BitwiseLeftShiftOperator;
@@ -67,10 +67,6 @@ import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenVa
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.google.gson.JsonPrimitive;
-
-import reactor.util.function.Tuple3;
-import reactor.util.function.Tuples;
 
 public class ExpressionEvaluator {
 
@@ -96,7 +92,9 @@ public class ExpressionEvaluator {
 	        Map.entry(GREATER_THAN_EQUAL, new LogicalGreaterThanEqualOperator()),
 	        Map.entry(LESS_THAN, new LogicalLessThanOperator()),
 	        Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
-	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator())));
+	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
+
+	        Map.entry(ARRAY_OPERATOR, new ArrayOperator())));
 
 	private static final Set<Operation> UNARY_OPERATORS_MAP_KEY_SET = UNARY_OPERATORS_MAP.keySet();
 
@@ -106,12 +104,12 @@ public class ExpressionEvaluator {
 		this.expression = expression;
 	}
 
-	public JsonElement evaluate(FunctionExecutionParameters context,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+	public JsonElement evaluate(FunctionExecutionParameters context) {
 
 		Expression exp = new Expression(this.expression);
 
-		Map<String, TokenValueExtractor> valuesMap = Map.of("Steps", new OutputMapTokenValueExtractor(output), "Argum",
+		Map<String, TokenValueExtractor> valuesMap = Map.of("Steps",
+		        new OutputMapTokenValueExtractor(context.getOutput()), "Argum",
 		        new ArgumentsTokenValueExtractor(context.getArguments()), "Conte",
 		        new ContextTokenValueExtractor(context.getContext()));
 
@@ -198,65 +196,10 @@ public class ExpressionEvaluator {
 
 	private JsonElement getValue(String path, Map<String, TokenValueExtractor> valuesMap) {
 
-		path = solveNestedSquareBrackets(path, valuesMap);
-
 		if (path.length() <= 5)
 			return LiteralTokenValueExtractor.INSTANCE.getValue(path);
 
 		return valuesMap.getOrDefault(path.substring(0, 5), LiteralTokenValueExtractor.INSTANCE)
 		        .getValue(path);
-	}
-
-	private String solveNestedSquareBrackets(String path, Map<String, TokenValueExtractor> valuesMap) { // NOSONAR
-		// Breaking this logic wont make sense.
-
-		int ind = path.indexOf('[');
-		if (ind == -1)
-			return path;
-
-		int st = ind + 1;
-		List<Tuple3<Integer, Integer, String>> evaluatedStrings = new ArrayList<>(4);
-		while (st < path.length()) {
-
-			int count = 1;
-			while (st < path.length() && count > 0) {
-				if (path.charAt(st) == '[')
-					count++;
-				else if (path.charAt(st) == ']')
-					count--;
-				st++;
-			}
-
-			if (st == path.length() || path.charAt(st) != ']') {
-				throw new ExpressionEvaluationException(this.expression, "Missing ']' or not closed properly");
-			}
-
-			JsonElement element = this.evaluateExpression(new Expression(path.substring(ind + 1, st)), valuesMap);
-			if (element.isJsonPrimitive() && ((JsonPrimitive) element).isNumber()) {
-				evaluatedStrings.add(Tuples.of(ind + 1, st, element.toString()));
-			} else {
-				evaluatedStrings.add(Tuples.of(ind + 1, st, "\"" + element.toString() + "\""));
-			}
-
-			while (st < path.length() && path.charAt(st) != '[')
-				st++;
-
-			ind = st;
-			st++;
-		}
-
-		return removeExpressionsInSquareBrackets(path, evaluatedStrings);
-	}
-
-	private String removeExpressionsInSquareBrackets(String path,
-	        List<Tuple3<Integer, Integer, String>> evaluatedStrings) {
-
-		StringBuilder sb = new StringBuilder(path);
-		for (int i = evaluatedStrings.size() - 1; i >= 0; i--) {
-			var tuple = evaluatedStrings.get(i);
-			sb.replace(tuple.getT1(), tuple.getT2(), tuple.getT3());
-		}
-
-		return sb.toString();
 	}
 }

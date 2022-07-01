@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -79,12 +80,35 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 			        .stream()
 			        .flatMap(Set::stream)
 			        .forEach(e ->
-				        {
-					        subGraph.addVertex(e.getData());
-					        typeVertices.add(e);
-				        });
+					{
+				        subGraph.addVertex(e.getData());
+				        typeVertices.add(e);
+			        });
 		}
 
 		return subGraph;
+	}
+
+	public String toString() {
+
+		var ins = this.getInVertices()
+		        .stream()
+		        .map(e -> e.getT1()
+		                .getKey()
+		                .toString() + "(" + e.getT2() + ")")
+		        .map(Object::toString)
+		        .collect(Collectors.joining(", "));
+
+		var outs = this.outVertices.entrySet()
+		        .stream()
+		        .map(e -> e.getKey() + ": " + e.getValue()
+		                .stream()
+		                .map(GraphVertex::getKey)
+		                .map(Object::toString)
+		                .collect(Collectors.joining(", ")))
+		        .collect(Collectors.joining("\n\t\t"));
+
+		return this.getKey()
+		        .toString() + ":\n\tIn: " + ins + "\n\tOut: \n\t\t" + outs;
 	}
 }

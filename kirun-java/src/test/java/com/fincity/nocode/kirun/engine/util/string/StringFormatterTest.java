@@ -1,10 +1,8 @@
-package com.fincity.nocode.kirun.engine.runtime.util.string;
+package com.fincity.nocode.kirun.engine.util.string;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-
-import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 
 class StringFormatterTest {
 
@@ -17,6 +15,7 @@ class StringFormatterTest {
 		assertEquals("Hi Hello How are you 123$", StringFormatter.format("Hi Hello How are you $$$$", "1", "2", "3"));
 		assertEquals("Hi Hello How are you $123", StringFormatter.format("Hi Hello How are you \\$$$$", "1", "2", "3"));
 		assertEquals("Hi Hello How are you 12$$", StringFormatter.format("Hi Hello How are you $$$\\$", "1", "2"));
+		assertEquals("Extra closing } found", StringFormatter.format("Extra closing $ found", '}' ));
 	}
 
 }

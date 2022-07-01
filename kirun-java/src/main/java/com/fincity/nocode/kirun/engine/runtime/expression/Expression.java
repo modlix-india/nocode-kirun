@@ -79,11 +79,19 @@ public class Expression extends ExpressionToken {
 			case ')': {
 				throw new ExpressionEvaluationException(this.expression, "Extra closing parenthesis found");
 			}
+			case ']': {
+				throw new ExpressionEvaluationException(this.expression, "Extra closing square bracket found");
+			}
 			default:
 
 				Tuple2<Integer, Boolean> result = processOthers(chr, length, sb, buff, i, isPrevOp);
 				i = result.getT1();
 				isPrevOp = result.getT2();
+				if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
+					result = process(length, sb, i);
+					i = result.getT1();
+					isPrevOp = result.getT2();
+				}
 			}
 
 			++i;
@@ -98,13 +106,34 @@ public class Expression extends ExpressionToken {
 			}
 		}
 	}
-
+	
+	private Tuple2<Integer, Boolean> process(final int length, StringBuilder sb, int i) {
+		
+		int cnt = 1;
+		++i;
+		while (i < length && cnt != 0) {
+			char c = this.expression.charAt(i);
+			if (c == ']')
+				--cnt;
+			else if (c == '[')
+				++cnt;
+			if (cnt != 0) {
+				sb.append(c);
+				i++;
+			}
+		}
+		this.tokens.push(new Expression(sb.toString()));
+		sb.setLength(0);
+		
+		return Tuples.of(i, false);
+	}
+	
 	private Tuple2<Integer, Boolean> processOthers(char chr, final int length, StringBuilder sb, String buff, int i,
 	        boolean isPrevOp) {
 
 		int start = length - i;
 		start = start < Operation.BIGGEST_OPERATOR_SIZE ? start : Operation.BIGGEST_OPERATOR_SIZE;
-		
+
 		for (int size = start; size > 0; size--) {
 			String op = this.expression.substring(i, i + size);
 			if (OPERATORS.contains(op)) {
@@ -217,6 +246,13 @@ public class Expression extends ExpressionToken {
 
 	@Override
 	public String toString() {
+
+		if (ops.isEmpty()) {
+			if (this.tokens.size() == 1)
+				return this.tokens.get(0)
+				        .toString();
+			return "Error: No tokens";
+		}
 
 		StringBuilder sb = new StringBuilder();
 		int ind = 0;
