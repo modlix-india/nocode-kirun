@@ -7,7 +7,6 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -30,10 +29,8 @@ public class Set extends AbstractFunction {
 	        .setNamespace(SYSTEM_CTX)
 	        .setParameters(Map.ofEntries(Parameter.ofEntry(NAME, new Schema().setName(NAME)
 	                .setType(Type.of(SchemaType.STRING))
-	                .setMinLength(1)
-	                .setFormat(StringFormat.REGEX)
-	                .setPattern("^[a-zA-Z_$][a-zA-Z_$0-9]*$"), ParameterType.CONSTANT),
-	                Parameter.ofEntry(VALUE, Schema.ANY)))
+	                .setMinLength(1), ParameterType.CONSTANT),
+	                Parameter.ofEntry(VALUE, Schema.ofAny(VALUE))))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override

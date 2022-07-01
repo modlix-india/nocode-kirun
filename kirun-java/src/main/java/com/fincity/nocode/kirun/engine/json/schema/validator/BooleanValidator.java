@@ -11,16 +11,13 @@ import com.google.gson.JsonPrimitive;
 
 public class BooleanValidator {
 
-	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
-
-		System.out.print("element");
-		System.out.print(element);
+	public static JsonElement validate(List<Schema> parents, Schema schema, JsonElement element) {
 		
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a boolean but found null");
+			throw new SchemaValidationException(path(parents), "Expected a boolean but found null");
 
 		if (!element.isJsonPrimitive() || !((JsonPrimitive) element).isBoolean())
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        element.toString() + " is not a boolean");
 		
 		return element;

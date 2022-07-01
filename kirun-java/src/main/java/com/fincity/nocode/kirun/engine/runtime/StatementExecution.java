@@ -9,16 +9,18 @@ import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertexType;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(exclude = { "messages", "dependencies" })
 public class StatementExecution implements GraphVertexType<String> {
 
 	private final Statement statement;
 
 	private List<StatementMessage> messages = new ArrayList<>(5);
-	
+
 	private Set<String> dependencies = new HashSet<>();
 
 	public StatementExecution(Statement statement) {
@@ -34,11 +36,11 @@ public class StatementExecution implements GraphVertexType<String> {
 	public void addMessage(StatementMessageType type, String message) {
 		this.messages.add(new StatementMessage(type, message));
 	}
-	
+
 	public void addDependency(String dependency) {
 		this.dependencies.add(dependency);
 	}
-	
+
 	@Override
 	public Set<String> getDepenedencies() {
 		return this.dependencies;

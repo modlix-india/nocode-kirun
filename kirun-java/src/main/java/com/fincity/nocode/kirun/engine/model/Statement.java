@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = { "parameterMap", "dependentStatements" })
 public class Statement extends AbstractStatement {
 
 	private static final long serialVersionUID = 8126173238268421930L;
@@ -26,11 +26,11 @@ public class Statement extends AbstractStatement {
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
-	        .setTitle(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("statementName", Schema.STRING, "comment", Schema.STRING, "description",
-	                Schema.STRING, "namespace", Schema.STRING, "name", Schema.STRING, "dependentStatements",
-	                Schema.ofArray("dependentstatement", Schema.STRING), "parameterMap",
+	        .setProperties(Map.of("statementName", Schema.ofString("statementName"), "comment", Schema.ofString("comment"),
+	                "description", Schema.ofString("description"), "namespace", Schema.ofString("namespace"), "name",
+	                Schema.ofString("name"), "dependentStatements",
+	                Schema.ofArray("dependentstatement", Schema.ofString("dependentstatement")), "parameterMap",
 	                new Schema().setName("parameterMap")
 	                        .setAdditionalProperties(new AdditionalPropertiesType()
 	                                .setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),

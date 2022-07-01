@@ -13,14 +13,18 @@ import com.google.gson.JsonElement;
 
 public class SchemaValidator {
 
-	public static JsonElement validate(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static JsonElement validate(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
-	
 		if (schema == null) {
 			return element;
 		}
-		
+
+		if (parents == null) {
+			parents = new ArrayList<>();
+		}
+		parents.add(schema);
+
 		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null) {
 			return schema.getDefaultValue();
 		}
@@ -36,13 +40,13 @@ public class SchemaValidator {
 
 		if (schema.getType() != null) {
 			typeValidation(parents, schema, repository, element);
-			}
+		}
 
 		// Need to write test cases to find out if element can be null at this point.
 		if (schema.getRef() != null && !schema.getRef()
 		        .isBlank() && element.isJsonObject()) {
-			return validate(parents, SchemaUtil.getSchemaFromRef(schema, repository, schema.getRef()), repository,
-			        element);
+			return validate(parents, SchemaUtil.getSchemaFromRef(parents.get(0), repository, schema.getRef()),
+			        repository, element);
 		}
 
 		if (schema.getOneOf() != null || schema.getAllOf() != null || schema.getAnyOf() != null) {
@@ -58,28 +62,25 @@ public class SchemaValidator {
 				flag = false;
 			}
 			if (flag)
-				throw new SchemaValidationException(path(parents, schema.getName()),
-				        "Schema validated value in not condition.");
+				throw new SchemaValidationException(path(parents), "Schema validated value in not condition.");
 		}
 
 		return element;
 	}
 
-	public static JsonElement constantValidation(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement constantValidation(List<Schema> parents, Schema schema, JsonElement element) {
 		if (!schema.getConstant()
 		        .equals(element)) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "Expecting a constant value : " + element);
+			throw new SchemaValidationException(path(parents), "Expecting a constant value : " + element);
 		}
 		return element;
 	}
 
-	public static JsonElement enumCheck(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement enumCheck(List<Schema> parents, Schema schema, JsonElement element) {
 
 		boolean x = false;
 		for (JsonElement e : schema.getEnums()) {
-			
-			
+
 			if (e.equals(element)) {
 				x = true;
 				break;
@@ -89,12 +90,11 @@ public class SchemaValidator {
 		if (x)
 			return element;
 		else {
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "Value is not one of " + schema.getEnums());
+			throw new SchemaValidationException(path(parents), "Value is not one of " + schema.getEnums());
 		}
 	}
 
-	public static void typeValidation(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static void typeValidation(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		boolean valid = false;
@@ -113,21 +113,16 @@ public class SchemaValidator {
 		}
 
 		if (!valid) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "Value " + element + " is not of valid type(s)", list);
+			throw new SchemaValidationException(path(parents), "Value " + element + " is not of valid type(s)", list);
 		}
 	}
 
-	public static String path(List<String> parents, String id) {
+	public static String path(List<Schema> parents) {
 
-		if (id == null)
-			return "";
-
-		if (parents == null || parents.isEmpty())
-			return id;
-
-		return parents.stream()
-		        .collect(Collectors.joining("/")) + "/" + id + " ";
+		return parents == null ? ""
+		        : parents.stream()
+		                .map(Schema::getTitle)
+		                .collect(Collectors.joining("."));
 	}
 
 	private SchemaValidator() {

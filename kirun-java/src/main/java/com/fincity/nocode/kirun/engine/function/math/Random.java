@@ -20,7 +20,7 @@ public class Random extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Random")
 	        .setNamespace(MATH)
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.DOUBLE))));
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofDouble(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {

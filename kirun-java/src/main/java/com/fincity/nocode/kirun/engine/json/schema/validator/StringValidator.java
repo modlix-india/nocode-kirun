@@ -21,17 +21,17 @@ public class StringValidator {
 	private static final Pattern DATETIME = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])T" // NOSONAR
 	        + "([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$");
 
-	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement validate(List<Schema> parents, Schema schema, JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getName()), "Expected a string but found null");
+			throw new SchemaValidationException(path(parents), "Expected a string but found null");
 
 		if (!element.isJsonPrimitive())
-			throw new SchemaValidationException(path(parents, schema.getName()), element.toString() + " is not String");
+			throw new SchemaValidationException(path(parents), element.toString() + " is not String");
 
 		JsonPrimitive jp = (JsonPrimitive) element;
 		if (!jp.isString())
-			throw new SchemaValidationException(path(parents, schema.getName()), element.toString() + " is not String");
+			throw new SchemaValidationException(path(parents), element.toString() + " is not String");
 
 		if (schema.getFormat() == StringFormat.TIME) {
 			patternMatcher(parents, schema, element, jp, TIME, "time pattern");
@@ -47,22 +47,22 @@ public class StringValidator {
 		int length = jp.getAsString()
 		        .length();
 		if (schema.getMinLength() != null && length < schema.getMinLength()) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        "Expected a minimum of " + schema.getMinLength() + " characters");
 		} else if (schema.getMaxLength() != null && length > schema.getMinLength()) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        "Expected a maximum of " + schema.getMaxLength() + " characters");
 		}
 		
 		return element;
 	}
 
-	private static void patternMatcher(List<String> parents, Schema schema, JsonElement element, JsonPrimitive jp,
+	private static void patternMatcher(List<Schema> parents, Schema schema, JsonElement element, JsonPrimitive jp,
 	        Pattern pattern, String message) {
 
 		boolean matched = pattern.matcher(jp.getAsString()).matches();
 		if (!matched) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        element.toString() + " is not matched with the " + message);
 		}
 	}

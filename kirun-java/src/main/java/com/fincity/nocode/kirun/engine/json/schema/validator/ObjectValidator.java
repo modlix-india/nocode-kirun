@@ -21,15 +21,14 @@ import com.google.gson.JsonPrimitive;
 
 public class ObjectValidator {
 
-	public static void validate(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static void validate(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getName()), "Expected an object but found null");
+			throw new SchemaValidationException(path(parents), "Expected an object but found null");
 
 		if (!element.isJsonObject())
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        element.toString() + " is not an Object");
+			throw new SchemaValidationException(path(parents), element.toString() + " is not an Object");
 
 		JsonObject jsonObject = (JsonObject) element;
 		Set<String> keys = new HashSet<>(jsonObject.keySet());
@@ -57,28 +56,28 @@ public class ObjectValidator {
 		}
 	}
 
-	private static void checkPropertyNameSchema(List<String> parents, Schema schema, Repository<Schema> repository,
+	private static void checkPropertyNameSchema(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        Set<String> keys) {
 		for (String key : keys) {
 			try {
 				SchemaValidator.validate(parents, schema.getPropertyNames(), repository, new JsonPrimitive(key));
 			} catch (SchemaValidationException sve) {
-				throw new SchemaValidationException(path(parents, schema.getName()),
+				throw new SchemaValidationException(path(parents),
 				        "Property name '" + key + "' does not fit the property schema");
 			}
 		}
 	}
 
-	private static void checkRequired(List<String> parents, Schema schema, JsonObject jsonObject) {
+	private static void checkRequired(List<Schema> parents, Schema schema, JsonObject jsonObject) {
 		for (String key : schema.getRequired()) {
 			if (jsonObject.get(key) == null || jsonObject.get(key)
 			        .isJsonNull()) {
-				throw new SchemaValidationException(path(parents, schema.getName()), key + " is mandatory");
+				throw new SchemaValidationException(path(parents), key + " is mandatory");
 			}
 		}
 	}
 
-	private static void checkAddtionalProperties(List<String> parents, Schema schema, Repository<Schema> repository,
+	private static void checkAddtionalProperties(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonObject jsonObject, Set<String> keys) {
 		AdditionalPropertiesType apt = schema.getAdditionalProperties();
 
@@ -86,14 +85,14 @@ public class ObjectValidator {
 
 			if (!apt.getBooleanValue()
 			        .booleanValue() && !keys.isEmpty()) {
-				throw new SchemaValidationException(path(parents, schema.getName()),
+				throw new SchemaValidationException(path(parents),
 				        keys.toString() + " are additional properties which are not allowed.");
 			}
 		} else if (apt.getSchemaValue() != null) {
 
 			for (String key : keys) {
-				List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-				newParents.add(key);
+				List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+
 				JsonElement element = SchemaValidator.validate(newParents, apt.getSchemaValue(), repository,
 				        jsonObject.get(key));
 				jsonObject.add(key, element);
@@ -101,7 +100,7 @@ public class ObjectValidator {
 		}
 	}
 
-	private static void checkPatternProperties(List<String> parents, Schema schema, Repository<Schema> repository,
+	private static void checkPatternProperties(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonObject jsonObject, Set<String> keys) {
 		Map<String, Pattern> compiledPatterns = new HashMap<>();
 		for (String keyPattern : schema.getPatternProperties()
@@ -111,8 +110,7 @@ public class ObjectValidator {
 		List<String> goodKeys = new ArrayList<>();
 
 		for (String key : keys) {
-			List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-			newParents.add(key);
+			List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 
 			for (Entry<String, Pattern> e : compiledPatterns.entrySet()) {
 				if (e.getValue()
@@ -131,30 +129,32 @@ public class ObjectValidator {
 		keys.removeAll(goodKeys);
 	}
 
-	private static void checkProperties(List<String> parents, Schema schema, Repository<Schema> repository,
+	private static void checkProperties(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonObject jsonObject, Set<String> keys) {
 		for (Entry<String, Schema> each : schema.getProperties()
 		        .entrySet()) {
 
-			List<String> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-			newParents.add(each.getKey());
-			JsonElement element = SchemaValidator.validate(newParents, each.getValue(), repository,
-			        jsonObject.get(each.getKey()));
+			JsonElement value = jsonObject.get(each.getKey());
+			if (value == null)
+				continue;
+
+			List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+			JsonElement element = SchemaValidator.validate(newParents, each.getValue(), repository, value);
 			jsonObject.add(each.getKey(), element);
 			keys.remove(each.getKey());
 		}
 	}
 
-	private static void checkMinMaxProperties(List<String> parents, Schema schema, Set<String> keys) {
+	private static void checkMinMaxProperties(List<Schema> parents, Schema schema, Set<String> keys) {
 		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties()
 		        .intValue()) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        "Object should have minimum of " + schema.getMinProperties() + " properties");
 		}
 
 		if (schema.getMaxProperties() != null && keys.size() > schema.getMaxProperties()
 		        .intValue()) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        "Object can have maximum of " + schema.getMaxProperties() + " properties");
 		}
 	}

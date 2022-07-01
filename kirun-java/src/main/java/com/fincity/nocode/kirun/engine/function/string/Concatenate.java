@@ -28,14 +28,13 @@ public class Concatenate extends AbstractFunction {
 	static final String VALUE = "value";
 
 	private static final Schema SCHEMA = new Schema().setName(VALUE)
-	        .setTitle(VALUE)
 	        .setType(new SingleType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
 	        .setNamespace(STRING)
 	        .setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA)
 	                .setVariableArgument(true)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.STRING))));
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {

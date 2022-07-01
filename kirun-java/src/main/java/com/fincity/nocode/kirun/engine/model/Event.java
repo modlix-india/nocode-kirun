@@ -31,10 +31,9 @@ public class Event implements Serializable {
 	public static final String SCHEMA_NAME = "Event";
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
-	        .setTitle(SCHEMA_NAME)
 	        .setName(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("name", Schema.STRING, "parameters", Schema.ofObject("parameter")
+	        .setProperties(Map.of("name", Schema.ofString("name"), "parameters", Schema.ofObject("parameter")
 	                .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.SCHEMA))));
 
 	private String name;

@@ -53,7 +53,7 @@ public class KIRuntime extends AbstractFunction {
 	private final Repository<Schema> sRepo;
 
 	private static final int VERSION = 1;
-	
+
 	private static final int MAX_EXECUTION_ITERATIONS = 1000000;
 
 	public KIRuntime(FunctionDefinition fd, Repository<Function> functionRepository,
@@ -135,9 +135,9 @@ public class KIRuntime extends AbstractFunction {
 
 			processBranchQue(inContext, executionQue, branchQue, output);
 			processExecutionQue(inContext, executionQue, branchQue, output);
-			
+
 			++count;
-			
+
 			if (count == MAX_EXECUTION_ITERATIONS)
 				throw new KIRuntimeException("Execution locked in an infinite loop");
 		}
@@ -567,7 +567,9 @@ public class KIRuntime extends AbstractFunction {
 			                {
 				                int secondDot = d.indexOf('.', 6);
 				                String step = d.substring(6, secondDot);
-				                String event = d.substring(secondDot + 1, d.indexOf('.', secondDot + 1));
+				                int eventDot = d.indexOf('.', secondDot + 1);
+				                String event = eventDot == -1 ? d.substring(secondDot + 1)
+				                        : d.substring(secondDot + 1, eventDot);
 
 				                if (!graph.getNodeMap()
 				                        .containsKey(step))

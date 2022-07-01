@@ -10,10 +10,10 @@ import com.google.gson.JsonElement;
 
 public class NullValidator {
 
-	public static JsonElement validate(List<String> parents, Schema schema, JsonElement element) {
+	public static JsonElement validate(List<Schema> parents, Schema schema, JsonElement element) {
 
 		if (element != null && !element.isJsonNull())
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        "Expected a null but found " + element);
 		
 		return element;

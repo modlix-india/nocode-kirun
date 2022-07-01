@@ -22,8 +22,7 @@ public class Parameter implements Serializable {
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
-	        .setTitle(SCHEMA_NAME)
-	        .setProperties(Map.of("schema", Schema.SCHEMA, "parameterName", Schema.STRING, "variableArgument",
+	        .setProperties(Map.of("schema", Schema.SCHEMA, "parameterName", Schema.ofString("parameterName"), "variableArgument",
 	                Schema.of("variableArgument", SchemaType.BOOLEAN)
 	                        .setDefaultValue(new JsonPrimitive(Boolean.FALSE))));
 

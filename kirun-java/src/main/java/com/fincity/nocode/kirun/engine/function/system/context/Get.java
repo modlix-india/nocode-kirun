@@ -33,7 +33,7 @@ public class Get extends AbstractFunction {
 	                .setMinLength(1)
 	                .setFormat(StringFormat.REGEX)
 	                .setPattern("^[a-zA-Z_$][a-zA-Z_$0-9]*$"), ParameterType.CONSTANT)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ANY))));
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofAny(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {

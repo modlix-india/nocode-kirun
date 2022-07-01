@@ -1,11 +1,20 @@
 package com.fincity.nocode.kirun.engine.json.schema.type;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
-public interface Type extends Serializable {
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
-	public Set<SchemaType> getAllowedSchemaTypes();
+public abstract class Type implements Serializable {
+
+	private static final long serialVersionUID = -6746822297269031219L;
+
+	public abstract Set<SchemaType> getAllowedSchemaTypes();
 
 	public static Type of(SchemaType... types) {
 
@@ -15,12 +24,51 @@ public interface Type extends Serializable {
 		return new MultipleType().setType(Set.of(types));
 	}
 
-	public default boolean contains(SchemaType type) {
-		
+	public boolean contains(SchemaType type) {
+
 		if (this instanceof SingleType st) {
 			return st.getType() == type;
 		}
-		
+
 		return ((MultipleType) this).contains(type);
 	}
+
+	public static class SchemaTypeAdapter extends TypeAdapter<Type> {
+
+		@Override
+		public void write(JsonWriter out, Type value) throws IOException {
+
+			if (value instanceof MultipleType multipleType) {
+				out.beginArray();
+				for (SchemaType typ : multipleType.getAllowedSchemaTypes()) {
+					out.value(typ.toString());
+				}
+				out.endArray();
+			} else {
+				out.value(((SingleType) value).getType()
+				        .toString());
+			}
+		}
+
+		@Override
+		public Type read(JsonReader in) throws IOException {
+
+			JsonToken token = in.peek();
+			Type t = null;
+
+			if (token == JsonToken.STRING)
+				t = of(SchemaType.valueOf(in.nextString()));
+			else if (token == JsonToken.BEGIN_ARRAY) {
+				in.beginArray();
+				Set<SchemaType> types = new HashSet<>();
+				while (in.hasNext()) {
+					types.add(SchemaType.valueOf(in.nextString()));
+				}
+				t = new MultipleType().setType(types);
+			}
+
+			return t;
+		}
+	}
+
 }

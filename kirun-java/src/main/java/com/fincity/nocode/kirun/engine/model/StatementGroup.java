@@ -20,10 +20,10 @@ public class StatementGroup extends AbstractStatement {
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
-	        .setTitle(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("statementGroupName", Schema.STRING, "comment", Schema.STRING, "description",
-	                Schema.STRING, "position", Position.SCHEMA));
+	        .setProperties(Map.of("statementGroupName", Schema.ofString("statementGroupName"), "comment",
+	                Schema.ofString("comment"), "description", Schema.ofString("description"), "position",
+	                Position.SCHEMA));
 
 	private String statementGroupName;
 }

@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 
 public class ContextTokenValueExtractor extends TokenValueExtractor {
 	
-	public static final String PREFIX = "Arguments.";
+	public static final String PREFIX = "Context.";
 
 	private Map<String, ContextElement> context;
 

@@ -19,9 +19,8 @@ public class Position implements Serializable {
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
-	        .setTitle(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("left", Schema.FLOAT, "top", Schema.FLOAT));
+	        .setProperties(Map.of("left", Schema.ofFloat("left"), "top", Schema.ofFloat("top")));
 
 	private float left;
 	private float top;

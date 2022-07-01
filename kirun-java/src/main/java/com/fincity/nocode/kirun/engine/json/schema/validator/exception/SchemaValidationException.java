@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema.validator.exception;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SchemaValidationException extends RuntimeException {
 
@@ -12,7 +13,10 @@ public class SchemaValidationException extends RuntimeException {
 
 	public SchemaValidationException(String schemaPath, String message, List<SchemaValidationException> sve) {
 
-		super(message);
+		super(message + (sve == null ? ""
+		        : sve.stream()
+		                .map(SchemaValidationException::getMessage)
+		                .collect(Collectors.joining("\n", "\n", ""))));
 		this.schemaPath = schemaPath;
 		this.sveList = sve;
 	}

@@ -20,8 +20,7 @@ public class FunctionSignature implements Serializable {
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
-	        .setTitle(SCHEMA_NAME)
-	        .setProperties(Map.of("name", Schema.STRING, "namespace", Schema.STRING, "parameters",
+	        .setProperties(Map.of("name", Schema.ofString("name"), "namespace", Schema.ofString("namespace"), "parameters",
 	                Schema.ofObject("parameters")
 	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Parameter.SCHEMA)),
 	                "events", Schema.ofObject("events")

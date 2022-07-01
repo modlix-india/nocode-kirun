@@ -24,15 +24,17 @@ import reactor.util.function.Tuples;
 
 public class GenerateEvent extends AbstractFunction {
 
+	private static final String VALUE = "value";
+
 	static final String EVENT_NAME = "eventName";
 
 	static final String RESULTS = "results";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("GenerateEvent")
 	        .setNamespace(SYSTEM)
-	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.STRING),
+	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME)),
 	                Parameter.ofEntry(RESULTS, Schema.ofObject(RESULTS)
-	                        .setProperties(Map.of("name", Schema.STRING, "value", Schema.ANY)), true)))
+	                        .setProperties(Map.of("name", Schema.ofString("name"), VALUE, Schema.ofAny(VALUE))), true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
@@ -53,10 +55,11 @@ public class GenerateEvent extends AbstractFunction {
 		        .get(RESULTS)
 		        .getAsJsonArray()
 		        .spliterator(), false)
-				.map(JsonObject.class::cast)
-				.map(e -> Tuples.of(e.get("name").getAsString(), e.get("value")))
-				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
-		        
+		        .map(JsonObject.class::cast)
+		        .map(e -> Tuples.of(e.get("name")
+		                .getAsString(), e.get(VALUE)))
+		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+
 		events.computeIfAbsent(eventName, k -> new ArrayList<>())
 		        .add(map);
 

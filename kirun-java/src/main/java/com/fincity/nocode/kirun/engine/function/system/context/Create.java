@@ -19,6 +19,7 @@ import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -29,6 +30,15 @@ public class Create extends AbstractFunction {
 	static final String NAME = "name";
 
 	static final String SCHEMA = "schema";
+
+	private final Gson gson;
+
+	public Create() {
+
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(Type.class, new Type.SchemaTypeAdapter());
+		gson = builder.create();
+	}
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Create")
 	        .setNamespace(SYSTEM_CTX)
@@ -58,7 +68,7 @@ public class Create extends AbstractFunction {
 
 		JsonElement schema = context.getArguments()
 		        .get(SCHEMA);
-		Schema s = new Gson().fromJson(schema, Schema.class);
+		Schema s = gson.fromJson(schema, Schema.class);
 
 		context.getContext()
 		        .put(name,

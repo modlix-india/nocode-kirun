@@ -13,7 +13,7 @@ import com.google.gson.JsonElement;
 
 public class TypeValidator {
 
-	public static JsonElement validate(List<String> parents, SchemaType type, Schema schema, Repository<Schema> repository,
+	public static JsonElement validate(List<Schema> parents, SchemaType type, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		if (type == SchemaType.STRING) {
@@ -31,7 +31,7 @@ public class TypeValidator {
 			NullValidator.validate(parents, schema, element);
 		} else {
 
-			throw new SchemaValidationException(path(parents, schema.getName()), type + " is not a valid type.");
+			throw new SchemaValidationException(path(parents), type + " is not a valid type.");
 		}
 		
 		return element;

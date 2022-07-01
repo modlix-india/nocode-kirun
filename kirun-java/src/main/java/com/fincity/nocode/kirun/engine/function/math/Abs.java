@@ -27,8 +27,8 @@ public class Abs extends AbstractFunction {
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Abs")
 	        .setNamespace(MATH)
 	        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
-	                .setSchema(Schema.NUMBER)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.NUMBER))));
+	                .setSchema(Schema.ofNumber(VALUE))))
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {

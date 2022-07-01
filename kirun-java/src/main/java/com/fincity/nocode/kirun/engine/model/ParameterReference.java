@@ -23,7 +23,8 @@ public class ParameterReference implements Serializable {
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("references", Schema.STRING, "value", Schema.ANY, "expression", Schema.STRING));
+	        .setProperties(Map.of("references", Schema.ofString("references"), "value", Schema.ofAny("value"), "expression",
+	                Schema.ofString("expression")));
 
 	private ParameterReferenceType type;
 	private JsonElement value; // NOSONAR - JSON element is not serialised for some reason.

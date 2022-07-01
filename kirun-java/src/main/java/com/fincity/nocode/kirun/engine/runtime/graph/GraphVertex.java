@@ -7,12 +7,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(exclude = { "graph", "outVertices", "inVertices" })
 public class GraphVertex<K, T extends GraphVertexType<K>> {
 
 	private T data;

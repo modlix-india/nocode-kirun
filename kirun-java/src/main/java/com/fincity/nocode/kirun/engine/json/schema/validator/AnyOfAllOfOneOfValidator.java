@@ -12,7 +12,7 @@ import com.google.gson.JsonElement;
 
 public class AnyOfAllOfOneOfValidator {
 
-	public static JsonElement validate(List<String> parents, Schema schema, Repository<Schema> repository,
+	public static JsonElement validate(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonElement element) {
 
 		List<SchemaValidationException> list = new ArrayList<>();
@@ -22,7 +22,7 @@ public class AnyOfAllOfOneOfValidator {
 		} else if (schema.getAllOf() != null && !schema.getAllOf()
 		        .isEmpty()) {
 			allOf(parents, schema, repository, element, list);
-		} else if (!schema.getAnyOf()
+		} else if (schema.getAnyOf() != null && !schema.getAnyOf()
 		        .isEmpty()) {
 			anyOf(parents, schema, repository, element, list);
 		}
@@ -30,7 +30,7 @@ public class AnyOfAllOfOneOfValidator {
 		return element;
 	}
 
-	private static void anyOf(List<String> parents, Schema schema, Repository<Schema> repository, JsonElement element,
+	private static void anyOf(List<Schema> parents, Schema schema, Repository<Schema> repository, JsonElement element,
 	        List<SchemaValidationException> list) {
 		boolean flag = false;
 		for (Schema s : schema.getAnyOf()) {
@@ -45,12 +45,11 @@ public class AnyOfAllOfOneOfValidator {
 		}
 
 		if (!flag) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "The value don't satisfy any of the schemas.", list);
+			throw new SchemaValidationException(path(parents), "The value don't satisfy any of the schemas.", list);
 		}
 	}
 
-	private static void allOf(List<String> parents, Schema schema, Repository<Schema> repository, JsonElement element,
+	private static void allOf(List<Schema> parents, Schema schema, Repository<Schema> repository, JsonElement element,
 	        List<SchemaValidationException> list) {
 		int flag = 0;
 		for (Schema s : schema.getAllOf()) {
@@ -64,12 +63,11 @@ public class AnyOfAllOfOneOfValidator {
 
 		if (flag != schema.getAllOf()
 		        .size()) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
-			        "The value doesn't satisfy some of the schemas.", list);
+			throw new SchemaValidationException(path(parents), "The value doesn't satisfy some of the schemas.", list);
 		}
 	}
 
-	private static void oneOf(List<String> parents, Schema schema, Repository<Schema> repository, JsonElement element,
+	private static void oneOf(List<Schema> parents, Schema schema, Repository<Schema> repository, JsonElement element,
 	        List<SchemaValidationException> list) {
 		int flag = 0;
 		for (Schema s : schema.getOneOf()) {
@@ -82,7 +80,7 @@ public class AnyOfAllOfOneOfValidator {
 		}
 
 		if (flag != 1) {
-			throw new SchemaValidationException(path(parents, schema.getName()),
+			throw new SchemaValidationException(path(parents),
 			        (flag == 0 ? "The value does not satisfy any schema" : "The value satisfy more than one schema"),
 			        list);
 		}

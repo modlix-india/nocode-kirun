@@ -31,9 +31,9 @@ public class Add extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Add")
 	        .setNamespace(MATH)
-	        .setParameters(Map.of(VALUE, new Parameter().setSchema(Schema.NUMBER)
+	        .setParameters(Map.of(VALUE, new Parameter().setSchema(Schema.ofNumber(VALUE))
 	                .setVariableArgument(true)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.NUMBER))));
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -80,7 +80,7 @@ public class Add extends AbstractFunction {
 		                .stream())
 		        .reduce((a, b) -> a.ordinal() < b.ordinal() ? b : a)
 		        .map(e -> new Schema().setType(Type.of(e)))
-		        .orElse(Schema.NUMBER);
+		        .orElse(Schema.ofNumber(VALUE));
 
 		return Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, schema)));
 	}
