@@ -40,6 +40,7 @@ public enum Operation {
 	UNARY_BITWISE_COMPLEMENT ("UN: ~", "~"),
 	
 	ARRAY_OPERATOR ("["),
+	OBJECT_OPERATOR ("."),
 	;
 
 	public static final Set<Operation> UNARY_OPERATORS = Set.of(ADDITION, SUBTRACTION, NOT, BITWISE_COMPLEMENT,
@@ -56,7 +57,7 @@ public enum Operation {
 
 	public static final Map<Operation, Integer> OPERATOR_PRIORITY = Collections
 	        .unmodifiableMap(new EnumMap<>(Map.ofEntries(Map.entry(UNARY_PLUS, 1), Map.entry(UNARY_MINUS, 1),
-	                Map.entry(UNARY_LOGICAL_NOT, 1), Map.entry(UNARY_BITWISE_COMPLEMENT, 1),Map.entry(ARRAY_OPERATOR, 1),
+	                Map.entry(UNARY_LOGICAL_NOT, 1), Map.entry(UNARY_BITWISE_COMPLEMENT, 1),Map.entry(ARRAY_OPERATOR, 1),Map.entry(OBJECT_OPERATOR, 1),
 	                Map.entry(MULTIPLICATION, 2), Map.entry(DIVISION, 2), Map.entry(MOD, 2), Map.entry(ADDITION, 3),
 	                Map.entry(SUBTRACTION, 3), Map.entry(BITWISE_LEFT_SHIFT, 4), Map.entry(BITWISE_RIGHT_SHIFT, 4),
 	                Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, 4), Map.entry(LESS_THAN, 5), Map.entry(LESS_THAN_EQUAL, 5),
@@ -64,7 +65,7 @@ public enum Operation {
 	                Map.entry(NOT_EQUAL, 6), Map.entry(BITWISE_AND, 7), Map.entry(BITWISE_XOR, 8),
 	                Map.entry(BITWISE_OR, 9), Map.entry(AND, 10), Map.entry(OR, 11))));
 
-	public static final Set<String> OPERATORS = Collections.unmodifiableSet(Stream.of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(), Stream.of(ARRAY_OPERATOR))
+	public static final Set<String> OPERATORS = Collections.unmodifiableSet(Stream.of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(), Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR))
 			.flatMap(Function.identity())
 	        .map(Operation::getOperator)
 	        .collect(Collectors.toSet()));

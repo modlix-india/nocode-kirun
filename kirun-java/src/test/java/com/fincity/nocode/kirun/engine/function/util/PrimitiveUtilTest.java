@@ -15,9 +15,12 @@ class PrimitiveUtilTest {
 	@Test
 	void testFindPrimitive() {
 
-		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive(true)), Tuples.of(SchemaType.BOOLEAN, true));
-		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive("Kiran")), Tuples.of(SchemaType.STRING, "Kiran"));
-		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive(10d)), Tuples.of(SchemaType.DOUBLE, 10d));
+		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive(true)),
+		        Tuples.of(SchemaType.BOOLEAN, true));
+		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive("Kiran")),
+		        Tuples.of(SchemaType.STRING, "Kiran"));
+		assertEquals(PrimitiveUtil.findPrimitiveNullAsBoolean(new JsonPrimitive(10d)),
+		        Tuples.of(SchemaType.DOUBLE, 10d));
 	}
 
 	@Test
@@ -32,13 +35,16 @@ class PrimitiveUtilTest {
 
 		var stringJson = new JsonPrimitive("asdf");
 		assertThrows(ExecutionException.class, () -> PrimitiveUtil.findPrimitiveNumberType(stringJson));
-		
+
 		var booleanJson = new JsonPrimitive(false);
 		assertThrows(ExecutionException.class, () -> PrimitiveUtil.findPrimitiveNumberType(booleanJson));
-		
+
 		// Did you know?
 		assertEquals(false, new JsonPrimitive("true").isBoolean());
 		assertEquals(false, new JsonPrimitive(2).isString());
+
+		assertEquals(PrimitiveUtil.findPrimitiveNumberType(new JsonPrimitive("2.234")),
+		        Tuples.of(SchemaType.FLOAT, 2.234f));
 	}
 
 	@Test

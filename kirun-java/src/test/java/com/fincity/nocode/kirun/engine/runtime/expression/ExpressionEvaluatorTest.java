@@ -78,6 +78,14 @@ class ExpressionEvaluatorTest {
 		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
 		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
 		        .evaluate(parameters));
+		
+		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
+		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
+		        .evaluate(parameters));
+
+		assertEquals(new JsonPrimitive(32), new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
+		        .evaluate(parameters));
+
 	}
 
 }

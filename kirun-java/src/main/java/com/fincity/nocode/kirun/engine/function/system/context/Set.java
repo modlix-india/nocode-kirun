@@ -15,6 +15,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.expression.Expression;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 
 import reactor.core.publisher.Flux;
@@ -46,7 +47,10 @@ public class Set extends AbstractFunction {
 		if (key.isBlank()) {
 			throw new KIRuntimeException("Empty string is not a valid name for the context element");
 		}
-
+		
+		Expression exp = new Expression(key);
+		
+		
 		if (!context.getContext().containsKey(key)) {
 			throw new KIRuntimeException(
 			        StringFormatter.format("Context doesn't have any element with name '$' ", key));

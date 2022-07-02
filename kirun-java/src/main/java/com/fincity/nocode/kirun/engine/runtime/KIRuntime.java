@@ -167,9 +167,7 @@ public class KIRuntime extends AbstractFunction {
 			var vertex = executionQue.pop();
 
 			if (!allDependenciesResolved(vertex, inContext.getOutput()))
-
 				executionQue.add(vertex);
-
 			else
 				executeVertex(vertex, inContext, branchQue, executionQue);
 		}
@@ -186,7 +184,6 @@ public class KIRuntime extends AbstractFunction {
 				branchQue.add(branch);
 			else
 				executeBranch(inContext, executionQue, branch);
-
 		}
 	}
 
@@ -408,13 +405,7 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) { // NOSONAR
-	                                                                                                         // -
-	                                                                                                         // Breaking
-	                                                                                                         // this
-	                                                                                                         // logic
-	                                                                                                         // will be
-	                                                                                                         // meaning
-	                                                                                                         // less
+		// Breaking this execution doesn't make sense.
 
 		StatementExecution se = new StatementExecution(s);
 
@@ -463,15 +454,8 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private void parameterReferenceValidation(Map<String, ContextElement> context, StatementExecution se, Parameter p, // NOSONAR
-	                                                                                                                   // -
-	                                                                                                                   // Breaking
-	                                                                                                                   // this
-	                                                                                                                   // logic
-	                                                                                                                   // will
-	                                                                                                                   // be
-	                                                                                                                   // meaning
-	                                                                                                                   // less
 	        ParameterReference ref) {
+		// Breaking this execution doesn't make sense.
 
 		if (ref == null) {
 			if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
@@ -509,7 +493,7 @@ public class KIRuntime extends AbstractFunction {
 			} else {
 				try {
 					Expression exp = new Expression(ref.getExpression());
-					this.typeCheckExpression(context, p, exp);
+					// TODO: Type check for the resulting expression has to be done here...
 					this.addDependencies(se, exp);
 				} catch (KIRuntimeException ex) {
 					se.addMessage(StatementMessageType.ERROR,
@@ -544,12 +528,6 @@ public class KIRuntime extends AbstractFunction {
 		for (String statement : se.getStatement()
 		        .getDependentStatements())
 			se.addDependency(statement);
-	}
-
-	private void typeCheckExpression(Map<String, ContextElement> context, Parameter p, Expression exp) {
-
-		// TODO: we need to check the type of the parameters based on the input they
-		// get.
 	}
 
 	public List<Tuple2<String, String>> makeEdges(ExecutionGraph<String, StatementExecution> graph) {

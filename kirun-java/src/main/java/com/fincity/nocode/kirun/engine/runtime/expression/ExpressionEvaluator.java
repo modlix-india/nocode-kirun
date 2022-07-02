@@ -24,6 +24,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_LOGICAL_NOT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_PLUS;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 
 import java.util.EnumMap;
 import java.util.LinkedList;
@@ -54,6 +55,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Logic
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalLessThanOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNotEqualOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalOrOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ObjectOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryMinusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryPlusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.BitwiseComplementOperator;
@@ -94,19 +96,26 @@ public class ExpressionEvaluator {
 	        Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
 	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
 
-	        Map.entry(ARRAY_OPERATOR, new ArrayOperator())));
+	        Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
 
 	private static final Set<Operation> UNARY_OPERATORS_MAP_KEY_SET = UNARY_OPERATORS_MAP.keySet();
 
 	private String expression;
+	private Expression exp;
 
 	public ExpressionEvaluator(String expression) {
 		this.expression = expression;
 	}
 
+	public ExpressionEvaluator(Expression exp) {
+		this.exp = exp;
+		this.expression = exp.getExpression();
+	}
+
 	public JsonElement evaluate(FunctionExecutionParameters context) {
 
-		Expression exp = new Expression(this.expression);
+		if (exp == null)
+			exp = new Expression(this.expression);
 
 		Map<String, TokenValueExtractor> valuesMap = Map.of("Steps",
 		        new OutputMapTokenValueExtractor(context.getOutput()), "Argum",
@@ -114,6 +123,18 @@ public class ExpressionEvaluator {
 		        new ContextTokenValueExtractor(context.getContext()));
 
 		return this.evaluateExpression(exp, valuesMap);
+	}
+
+	public Expression getExpression() {
+
+		if (this.exp == null)
+			this.exp = new Expression(this.expression);
+
+		return this.exp;
+	}
+
+	public String getExpressionString() {
+		return this.expression;
 	}
 
 	private JsonElement evaluateExpression(Expression exp, Map<String, TokenValueExtractor> valuesMap) {
@@ -129,6 +150,8 @@ public class ExpressionEvaluator {
 			if (UNARY_OPERATORS_MAP_KEY_SET.contains(operator)) {
 
 				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
+			} else if (operator == OBJECT_OPERATOR) {
+
 			} else {
 				ExpressionToken token2 = tokens.pop();
 				var v1 = getValueFromToken(valuesMap, token2);
