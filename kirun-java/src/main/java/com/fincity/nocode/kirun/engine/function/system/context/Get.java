@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.system.context;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_CTX;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -17,8 +18,6 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
-
-import reactor.core.publisher.Flux;
 
 public class Get extends AbstractFunction {
 
@@ -41,7 +40,7 @@ public class Get extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		String name = context.getArguments().get(NAME)
 		        .getAsString();
@@ -49,7 +48,7 @@ public class Get extends AbstractFunction {
 		if (!context.getContext().containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context don't have an element for '$' ", name));
 
-		return Flux.just(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
+		return List.of(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
 		        .getElement())));
 	}
 

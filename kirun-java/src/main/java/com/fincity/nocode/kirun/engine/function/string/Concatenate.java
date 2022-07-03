@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.string;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,9 +43,10 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		Mono<String> concatenatedString = Mono.just(context.getArguments().get(VALUE))
+		Mono<String> concatenatedString = Mono.just(context.getArguments()
+		        .get(VALUE))
 		        .map(JsonArray.class::cast)
 		        .flatMapMany(Flux::fromIterable)
 		        .filter(Objects::nonNull)
@@ -52,8 +54,10 @@ public class Concatenate extends AbstractFunction {
 		        .defaultIfEmpty("")
 		        .reduce((a, b) -> a + b);
 
-		return Flux.merge((Publisher<? extends EventResult>) concatenatedString.map(JsonPrimitive::new)
+		return Flux.merge((Publisher<EventResult>) concatenatedString.map(JsonPrimitive::new)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
-		        .map(EventResult::outputOf));
+		        .map(EventResult::outputOf))
+		        .collectList()
+		        .block();
 	}
 }

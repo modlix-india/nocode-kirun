@@ -41,7 +41,7 @@ public class Add extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		Mono<Number> sum = Mono.just(context.getArguments()
 		        .get(VALUE))
@@ -49,25 +49,27 @@ public class Add extends AbstractFunction {
 		        .flatMapMany(Flux::fromIterable)
 		        .map(JsonPrimitive.class::cast)
 		        .map(e ->
-			        {
-				        Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil.findPrimitiveNumberType(e);
-				        return primitiveTypeTuple.getT2();
-			        })
+				{
+			        Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil.findPrimitiveNumberType(e);
+			        return primitiveTypeTuple.getT2();
+		        })
 		        .reduce((a, b) ->
-			        {
-				        if (a instanceof Double || b instanceof Double)
-					        return a.doubleValue() + b.doubleValue();
-				        if (a instanceof Float || b instanceof Float)
-					        return a.floatValue() + b.floatValue();
-				        if (a instanceof Long || b instanceof Long)
-					        return a.longValue() + b.longValue();
-				        return (int) a + (int) b;
-			        })
+				{
+			        if (a instanceof Double || b instanceof Double)
+				        return a.doubleValue() + b.doubleValue();
+			        if (a instanceof Float || b instanceof Float)
+				        return a.floatValue() + b.floatValue();
+			        if (a instanceof Long || b instanceof Long)
+				        return a.longValue() + b.longValue();
+			        return (int) a + (int) b;
+		        })
 		        .map(Number.class::cast);
 
-		return Flux.merge((Publisher<? extends EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
+		return Flux.merge((Publisher<EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
-		        .map(EventResult::outputOf));
+		        .map(EventResult::outputOf))
+		        .collectList()
+		        .block();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +26,6 @@ import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
 
 class KIRuntimeTest {
 
@@ -103,27 +102,31 @@ class KIRuntimeTest {
 		                        "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
 		        .setDependentStatements(List.of("Steps.if.false"));
 
-		StepVerifier
-		        .create(new KIRuntime(
-		                ((FunctionDefinition) new FunctionDefinition()
-		                        .setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
-		                                Statement.ofEntry(outputGenerate), Statement.ofEntry(ifStep),
-		                                Statement.ofEntry(set1), Statement.ofEntry(set2)))
-		                        .setNamespace("Test")
-		                        .setName("Fibonacci")
-		                        .setEvents(Map.ofEntries(Event.outputEventMapEntry(
-		                                Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
-		                        .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
-		                                .setSchema(Schema.ofInteger("count"))))),
-		                new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		                .execute(new FunctionExecutionParameters()
-		                        .setArguments(Map.of("Count", new JsonPrimitive(num)))))
-		        .expectNext(new EventResult().setName("output")
-		                .setResult(Map.of("result", array)))
-		        .verifyComplete();
+		List<EventResult> out = new KIRuntime(
+		        ((FunctionDefinition) new FunctionDefinition()
+		                .setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
+		                        Statement.ofEntry(outputGenerate), Statement.ofEntry(ifStep), Statement.ofEntry(set1),
+		                        Statement.ofEntry(set2)))
+		                .setNamespace("Test")
+		                .setName("Fibonacci")
+		                .setEvents(Map.ofEntries(Event.outputEventMapEntry(
+		                        Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
+		                .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
+		                        .setSchema(Schema.ofInteger("count"))))),
+		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Count", new JsonPrimitive(num))));
+
+		assertEquals(List.of(new EventResult().setName("output")
+		        .setResult(Map.of("result", array))), out);
+
+//		StepVerifier
+//		        .create()
+//		        .expectNext(new EventResult().setName("output")
+//		                .setResult(Map.of("result", array)))
+//		        .verifyComplete();
 	}
 
-//	@Test
+	@Test
 	void testSingleFunctionCall() {
 
 		var abs = new Abs().getSignature();
@@ -134,7 +137,7 @@ class KIRuntimeTest {
 		resultObj.add("name", new JsonPrimitive("result"));
 		resultObj.add("value", new JsonExpression("Steps.first.output.value"));
 
-		Flux<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
+		List<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
 		        .setName("SingleCall")
 		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
 		                .setSchema(Schema.ofInteger("Value")))))
@@ -149,9 +152,12 @@ class KIRuntimeTest {
 		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(-10))));
 
-		StepVerifier.create(out)
-		        .expectNext(new EventResult().setName("output")
-		                .setResult(Map.of("result", new JsonPrimitive(10))))
-		        .verifyComplete();
+//		StepVerifier.create(out)
+//		        .expectNext(new EventResult().setName("output")
+//		                .setResult(Map.of("result", new JsonPrimitive(10))))
+//		        .verifyComplete();
+
+		assertEquals(List.of(new EventResult().setName("output")
+		        .setResult(Map.of("result", new JsonPrimitive(10)))), out);
 	}
 }

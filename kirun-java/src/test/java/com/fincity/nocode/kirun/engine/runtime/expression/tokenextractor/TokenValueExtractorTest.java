@@ -32,7 +32,7 @@ class TokenValueExtractorTest {
 
 	@Test
 	void test() {
-		
+
 		JsonArray darr = new JsonArray();
 		JsonArray darr0 = new JsonArray();
 		darr0.add(2);
@@ -47,11 +47,11 @@ class TokenValueExtractorTest {
 		darr2.add(8);
 		darr2.add(12);
 		darr2.add(16);
-		
+
 		darr.add(darr0);
 		darr.add(darr1);
 		darr.add(darr2);
-		
+
 		JsonArray arr = new JsonArray();
 		arr.add(0);
 		arr.add(2);
@@ -68,8 +68,18 @@ class TokenValueExtractorTest {
 
 		JsonObject obj = new JsonObject();
 		obj.add("a", a);
+		obj.add("array", arr);
 
-		String token = "a.b.c";
+		String token = "[2]";
+		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, arr));
+		
+		token="[1][1]";
+		assertEquals(new JsonPrimitive(6), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, darr));
+		
+		token="[2].length";
+		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, darr));
+
+		token = "a.b.c";
 		assertEquals("K", this.extractor.retrieveElementFrom(token, token.split("\\."), 0, obj)
 		        .getAsString());
 
@@ -82,10 +92,10 @@ class TokenValueExtractorTest {
 
 		token = "a.b.arr[2]";
 		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 1, a));
-		
+
 		token = "a.b.darr[2][3]";
 		assertEquals(new JsonPrimitive(16), this.extractor.retrieveElementFrom(token, token.split("\\."), 1, a));
-		
+
 		token = "a.b.darr[2].length";
 		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 1, a));
 	}

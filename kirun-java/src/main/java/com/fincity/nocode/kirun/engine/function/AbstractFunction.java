@@ -13,8 +13,6 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import reactor.core.publisher.Flux;
-
 public abstract class AbstractFunction implements Function {
 
 	protected Map<String, JsonElement> validateArguments(final Map<String, JsonElement> arguments) {
@@ -55,14 +53,14 @@ public abstract class AbstractFunction implements Function {
 	}
 
 	@Override
-	public Flux<EventResult> execute(FunctionExecutionParameters context) {
+	public List<EventResult> execute(FunctionExecutionParameters context) {
 		
 		context.setArguments(this.validateArguments(context.getArguments()));
 
 		return this.internalExecute(context);
 	}
 
-	protected abstract Flux<EventResult> internalExecute(FunctionExecutionParameters context);
+	protected abstract List<EventResult> internalExecute(FunctionExecutionParameters context);
 
 	@Override
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {

@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.function.system.context;
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_CTX;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
@@ -30,7 +31,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple2;
 
 public class Set extends AbstractFunction {
@@ -52,7 +52,7 @@ public class Set extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		String key = context.getArguments()
 		        .get(NAME)
@@ -112,9 +112,9 @@ public class Set extends AbstractFunction {
 			        StringFormatter.format("Context doesn't have any element with name '$' ", key));
 		}
 
-		if (ops.size() == 0) {
+		if (ops.isEmpty()) {
 			ce.setElement(value);
-			return Flux.just(EventResult.outputOf(Map.of()));
+			return List.of(EventResult.outputOf(Map.of()));
 		}
 
 		JsonElement el = ce.getElement();
@@ -231,7 +231,7 @@ public class Set extends AbstractFunction {
 			}
 		}
 		
-		return Flux.just(EventResult.outputOf(Map.of()));
+		return List.of(EventResult.outputOf(Map.of()));
 	}
 
 }

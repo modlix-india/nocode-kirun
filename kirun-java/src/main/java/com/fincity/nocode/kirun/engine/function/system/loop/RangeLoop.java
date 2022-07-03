@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.system.loop;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
@@ -57,7 +58,7 @@ public class RangeLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		var from = context.getArguments()
 		        .get(FROM);
@@ -89,8 +90,11 @@ public class RangeLoop extends AbstractFunction {
 			        return integerSeries(f.intValue(), t.intValue(), s.intValue(), forward);
 		        });
 
-		return Flux.merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
-		        Flux.just(EventResult.outputOf(Map.of(VALUE, to))));
+		return Flux
+		        .merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
+		                Flux.just(EventResult.outputOf(Map.of(VALUE, to))))
+		        .collectList()
+		        .block();
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer f, final Integer t, final Integer s,

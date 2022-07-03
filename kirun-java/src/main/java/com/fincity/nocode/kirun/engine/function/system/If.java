@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.system;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
@@ -12,8 +13,6 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
-import reactor.core.publisher.Flux;
 
 public class If extends AbstractFunction {
 
@@ -31,12 +30,12 @@ public class If extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		var condition = context.getArguments()
 		        .get(CONDITION);
 
-		return Flux.just(EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of()),
+		return List.of(EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of()),
 		        EventResult.outputOf(Map.of()));
 	}
 }

@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.function.system.loop;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
+import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
@@ -42,28 +43,31 @@ public class CountLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		var count = context.getArguments().get(COUNT);
+		var count = context.getArguments()
+		        .get(COUNT);
 
 		Flux<JsonPrimitive> fluxrange = integerSeries(count.getAsInt() + 1);
 
-		return Flux.merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
-		        Flux.just(EventResult.outputOf(Map.of(VALUE, count))));
+		return Flux
+		        .merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
+		                Flux.just(EventResult.outputOf(Map.of(VALUE, count))))
+		        .collectList()
+		        .block();
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer t) {
-		return Flux.generate(() -> 1, (state, sink) ->
-			{
-				int v = state;
+		return Flux.generate(() -> 1, (state, sink) -> {
+			int v = state;
 
-				if (v >= t)
-					sink.complete();
-				else
-					sink.next(Integer.valueOf(v));
+			if (v >= t)
+				sink.complete();
+			else
+				sink.next(Integer.valueOf(v));
 
-				return v + 1;
-			})
+			return v + 1;
+		})
 		        .map(e -> new JsonPrimitive((Number) e));
 	}
 }

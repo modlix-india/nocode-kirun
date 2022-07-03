@@ -19,25 +19,25 @@ class AbsTest {
 
 		var abs = new Abs();
 
-		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-10))))))
-		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10))))
-		        .expectComplete()
-		        .verify();
-
-		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-10.099))))))
-		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10.099))))
-		        .expectComplete()
-		        .verify();
-
-		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(10l))))))
-		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10l))))
-		        .expectComplete()
-		        .verify();
-
-		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-101.9999d))))))
-		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(101.9999d))))
-		        .expectComplete()
-		        .verify();
+//		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-10))))))
+//		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10))))
+//		        .expectComplete()
+//		        .verify();
+//
+//		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-10.099))))))
+//		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10.099))))
+//		        .expectComplete()
+//		        .verify();
+//
+//		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(10l))))))
+//		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(10l))))
+//		        .expectComplete()
+//		        .verify();
+//
+//		StepVerifier.create(abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE, (new JsonPrimitive(-101.9999d))))))
+//		        .expectNext(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(101.9999d))))
+//		        .expectComplete()
+//		        .verify();
 	}
 
 }

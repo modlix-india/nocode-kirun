@@ -9,13 +9,11 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 
-import reactor.core.publisher.Flux;
-
 public interface Function {
 
 	public FunctionSignature getSignature();
 	
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters);
 
-	public Flux<EventResult> execute(FunctionExecutionParameters context);
+	public List<EventResult> execute(FunctionExecutionParameters context);
 }

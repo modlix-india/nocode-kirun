@@ -18,7 +18,6 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -43,7 +42,7 @@ public class GenerateEvent extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
 
 		Map<String, List<Map<String, JsonElement>>> events = context.getEvents();
 		Map<String, JsonElement> arguments = context.getArguments();
@@ -63,7 +62,7 @@ public class GenerateEvent extends AbstractFunction {
 		events.computeIfAbsent(eventName, k -> new ArrayList<>())
 		        .add(map);
 
-		return Flux.just(EventResult.outputOf(Map.of()));
+		return List.of(EventResult.outputOf(Map.of()));
 	}
 
 }

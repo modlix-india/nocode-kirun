@@ -13,7 +13,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 public abstract class TokenValueExtractor {
-	
+
 	private static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
 
 	public JsonElement getValue(String token) {
@@ -38,23 +38,36 @@ public abstract class TokenValueExtractor {
 		        .sequential()
 		        .map(String::trim)
 		        .filter(Predicate.not(String::isBlank)), jsonElement,
-		        (c, a, i) -> resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a, i)
-		);
+		        (c, a, i) -> resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a, i));
 
 		return retrieveElementFrom(token, parts, partNumber + 1, bElement);
 	}
 
 	protected JsonElement resolveForEachPartOfTokenWithBrackets(String token, String[] parts, int partNumber, String c,
 	        JsonElement a, Integer i) {
-		
+
 		if (a == null || a == JsonNull.INSTANCE)
 			return null;
 
 		if (i == 0) {
 
-			if (c.equals("length") && a.isJsonArray())
-				return new JsonPrimitive(a.getAsJsonArray()
-				        .size());
+			if (a.isJsonArray()) {
+				if (c.equals("length"))
+					return new JsonPrimitive(a.getAsJsonArray()
+					        .size());
+				try {
+					int index = Integer.parseInt(c);
+					JsonArray ja = a.getAsJsonArray();
+
+					if (index >= ja.size())
+						return null;
+
+					return ja.get(index);
+				} catch (Exception ex) {
+					throw new ExpressionEvaluationException(token,
+					        StringFormatter.format("$ couldn't be parsed into integer in $", c, token));
+				}
+			}
 
 			checkIfObject(token, parts, partNumber, a);
 			return a.getAsJsonObject()

@@ -207,10 +207,12 @@ public class ExpressionEvaluator {
 
 		while (!objTokens.isEmpty()) {
 			objToken = objTokens.pop();
-			sb.append(objOperations.pop()
-			        .getOperator())
+			operator = objOperations.pop();
+			sb.append(operator.getOperator())
 			        .append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
 			                .getAsString() : objToken.toString()));
+			if (operator == ARRAY_OPERATOR)
+				sb.append(']');
 		}
 
 		String str = sb.toString();

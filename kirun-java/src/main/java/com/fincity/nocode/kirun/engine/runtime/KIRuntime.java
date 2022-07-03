@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +103,7 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	@Override
-	protected Flux<EventResult> internalExecute(final FunctionExecutionParameters inContext) {
+	protected List<EventResult> internalExecute(final FunctionExecutionParameters inContext) {
 
 		if (inContext.getContext() == null)
 			inContext.setContext(new ConcurrentHashMap<>());
@@ -130,9 +131,7 @@ public class KIRuntime extends AbstractFunction {
 			        "Please fix the errors in the function definition before execution : \n" + messages);
 		}
 
-		List<EventResult> events = executeGraph(eGraph, inContext);
-
-		return Flux.fromIterable(events);
+		return executeGraph(eGraph, inContext);
 	}
 
 	private List<EventResult> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
@@ -141,7 +140,7 @@ public class KIRuntime extends AbstractFunction {
 		LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>();
 		executionQue.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
-		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
+		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
 
 		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
 		        .containsKey(Event.OUTPUT)) {
@@ -172,7 +171,7 @@ public class KIRuntime extends AbstractFunction {
 
 	private void processExecutionQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
 
 		if (!executionQue.isEmpty()) {
 
@@ -187,7 +186,7 @@ public class KIRuntime extends AbstractFunction {
 
 	private void processBranchQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
 		if (!branchQue.isEmpty()) {
 
 			var branch = branchQue.pop();
@@ -201,18 +200,18 @@ public class KIRuntime extends AbstractFunction {
 
 	private void executeBranch(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>> branch) {
+	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>> branch) {
 
 		var vertex = branch.getT4();
 		EventResult nextOutput = null;
 
 		do {
 			this.executeGraph(branch.getT1(), inContext);
-			var v = branch.getT3().collectList().block();
-			System.out.println(v);
 			nextOutput = branch.getT3()
-			        .next()
-			        .block();
+			        .hasNext()
+			                ? branch.getT3()
+			                        .next()
+			                : null;
 
 			if (nextOutput != null)
 				inContext.getOutput()
@@ -224,7 +223,8 @@ public class KIRuntime extends AbstractFunction {
 		        .equals(Event.OUTPUT));
 
 		if (nextOutput != null && nextOutput.getName()
-		        .equals(Event.OUTPUT)) {
+		        .equals(Event.OUTPUT) && vertex.getOutVertices()
+		                .containsKey(Event.OUTPUT)) {
 
 			vertex.getOutVertices()
 			        .get(Event.OUTPUT)
@@ -234,13 +234,11 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private void executeVertex(GraphVertex<String, StatementExecution> vertex, FunctionExecutionParameters inContext,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
 
 		Statement s = vertex.getData()
 		        .getStatement();
-
-		System.out.println(s);
 
 		Function fun = this.fRepo.find(s.getNamespace(), s.getName());
 
@@ -251,15 +249,16 @@ public class KIRuntime extends AbstractFunction {
 
 		Map<String, ContextElement> context = inContext.getContext();
 
-		Flux<EventResult> result = fun.execute(new FunctionExecutionParameters().setContext(context)
+		List<EventResult> result = fun.execute(new FunctionExecutionParameters().setContext(context)
 		        .setArguments(arguments)
 		        .setEvents(inContext.getEvents())
 		        .setOutput(inContext.getOutput())
 		        .setStatementExecution(vertex.getData())
-				.setCount(inContext.getCount()));
+		        .setCount(inContext.getCount()));
 
-		EventResult er = result.next()
-		        .block();
+		Iterator<EventResult> itrResult = result.iterator();
+
+		EventResult er = itrResult.hasNext() ? itrResult.next() : null;
 
 		if (er == null)
 			throw new KIRuntimeException(
@@ -276,7 +275,7 @@ public class KIRuntime extends AbstractFunction {
 
 			var subGraph = vertex.getSubGraphOfType(er.getName());
 			List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph);
-			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
+			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, itrResult, vertex));
 		} else {
 
 			Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
