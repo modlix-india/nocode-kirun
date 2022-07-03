@@ -65,7 +65,7 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 
 	public ExecutionGraph<K, T> getSubGraphOfType(String type) {
 
-		ExecutionGraph<K, T> subGraph = new ExecutionGraph<>();
+		ExecutionGraph<K, T> subGraph = new ExecutionGraph<>(true);
 
 		var typeVertices = new LinkedList<>(outVertices.get(type));
 

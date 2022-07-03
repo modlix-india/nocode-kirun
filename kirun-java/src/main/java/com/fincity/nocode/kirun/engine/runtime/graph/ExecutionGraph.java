@@ -14,6 +14,15 @@ import reactor.core.publisher.Flux;
 public class ExecutionGraph<K, T extends GraphVertexType<K>> {
 
 	private Map<K, GraphVertex<K, T>> nodeMap = new ConcurrentHashMap<>();
+	private final boolean isSubGraph;
+	
+	public ExecutionGraph() {
+		this(false);
+	}
+	
+	public ExecutionGraph(boolean isSubGraph) {
+		this.isSubGraph = isSubGraph;
+	}
 
 	public List<T> getVerticesData() {
 
@@ -88,6 +97,10 @@ public class ExecutionGraph<K, T extends GraphVertexType<K>> {
 	public Map<K, GraphVertex<K, T>> getNodeMap() {
 
 		return this.nodeMap;
+	}
+	
+	public boolean isSubGraph() {
+		return this.isSubGraph;
 	}
 
 	@Override

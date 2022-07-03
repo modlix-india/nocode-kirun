@@ -8,9 +8,14 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -27,9 +32,7 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
-import com.fincity.nocode.kirun.engine.runtime.expression.Expression;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
-import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionToken;
 import com.fincity.nocode.kirun.engine.runtime.graph.ExecutionGraph;
 import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertex;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
@@ -46,15 +49,20 @@ public class KIRuntime extends AbstractFunction {
 
 	private static final String PARAMETER_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
+	private static final Pattern STEP_REGEX_PATTERN = Pattern
+	        .compile("Steps\\.([a-zA-Z0-9\\\\-]{1,})\\.([a-zA-Z0-9\\\\-]{1,})");
+
+	private static final int VERSION = 1;
+
+	private static final int MAX_EXECUTION_ITERATIONS = 100000;
+
+	private static final Logger logger = LoggerFactory.getLogger(KIRuntime.class);
+
 	private final FunctionDefinition fd;
 
 	private final Repository<Function> fRepo;
 
 	private final Repository<Schema> sRepo;
-
-	private static final int VERSION = 1;
-
-	private static final int MAX_EXECUTION_ITERATIONS = 1000000;
 
 	public KIRuntime(FunctionDefinition fd, Repository<Function> functionRepository,
 	        Repository<Schema> schemaRepository) {
@@ -107,6 +115,11 @@ public class KIRuntime extends AbstractFunction {
 
 		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
 
+		if (logger.isDebugEnabled()) {
+			logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
+			logger.debug(eGraph.toString());
+		}
+
 		List<StatementMessage> messages = eGraph.getVerticesDataFlux()
 		        .flatMap(e -> Flux.fromIterable(e.getMessages()))
 		        .collectList()
@@ -130,20 +143,19 @@ public class KIRuntime extends AbstractFunction {
 
 		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Flux<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
 
-		int count = 0;
 		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
 		        .containsKey(Event.OUTPUT)) {
 
 			processBranchQue(inContext, executionQue, branchQue);
 			processExecutionQue(inContext, executionQue, branchQue);
 
-			++count;
+			inContext.setCount(inContext.getCount() + 1);
 
-			if (count == MAX_EXECUTION_ITERATIONS)
+			if (inContext.getCount() == MAX_EXECUTION_ITERATIONS)
 				throw new KIRuntimeException("Execution locked in an infinite loop");
 		}
 
-		if (inContext.getEvents()
+		if (!eGraph.isSubGraph() && inContext.getEvents()
 		        .isEmpty()) {
 
 			throw new KIRuntimeException("No events raised");
@@ -196,9 +208,12 @@ public class KIRuntime extends AbstractFunction {
 
 		do {
 			this.executeGraph(branch.getT1(), inContext);
+			var v = branch.getT3().collectList().block();
+			System.out.println(v);
 			nextOutput = branch.getT3()
 			        .next()
 			        .block();
+
 			if (nextOutput != null)
 				inContext.getOutput()
 				        .computeIfAbsent(vertex.getData()
@@ -225,6 +240,8 @@ public class KIRuntime extends AbstractFunction {
 		Statement s = vertex.getData()
 		        .getStatement();
 
+		System.out.println(s);
+
 		Function fun = this.fRepo.find(s.getNamespace(), s.getName());
 
 		Map<String, Parameter> paramSet = fun.getSignature()
@@ -238,7 +255,8 @@ public class KIRuntime extends AbstractFunction {
 		        .setArguments(arguments)
 		        .setEvents(inContext.getEvents())
 		        .setOutput(inContext.getOutput())
-		        .setStatementExecution(vertex.getData()));
+		        .setStatementExecution(vertex.getData())
+				.setCount(inContext.getCount()));
 
 		EventResult er = result.next()
 		        .block();
@@ -472,7 +490,7 @@ public class KIRuntime extends AbstractFunction {
 				JsonElement e = paramElements.pop();
 
 				if (e instanceof JsonExpression jexp) {
-					this.addDependencies(se, new Expression(jexp.getExpression()));
+					this.addDependencies(se, jexp.getExpression());
 				} else if (e.isJsonArray()) {
 					for (JsonElement je : e.getAsJsonArray())
 						paramElements.push(je);
@@ -492,9 +510,8 @@ public class KIRuntime extends AbstractFunction {
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 			} else {
 				try {
-					Expression exp = new Expression(ref.getExpression());
 					// TODO: Type check for the resulting expression has to be done here...
-					this.addDependencies(se, exp);
+					this.addDependencies(se, ref.getExpression());
 				} catch (KIRuntimeException ex) {
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage()));
@@ -503,22 +520,15 @@ public class KIRuntime extends AbstractFunction {
 		}
 	}
 
-	private void addDependencies(StatementExecution se, Expression exp) {
+	private void addDependencies(StatementExecution se, String expression) {
 
-		LinkedList<Expression> que = new LinkedList<>();
-		que.push(exp);
+		Matcher m = STEP_REGEX_PATTERN.matcher(expression);
 
-		while (!que.isEmpty()) {
-			for (ExpressionToken token : que.pop()
-			        .getTokens()) {
+		while (m.find()) {
 
-				if (token instanceof Expression e) {
-					que.push(e);
-				} else if (token.getExpression()
-				        .startsWith("Steps.")) {
-					se.addDependency(token.getExpression());
-				}
-			}
+			if (m.groupCount() != 2)
+				continue;
+			se.addDependency(m.group(0));
 		}
 
 		if (se.getStatement()

@@ -14,7 +14,6 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class If extends AbstractFunction {
 
@@ -34,12 +33,10 @@ public class If extends AbstractFunction {
 	@Override
 	protected Flux<EventResult> internalExecute(FunctionExecutionParameters context) {
 
-		var condition = Mono.just(context.getArguments()
-		        .get(CONDITION));
+		var condition = context.getArguments()
+		        .get(CONDITION);
 
-		Flux<EventResult> fluxrange = condition
-		        .flatMapMany(je -> Flux.just(EventResult.of(je.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of())));
-
-		return Flux.merge(fluxrange, Flux.just(EventResult.outputOf(Map.of())));
+		return Flux.just(EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of()),
+		        EventResult.outputOf(Map.of()));
 	}
 }
