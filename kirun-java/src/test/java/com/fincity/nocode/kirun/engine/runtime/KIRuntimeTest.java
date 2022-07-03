@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.HybridRepository;
+import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.function.math.Abs;
 import com.fincity.nocode.kirun.engine.function.system.GenerateEvent;
 import com.fincity.nocode.kirun.engine.function.system.If;
@@ -18,12 +20,14 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
+import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -34,18 +38,22 @@ class KIRuntimeTest {
 
 		// Testing the logic for Fibonacci series.
 
-		Integer num = 7;
-		JsonArray array = new JsonArray(7);
+		long start = System.currentTimeMillis();
+		Integer num = 7000;
+		JsonArray array = new JsonArray(num);
 		int a = 0, b = 1;
 		array.add(a);
 		array.add(b);
 
 		for (int i = 2; i < num; i++) {
-			int t = a + b;
-			a = b;
-			b = t;
-			array.add(t);
+
+			array.add(array.get(i - 2)
+			        .getAsInt()
+			        + array.get(i - 1)
+			                .getAsInt());
 		}
+
+		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));
 
 		var create = new Create().getSignature();
 		var arrayOfIntegerSchema = new JsonObject();
@@ -102,6 +110,7 @@ class KIRuntimeTest {
 		                        "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
 		        .setDependentStatements(List.of("Steps.if.false"));
 
+		start = System.currentTimeMillis();
 		List<EventResult> out = new KIRuntime(
 		        ((FunctionDefinition) new FunctionDefinition()
 		                .setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
@@ -115,7 +124,7 @@ class KIRuntimeTest {
 		                        .setSchema(Schema.ofInteger("count"))))),
 		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Count", new JsonPrimitive(num))));
-
+		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output")
 		        .setResult(Map.of("result", array))), out);
 
@@ -159,5 +168,87 @@ class KIRuntimeTest {
 
 		assertEquals(List.of(new EventResult().setName("output")
 		        .setResult(Map.of("result", new JsonPrimitive(10)))), out);
+	}
+
+	@Test
+	void testCustomFunction() {
+
+		long start = System.currentTimeMillis();
+		Integer num = 7000;
+		JsonArray array = new JsonArray(num);
+		int a = 0, b = 1;
+		array.add(a);
+		array.add(b);
+
+		for (int i = 2; i < num; i++) {
+
+			array.add(array.get(i - 2)
+			        .getAsInt()
+			        + array.get(i - 1)
+			                .getAsInt());
+		}
+
+		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));
+
+		var abs = new FunctionSignature().setName("FibFunction")
+		        .setNamespace("FibSpace")
+		        .setParameters(Map.of("value", new Parameter().setParameterName("value")
+		                .setSchema(Schema.ofInteger("value"))))
+		        .setEvents(Map.ofEntries(Event
+		                .outputEventMapEntry(Map.of("value", Schema.ofArray("value", Schema.ofInteger("value"))))));
+		;
+
+		var fibFunction = new AbstractFunction() {
+
+			@Override
+			public FunctionSignature getSignature() {
+				return abs;
+			}
+
+			@Override
+			protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+
+				JsonElement e = context.getArguments()
+				        .get("value");
+				int count = e.getAsJsonPrimitive()
+				        .getAsInt();
+
+				JsonArray a = new JsonArray(count);
+				for (int i = 0; i < count; i++)
+					a.add(new JsonPrimitive(i < 2 ? i
+					        : (a.get(i - 1)
+					                .getAsInt()
+					                + a.get(i - 2)
+					                        .getAsInt())));
+				return List.of(EventResult.outputOf(Map.of("value", a)));
+			}
+		};
+
+		var genEvent = new GenerateEvent().getSignature();
+
+		var resultObj = new JsonObject();
+		resultObj.add("name", new JsonPrimitive("result"));
+		resultObj.add("value", new JsonExpression("Steps.fib.output.value"));
+
+		var hybrid = new HybridRepository<>(new KIRunFunctionRepository(), (r, k) -> fibFunction);
+
+		start = System.currentTimeMillis();
+		List<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
+		        .setName("CustomFunction")
+		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
+		                .setSchema(Schema.ofInteger("Value")))))
+		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("fib").setNamespace(abs.getNamespace())
+		                .setName(abs.getName())
+		                .setParameterMap(Map.of("value", List.of(ParameterReference.of("Arguments.Value"))))), Statement
+		                        .ofEntry(new Statement("fiboutput").setNamespace(genEvent.getNamespace())
+		                                .setName(genEvent.getName())
+		                                .setParameterMap(Map.of("eventName",
+		                                        List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
+		                                        List.of(ParameterReference.of(resultObj))))))),
+		        hybrid, new KIRunSchemaRepository())
+		        .execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(num))));
+		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
+		assertEquals(List.of(new EventResult().setName("output")
+		        .setResult(Map.of("result", array))), out);
 	}
 }

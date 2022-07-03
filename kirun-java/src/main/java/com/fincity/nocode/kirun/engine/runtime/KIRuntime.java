@@ -55,7 +55,7 @@ public class KIRuntime extends AbstractFunction {
 
 	private static final int VERSION = 1;
 
-	private static final int MAX_EXECUTION_ITERATIONS = 100000;
+	private static final int MAX_EXECUTION_ITERATIONS = 10000000;
 
 	private static final Logger logger = LoggerFactory.getLogger(KIRuntime.class);
 
