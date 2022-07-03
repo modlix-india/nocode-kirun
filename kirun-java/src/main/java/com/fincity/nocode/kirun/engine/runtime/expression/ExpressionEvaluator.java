@@ -18,13 +18,13 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.LESS_
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.MOD;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.MULTIPLICATION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.NOT_EQUAL;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.SUBTRACTION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_BITWISE_COMPLEMENT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_LOGICAL_NOT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_PLUS;
-import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 
 import java.util.EnumMap;
 import java.util.LinkedList;
@@ -69,6 +69,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenVa
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 public class ExpressionEvaluator {
 
@@ -148,10 +149,9 @@ public class ExpressionEvaluator {
 			ExpressionToken token = tokens.pop();
 
 			if (UNARY_OPERATORS_MAP_KEY_SET.contains(operator)) {
-
 				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
-			} else if (operator == OBJECT_OPERATOR) {
-
+			} else if (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR) {
+				processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
 			} else {
 				ExpressionToken token2 = tokens.pop();
 				var v1 = getValueFromToken(valuesMap, token2);
@@ -174,6 +174,57 @@ public class ExpressionEvaluator {
 			return getValueFromToken(valuesMap, token);
 
 		throw new ExecutionException(StringFormatter.format("Expression : $ evaluated to $", exp, tokens.get(0)));
+	}
+
+	private void processObjectOrArrayOperator(Map<String, TokenValueExtractor> valuesMap, LinkedList<Operation> ops,
+	        LinkedList<ExpressionToken> tokens, Operation operator, ExpressionToken token) {
+		LinkedList<ExpressionToken> objTokens = new LinkedList<>();
+		LinkedList<Operation> objOperations = new LinkedList<>();
+
+		do {
+			objOperations.push(operator);
+			if (token instanceof Expression ex)
+				objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
+			else
+				objTokens.push(token);
+			token = tokens.isEmpty() ? null : tokens.pop();
+			operator = ops.isEmpty() ? null : ops.pop();
+		} while (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR);
+
+		if (token != null) {
+			if (token instanceof Expression ex)
+				objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
+			else
+				objTokens.push(token);
+		}
+
+		if (operator != null)
+			ops.push(operator);
+
+		ExpressionToken objToken = objTokens.pop();
+		StringBuilder sb = new StringBuilder((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
+		        .getAsString() : objToken.toString()));
+
+		while (!objTokens.isEmpty()) {
+			objToken = objTokens.pop();
+			sb.append(objOperations.pop()
+			        .getOperator())
+			        .append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
+			                .getAsString() : objToken.toString()));
+		}
+
+		String str = sb.toString();
+		if (str.length() > 5 && valuesMap.containsKey(sb.substring(0, 5)))
+			tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
+		else {
+			JsonElement v = null;
+			try {
+				v = LiteralTokenValueExtractor.INSTANCE.getValue(str);
+			} catch (Exception ex) {
+				v = new JsonPrimitive(str);
+			}
+			tokens.push(new ExpressionTokenValue(str, v));
+		}
 	}
 
 	private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2) {

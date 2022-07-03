@@ -18,6 +18,10 @@ public class ExpressionTokenValue extends ExpressionToken{
 		this.element = element;
 	}
 	
+	public JsonElement getTokenValue() {
+		return element;
+	}
+	
 	@Override
 	public String toString() {
 	

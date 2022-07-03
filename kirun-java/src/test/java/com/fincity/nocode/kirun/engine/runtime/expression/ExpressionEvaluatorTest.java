@@ -86,6 +86,7 @@ class ExpressionEvaluatorTest {
 		assertEquals(new JsonPrimitive(32), new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
 		        .evaluate(parameters));
 
+		assertEquals(new JsonPrimitive(17.3533f), new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters));
 	}
 
 }
