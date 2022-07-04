@@ -181,7 +181,6 @@ public class Schema implements Serializable {
 	private List<Schema> oneOf;
 	private Schema not;
 
-	private String title;
 	private String description;
 	private List<JsonElement> examples; // NOSONAR - JSON Element for some reason is not serialised.
 	private JsonElement defaultValue; // NOSONAR - JSON Element for some reason is not serialised.
@@ -222,9 +221,6 @@ public class Schema implements Serializable {
 	private String permission;
 
 	public String getTitle() {
-
-		if (title != null)
-			return this.title;
 
 		return this.getFullName();
 	}
