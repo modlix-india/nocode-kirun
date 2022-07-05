@@ -1,3 +1,1 @@
-export function firstOne() {
-    return 'hi';
-}
+export { HybridRepository } from './engine/HybridRepository';
