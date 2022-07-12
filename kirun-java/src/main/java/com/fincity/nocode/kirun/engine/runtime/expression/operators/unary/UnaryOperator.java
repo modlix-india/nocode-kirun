@@ -10,9 +10,9 @@ import com.google.gson.JsonElement;
 @FunctionalInterface
 public interface UnaryOperator extends Function<JsonElement, JsonElement> {
 
-	public default void nullCheck(JsonElement element, Operation unaryPlus) {
+	public default void nullCheck(JsonElement element, Operation op) {
 		if (element == null || element.isJsonNull())
 			throw new ExecutionException(
-			        StringFormatter.format("$ cannot be applied to a null value", unaryPlus.getOperatorName()));
+			        StringFormatter.format("$ cannot be applied to a null value", op.getOperatorName()));
 	}
 }

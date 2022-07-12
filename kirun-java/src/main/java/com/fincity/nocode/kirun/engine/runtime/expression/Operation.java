@@ -77,7 +77,7 @@ public enum Operation {
 			UNARY_PLUS, UNARY_PLUS, UNARY_MINUS, UNARY_MINUS, UNARY_LOGICAL_NOT, UNARY_LOGICAL_NOT, UNARY_BITWISE_COMPLEMENT, UNARY_BITWISE_COMPLEMENT
 			)));
 	
-	public static final int BIGGEST_OPERATOR_SIZE = Stream.of(Operation.values()).map(Object::toString)
+	public static final int BIGGEST_OPERATOR_SIZE = Stream.of(Operation.values()).map(Operation::getOperator)
 			.filter(e -> !e.startsWith("UN: "))
 			.mapToInt(String::length)
 			.max()

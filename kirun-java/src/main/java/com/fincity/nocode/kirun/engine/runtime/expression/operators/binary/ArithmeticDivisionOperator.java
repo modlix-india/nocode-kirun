@@ -4,9 +4,9 @@ import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.DOUBLE
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.FLOAT;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.LONG;
 
-import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.runtime.expression.Operation;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -31,8 +31,14 @@ public class ArithmeticDivisionOperator implements BinaryOperator {
 		if (tType.getT1() == FLOAT || uType.getT1() == FLOAT)
 			return new JsonPrimitive(tNumber.floatValue() / uNumber.floatValue());
 
-		if (tType.getT1() == LONG || uType.getT1() == LONG)
+		if (tType.getT1() == LONG || uType.getT1() == LONG) {
+			if (tNumber.longValue() % uNumber.longValue() != 0l)
+				return new JsonPrimitive(tNumber.doubleValue() / uNumber.doubleValue());
 			return new JsonPrimitive(tNumber.longValue() / uNumber.longValue());
+		}
+		
+		if (tNumber.intValue() % uNumber.intValue() != 0)
+			return new JsonPrimitive(tNumber.floatValue() / uNumber.floatValue());
 
 		return new JsonPrimitive(tNumber.intValue() / uNumber.intValue());
 	}

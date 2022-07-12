@@ -190,7 +190,7 @@ class KIRuntimeTest {
 
 		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));
 
-		var abs = new FunctionSignature().setName("FibFunction")
+		var fibFunctionSignature = new FunctionSignature().setName("FibFunction")
 		        .setNamespace("FibSpace")
 		        .setParameters(Map.of("value", new Parameter().setParameterName("value")
 		                .setSchema(Schema.ofInteger("value"))))
@@ -202,7 +202,7 @@ class KIRuntimeTest {
 
 			@Override
 			public FunctionSignature getSignature() {
-				return abs;
+				return fibFunctionSignature;
 			}
 
 			@Override
@@ -237,8 +237,8 @@ class KIRuntimeTest {
 		        .setName("CustomFunction")
 		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
 		                .setSchema(Schema.ofInteger("Value")))))
-		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("fib").setNamespace(abs.getNamespace())
-		                .setName(abs.getName())
+		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("fib").setNamespace(fibFunctionSignature.getNamespace())
+		                .setName("asdf")
 		                .setParameterMap(Map.of("value", List.of(ParameterReference.of("Arguments.Value"))))), Statement
 		                        .ofEntry(new Statement("fiboutput").setNamespace(genEvent.getNamespace())
 		                                .setName(genEvent.getName())

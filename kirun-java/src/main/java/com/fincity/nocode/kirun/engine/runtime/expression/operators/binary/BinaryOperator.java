@@ -10,9 +10,9 @@ import com.google.gson.JsonElement;
 @FunctionalInterface
 public interface BinaryOperator extends BiFunction<JsonElement, JsonElement, JsonElement> {
 
-	public default void nullCheck(JsonElement e1, JsonElement e2, Operation unaryPlus) {
+	public default void nullCheck(JsonElement e1, JsonElement e2, Operation op) {
 		if (e1 == null || e1.isJsonNull() || e2 == null || e2.isJsonNull())
 			throw new ExecutionException(
-			        StringFormatter.format("$ cannot be applied to a null value", unaryPlus.getOperatorName()));
+			        StringFormatter.format("$ cannot be applied to a null value", op.getOperatorName()));
 	}
 }

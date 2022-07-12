@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -14,6 +13,7 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 

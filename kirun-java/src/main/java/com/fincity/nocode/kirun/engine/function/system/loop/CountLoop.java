@@ -32,10 +32,8 @@ public class CountLoop extends AbstractFunction {
 	        .setEvents(Map.ofEntries(
 	                Event.eventMapEntry(Event.ITERATION,
 	                        Map.of(INDEX,
-	                                Schema.of(INDEX, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT,
-	                                        SchemaType.DOUBLE))),
-	                Event.outputEventMapEntry(Map.of(VALUE, Schema.of(VALUE, SchemaType.INTEGER, SchemaType.LONG,
-	                        SchemaType.FLOAT, SchemaType.DOUBLE)))));
+	                                Schema.of(INDEX, SchemaType.INTEGER))),
+	                Event.outputEventMapEntry(Map.of(VALUE, Schema.of(VALUE, SchemaType.INTEGER)))));
 
 	@Override
 	public FunctionSignature getSignature() {

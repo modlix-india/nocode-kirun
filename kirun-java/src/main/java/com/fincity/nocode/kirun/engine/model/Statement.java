@@ -47,8 +47,9 @@ public class Statement extends AbstractStatement {
 	private List<String> dependentStatements;
 
 	public Map<String, List<ParameterReference>> getParameterMap() {
-		if (parameterMap == null)
-			return Map.of();
+		if (parameterMap == null) {
+			this.parameterMap = Map.of();
+		}
 		return parameterMap;
 	}
 

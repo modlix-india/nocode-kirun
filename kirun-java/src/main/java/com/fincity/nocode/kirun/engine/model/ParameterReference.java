@@ -30,10 +30,6 @@ public class ParameterReference implements Serializable {
 	private JsonElement value; // NOSONAR - JSON element is not serialised for some reason.
 	private String expression;
 
-	public enum ParameterReferenceType {
-		VALUE, EXPRESSION;
-	}
-
 	public static ParameterReference of(String expression) {
 		return new ParameterReference().setType(ParameterReferenceType.EXPRESSION)
 		        .setExpression(expression);

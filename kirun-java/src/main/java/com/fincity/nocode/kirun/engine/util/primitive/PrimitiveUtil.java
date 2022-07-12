@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.util;
+package com.fincity.nocode.kirun.engine.util.primitive;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;

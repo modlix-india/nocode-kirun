@@ -8,7 +8,6 @@ import java.util.Map;
 import org.reactivestreams.Publisher;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.function.util.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -17,6 +16,7 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

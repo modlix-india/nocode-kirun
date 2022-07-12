@@ -31,7 +31,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
-import com.fincity.nocode.kirun.engine.model.ParameterReference.ParameterReferenceType;
+import com.fincity.nocode.kirun.engine.model.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
 import com.fincity.nocode.kirun.engine.runtime.graph.ExecutionGraph;
