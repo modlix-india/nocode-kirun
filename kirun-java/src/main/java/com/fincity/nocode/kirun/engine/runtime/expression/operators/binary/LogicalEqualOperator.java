@@ -28,7 +28,8 @@ public class LogicalEqualOperator implements BinaryOperator {
 			                .toString()));
 
 		if (tType.getT1() == BOOLEAN || uType.getT1() == BOOLEAN)
-			return new JsonPrimitive(tType.getT2() == uType.getT2());
+			return new JsonPrimitive(tType.getT2()
+			        .equals(uType.getT2()));
 
 		Number tNumber = (Number) tType.getT2();
 		Number uNumber = (Number) uType.getT2();

@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -41,7 +42,7 @@ public class Add extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		Mono<Number> sum = Mono.just(context.getArguments()
 		        .get(VALUE))
@@ -65,11 +66,11 @@ public class Add extends AbstractFunction {
 		        })
 		        .map(Number.class::cast);
 
-		return Flux.merge((Publisher<EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
+		return new FunctionOutput(Flux.merge((Publisher<EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf))
 		        .collectList()
-		        .block();
+		        .block());
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
@@ -103,7 +103,7 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(final FunctionExecutionParameters inContext) {
+	protected FunctionOutput internalExecute(final FunctionExecutionParameters inContext) {
 
 		if (inContext.getContext() == null)
 			inContext.setContext(new ConcurrentHashMap<>());
@@ -134,13 +134,13 @@ public class KIRuntime extends AbstractFunction {
 		return executeGraph(eGraph, inContext);
 	}
 
-	private List<EventResult> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
+	private FunctionOutput executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
 	        FunctionExecutionParameters inContext) {
 
 		LinkedList<GraphVertex<String, StatementExecution>> executionQue = new LinkedList<>();
 		executionQue.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
-		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
+		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue = new LinkedList<>();
 
 		while ((!executionQue.isEmpty() || !branchQue.isEmpty()) && !inContext.getEvents()
 		        .containsKey(Event.OUTPUT)) {
@@ -160,18 +160,18 @@ public class KIRuntime extends AbstractFunction {
 			throw new KIRuntimeException("No events raised");
 		}
 
-		return inContext.getEvents()
+		return new FunctionOutput(inContext.getEvents()
 		        .entrySet()
 		        .stream()
 		        .flatMap(e -> e.getValue()
 		                .stream()
 		                .map(v -> EventResult.of(e.getKey(), v)))
-		        .toList();
+		        .toList());
 	}
 
 	private void processExecutionQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
 
 		if (!executionQue.isEmpty()) {
 
@@ -186,7 +186,7 @@ public class KIRuntime extends AbstractFunction {
 
 	private void processBranchQue(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue) {
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
 		if (!branchQue.isEmpty()) {
 
 			var branch = branchQue.pop();
@@ -200,7 +200,7 @@ public class KIRuntime extends AbstractFunction {
 
 	private void executeBranch(FunctionExecutionParameters inContext,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>> branch) {
+	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>> branch) {
 
 		var vertex = branch.getT4();
 		EventResult nextOutput = null;
@@ -208,10 +208,7 @@ public class KIRuntime extends AbstractFunction {
 		do {
 			this.executeGraph(branch.getT1(), inContext);
 			nextOutput = branch.getT3()
-			        .hasNext()
-			                ? branch.getT3()
-			                        .next()
-			                : null;
+			        .next();
 
 			if (nextOutput != null)
 				inContext.getOutput()
@@ -234,7 +231,7 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private void executeVertex(GraphVertex<String, StatementExecution> vertex, FunctionExecutionParameters inContext,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, Iterator<EventResult>, GraphVertex<String, StatementExecution>>> branchQue,
+	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue,
 	        LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
 
 		Statement s = vertex.getData()
@@ -249,16 +246,14 @@ public class KIRuntime extends AbstractFunction {
 
 		Map<String, ContextElement> context = inContext.getContext();
 
-		List<EventResult> result = fun.execute(new FunctionExecutionParameters().setContext(context)
+		FunctionOutput result = fun.execute(new FunctionExecutionParameters().setContext(context)
 		        .setArguments(arguments)
 		        .setEvents(inContext.getEvents())
 		        .setOutput(inContext.getOutput())
 		        .setStatementExecution(vertex.getData())
 		        .setCount(inContext.getCount()));
 
-		Iterator<EventResult> itrResult = result.iterator();
-
-		EventResult er = itrResult.hasNext() ? itrResult.next() : null;
+		EventResult er = result.next();
 
 		if (er == null)
 			throw new KIRuntimeException(
@@ -275,7 +270,7 @@ public class KIRuntime extends AbstractFunction {
 
 			var subGraph = vertex.getSubGraphOfType(er.getName());
 			List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph);
-			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, itrResult, vertex));
+			branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
 		} else {
 
 			Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
@@ -353,16 +348,16 @@ public class KIRuntime extends AbstractFunction {
 		return vertex.getInVertices()
 		        .stream()
 		        .filter(e ->
-				{
-			        String stepName = e.getT1()
-			                .getData()
-			                .getStatement()
-			                .getStatementName();
-			        String type = e.getT2();
+			        {
+				        String stepName = e.getT1()
+				                .getData()
+				                .getStatement()
+				                .getStatementName();
+				        String type = e.getT2();
 
-			        return !(output.containsKey(stepName) && output.get(stepName)
-			                .containsKey(type));
-		        })
+				        return !(output.containsKey(stepName) && output.get(stepName)
+				                .containsKey(type));
+			        })
 		        .count() == 0;
 	}
 
@@ -373,33 +368,33 @@ public class KIRuntime extends AbstractFunction {
 		        .entrySet()
 		        .stream()
 		        .map(e ->
-				{
-			        List<ParameterReference> prList = e.getValue();
+			        {
+				        List<ParameterReference> prList = e.getValue();
 
-			        JsonElement ret = null;
+				        JsonElement ret = null;
 
-			        if (prList == null || prList.isEmpty())
+				        if (prList == null || prList.isEmpty())
+					        return Tuples.of(e.getKey(), ret);
+
+				        Parameter pDef = paramSet.get(e.getKey());
+
+				        if (pDef.isVariableArgument()) {
+
+					        ret = new JsonArray();
+
+					        prList.stream()
+					                .map(r -> this.parameterReferenceEvaluation(inContext, r))
+					                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
+					                        .spliterator(), false) : Stream.of(r))
+					                .forEachOrdered(((JsonArray) ret)::add);
+
+				        } else {
+
+					        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
+				        }
+
 				        return Tuples.of(e.getKey(), ret);
-
-			        Parameter pDef = paramSet.get(e.getKey());
-
-			        if (pDef.isVariableArgument()) {
-
-				        ret = new JsonArray();
-
-				        prList.stream()
-				                .map(r -> this.parameterReferenceEvaluation(inContext, r))
-				                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
-				                        .spliterator(), false) : Stream.of(r))
-				                .forEachOrdered(((JsonArray) ret)::add);
-
-			        } else {
-
-				        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
-			        }
-
-			        return Tuples.of(e.getKey(), ret);
-		        })
+			        })
 		        .filter(e -> !(e.getT2() == null || e.getT2()
 		                .isJsonNull()))
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
@@ -550,21 +545,21 @@ public class KIRuntime extends AbstractFunction {
 		                .getDepenedencies()
 		                .stream()
 		                .map(d ->
-						{
-			                int secondDot = d.indexOf('.', 6);
-			                String step = d.substring(6, secondDot);
-			                int eventDot = d.indexOf('.', secondDot + 1);
-			                String event = eventDot == -1 ? d.substring(secondDot + 1)
-			                        : d.substring(secondDot + 1, eventDot);
+			                {
+				                int secondDot = d.indexOf('.', 6);
+				                String step = d.substring(6, secondDot);
+				                int eventDot = d.indexOf('.', secondDot + 1);
+				                String event = eventDot == -1 ? d.substring(secondDot + 1)
+				                        : d.substring(secondDot + 1, eventDot);
 
-			                if (!graph.getNodeMap()
-			                        .containsKey(step))
-				                return Tuples.of(step, event);
+				                if (!graph.getNodeMap()
+				                        .containsKey(step))
+					                return Tuples.of(step, event);
 
-			                e.addInEdgeTo(graph.getNodeMap()
-			                        .get(step), event);
-			                return null;
-		                })
+				                e.addInEdgeTo(graph.getNodeMap()
+				                        .get(step), event);
+				                return null;
+			                })
 		                .filter(Objects::nonNull))
 		        .toList();
 

@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
@@ -56,6 +57,8 @@ class ExpressionEvaluatorTest {
 
 		assertEquals(new JsonPrimitive(true), new ExpressionEvaluator("34 >> 2 = 8 ").evaluate(parameters));
 
+		assertEquals(null, new ExpressionEvaluator("Steps.step1.output.name1").evaluate(parameters));
+
 		assertEquals(new JsonPrimitive(true),
 		        new ExpressionEvaluator("\"Kiran\" = Steps.step1.output.name ").evaluate(parameters));
 
@@ -78,13 +81,14 @@ class ExpressionEvaluatorTest {
 		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
 		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
 		        .evaluate(parameters));
-		
+
 		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
 		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
 		        .evaluate(parameters));
 
-		assertEquals(new JsonPrimitive(32), new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
-		        .evaluate(parameters));
+		assertEquals(new JsonPrimitive(32),
+		        new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
+		                .evaluate(parameters));
 
 		assertEquals(new JsonPrimitive(17.3533f), new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters));
 	}

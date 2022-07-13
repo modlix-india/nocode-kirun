@@ -2,7 +2,6 @@ package com.fincity.nocode.kirun.engine.function.string;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SingleType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -43,7 +43,7 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		Mono<String> concatenatedString = Mono.just(context.getArguments()
 		        .get(VALUE))
@@ -54,10 +54,10 @@ public class Concatenate extends AbstractFunction {
 		        .defaultIfEmpty("")
 		        .reduce((a, b) -> a + b);
 
-		return Flux.merge((Publisher<EventResult>) concatenatedString.map(JsonPrimitive::new)
+		return new FunctionOutput(Flux.merge((Publisher<EventResult>) concatenatedString.map(JsonPrimitive::new)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf))
 		        .collectList()
-		        .block();
+		        .block());
 	}
 }

@@ -14,6 +14,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
@@ -52,7 +53,7 @@ public class Set extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		String key = context.getArguments()
 		        .get(NAME)
@@ -114,7 +115,7 @@ public class Set extends AbstractFunction {
 
 		if (ops.isEmpty()) {
 			ce.setElement(value);
-			return List.of(EventResult.outputOf(Map.of()));
+			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 		}
 
 		JsonElement el = ce.getElement();
@@ -231,7 +232,7 @@ public class Set extends AbstractFunction {
 			}
 		}
 		
-		return List.of(EventResult.outputOf(Map.of()));
+		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}
 
 }

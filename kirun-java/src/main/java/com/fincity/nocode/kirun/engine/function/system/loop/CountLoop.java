@@ -2,7 +2,6 @@ package com.fincity.nocode.kirun.engine.function.system.loop;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
-import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
@@ -10,6 +9,7 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -41,18 +41,18 @@ public class CountLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		var count = context.getArguments()
 		        .get(COUNT);
 
 		Flux<JsonPrimitive> fluxrange = integerSeries(count.getAsInt() + 1);
 
-		return Flux
+		return new FunctionOutput(Flux
 		        .merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
 		                Flux.just(EventResult.outputOf(Map.of(VALUE, count))))
 		        .collectList()
-		        .block();
+		        .block());
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer t) {

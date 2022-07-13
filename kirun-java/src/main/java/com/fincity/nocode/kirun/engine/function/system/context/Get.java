@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
@@ -40,7 +41,7 @@ public class Get extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		String name = context.getArguments().get(NAME)
 		        .getAsString();
@@ -48,8 +49,8 @@ public class Get extends AbstractFunction {
 		if (!context.getContext().containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context don't have an element for '$' ", name));
 
-		return List.of(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
-		        .getElement())));
+		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
+		        .getElement()))));
 	}
 
 }

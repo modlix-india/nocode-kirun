@@ -10,6 +10,7 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -30,12 +31,12 @@ public class If extends AbstractFunction {
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
 		var condition = context.getArguments()
 		        .get(CONDITION);
 
-		return List.of(EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of()),
-		        EventResult.outputOf(Map.of()));
+		return new FunctionOutput(List.of(EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, Map.of()),
+		        EventResult.outputOf(Map.of())));
 	}
 }

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
@@ -53,14 +53,14 @@ public abstract class AbstractFunction implements Function {
 	}
 
 	@Override
-	public List<EventResult> execute(FunctionExecutionParameters context) {
+	public FunctionOutput execute(FunctionExecutionParameters context) {
 		
 		context.setArguments(this.validateArguments(context.getArguments()));
 
 		return this.internalExecute(context);
 	}
 
-	protected abstract List<EventResult> internalExecute(FunctionExecutionParameters context);
+	protected abstract FunctionOutput internalExecute(FunctionExecutionParameters context);
 
 	@Override
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
