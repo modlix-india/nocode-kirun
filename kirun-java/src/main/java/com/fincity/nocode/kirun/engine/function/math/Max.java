@@ -11,6 +11,7 @@ import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -21,36 +22,33 @@ public class Max extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Max")
-	        .setNamespace(MATH)
-	        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
-	                .setSchema(Schema.ofNumber(VALUE))
-	                .setVariableArgument(true)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
+	private static final FunctionSignature MAX_SIGNATURE = new FunctionSignature().setName("Max").setNamespace(MATH)
+			.setParameters(Map.of(VALUE,
+					new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))
+							.setVariableArgument(true)))
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
-		return SIGNATURE;
+		return MAX_SIGNATURE;
 	}
 
 	@Override
-	protected List<EventResult> internalExecute(FunctionExecutionParameters context) {
+	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
-		JsonElement jsonElement = context.getArguments()
-		        .get(VALUE);
-	
+		JsonElement jsonElement = context.getArguments().get(VALUE);
+
 		if (!jsonElement.isJsonArray()) {
 			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", jsonElement));
 		}
 
-		if (jsonElement.getAsJsonArray()
-		        .isEmpty()) {
-			return List.of(EventResult.outputOf(Map.of()));
+		if (jsonElement.getAsJsonArray().isEmpty()) {
+
+			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 		}
 
-		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray()
-		        .iterator();
-		
+		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray().iterator();
+
 		JsonElement element = iterator.next();
 		double first = element.getAsDouble();
 
@@ -66,7 +64,7 @@ public class Max extends AbstractFunction {
 
 		}
 
-		return List.of(EventResult.outputOf(Map.of(VALUE, element)));
+		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, element))));
 	}
 
 }

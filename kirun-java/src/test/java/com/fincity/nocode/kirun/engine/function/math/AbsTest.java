@@ -17,7 +17,7 @@ class AbsTest {
 	void testExecute() {
 
 		var abs = new Abs();
-		var nums = new JsonPrimitive(-45);
+		var nums = new JsonPrimitive(-45.57345);
 //		nums.add(-45);
 //		nums.add(-85);
 //		nums.add(95.45);
@@ -25,7 +25,9 @@ class AbsTest {
 //		nums.add(-234.54);
 //		nums.add(-4049.45);
 //		
-		assertEquals(new JsonPrimitive(45), abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE,nums))).get(0).getResult().get(VALUE));
+		assertEquals(new JsonPrimitive(45.57345), 
+				abs.execute(new FunctionExecutionParameters().setArguments(Map.of(VALUE,nums))).next()
+				.getResult().get(VALUE));
 	}
 
 }

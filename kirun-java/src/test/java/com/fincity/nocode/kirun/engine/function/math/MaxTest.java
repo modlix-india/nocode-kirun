@@ -24,10 +24,36 @@ class MaxTest {
 		nums.add(10.2);
 
 		assertEquals(new JsonPrimitive(10.2),
-		        maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
-		                .get(0)
-		                .getResult()
-		                .get("value"));
+				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+						.next().getResult().get("value"));
+	}
+
+	@Test
+	void test2() {
+
+		var maxFunction = new Max();
+		var nums = new JsonArray();
+		Object nullVar = null;
+
+		assertEquals(nullVar,
+				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+						.next().getResult().get("value"));
+	}
+	
+	@Test
+	void test3() {
+
+		var maxFunction = new Max();
+		var nums = new JsonArray();
+		nums.add(3);
+		nums.add(5);
+		nums.add(6);
+		nums.add(10.2);
+		nums.add("testcase2");
+
+		assertEquals(new JsonPrimitive(10.2),
+				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+						.next().getResult().get("value"));
 	}
 
 }
