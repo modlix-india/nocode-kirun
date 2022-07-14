@@ -39,7 +39,6 @@ class MinTest {
 				minFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
-	
 
 	@Test
 	void test3() {
@@ -50,10 +49,11 @@ class MinTest {
 		nums.add(5);
 		nums.add(6);
 		nums.add(10.2);
-		nums.add("This is min terst");
+		nums.add(0 / 0.0);
 
-		assertEquals(new JsonPrimitive(3),
+		assertEquals(new JsonPrimitive(Double.POSITIVE_INFINITY - Double.POSITIVE_INFINITY),
 				minFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
+
 }
