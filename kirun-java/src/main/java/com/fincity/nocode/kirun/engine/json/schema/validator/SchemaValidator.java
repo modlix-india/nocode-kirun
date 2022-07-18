@@ -44,7 +44,7 @@ public class SchemaValidator {
 
 		// Need to write test cases to find out if element can be null at this point.
 		if (schema.getRef() != null && !schema.getRef()
-		        .isBlank() && element.isJsonObject()) {
+		        .isBlank()) {
 			return validate(parents, SchemaUtil.getSchemaFromRef(parents.get(0), repository, schema.getRef()),
 			        repository, element);
 		}

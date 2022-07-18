@@ -1,14 +1,5 @@
 const path = require('path');
 
-module.rules = {
-    rules: [
-        {
-            test: /\.tsx?$/,
-            use: 'ts-loader',
-            exclude: /node_modules/,
-        },
-    ],
-};
 module.exports = {
     mode: 'test',
     entry: './src/index.ts',
@@ -20,5 +11,20 @@ module.exports = {
         filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
         library: 'KIRun',
+    },
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: true,
+                        },
+                    },
+                ],
+            },
+        ],
     },
 };

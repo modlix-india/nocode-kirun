@@ -22,7 +22,7 @@ class TestRepository2 {
     }
 }
 
-test('Check Hybrid Repository', () => {
+test('Hybrid Repository Test', () => {
     let hybrid: HybridRepository<string> = new HybridRepository<string>(
         new TestRepository(),
         new TestRepository2(),

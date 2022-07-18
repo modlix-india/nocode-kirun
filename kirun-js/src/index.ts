@@ -1,5 +1,13 @@
+export * from './engine/util/Tuples';
+export * from './engine/Repository';
 export * from './engine/HybridRepository';
-
-import { Repository } from './engine/Repository';
-
-export { Repository };
+export * from './engine/json/schema/Schema';
+export * from './engine/json/schema/type/SchemaType';
+export * from './engine/json/schema/validator/SchemaValidator';
+export * from './engine/constant/KIRunConstants';
+export * from './engine/exception/ExecutionException';
+export * from './engine/exception/KIRuntimeException';
+export * from './engine/function/Function';
+export * from './engine/function/AbstractFunction';
+export * from './engine/namespaces/Namespaces';
+export * from './engine/runtime/KIRuntime';
