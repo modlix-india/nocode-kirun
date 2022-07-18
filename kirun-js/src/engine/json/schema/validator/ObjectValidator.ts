@@ -11,7 +11,7 @@ export class ObjectValidator {
         repository: Repository<Schema>,
         element: any,
     ) {
-        if (element == null || !element)
+        if (!element)
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected an object but found null',
@@ -88,7 +88,7 @@ export class ObjectValidator {
         let apt: AdditionalPropertiesType = schema.getAdditionalProperties();
         if (apt.getSchemaValue()) {
             for (let key of Array.from(keys.values())) {
-                let newParents: Schema[] = parents == null ? [] : [...parents];
+                let newParents: Schema[] = !parents ? [] : [...parents];
 
                 let element: any = SchemaValidator.validate(
                     newParents,
@@ -122,7 +122,7 @@ export class ObjectValidator {
         let goodKeys: string[] = [];
 
         for (const key of Array.from(keys.values())) {
-            const newParents: Schema[] = parents == null ? [] : [...parents];
+            const newParents: Schema[] = !parents ? [] : [...parents];
 
             for (const e of Array.from(compiledPatterns.entries())) {
                 if (e[1].test(key)) {
@@ -151,7 +151,7 @@ export class ObjectValidator {
             let value: any = jsonObject[each[0]];
             if (!value) continue;
 
-            let newParents: Schema[] = parents == null ? [] : [...parents];
+            let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(newParents, each[1], repository, value);
             jsonObject[each[0]] = element;
             keys.delete(each[0]);

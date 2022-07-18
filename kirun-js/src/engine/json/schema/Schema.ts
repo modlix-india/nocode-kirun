@@ -21,7 +21,7 @@ export class Schema {
         .setNamespace(Namespaces.SYSTEM)
         .setName('Null')
         .setType(TypeUtil.of(SchemaType.NULL))
-        .setConstant(null);
+        .setConstant(undefined);
 
     private static readonly TYPE_SCHEMA: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.STRING))
@@ -289,7 +289,7 @@ export class Schema {
     }
 
     private getFullName(): string {
-        if (this.namespace == null || this.namespace == TEMPORARY) return this.name;
+        if (!this.namespace || this.namespace == TEMPORARY) return this.name;
 
         return this.namespace + '.' + this.name;
     }

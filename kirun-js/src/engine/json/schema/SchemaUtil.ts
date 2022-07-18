@@ -13,7 +13,7 @@ export class SchemaUtil {
     private static readonly CYCLIC_REFERENCE_LIMIT_COUNTER: number = 20;
 
     public static getDefaultValue(s: Schema, sRepository: Repository<Schema>): any {
-        if (!s) return null;
+        if (!s) return undefined;
 
         if (s.getConstant()) return s.getConstant();
 
@@ -89,14 +89,14 @@ export class SchemaUtil {
                     SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH,
                 );
 
-            if (schema.getRef() !== null && schema.getRef() !== '') {
+            if (!StringUtil.isNullOrBlank(schema.getRef())) {
                 schema = SchemaUtil.getSchemaFromRef(
                     schema,
                     sRepository,
                     schema.getRef(),
                     iteration,
                 );
-                if (schema == null)
+                if (!schema)
                     throw new SchemaReferenceException(
                         ref,
                         SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH,
@@ -119,7 +119,7 @@ export class SchemaUtil {
 
         ref = '#/' + nms[1];
 
-        if (schema == null)
+        if (!schema)
             throw new SchemaReferenceException(
                 ref,
                 SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH,

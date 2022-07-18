@@ -22,7 +22,7 @@ export abstract class TokenValueExtractor {
         partNumber: number,
         jsonElement: any,
     ): any {
-        if (jsonElement == null || !jsonElement) return undefined;
+        if (!jsonElement) return undefined;
 
         if (parts.length == partNumber) return jsonElement;
 
@@ -46,7 +46,7 @@ export abstract class TokenValueExtractor {
         a: any,
         i: any,
     ): any {
-        if (a == null || !a) return null;
+        if (!a) return undefined;
 
         if (i == 0) {
             if (Array.isArray(a)) {

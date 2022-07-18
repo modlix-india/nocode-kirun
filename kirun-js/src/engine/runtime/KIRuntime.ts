@@ -94,11 +94,11 @@ export class KIRuntime extends AbstractFunction {
     }
 
     protected internalExecute(inContext: FunctionExecutionParameters): FunctionOutput {
-        if (inContext.getContext() == null) inContext.setContext(new Map());
+        if (!inContext.getContext()) inContext.setContext(new Map());
 
-        if (inContext.getEvents() == null) inContext.setEvents(new Map());
+        if (!inContext.getEvents()) inContext.setEvents(new Map());
 
-        if (inContext.getOutput() == null) inContext.setOutput(new Map());
+        if (!inContext.getOutput()) inContext.setOutput(new Map());
 
         let eGraph: ExecutionGraph<string, StatementExecution> = this.getExecutionPlan(
             inContext.getContext(),
@@ -111,7 +111,7 @@ export class KIRuntime extends AbstractFunction {
 
         let messages: StatementMessage[] = eGraph.getVerticesData().flatMap((e) => e.getMessages());
 
-        if (messages != null && !messages?.length) {
+        if (!messages?.length) {
             throw new KIRuntimeException(
                 'Please fix the errors in the function definition before execution : \n' + messages,
             );
@@ -238,13 +238,9 @@ export class KIRuntime extends AbstractFunction {
                         this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
             }
-        } while (nextOutput != null && nextOutput.getName() != Event.OUTPUT);
+        } while (nextOutput?.getName() != Event.OUTPUT);
 
-        if (
-            nextOutput != null &&
-            nextOutput.getName() == Event.OUTPUT &&
-            vertex.getOutVertices().has(Event.OUTPUT)
-        ) {
+        if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
             vertex
                 .getOutVertices()
                 .get(Event.OUTPUT)
@@ -288,7 +284,7 @@ export class KIRuntime extends AbstractFunction {
 
         let er: EventResult = result.next();
 
-        if (er == null)
+        if (!er)
             throw new KIRuntimeException(
                 StringFormatter.format('Executing $ returned no events', s.getStatementName()),
             );
@@ -311,7 +307,7 @@ export class KIRuntime extends AbstractFunction {
             let out: Set<GraphVertex<string, StatementExecution>> = vertex
                 .getOutVertices()
                 .get(Event.OUTPUT);
-            if (out != null) out.forEach((e) => executionQue.add(e));
+            if (out) out.forEach((e) => executionQue.add(e));
         }
     }
 
@@ -319,7 +315,7 @@ export class KIRuntime extends AbstractFunction {
         result: Map<string, any>,
         inContext: FunctionExecutionParameters,
     ): Map<string, any> {
-        if (result == null) return result;
+        if (!result) return result;
 
         return Array.from(result.entries())
             .map((e) => new Tuple2(e[0], this.resolveInternalExpression(e[1], inContext)))
@@ -330,7 +326,7 @@ export class KIRuntime extends AbstractFunction {
     }
 
     private resolveInternalExpression(value: any, inContext: FunctionExecutionParameters): any {
-        if (value == null || !value || typeof value != 'object') return value;
+        if (!value || !value || typeof value != 'object') return value;
 
         if (value instanceof JsonExpression) {
             let exp: ExpressionEvaluator = new ExpressionEvaluator(
@@ -479,7 +475,7 @@ export class KIRuntime extends AbstractFunction {
 
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
-                if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
+                if (!SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -501,17 +497,14 @@ export class KIRuntime extends AbstractFunction {
     ): void {
         // Breaking this execution doesn't make sense.
 
-        if (ref == null) {
-            if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+        if (!ref) {
+            if (!SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
                 se.addMessage(
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
                 );
         } else if (ref.getType() == ParameterReferenceType.VALUE) {
-            if (
-                ref.getValue() == null &&
-                SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null
-            )
+            if (!ref.getValue() && !SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
                 se.addMessage(
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
@@ -568,7 +561,7 @@ export class KIRuntime extends AbstractFunction {
             se.addDependency(e[1]);
         }
 
-        if (se.getStatement().getDependentStatements() == null) return;
+        if (!se.getStatement().getDependentStatements()) return;
 
         for (let statement of se.getStatement().getDependentStatements())
             se.addDependency(statement);

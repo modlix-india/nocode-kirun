@@ -16,17 +16,27 @@ export abstract class AbstractFunction implements Function {
                 let param: Parameter = e[1];
                 let jsonElement: any = args.get(e[0]);
 
-                if (jsonElement == null || !jsonElement) {
+                if (!jsonElement) {
                     return new Tuple2(
                         key,
-                        SchemaValidator.validate(null, param.getSchema(), null, null),
+                        SchemaValidator.validate(
+                            undefined,
+                            param.getSchema(),
+                            undefined,
+                            undefined,
+                        ),
                     );
                 }
 
                 if (param?.isVariableArgument())
                     return new Tuple2(
                         key,
-                        SchemaValidator.validate(null, param.getSchema(), null, jsonElement),
+                        SchemaValidator.validate(
+                            undefined,
+                            param.getSchema(),
+                            undefined,
+                            jsonElement,
+                        ),
                     );
 
                 let array: any[] = undefined;
@@ -38,7 +48,7 @@ export abstract class AbstractFunction implements Function {
                 }
 
                 for (const je of array) {
-                    SchemaValidator.validate(null, param.getSchema(), null, je);
+                    SchemaValidator.validate(undefined, param.getSchema(), undefined, je);
                 }
 
                 return new Tuple2(key, jsonElement);

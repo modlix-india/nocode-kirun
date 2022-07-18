@@ -11,7 +11,7 @@ export class ArrayValidator {
         repository: Repository<Schema>,
         element: any,
     ): any {
-        if (element == null || !element)
+        if (!element)
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected an array but found null',
@@ -46,7 +46,7 @@ export class ArrayValidator {
 
         let flag: boolean = false;
         for (let i = 0; i < array.length; i++) {
-            let newParents: Schema[] = parents == null ? [] : [...parents];
+            let newParents: Schema[] = !parents ? [] : [...parents];
 
             try {
                 SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
@@ -101,11 +101,11 @@ export class ArrayValidator {
     ) {
         let type: ArraySchemaType = schema.getItems();
 
-        if (type == null) return;
+        if (!type) return;
 
         if (type.getSingleSchema()) {
             for (let i = 0; i < array.length; i++) {
-                let newParents: Schema[] = parents == null ? [] : [...parents];
+                let newParents: Schema[] = !parents ? [] : [...parents];
                 let element: any = SchemaValidator.validate(
                     newParents,
                     type.getSingleSchema(),
@@ -128,7 +128,7 @@ export class ArrayValidator {
             }
 
             for (let i = 0; i < array.length; i++) {
-                let newParents: Schema[] = parents == null ? [] : [...parents];
+                let newParents: Schema[] = !parents ? [] : [...parents];
                 let element: any = SchemaValidator.validate(
                     newParents,
                     type.getTupleSchema()[i],

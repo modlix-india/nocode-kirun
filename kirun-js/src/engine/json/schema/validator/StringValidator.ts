@@ -50,7 +50,7 @@ export class StringValidator {
                 StringValidator.DATETIME,
                 'date time pattern',
             );
-        } else if (schema.getPattern() != null) {
+        } else if (schema.getPattern()) {
             StringValidator.patternMatcher(
                 parents,
                 schema,
@@ -61,12 +61,12 @@ export class StringValidator {
         }
 
         let length: number = element.length;
-        if (schema.getMinLength() != null && length < schema.getMinLength()) {
+        if (schema.getMinLength() && length < schema.getMinLength()) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a minimum of ' + schema.getMinLength() + ' characters',
             );
-        } else if (schema.getMaxLength() != null && length > schema.getMinLength()) {
+        } else if (schema.getMaxLength() && length > schema.getMinLength()) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a maximum of ' + schema.getMaxLength() + ' characters',

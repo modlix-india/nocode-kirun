@@ -4,7 +4,7 @@ import { SchemaValidator } from './SchemaValidator';
 
 export class NullValidator {
     public static validate(parents: Schema[], schema: Schema, element: any): any {
-        if (element != null && element)
+        if (element)
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a null but found ' + element,

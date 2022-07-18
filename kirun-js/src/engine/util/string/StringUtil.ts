@@ -30,7 +30,7 @@ export class StringUtil {
     }
 
     public static splitAtFirstOccurance(str: string, c: string): string[] {
-        if (str == null || !str) return new Array(2);
+        if (!str) return new Array(2);
 
         let index: number = str.indexOf(c);
 
@@ -40,6 +40,6 @@ export class StringUtil {
     }
 
     public static isNullOrBlank(str: string): boolean {
-        return !str || str == null || str.trim() == '';
+        return !str || str.trim() == '';
     }
 }

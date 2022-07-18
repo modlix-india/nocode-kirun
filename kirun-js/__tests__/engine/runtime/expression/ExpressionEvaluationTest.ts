@@ -39,8 +39,7 @@ test('Expression Test', () => {
     expect(new ExpressionEvaluator('3 + 7').evaluate(parameters)).toBe(10);
     expect(new ExpressionEvaluator('"asdf"+333').evaluate(parameters)).toBe('asdf333');
     expect(new ExpressionEvaluator('34 >> 2 = 8 ').evaluate(parameters)).toBe(true);
-    // Check why is this failing, it worked fine in Expression test...
-    // expect(new ExpressionEvaluator('10*11+12*13*14/7').evaluate(parameters)).toBe(422);
+    expect(new ExpressionEvaluator('10*11+12*13*14/7').evaluate(parameters)).toBe(422);
 
     expect(
         new ExpressionEvaluator('Steps.step1.output.name1').evaluate(parameters),

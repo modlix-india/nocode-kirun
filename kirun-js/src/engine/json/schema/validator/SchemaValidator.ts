@@ -20,16 +20,16 @@ export class SchemaValidator {
         repository: Repository<Schema>,
         element: any,
     ): any {
-        if (schema == null) {
+        if (!schema) {
             return element;
         }
 
-        if (parents == null) {
+        if (!parents) {
             parents = new Array();
         }
         parents.push(schema);
 
-        if ((element == null || !element) && schema.getDefaultValue()) {
+        if (!element && schema.getDefaultValue()) {
             return schema.getDefaultValue();
         }
 

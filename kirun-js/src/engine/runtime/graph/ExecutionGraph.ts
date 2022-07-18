@@ -28,7 +28,7 @@ export class ExecutionGraph<K, T extends GraphVertexType<K>> {
 
     public getVertexData(key: K): T {
         if (this.nodeMap.has(key)) return this.nodeMap.get(key).getData();
-        return null;
+        return undefined;
     }
 
     public getVerticesWithNoIncomingEdges(): GraphVertex<K, T>[] {

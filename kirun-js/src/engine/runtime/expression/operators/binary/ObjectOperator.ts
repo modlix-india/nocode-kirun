@@ -4,11 +4,11 @@ import { BinaryOperator } from './BinaryOperator';
 
 export class ObjectOperator extends BinaryOperator {
     public apply(t: any, u: any): any {
-        if (t == null || !t) {
+        if (!t) {
             throw new ExecutionException('Cannot apply array operator on a null value');
         }
 
-        if (u == null || !u) {
+        if (!u) {
             throw new ExecutionException('Cannot retrive null property value');
         }
 

@@ -65,7 +65,7 @@ export class Statement extends AbstractStatement {
         return this;
     }
     public getParameterMap(): Map<string, ParameterReference[]> {
-        if (this.parameterMap == null) {
+        if (!this.parameterMap) {
             this.parameterMap = new Map();
         }
         return this.parameterMap;

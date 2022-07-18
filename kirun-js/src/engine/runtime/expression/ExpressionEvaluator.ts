@@ -108,7 +108,7 @@ export class ExpressionEvaluator {
     }
 
     public getExpression(): Expression {
-        if (this.exp == null) this.exp = new Expression(this.expression);
+        if (!this.exp) this.exp = new Expression(this.expression);
 
         return this.exp;
     }
@@ -182,11 +182,11 @@ export class ExpressionEvaluator {
                     ),
                 );
             else objTokens.push(token);
-            token = tokens.isEmpty() ? null : tokens.pop();
-            operator = ops.isEmpty() ? null : ops.pop();
+            token = tokens.isEmpty() ? undefined : tokens.pop();
+            operator = ops.isEmpty() ? undefined : ops.pop();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
 
-        if (token != null && !token) {
+        if (!token) {
             if (token instanceof Expression)
                 objTokens.push(
                     new ExpressionTokenValue(
@@ -197,7 +197,7 @@ export class ExpressionEvaluator {
             else objTokens.push(token);
         }
 
-        if (operator != null && !operator) ops.push(operator);
+        if (!operator) ops.push(operator);
 
         let objToken: ExpressionToken = objTokens.pop();
         let sb: StringBuilder = new StringBuilder(
