@@ -218,7 +218,7 @@ export class KIRuntime extends AbstractFunction {
         >,
     ): void {
         let vertex: GraphVertex<string, StatementExecution> = branch.getT4();
-        let nextOutput: EventResult = null;
+        let nextOutput: EventResult = undefined;
 
         do {
             this.executeGraph(branch.getT1(), inContext);
@@ -355,7 +355,7 @@ export class KIRuntime extends AbstractFunction {
             return retObject;
         }
 
-        return null;
+        return undefined;
     }
 
     private allDependenciesResolvedTuples(
@@ -422,7 +422,7 @@ export class KIRuntime extends AbstractFunction {
         inContext: FunctionExecutionParameters,
         ref: ParameterReference,
     ): any {
-        let ret: any = null;
+        let ret: any = undefined;
 
         if (ref.getType() == ParameterReferenceType.VALUE) {
             ret = this.resolveInternalExpression(ref.getValue(), inContext);
@@ -584,7 +584,7 @@ export class KIRuntime extends AbstractFunction {
                         if (!graph.getNodeMap().has(step)) return new Tuple2(step, event);
 
                         e.addInEdgeTo(graph.getNodeMap().get(step), event);
-                        return null;
+                        return undefined;
                     })
                     .filter((e) => !!e),
             );
