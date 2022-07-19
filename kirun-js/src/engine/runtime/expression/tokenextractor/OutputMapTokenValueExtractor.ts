@@ -11,7 +11,7 @@ export class OutputMapTokenValueExtractor extends TokenValueExtractor {
     }
 
     protected getValueInternal(token: string): any {
-        let parts: string[] = token.split('\\.');
+        let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
 
         let ind: number = 1;
 

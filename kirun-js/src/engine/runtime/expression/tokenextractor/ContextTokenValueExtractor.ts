@@ -12,7 +12,7 @@ export class ContextTokenValueExtractor extends TokenValueExtractor {
     }
 
     protected getValueInternal(token: string): any {
-        let parts: string[] = token.split('\\.');
+        let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
 
         let key: string = parts[1];
         let bIndex: number = key.indexOf('[');

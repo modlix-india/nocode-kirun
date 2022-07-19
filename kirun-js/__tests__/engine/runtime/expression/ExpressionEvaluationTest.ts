@@ -24,13 +24,13 @@ test('Expression Test', () => {
     };
 
     let inMap: Map<string, any> = new Map();
-    inMap.set('name', 'kiran');
+    inMap.set('name', 'Kiran');
     inMap.set('obj', obj);
 
     let output: Map<string, Map<string, Map<string, any>>> = new Map([
         ['step1', new Map([['output', inMap]])],
     ]);
-    //
+
     let parameters: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map())
         .setContext(new Map())
@@ -45,10 +45,11 @@ test('Expression Test', () => {
         new ExpressionEvaluator('Steps.step1.output.name1').evaluate(parameters),
     ).toBeUndefined();
 
-    // assertEquals(null, );
-
+    expect(new ExpressionEvaluator('"Kiran" = Steps.step1.output.name ').evaluate(parameters)).toBe(
+        true,
+    );
     // assertEquals(new JsonPrimitive(true),
-    //         new ExpressionEvaluator("\"Kiran\" = Steps.step1.output.name ").evaluate(parameters));
+    //         );
 
     // assertEquals(new JsonPrimitive(true),
     //         new ExpressionEvaluator("null = Steps.step1.output.name1 ").evaluate(parameters));

@@ -121,6 +121,7 @@ export class ExpressionEvaluator {
         let ops: LinkedList<Operation> = exp.getOperations();
         let tokens: LinkedList<ExpressionToken> = exp.getTokens();
 
+        console.log(`${this.expression} - ${ops.toString()} - ${ops.length}`);
         while (!ops.isEmpty()) {
             let operator: Operation = ops.pop();
             let token: ExpressionToken = tokens.pop();
@@ -186,7 +187,7 @@ export class ExpressionEvaluator {
             operator = ops.isEmpty() ? undefined : ops.pop();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
 
-        if (!token) {
+        if (token) {
             if (token instanceof Expression)
                 objTokens.push(
                     new ExpressionTokenValue(
@@ -197,7 +198,7 @@ export class ExpressionEvaluator {
             else objTokens.push(token);
         }
 
-        if (!operator) ops.push(operator);
+        if (operator) ops.push(operator);
 
         let objToken: ExpressionToken = objTokens.pop();
         let sb: StringBuilder = new StringBuilder(

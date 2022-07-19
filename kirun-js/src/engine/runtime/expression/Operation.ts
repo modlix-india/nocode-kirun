@@ -179,4 +179,8 @@ export class Operation {
     public valueOf(str: string): Operation {
         return Operation.VALUE_OF.get(str);
     }
+
+    public toString(): string {
+        return this.operator;
+    }
 }

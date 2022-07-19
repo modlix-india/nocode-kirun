@@ -1,9 +1,11 @@
 import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { StringFormatter } from '../../../util/string/StringFormatter';
+import { StringUtil } from '../../../util/string/StringUtil';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
 
 export abstract class TokenValueExtractor {
     private static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
+    public static readonly REGEX_DOT: RegExp = /\./;
 
     public getValue(token: string): any {
         let prefix: string = this.getPrefix();
@@ -29,8 +31,9 @@ export abstract class TokenValueExtractor {
         let bElement: any = parts[partNumber]
             .split(TokenValueExtractor.REGEX_SQUARE_BRACKETS)
             .map((e) => e.trim())
+            .filter((e) => !StringUtil.isNullOrBlank(e))
             .reduce(
-                (c, a, i) =>
+                (a, c, i) =>
                     this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a, i),
                 jsonElement,
             );
@@ -67,7 +70,7 @@ export abstract class TokenValueExtractor {
 
             this.checkIfObject(token, parts, partNumber, a);
             return a[c];
-        } else if (c.startsWith('"')) {
+        } else if (c?.startsWith('"')) {
             if (!c.endsWith('"') || c.length == 1 || c.length == 2)
                 throw new ExpressionEvaluationException(
                     token,

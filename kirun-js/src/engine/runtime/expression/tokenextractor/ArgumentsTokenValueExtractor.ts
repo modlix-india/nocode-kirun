@@ -11,7 +11,7 @@ export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
     }
 
     protected getValueInternal(token: string): any {
-        let parts: string[] = token.split('\\.');
+        let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
 
         return this.retrieveElementFrom(token, parts, 2, this.args.get(parts[1]));
     }
