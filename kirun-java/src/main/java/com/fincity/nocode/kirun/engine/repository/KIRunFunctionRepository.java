@@ -1,8 +1,13 @@
 package com.fincity.nocode.kirun.engine.repository;
 
-public class KIRunFunctionRepository extends PackageScanningFunctionRepository {
+import com.fincity.nocode.kirun.engine.HybridRepository;
+import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.math.MathFunctionRepository;
+
+public class KIRunFunctionRepository extends HybridRepository<Function> {
 
 	public KIRunFunctionRepository() {
-		super("com.fincity.nocode.kirun.engine.function");
+		super(new PackageScanningFunctionRepository("com.fincity.nocode.kirun.engine.function"),
+				new MathFunctionRepository());
 	}
 }
