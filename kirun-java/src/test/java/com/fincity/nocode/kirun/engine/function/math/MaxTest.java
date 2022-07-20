@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.function.system.math.Maximum;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,7 +17,7 @@ class MaxTest {
 	@Test
 	void test() {
 
-		var maxFunction = new Max();
+		var maxFunction = new Maximum();
 		var nums = new JsonArray();
 		nums.add(3);
 		nums.add(5);
@@ -31,7 +32,7 @@ class MaxTest {
 	@Test
 	void test2() {
 
-		var maxFunction = new Max();
+		var maxFunction = new Maximum();
 		var nums = new JsonArray();
 		Object nullVar = null;
 
@@ -39,17 +40,17 @@ class MaxTest {
 				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
-	
+
 	@Test
 	void test3() {
 
-		var maxFunction = new Max();
+		var maxFunction = new Maximum();
 		var nums = new JsonArray();
 		nums.add(3);
 		nums.add(5);
 		nums.add(6);
 		nums.add(10.2);
-		nums.add(0/0.0);
+		nums.add(0 / 0.0);
 
 		assertEquals(new JsonPrimitive(Double.POSITIVE_INFINITY - Double.POSITIVE_INFINITY),
 				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))

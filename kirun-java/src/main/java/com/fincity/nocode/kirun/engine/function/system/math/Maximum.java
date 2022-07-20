@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.math;
+package com.fincity.nocode.kirun.engine.function.system.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
@@ -18,11 +18,11 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 
-public class Max extends AbstractFunction {
+public class Maximum extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final FunctionSignature MAX_SIGNATURE = new FunctionSignature().setName("Max").setNamespace(MATH)
+	private static final FunctionSignature MAX_SIGNATURE = new FunctionSignature().setName("Maximum").setNamespace(MATH)
 			.setParameters(Map.of(VALUE,
 					new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))
 							.setVariableArgument(true)))

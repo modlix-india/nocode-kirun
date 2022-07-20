@@ -10,6 +10,7 @@ import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaVal
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 
 class Log10Test {
 
