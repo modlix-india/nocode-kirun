@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { isNullValue } from '../../../util/NullCheck';
 import { AdditionalPropertiesType } from '../object/AdditionalPropertiesType';
 import { Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
@@ -11,7 +12,7 @@ export class ObjectValidator {
         repository: Repository<Schema>,
         element: any,
     ) {
-        if (!element)
+        if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected an object but found null',
@@ -69,7 +70,7 @@ export class ObjectValidator {
 
     private static checkRequired(parents: Schema[], schema: Schema, jsonObject: any) {
         for (const key of schema.getRequired()) {
-            if (!jsonObject[key]) {
+            if (isNullValue(jsonObject[key])) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
                     key + ' is mandatory',
@@ -149,7 +150,7 @@ export class ObjectValidator {
     ) {
         for (const each of Array.from(schema.getProperties())) {
             let value: any = jsonObject[each[0]];
-            if (!value) continue;
+            if (isNullValue(value)) continue;
 
             let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(newParents, each[1], repository, value);

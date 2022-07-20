@@ -43,13 +43,13 @@ export class ParameterReference {
         return this;
     }
 
-    public static of(value: any): ParameterReference {
+    public static ofExpression(value: any): ParameterReference {
         return new ParameterReference()
-            .setType(
-                typeof value === 'string'
-                    ? ParameterReferenceType.EXPRESSION
-                    : ParameterReferenceType.VALUE,
-            )
-            .setValue(value);
+            .setType(ParameterReferenceType.EXPRESSION)
+            .setExpression(value);
+    }
+
+    public static ofValue(value: any): ParameterReference {
+        return new ParameterReference().setType(ParameterReferenceType.VALUE).setValue(value);
     }
 }

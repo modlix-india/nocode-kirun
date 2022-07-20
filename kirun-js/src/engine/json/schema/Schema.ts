@@ -6,6 +6,7 @@ import { StringSchema } from './string/StringSchema';
 import { SchemaType } from './type/SchemaType';
 import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
+import { isNullValue } from '../../util/NullCheck';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';
@@ -230,6 +231,80 @@ export class Schema {
             .setType(TypeUtil.of(SchemaType.ARRAY))
             .setName(id)
             .setItems(ArraySchemaType.of(...itemSchemas));
+    }
+
+    public static fromListOfSchemas(list: any): Schema[] {
+        return isNullValue(list) && !Array.isArray(list)
+            ? undefined
+            : Array.from(list).map((e) => Schema.from(e));
+    }
+
+    public static fromMapOfSchemas(map: any): Map<string, Schema> {
+        if (isNullValue(map)) return undefined;
+        const retMap = new Map<string, Schema>();
+
+        Object.entries(map).forEach(([k, v]) => retMap.set(k, Schema.from(v)));
+
+        return retMap;
+    }
+
+    public static from(obj: any): Schema {
+        if (isNullValue(obj)) return undefined;
+
+        let schema: Schema = new Schema();
+        schema.namespace = obj.namespace;
+        schema.name = obj.name;
+
+        schema.version = obj.version;
+
+        schema.ref = obj.ref;
+
+        schema.type = TypeUtil.from(schema.type);
+        schema.anyOf = Schema.fromListOfSchemas(obj.anyOf);
+        schema.allOf = Schema.fromListOfSchemas(obj.allOf);
+        schema.oneOf = Schema.fromListOfSchemas(obj.oneOf);
+        schema.not = Schema.from(obj.not);
+
+        schema.description = obj.description;
+        schema.examples = obj.examples ? [...obj.examples] : undefined;
+        schema.defaultValue = obj.defaultValue;
+        schema.comment = obj.comment;
+        schema.enums = obj.enums ? [...obj.enums] : undefined;
+        schema.constant = obj.constant;
+
+        // String
+        schema.pattern = obj.pattern;
+        schema.format = obj.format;
+        schema.minLength = obj.minLength;
+        schema.maxLength = obj.maxLength;
+
+        // Number
+        schema.multipleOf = obj.multipleOf;
+        schema.minimum = obj.minimum;
+        schema.maximum = obj.maximum;
+        schema.exclusiveMinimum = obj.exclusiveMinimum;
+        schema.exclusiveMaximum = obj.exclusiveMaximum;
+
+        // Object
+        schema.properties = Schema.fromMapOfSchemas(obj.properties);
+        schema.additionalProperties = AdditionalPropertiesType.from(obj.additionalProperties);
+        schema.required = obj.required;
+        schema.propertyNames = Schema.from(obj.propertyNames);
+        schema.minProperties = obj.minProperties;
+        schema.maxProperties = obj.maxProperties;
+        schema.patternProperties = Schema.fromMapOfSchemas(obj.patternProperties);
+
+        // Array
+        schema.items = ArraySchemaType.from(obj.items);
+        schema.contains = Schema.from(obj.contains);
+        schema.minItems = obj.minItems;
+        schema.maxItems = obj.maxItems;
+        schema.uniqueItems = obj.uniqueItems;
+
+        schema.$defs = Schema.fromMapOfSchemas(obj.$defs);
+        schema.permission = obj.permission;
+
+        return schema;
     }
 
     private namespace: string = TEMPORARY;

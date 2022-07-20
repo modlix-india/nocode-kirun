@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { isNullValue } from '../../../util/NullCheck';
 import { ArraySchemaType } from '../array/ArraySchemaType';
 import { Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
@@ -11,13 +12,13 @@ export class ArrayValidator {
         repository: Repository<Schema>,
         element: any,
     ): any {
-        if (!element)
+        if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected an array but found null',
             );
 
-        if (Array.isArray(element))
+        if (!Array.isArray(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' is not an Array',

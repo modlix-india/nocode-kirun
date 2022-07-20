@@ -2,7 +2,6 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { Schema } from '../../../json/schema/Schema';
 import { StringFormat } from '../../../json/schema/string/StringFormat';
 import { SchemaType } from '../../../json/schema/type/SchemaType';
-import { Type } from '../../../json/schema/type/Type';
 import { TypeUtil } from '../../../json/schema/type/TypeUtil';
 import { Event } from '../../../model/Event';
 import { EventResult } from '../../../model/EventResult';
@@ -13,6 +12,7 @@ import { ParameterType } from '../../../model/ParameterType';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { ContextElement } from '../../../runtime/ContextElement';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { isNullValue } from '../../../util/NullCheck';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { AbstractFunction } from '../../AbstractFunction';
 
@@ -53,13 +53,16 @@ export class Create extends AbstractFunction {
                 StringFormatter.format("Context already has an element for '$' ", name),
             );
 
-        let s: Schema = context.getArguments().get(SCHEMA) as Schema;
+        let s: Schema = Schema.from(context.getArguments().get(SCHEMA));
 
         context
             .getContext()
             .set(
                 name,
-                new ContextElement(s, !s.getDefaultValue() ? undefined : s.getDefaultValue()),
+                new ContextElement(
+                    s,
+                    isNullValue(s.getDefaultValue()) ? undefined : s.getDefaultValue(),
+                ),
             );
 
         return new FunctionOutput([EventResult.outputOf(new Map())]);

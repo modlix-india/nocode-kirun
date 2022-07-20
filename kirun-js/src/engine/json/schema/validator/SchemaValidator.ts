@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { isNullValue } from '../../../util/NullCheck';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { Schema } from '../Schema';
 import { SchemaUtil } from '../SchemaUtil';
@@ -10,7 +11,7 @@ import { TypeValidator } from './TypeValidator';
 export class SchemaValidator {
     public static path(parents: Schema[]): string {
         return parents
-            ? parents.map((e) => e.getTitle).reduce((a, c, i) => a + (i === 0 ? '' : '.') + c, '')
+            ? parents.map((e) => e.getTitle()).reduce((a, c, i) => a + (i === 0 ? '' : '.') + c, '')
             : '';
     }
 
@@ -29,7 +30,7 @@ export class SchemaValidator {
         }
         parents.push(schema);
 
-        if (!element && schema.getDefaultValue()) {
+        if (isNullValue(element) && isNullValue(schema.getDefaultValue())) {
             return schema.getDefaultValue();
         }
 

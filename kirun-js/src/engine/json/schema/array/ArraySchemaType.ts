@@ -27,4 +27,10 @@ export class ArraySchemaType {
 
         return new ArraySchemaType().setTupleSchema(schemas);
     }
+
+    public static from(obj: any): ArraySchemaType {
+        if (!obj) return undefined;
+        if (Array.isArray(obj)) ArraySchemaType.of(...Schema.fromListOfSchemas(obj));
+        return ArraySchemaType.of(Schema.from(obj));
+    }
 }

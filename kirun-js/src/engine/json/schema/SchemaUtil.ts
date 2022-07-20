@@ -36,7 +36,7 @@ export class SchemaUtil {
         if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
             throw new SchemaValidationException(ref, 'Schema has a cyclic reference');
 
-        if (!schema || !ref || ref === '') return undefined;
+        if (!schema || StringUtil.isNullOrBlank(ref)) return undefined;
 
         if (!ref.startsWith('#')) {
             var tuple = SchemaUtil.resolveExternalSchema(schema, sRepository, ref);

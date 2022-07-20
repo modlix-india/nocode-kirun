@@ -23,4 +23,8 @@ export class StatementMessage {
         this.message = message;
         return this;
     }
+
+    public toString(): string {
+        return `${this.messageType} : ${this.message}`;
+    }
 }

@@ -5,6 +5,7 @@ import { FunctionOutput } from '../model/FunctionOutput';
 import { FunctionSignature } from '../model/FunctionSignature';
 import { Parameter } from '../model/Parameter';
 import { FunctionExecutionParameters } from '../runtime/FunctionExecutionParameters';
+import { isNullValue } from '../util/NullCheck';
 import { Tuple2 } from '../util/Tuples';
 import { Function } from './Function';
 
@@ -16,7 +17,7 @@ export abstract class AbstractFunction implements Function {
                 let param: Parameter = e[1];
                 let jsonElement: any = args.get(e[0]);
 
-                if (!jsonElement) {
+                if (isNullValue(jsonElement)) {
                     return new Tuple2(
                         key,
                         SchemaValidator.validate(
@@ -28,7 +29,7 @@ export abstract class AbstractFunction implements Function {
                     );
                 }
 
-                if (param?.isVariableArgument())
+                if (!param?.isVariableArgument())
                     return new Tuple2(
                         key,
                         SchemaValidator.validate(

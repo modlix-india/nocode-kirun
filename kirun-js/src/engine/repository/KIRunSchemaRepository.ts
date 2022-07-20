@@ -1,0 +1,22 @@
+import { Schema } from '../json/schema/Schema';
+import { Namespaces } from '../namespaces/Namespaces';
+import { Repository } from '../Repository';
+
+const map: Map<string, Schema> = new Map([
+    ['any', Schema.ofAny('any').setNamespace(Namespaces.SYSTEM)],
+    ['boolean', Schema.ofBoolean('boolean').setNamespace(Namespaces.SYSTEM)],
+    ['double', Schema.ofDouble('double').setNamespace(Namespaces.SYSTEM)],
+    ['float', Schema.ofFloat('float').setNamespace(Namespaces.SYSTEM)],
+    ['integer', Schema.ofInteger('integer').setNamespace(Namespaces.SYSTEM)],
+    ['long', Schema.ofLong('long').setNamespace(Namespaces.SYSTEM)],
+    ['number', Schema.ofNumber('number').setNamespace(Namespaces.SYSTEM)],
+    ['string', Schema.ofString('string').setNamespace(Namespaces.SYSTEM)],
+]);
+
+export class KIRunSchemaRepository implements Repository<Schema> {
+    public find(namespace: string, name: string): Schema {
+        if (Namespaces.SYSTEM != namespace) return null;
+
+        return map.get(name);
+    }
+}

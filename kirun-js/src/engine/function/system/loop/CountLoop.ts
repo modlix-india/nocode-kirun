@@ -9,7 +9,7 @@ import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { AbstractFunction } from '../../AbstractFunction';
 
-const COUNT = 'CountLoop';
+const COUNT = 'count';
 const VALUE = 'value';
 const INDEX = 'index';
 
@@ -31,7 +31,7 @@ const SIGNATURE = new FunctionSignature()
         ]),
     );
 
-export class RangeLoop extends AbstractFunction {
+export class CountLoop extends AbstractFunction {
     public getSignature(): FunctionSignature {
         return SIGNATURE;
     }

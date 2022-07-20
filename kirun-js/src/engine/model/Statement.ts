@@ -43,6 +43,11 @@ export class Statement extends AbstractStatement {
     private parameterMap: Map<string, ParameterReference[]>;
     private dependentStatements: string[];
 
+    public constructor(statementName: string) {
+        super();
+        this.statementName = statementName;
+    }
+
     public getStatementName(): string {
         return this.statementName;
     }
@@ -86,5 +91,9 @@ export class Statement extends AbstractStatement {
         if (!(obj instanceof Statement)) return false;
         let s: Statement = obj as Statement;
         return s.statementName == this.statementName;
+    }
+
+    public static ofEntry(statement: Statement): [string, Statement] {
+        return [statement.statementName, statement];
     }
 }

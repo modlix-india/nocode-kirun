@@ -123,7 +123,6 @@ export class ExpressionEvaluator {
         let ops: LinkedList<Operation> = exp.getOperations();
         let tokens: LinkedList<ExpressionToken> = exp.getTokens();
 
-        console.log(`${this.expression} - ${ops.toString()} - ${ops.length}`);
         while (!ops.isEmpty()) {
             let operator: Operation = ops.pop();
             let token: ExpressionToken = tokens.pop();

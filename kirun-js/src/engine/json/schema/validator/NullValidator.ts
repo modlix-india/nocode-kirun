@@ -13,5 +13,5 @@ export class NullValidator {
         return element;
     }
 
-    private NullValidator() {}
+    private constructor() {}
 }

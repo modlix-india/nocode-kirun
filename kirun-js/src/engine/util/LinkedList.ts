@@ -153,11 +153,13 @@ export class LinkedList<T> {
     }
 
     public addAll(list: T[]): LinkedList<T> {
+        if (!list || !list.length) return this;
         list.forEach(this.add.bind(this));
         return this;
     }
 
     public add(t: T): LinkedList<T> {
+        ++this.length;
         if (!this.tail && !this.head) {
             this.head = this.tail = new Node(t);
         } else if (this.head === this.tail) {

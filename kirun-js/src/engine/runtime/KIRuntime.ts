@@ -24,8 +24,8 @@ import { FunctionExecutionParameters } from './FunctionExecutionParameters';
 import { ExecutionGraph } from './graph/ExecutionGraph';
 import { GraphVertex } from './graph/GraphVertex';
 import { StatementExecution } from './StatementExecution';
-import { StatementMessage } from './StatementMessage';
 import { StatementMessageType } from './StatementMessageType';
+import { isNullValue } from '../util/NullCheck';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -79,7 +79,7 @@ export class KIRuntime extends AbstractFunction {
 
         let unresolvedList: Tuple2<string, string>[] = this.makeEdges(g);
 
-        if (!unresolvedList.length) {
+        if (unresolvedList.length) {
             throw new KIRuntimeException(
                 StringFormatter.format(
                     'Found these unresolved dependencies : $ ',
@@ -104,16 +104,22 @@ export class KIRuntime extends AbstractFunction {
             inContext.getContext(),
         );
 
+        console.log('Execution Graph');
+        console.log(eGraph.toString());
         // if (logger.isDebugEnabled()) {
         // 	logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
         // 	logger.debug(eGraph.toString());
         // }
 
-        let messages: StatementMessage[] = eGraph.getVerticesData().flatMap((e) => e.getMessages());
+        let messages: string[] = eGraph
+            .getVerticesData()
+            .filter((e) => e.getMessages().length)
+            .map((e) => e.getStatement().getStatementName() + ': \n' + e.getMessages().join(','));
 
-        if (!messages?.length) {
+        if (messages?.length) {
             throw new KIRuntimeException(
-                'Please fix the errors in the function definition before execution : \n' + messages,
+                'Please fix the errors in the function definition before execution : \n' +
+                    messages.join(',\n'),
             );
         }
 
@@ -193,7 +199,7 @@ export class KIRuntime extends AbstractFunction {
             >
         >,
     ): void {
-        if (!branchQue.length) {
+        if (branchQue.length) {
             let branch: Tuple4<
                 ExecutionGraph<string, StatementExecution>,
                 Tuple2<string, string>[],
@@ -326,7 +332,7 @@ export class KIRuntime extends AbstractFunction {
     }
 
     private resolveInternalExpression(value: any, inContext: FunctionExecutionParameters): any {
-        if (!value || !value || typeof value != 'object') return value;
+        if (isNullValue(value) || typeof value != 'object') return value;
 
         if (value instanceof JsonExpression) {
             let exp: ExpressionEvaluator = new ExpressionEvaluator(
@@ -348,7 +354,7 @@ export class KIRuntime extends AbstractFunction {
         if (typeof value === 'object') {
             let retObject: any = {};
 
-            for (let entry of value.entries()) {
+            for (let entry of Object.entries(value)) {
                 retObject[entry[0]] = this.resolveInternalExpression(entry[1], inContext);
             }
 
@@ -452,7 +458,7 @@ export class KIRuntime extends AbstractFunction {
             let refList: ParameterReference[] = param[1];
 
             if (!refList.length) {
-                if (!SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
+                if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -475,7 +481,7 @@ export class KIRuntime extends AbstractFunction {
 
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
-                if (!SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo))
+                if (isNullValue(SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -498,13 +504,16 @@ export class KIRuntime extends AbstractFunction {
         // Breaking this execution doesn't make sense.
 
         if (!ref) {
-            if (!SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
+            if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo)))
                 se.addMessage(
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
                 );
         } else if (ref.getType() == ParameterReferenceType.VALUE) {
-            if (!ref.getValue() && !SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
+            if (
+                isNullValue(ref.getValue()) &&
+                isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
+            )
                 se.addMessage(
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
@@ -527,7 +536,7 @@ export class KIRuntime extends AbstractFunction {
             }
         } else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
             if (StringUtil.isNullOrBlank(ref.getExpression())) {
-                if (!SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo))
+                if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -542,11 +551,7 @@ export class KIRuntime extends AbstractFunction {
                 } catch (err) {
                     se.addMessage(
                         StatementMessageType.ERROR,
-                        StringFormatter.format(
-                            'Error evaluating $ : ',
-                            ref.getExpression(),
-                            err.getMessage(),
-                        ),
+                        StringFormatter.format('Error evaluating $ : $', ref.getExpression(), err),
                     );
                 }
             }
@@ -554,12 +559,9 @@ export class KIRuntime extends AbstractFunction {
     }
 
     private addDependencies(se: StatementExecution, expression: string): void {
-        let m = Array.from(expression.match(KIRuntime.STEP_REGEX_PATTERN));
-
-        for (let e of m) {
-            if (e.length !== 3) continue;
-            se.addDependency(e[1]);
-        }
+        Array.from(expression.match(KIRuntime.STEP_REGEX_PATTERN) ?? []).forEach((e) =>
+            se.addDependency(e),
+        );
 
         if (!se.getStatement().getDependentStatements()) return;
 

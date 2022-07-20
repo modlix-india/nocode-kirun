@@ -1,4 +1,5 @@
 import { KIRuntimeException } from '../exception/KIRuntimeException';
+import { isNullValue } from '../util/NullCheck';
 import { EventResult } from './EventResult';
 import { FunctionOutputGenerator } from './FunctionOutputGenerator';
 
@@ -9,7 +10,7 @@ export class FunctionOutput {
     private generator: FunctionOutputGenerator;
 
     public constructor(arg: EventResult[] | FunctionOutputGenerator) {
-        if (!arg) throw new KIRuntimeException('Function output is generating null');
+        if (isNullValue(arg)) throw new KIRuntimeException('Function output is generating null');
 
         if (Array.isArray(arg) && arg.length && arg[0] instanceof EventResult) {
             this.fo = arg as EventResult[];

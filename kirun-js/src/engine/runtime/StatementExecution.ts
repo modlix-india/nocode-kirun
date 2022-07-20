@@ -6,7 +6,7 @@ import { StatementMessageType } from './StatementMessageType';
 // @EqualsAndHashCode(exclude = { "messages", "dependencies" })
 export class StatementExecution implements GraphVertexType<String> {
     private statement: Statement;
-    private messages: StatementMessage[] = new Array(5);
+    private messages: StatementMessage[] = new Array();
     private dependencies: Set<string> = new Set();
 
     public constructor(statement: Statement) {

@@ -9,4 +9,18 @@ export class TypeUtil {
 
         return new MultipleType().setType(new Set(types));
     }
+
+    public static from(types: any): Type {
+        if (typeof types === 'string') {
+            return TypeUtil.of(types as SchemaType);
+        } else if (Array.isArray(types)) {
+            return TypeUtil.of(
+                ...Array.of(types)
+                    .map((e) => e as any)
+                    .map((e) => e as SchemaType),
+            );
+        }
+
+        return undefined;
+    }
 }

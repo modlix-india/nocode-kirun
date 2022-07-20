@@ -1,3 +1,4 @@
+import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 import { StringFormat } from '../string/StringFormat';
 import { SchemaValidationException } from './exception/SchemaValidationException';
@@ -14,7 +15,7 @@ export class StringValidator {
         /^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$/;
 
     public static validate(parents: Schema[], schema: Schema, element: any): any {
-        if (!element)
+        if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a string but found null',

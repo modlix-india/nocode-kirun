@@ -1,7 +1,7 @@
 export enum StringFormat {
-    DATETIME,
-    TIME,
-    DATE,
-    EMAIL,
-    REGEX,
+    DATETIME = 'DATETIME',
+    TIME = 'TIME',
+    DATE = 'DATE',
+    EMAIL = 'EMAIL',
+    REGEX = 'REGEX',
 }

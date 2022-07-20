@@ -18,6 +18,7 @@ import { ExpressionTokenValue } from '../../../runtime/expression/ExpressionToke
 import { Operation } from '../../../runtime/expression/Operation';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { LinkedList } from '../../../util/LinkedList';
+import { isNullValue } from '../../../util/NullCheck';
 import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
@@ -105,7 +106,7 @@ export class SetFunction extends AbstractFunction {
         ops.removeLast();
         let ce: ContextElement = context.getContext().get(tokens.removeLast().getExpression());
 
-        if (!ce) {
+        if (isNullValue(ce)) {
             throw new KIRuntimeException(
                 StringFormatter.format("Context doesn't have any element with name '$' ", key),
             );
@@ -119,7 +120,7 @@ export class SetFunction extends AbstractFunction {
         let el: any = ce.getElement();
 
         while (ops.size() > 1) {
-            if (!el) {
+            if (isNullValue(el)) {
                 throw new KIRuntimeException(
                     StringFormatter.format('Unable to set the context in the path $', key),
                 );

@@ -70,11 +70,11 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
     }
 
     public hasIncomingEdges(): boolean {
-        return !this.inVertices.size;
+        return !!this.inVertices.size;
     }
 
     public hasOutgoingEdges(): boolean {
-        return !this.outVertices.size;
+        return !!this.outVertices.size;
     }
 
     public getSubGraphOfType(type: string): ExecutionGraph<K, T> {

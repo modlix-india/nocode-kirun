@@ -1,5 +1,5 @@
 export enum StatementMessageType {
-    ERROR,
-    WARNING,
-    MESSAGE,
+    ERROR = 'ERROR',
+    WARNING = 'WARNING',
+    MESSAGE = 'MESSAGE',
 }

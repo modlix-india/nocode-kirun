@@ -21,4 +21,12 @@ export class AdditionalPropertiesType {
         this.schemaValue = schemaValue;
         return this;
     }
+
+    public static from(obj: any): AdditionalPropertiesType {
+        if (!obj) return undefined;
+        const ad = new AdditionalPropertiesType();
+        ad.booleanValue = obj.booleanValue;
+        ad.schemaValue = obj.schemaValue;
+        return ad;
+    }
 }

@@ -32,8 +32,7 @@ export class ExecutionGraph<K, T extends GraphVertexType<K>> {
     }
 
     public getVerticesWithNoIncomingEdges(): GraphVertex<K, T>[] {
-        return;
-        Array.from(this.nodeMap.values()).filter((e) => !e.hasIncomingEdges());
+        return Array.from(this.nodeMap.values()).filter((e) => !e.hasIncomingEdges());
     }
 
     public isCyclic(): boolean {
