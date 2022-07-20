@@ -52,4 +52,20 @@ export class Parameter {
         this.type = type;
         return this;
     }
+
+    public static ofEntry(
+        name: string,
+        schema: Schema,
+        variableArgument: boolean = false,
+        type: ParameterType = ParameterType.EXPRESSION,
+    ): [string, Parameter] {
+        return [
+            name,
+            new Parameter()
+                .setParameterName(name)
+                .setSchema(schema)
+                .setType(type)
+                .setVariableArgument(variableArgument),
+        ];
+    }
 }

@@ -38,9 +38,10 @@ export class GenericMathFunction extends AbstractFunction {
         functionName: string,
         mathFunction: (v1: number, v2?: number) => number,
         parametersNumber: number = 1,
-        returnType: SchemaType = SchemaType.DOUBLE,
+        ...returnType: SchemaType[]
     ) {
         super();
+        if (!returnType || !returnType.length) returnType = [SchemaType.DOUBLE];
         this.parametersNumber = parametersNumber;
         this.mathFunction = mathFunction;
         this.signature = new FunctionSignature()
@@ -51,7 +52,10 @@ export class GenericMathFunction extends AbstractFunction {
                 new Map([
                     Event.outputEventMapEntry(
                         new Map([
-                            [VALUE, new Schema().setType(TypeUtil.of(returnType)).setName(VALUE)],
+                            [
+                                VALUE,
+                                new Schema().setType(TypeUtil.of(...returnType)).setName(VALUE),
+                            ],
                         ]),
                     ) as [string, Event],
                 ]),

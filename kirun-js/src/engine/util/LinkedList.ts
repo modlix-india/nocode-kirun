@@ -1,3 +1,6 @@
+import { KIRuntimeException } from '../exception/KIRuntimeException';
+import { StringFormatter } from './string/StringFormatter';
+
 export class LinkedList<T> {
     private head: Node<T> = undefined;
     private tail: Node<T> = undefined;
@@ -58,7 +61,7 @@ export class LinkedList<T> {
     }
 
     public get(index: number): T {
-        if (index >= this.length) return undefined;
+        if (index < 0 || index >= this.length) return undefined;
 
         let x = this.head;
         while (index > 0) {
@@ -67,6 +70,24 @@ export class LinkedList<T> {
         }
 
         return x.value;
+    }
+
+    public set(index: number, value: T): LinkedList<T> {
+        if (index < 0 || index >= this.length)
+            throw new KIRuntimeException(
+                StringFormatter.format(
+                    'Index $ out of bound to set the value in linked list.',
+                    index,
+                ),
+            );
+
+        let x = this.head;
+        while (index > 0) {
+            x = this.head.next;
+            --index;
+        }
+        x.value = value;
+        return this;
     }
 
     public toString(): string {
@@ -101,6 +122,11 @@ export class LinkedList<T> {
         return this.head.value;
     }
 
+    public peekLast(): T {
+        if (!this.length) return undefined;
+        return this.tail.value;
+    }
+
     public getFirst(): T {
         if (!this.head) return undefined;
         return this.head.value;
@@ -108,6 +134,22 @@ export class LinkedList<T> {
 
     public removeFirst(): T {
         return this.pop();
+    }
+
+    public removeLast(): T {
+        if (this.length <= 0) return undefined;
+        --this.length;
+        const v: T = this.tail.value;
+        if (this.length == 0) {
+            this.head = this.tail = undefined;
+        }
+
+        const n: Node<T> = this.tail.previous;
+        n.next = undefined;
+        this.tail.previous = undefined;
+        this.tail = n;
+
+        return v;
     }
 
     public addAll(list: T[]): LinkedList<T> {

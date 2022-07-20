@@ -10,6 +10,7 @@ import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
 import { ArithmeticAdditionOperator } from './operators/binary/ArithmeticAdditionOperator';
 import { ArithmeticDivisionOperator } from './operators/binary/ArithmeticDivisionOperator';
+import { ArithmeticIntegerDivisionOperator } from './operators/binary/ArithmeticInetgerDivisionOperator';
 import { ArithmeticModulusOperator } from './operators/binary/ArithmeticModulusOperator';
 import { ArithmeticMultiplicationOperator } from './operators/binary/ArithmeticMultiplicationOperator';
 import { ArithmeticSubtractionOperator } from './operators/binary/ArithmeticSubtractionOperator';
@@ -52,6 +53,7 @@ export class ExpressionEvaluator {
     private static readonly BINARY_OPERATORS_MAP: Map<Operation, BinaryOperator> = new Map([
         [Operation.ADDITION, new ArithmeticAdditionOperator()],
         [Operation.DIVISION, new ArithmeticDivisionOperator()],
+        [Operation.INTEGER_DIVISION, new ArithmeticIntegerDivisionOperator()],
         [Operation.MOD, new ArithmeticModulusOperator()],
         [Operation.MULTIPLICATION, new ArithmeticMultiplicationOperator()],
         [Operation.SUBTRACTION, new ArithmeticSubtractionOperator()],

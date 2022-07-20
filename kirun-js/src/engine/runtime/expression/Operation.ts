@@ -1,6 +1,7 @@
 export class Operation {
     public static readonly MULTIPLICATION: Operation = new Operation('*');
     public static readonly DIVISION: Operation = new Operation('/');
+    public static readonly INTEGER_DIVISION: Operation = new Operation('//');
     public static readonly MOD: Operation = new Operation('%');
     public static readonly ADDITION: Operation = new Operation('+');
     public static readonly SUBTRACTION: Operation = new Operation('-');
@@ -34,6 +35,7 @@ export class Operation {
     private static readonly VALUE_OF: Map<string, Operation> = new Map([
         ['MULTIPLICATION', Operation.MULTIPLICATION],
         ['DIVISION', Operation.DIVISION],
+        ['INTEGER_DIVISON', Operation.INTEGER_DIVISION],
         ['MOD', Operation.MOD],
         ['ADDITION', Operation.ADDITION],
         ['SUBTRACTION', Operation.SUBTRACTION],
@@ -75,6 +77,7 @@ export class Operation {
     public static readonly ARITHMETIC_OPERATORS: Set<Operation> = new Set([
         Operation.MULTIPLICATION,
         Operation.DIVISION,
+        Operation.INTEGER_DIVISION,
         Operation.MOD,
         Operation.ADDITION,
         Operation.SUBTRACTION,
@@ -111,6 +114,7 @@ export class Operation {
         [Operation.OBJECT_OPERATOR, 1],
         [Operation.MULTIPLICATION, 2],
         [Operation.DIVISION, 2],
+        [Operation.INTEGER_DIVISION, 2],
         [Operation.MOD, 2],
         [Operation.ADDITION, 3],
         [Operation.SUBTRACTION, 3],

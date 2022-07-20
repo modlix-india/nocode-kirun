@@ -44,11 +44,14 @@ export class Event {
         return this;
     }
 
-    public static outputEventMapEntry(parameters: Map<string, Schema>): any[] {
+    public static outputEventMapEntry(parameters: Map<string, Schema>): [string, Event] {
         return Event.eventMapEntry(Event.OUTPUT, parameters);
     }
 
-    public static eventMapEntry(eventName: string, parameters: Map<string, Schema>): any[] {
+    public static eventMapEntry(
+        eventName: string,
+        parameters: Map<string, Schema>,
+    ): [string, Event] {
         return [eventName, new Event().setName(eventName).setParameters(parameters)];
     }
 }

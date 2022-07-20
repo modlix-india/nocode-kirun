@@ -1,10 +1,23 @@
+import { SchemaType } from '../../../json/schema/type/SchemaType';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { Repository } from '../../../Repository';
 import { Function } from '../../Function';
+import { Add } from './Add';
 import { GenericMathFunction } from './GenericMathFunction';
+import { Hypotenuse } from './Hypotenuse';
+import { Maximum } from './Maximum';
+import { Minimum } from './Minimum';
 
 const functionObjectsIndex: any = {
-    Absolute: new GenericMathFunction('Absolute', (v) => Math.abs(v)),
+    Absolute: new GenericMathFunction(
+        'Absolute',
+        (v) => Math.abs(v),
+        1,
+        SchemaType.INTEGER,
+        SchemaType.LONG,
+        SchemaType.FLOAT,
+        SchemaType.DOUBLE,
+    ),
     ACosine: new GenericMathFunction('ArcCosine', (v) => Math.acos(v)),
     ASine: new GenericMathFunction('ArcSine', (v) => Math.asin(v)),
     ATangent: new GenericMathFunction('ArcTangent', (v) => Math.atan(v)),
@@ -17,7 +30,13 @@ const functionObjectsIndex: any = {
     Floor: new GenericMathFunction('Floor', (v) => Math.floor(v)),
     Log: new GenericMathFunction('LogNatural', (v) => Math.log(v)),
     Log10: new GenericMathFunction('Log10', (v) => Math.log10(v)),
-    Round: new GenericMathFunction('Round', (v) => Math.round(v)),
+    Round: new GenericMathFunction(
+        'Round',
+        (v) => Math.round(v),
+        1,
+        SchemaType.INTEGER,
+        SchemaType.LONG,
+    ),
     Sine: new GenericMathFunction('Sine', (v) => Math.sin(v)),
     SineH: new GenericMathFunction('HyperbolicSine', (v) => Math.sinh(v)),
     Tangent: new GenericMathFunction('Tangent', (v) => Math.tan(v)),
@@ -25,8 +44,12 @@ const functionObjectsIndex: any = {
     ToDegrees: new GenericMathFunction('ToDegrees', (v) => v * (Math.PI / 180)),
     ToRadians: new GenericMathFunction('ToRadians', (v) => v * (180 / Math.PI)),
     SquareRoot: new GenericMathFunction('SquareRoot', (v) => Math.sqrt(v)),
-    ArcTangent: new GenericMathFunction('ArcTangent2', (v1, v2) => Math.atan2(v1, v2)),
-    Power: new GenericMathFunction('Power', (v1, v2) => Math.pow(v1, v2)),
+    ArcTangent: new GenericMathFunction('ArcTangent2', (v1, v2) => Math.atan2(v1, v2), 2),
+    Power: new GenericMathFunction('Power', (v1, v2) => Math.pow(v1, v2), 2),
+    Add: new Add(),
+    Hypotenuse: new Hypotenuse(),
+    Maximum: new Maximum(),
+    Minimum: new Minimum(),
 };
 
 export class MathFunctionRepository implements Repository<Function> {
