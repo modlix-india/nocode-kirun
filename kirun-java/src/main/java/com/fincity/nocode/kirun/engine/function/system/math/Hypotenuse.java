@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.math;
+package com.fincity.nocode.kirun.engine.function.system.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
@@ -17,12 +17,13 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
-public class Max extends AbstractFunction {
+public class Hypotenuse extends AbstractFunction {
 
 	private static final String VALUE = "value";
 
-	private static final FunctionSignature MAX_SIGNATURE = new FunctionSignature().setName("Max").setNamespace(MATH)
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Hypotenuse").setNamespace(MATH)
 			.setParameters(Map.of(VALUE,
 					new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))
 							.setVariableArgument(true)))
@@ -30,7 +31,7 @@ public class Max extends AbstractFunction {
 
 	@Override
 	public FunctionSignature getSignature() {
-		return MAX_SIGNATURE;
+		return SIGNATURE;
 	}
 
 	@Override
@@ -49,22 +50,15 @@ public class Max extends AbstractFunction {
 
 		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray().iterator();
 
-		JsonElement element = iterator.next();
-		double first = element.getAsDouble();
-
-		JsonElement otherOne;
+		double sumOfSqaures = 0;
 
 		while (iterator.hasNext()) {
-
-			otherOne = iterator.next();
-			if (first > otherOne.getAsDouble())
-				continue;
-			first = otherOne.getAsDouble();
-			element = otherOne;
-
+			double value = iterator.next().getAsDouble();
+			sumOfSqaures += value * value;
 		}
+
+		JsonPrimitive element = new JsonPrimitive(Math.sqrt(sumOfSqaures));
 
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, element))));
 	}
-
 }

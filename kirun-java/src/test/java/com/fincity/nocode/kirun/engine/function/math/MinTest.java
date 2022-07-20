@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.function.system.math.Minimum;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,7 +17,7 @@ class MinTest {
 	@Test
 	void test() {
 
-		var minFunction = new Min();
+		var minFunction = new Minimum();
 		var nums = new JsonArray();
 		nums.add(3);
 		nums.add(5);
@@ -31,7 +32,7 @@ class MinTest {
 	@Test
 	void test2() {
 
-		var minFunction = new Min();
+		var minFunction = new Minimum();
 		var nums = new JsonArray();
 		Object empty = null;
 
@@ -43,7 +44,7 @@ class MinTest {
 	@Test
 	void test3() {
 
-		var minFunction = new Min();
+		var minFunction = new Minimum();
 		var nums = new JsonArray();
 		nums.add(3);
 		nums.add(5);

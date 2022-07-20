@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.function.math.Abs;
+import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
@@ -13,10 +13,10 @@ class KIRunFunctionRepositoryTest {
 	@Test
 	void test() {
 
-		FunctionSignature abs = new Abs().getSignature();
+		FunctionSignature abs = new MathFunctionRepository().find(Namespaces.MATH, "Absolute").getSignature();
 
 		FunctionSignature signature = new KIRunFunctionRepository().find(abs.getNamespace(), abs.getName())
-		        .getSignature();
+				.getSignature();
 
 		assertEquals(Namespaces.MATH, signature.getNamespace());
 
