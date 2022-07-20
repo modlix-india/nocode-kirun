@@ -35,7 +35,6 @@ public class MathFunctionRepository implements Repository<Function> {
 			AbstractUnaryMathFunction.ofEntryDouble("ToDegrees", Math::toDegrees),
 			AbstractUnaryMathFunction.ofEntryDouble("ToRadians", Math::toRadians),
 			AbstractUnaryMathFunction.ofEntryDouble("SquareRoot", Math::sqrt),
-			AbstractBinaryMathFunction.ofEntryDouble("Hypotenuse", Math::hypot),
 			AbstractBinaryMathFunction.ofEntryDouble("ArcTangent2", Math::atan2),
 			AbstractBinaryMathFunction.ofEntryDouble("Power", Math::pow));
 
