@@ -2,7 +2,7 @@ package com.fincity.nocode.kirun.engine.repository;
 
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.function.Function;
-import com.fincity.nocode.kirun.engine.function.system.MathFunctionRepository;
+import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 
 public class KIRunFunctionRepository extends HybridRepository<Function> {
 

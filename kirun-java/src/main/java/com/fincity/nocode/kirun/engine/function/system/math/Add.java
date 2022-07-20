@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.system;
+package com.fincity.nocode.kirun.engine.function.system.math;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 

@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.system;
+package com.fincity.nocode.kirun.engine.function.system.string;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 

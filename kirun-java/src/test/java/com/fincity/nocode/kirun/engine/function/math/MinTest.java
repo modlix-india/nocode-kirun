@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.function.system.Minimum;
+import com.fincity.nocode.kirun.engine.function.system.math.Minimum;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
