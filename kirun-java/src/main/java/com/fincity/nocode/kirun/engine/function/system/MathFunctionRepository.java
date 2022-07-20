@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function.system.math;
+package com.fincity.nocode.kirun.engine.function.system;
 
 import java.util.Map;
 

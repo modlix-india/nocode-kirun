@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
+import com.fincity.nocode.kirun.engine.function.system.MathFunctionRepository;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
