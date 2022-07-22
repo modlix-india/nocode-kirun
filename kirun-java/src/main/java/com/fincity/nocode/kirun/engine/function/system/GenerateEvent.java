@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -16,6 +17,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -34,7 +36,8 @@ public class GenerateEvent extends AbstractFunction {
 	        .setNamespace(SYSTEM)
 	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME)),
 	                Parameter.ofEntry(RESULTS, Schema.ofObject(RESULTS)
-	                        .setProperties(Map.of("name", Schema.ofString("name"), VALUE, Schema.ofAny(VALUE))), true)))
+	                        .setProperties(Map.of("name", Schema.ofString("name"), VALUE, Parameter.EXPRESSION)),
+	                        true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
@@ -56,8 +59,25 @@ public class GenerateEvent extends AbstractFunction {
 		        .getAsJsonArray()
 		        .spliterator(), false)
 		        .map(JsonObject.class::cast)
-		        .map(e -> Tuples.of(e.get("name")
-		                .getAsString(), e.get(VALUE)))
+		        .map(e ->
+				{
+
+			        JsonElement je = e.get(VALUE);
+
+			        if (!je.isJsonObject())
+				        throw new KIRuntimeException("Expect a value object");
+
+			        JsonObject jo = je.getAsJsonObject();
+
+			        JsonElement v = jo.get(VALUE);
+
+			        if (jo.get("isExpression")
+			                .getAsBoolean())
+				        v = (new ExpressionEvaluator(v.getAsString()).evaluate(context));
+
+			        return Tuples.of(e.get("name")
+			                .getAsString(), v);
+		        })
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 
 		events.computeIfAbsent(eventName, k -> new ArrayList<>())

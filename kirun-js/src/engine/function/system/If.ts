@@ -34,7 +34,7 @@ export class If extends AbstractFunction {
         var condition = context.getArguments().get(If.CONDITION);
 
         return new FunctionOutput([
-            EventResult.of(condition.getAsBoolean() ? Event.TRUE : Event.FALSE, new Map()),
+            EventResult.of(condition ? Event.TRUE : Event.FALSE, new Map()),
             EventResult.outputOf(new Map()),
         ]);
     }

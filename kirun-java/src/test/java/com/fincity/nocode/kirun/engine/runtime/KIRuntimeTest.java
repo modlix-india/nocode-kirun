@@ -15,7 +15,6 @@ import com.fincity.nocode.kirun.engine.function.system.context.Create;
 import com.fincity.nocode.kirun.engine.function.system.context.Set;
 import com.fincity.nocode.kirun.engine.function.system.loop.RangeLoop;
 import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
-import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -75,7 +74,10 @@ class KIRuntimeTest {
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
-		resultObj.add("value", new JsonExpression("Context.a"));
+		var expression = new JsonObject();
+		expression.addProperty("isExpression", true);
+		expression.addProperty("value", "Context.a" );
+		resultObj.add("value", expression);
 
 		var generate = new GenerateEvent().getSignature();
 		var outputGenerate = new Statement("outputStep").setNamespace(generate.getNamespace())
@@ -121,23 +123,19 @@ class KIRuntimeTest {
 		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", array))), out);
 
-//		StepVerifier
-//		        .create()
-//		        .expectNext(new EventResult().setName("output")
-//		                .setResult(Map.of("result", array)))
-//		        .verifyComplete();
 	}
 
 	@Test
 	void testSingleFunctionCall() {
 
-		var Absolute = new MathFunctionRepository().find(Namespaces.MATH, "Absolute");
-
 		var genEvent = new GenerateEvent().getSignature();
-
+		
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
-		resultObj.add("value", new JsonExpression("Steps.first.output.value"));
+		var expression = new JsonObject();
+		expression.addProperty("isExpression", true);
+		expression.addProperty("value", "Steps.first.output.value" );
+		resultObj.add("value", expression);
 
 		List<EventResult> out = new KIRuntime(
 				((FunctionDefinition) new FunctionDefinition().setNamespace("Test").setName("SingleCall")
@@ -159,11 +157,6 @@ class KIRuntimeTest {
 				.execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(-10))))
 				.allResults();
 
-//		StepVerifier.create(out)
-//		        .expectNext(new EventResult().setName("output")
-//		                .setResult(Map.of("result", new JsonPrimitive(10))))
-//		        .verifyComplete();
-
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", new JsonPrimitive(10)))),
 				out);
 	}
@@ -177,7 +170,10 @@ class KIRuntimeTest {
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
-		resultObj.add("value", new JsonExpression("Steps.first.output.value"));
+		var expression = new JsonObject();
+		expression.addProperty("isExpression", true);
+		expression.addProperty("value", "Steps.first.output.value" );
+		resultObj.add("value", expression);
 
 		List<EventResult> out = new KIRuntime(
 				((FunctionDefinition) new FunctionDefinition().setNamespace("Test").setName("SingleCall")
@@ -251,7 +247,10 @@ class KIRuntimeTest {
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
-		resultObj.add("value", new JsonExpression("Steps.fib.output.value"));
+		var expression = new JsonObject();
+		expression.addProperty("isExpression", true);
+		expression.addProperty("value", "Steps.fib.output.value" );
+		resultObj.add("value", expression);
 
 		var hybrid = new HybridRepository<>(new KIRunFunctionRepository(), (r, k) -> fibFunction);
 

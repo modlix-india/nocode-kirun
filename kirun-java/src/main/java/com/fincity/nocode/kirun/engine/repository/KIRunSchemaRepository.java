@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 public class KIRunSchemaRepository implements Repository<Schema> {
@@ -33,6 +34,7 @@ public class KIRunSchemaRepository implements Repository<Schema> {
 		map.put(NUMBER.getName(), NUMBER);
 		map.put(Schema.SCHEMA.getName(), Schema.SCHEMA);
 		map.put(STRING.getName(), STRING);
+		map.put(Parameter.EXPRESSION.getName(), Parameter.EXPRESSION);
 	}
 
 	@Override

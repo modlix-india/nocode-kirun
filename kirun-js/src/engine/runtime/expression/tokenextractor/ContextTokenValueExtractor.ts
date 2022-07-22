@@ -23,7 +23,12 @@ export class ContextTokenValueExtractor extends TokenValueExtractor {
             fromIndex = 1;
         }
 
-        return this.retrieveElementFrom(token, parts, fromIndex, this.context.get(key));
+        return this.retrieveElementFrom(
+            token,
+            parts,
+            fromIndex,
+            this.context.get(key)?.getElement(),
+        );
     }
 
     public getPrefix(): string {

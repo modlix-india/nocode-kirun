@@ -1,4 +1,5 @@
 import { KIRuntimeException } from '../../../exception/KIRuntimeException';
+import { isNullValue } from '../../../util/NullCheck';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
@@ -24,7 +25,7 @@ export abstract class TokenValueExtractor {
         partNumber: number,
         jsonElement: any,
     ): any {
-        if (!jsonElement) return undefined;
+        if (isNullValue(jsonElement)) return undefined;
 
         if (parts.length == partNumber) return jsonElement;
 
@@ -49,13 +50,16 @@ export abstract class TokenValueExtractor {
         a: any,
         i: any,
     ): any {
-        if (!a) return undefined;
+        if (isNullValue(a)) return undefined;
 
-        if (i == 0) {
+        if (i === 0) {
             if (Array.isArray(a)) {
-                if (c == 'length') return a.length;
+                if (c === 'length') return a.length;
                 try {
                     let index: number = parseInt(c);
+                    if (isNaN(index)) {
+                        throw new Error(StringFormatter.format('$ is not a number', index));
+                    }
                     if (index >= a.length) return undefined;
 
                     return a[index];
@@ -83,7 +87,9 @@ export abstract class TokenValueExtractor {
 
         try {
             let index: number = parseInt(c);
-
+            if (isNaN(index)) {
+                throw new Error(StringFormatter.format('$ is not a number', index));
+            }
             if (!Array.isArray(a))
                 throw new ExpressionEvaluationException(
                     token,

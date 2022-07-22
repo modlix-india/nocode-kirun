@@ -204,7 +204,7 @@ export class ExpressionEvaluator {
         let objToken: ExpressionToken = objTokens.pop();
         let sb: StringBuilder = new StringBuilder(
             objToken instanceof ExpressionTokenValue
-                ? (objToken as ExpressionTokenValue).getTokenValue().getAsString()
+                ? (objToken as ExpressionTokenValue).getTokenValue()
                 : objToken.toString(),
         );
 
@@ -213,7 +213,7 @@ export class ExpressionEvaluator {
             operator = objOperations.pop();
             sb.append(operator.getOperator()).append(
                 objToken instanceof ExpressionTokenValue
-                    ? (objToken as ExpressionTokenValue).getTokenValue().getAsString()
+                    ? (objToken as ExpressionTokenValue).getTokenValue()
                     : objToken.toString(),
             );
             if (operator == Operation.ARRAY_OPERATOR) sb.append(']');

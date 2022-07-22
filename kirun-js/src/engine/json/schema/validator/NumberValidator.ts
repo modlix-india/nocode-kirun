@@ -45,7 +45,10 @@ export class NumberValidator {
             );
         }
 
-        if (!n || ((type == SchemaType.LONG || type == SchemaType.INTEGER) && n != element)) {
+        if (
+            isNullValue(n) ||
+            ((type == SchemaType.LONG || type == SchemaType.INTEGER) && n != element)
+        ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' is not a number of type ' + type,

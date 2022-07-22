@@ -26,6 +26,8 @@ import { GraphVertex } from './graph/GraphVertex';
 import { StatementExecution } from './StatementExecution';
 import { StatementMessageType } from './StatementMessageType';
 import { isNullValue } from '../util/NullCheck';
+import { SchemaType } from '../json/schema/type/SchemaType';
+import { ArraySchemaType } from '../json/schema/array/ArraySchemaType';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -155,7 +157,7 @@ export class KIRuntime extends AbstractFunction {
                 throw new KIRuntimeException('Execution locked in an infinite loop');
         }
 
-        if (!eGraph.isSubGraph() && inContext.getEvents()?.size) {
+        if (!eGraph.isSubGraph() && !inContext.getEvents()?.size) {
             throw new KIRuntimeException('No events raised');
         }
 
@@ -230,7 +232,7 @@ export class KIRuntime extends AbstractFunction {
             this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
 
-            if (!nextOutput) {
+            if (nextOutput) {
                 if (!inContext.getOutput().has(vertex.getData().getStatement().getStatementName()))
                     inContext
                         .getOutput()
@@ -244,7 +246,7 @@ export class KIRuntime extends AbstractFunction {
                         this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
             }
-        } while (nextOutput?.getName() != Event.OUTPUT);
+        } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
             vertex
@@ -417,7 +419,7 @@ export class KIRuntime extends AbstractFunction {
 
                 return new Tuple2(e[0], ret);
             })
-            .filter((e) => !!e.getT2())
+            .filter((e) => !isNullValue(e.getT2()))
             .reduce((a, c) => {
                 a.set(c.getT1(), c.getT2());
                 return a;
@@ -479,6 +481,11 @@ export class KIRuntime extends AbstractFunction {
             paramSet.delete(p.getParameterName());
         }
 
+        if (!isNullValue(se.getStatement().getDependentStatements())) {
+            for (let statement of se.getStatement().getDependentStatements())
+                se.addDependency(statement);
+        }
+
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
                 if (isNullValue(SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo)))
@@ -518,19 +525,56 @@ export class KIRuntime extends AbstractFunction {
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
                 );
-            let paramElements: LinkedList<any> = new LinkedList();
-            paramElements.push(ref.getValue());
+            let paramElements: LinkedList<Tuple2<Schema, any>> = new LinkedList();
+            paramElements.push(new Tuple2(p.getSchema(), ref.getValue()));
 
             while (!paramElements.isEmpty()) {
-                let e: any = paramElements.pop();
+                let e: Tuple2<Schema, any> = paramElements.pop();
 
-                if (e instanceof JsonExpression) {
-                    this.addDependencies(se, (e as JsonExpression).getExpression());
-                } else if (Array.isArray(e)) {
-                    for (let je of e) paramElements.push(je);
-                } else if (typeof e == 'object') {
-                    for (let entry of Object.entries(e)) {
-                        paramElements.push(entry);
+                if (e.getT2() instanceof JsonExpression) {
+                    this.addDependencies(se, (e.getT2() as JsonExpression).getExpression());
+                } else {
+                    if (isNullValue(e.getT1()) || isNullValue(e.getT1().getType())) continue;
+
+                    if (
+                        e.getT1().getType().contains(SchemaType.ARRAY) &&
+                        Array.isArray(e.getT2())
+                    ) {
+                        let ast: ArraySchemaType = e.getT1().getItems();
+                        if (ast == null) {
+                            continue;
+                        }
+                        if (ast.isSingleType()) {
+                            for (let je of e.getT2())
+                                paramElements.push(new Tuple2(ast.getSingleSchema(), je));
+                        } else {
+                            let array: any[] = e.getT2() as any[];
+                            for (let i = 0; i < array.length; i++) {
+                                paramElements.push(new Tuple2(ast.getTupleSchema()[i], array[i]));
+                            }
+                        }
+                    } else if (
+                        e.getT1().getType().contains(SchemaType.OBJECT) &&
+                        typeof e.getT2() == 'object'
+                    ) {
+                        let sch: Schema = e.getT1();
+
+                        if (
+                            sch.getName() === Parameter.EXPRESSION.getName() &&
+                            sch.getNamespace() === Parameter.EXPRESSION.getNamespace()
+                        ) {
+                            let obj = e.getT2();
+                            let isExpression: boolean = obj['isExpression'];
+                            if (isExpression) {
+                                this.addDependencies(se, obj['value']);
+                            }
+                        } else {
+                            for (let entry of Object.entries(e.getT2())) {
+                                paramElements.push(
+                                    new Tuple2(sch.getProperties().get(entry[0]), entry[1]),
+                                );
+                            }
+                        }
                     }
                 }
             }
@@ -562,11 +606,6 @@ export class KIRuntime extends AbstractFunction {
         Array.from(expression.match(KIRuntime.STEP_REGEX_PATTERN) ?? []).forEach((e) =>
             se.addDependency(e),
         );
-
-        if (!se.getStatement().getDependentStatements()) return;
-
-        for (let statement of se.getStatement().getDependentStatements())
-            se.addDependency(statement);
     }
 
     public makeEdges(graph: ExecutionGraph<string, StatementExecution>): Tuple2<string, string>[] {

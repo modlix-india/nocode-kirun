@@ -24,4 +24,8 @@ public class ArraySchemaType implements Serializable {
 
 		return new ArraySchemaType().setTupleSchema(List.of(schemas));
 	}
+
+	public boolean isSingleType() {
+		return singleSchema != null;
+	}
 }

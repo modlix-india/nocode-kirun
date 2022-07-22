@@ -29,11 +29,16 @@ export class LiteralTokenValueExtractor extends TokenValueExtractor {
     private processNumbers(token: string): any {
         try {
             let ind: number = token.indexOf('.');
+            let v: number;
             if (ind == -1) {
-                return parseInt(token);
+                v = parseInt(token);
             } else {
-                return parseFloat(token);
+                v = parseFloat(token);
             }
+
+            if (isNaN(v)) throw new Error('Parse number error');
+
+            return v;
         } catch (err) {
             throw new ExpressionEvaluationException(
                 token,

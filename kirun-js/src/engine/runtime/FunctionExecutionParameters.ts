@@ -7,7 +7,7 @@ export class FunctionExecutionParameters {
     private events: Map<string, Map<string, any>[]>;
     private statementExecution: StatementExecution;
     private output: Map<string, Map<string, Map<string, any>>>;
-    private count: number;
+    private count: number = 0;
     public getContext(): Map<string, ContextElement> {
         return this.context;
     }

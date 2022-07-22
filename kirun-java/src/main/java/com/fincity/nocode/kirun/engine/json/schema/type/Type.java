@@ -30,7 +30,8 @@ public abstract class Type implements Serializable {
 			return st.getType() == type;
 		}
 
-		return ((MultipleType) this).contains(type);
+		return ((MultipleType) this).getAllowedSchemaTypes()
+		        .contains(type);
 	}
 
 	public static class SchemaTypeAdapter extends TypeAdapter<Type> {

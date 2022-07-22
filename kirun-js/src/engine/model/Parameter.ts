@@ -1,10 +1,14 @@
 import { Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
+import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
 import { ParameterType } from './ParameterType';
 
+const VALUE: string = 'value';
+
 export class Parameter {
     private static readonly SCHEMA_NAME: string = 'Parameter';
+
     public static readonly SCHEMA: Schema = new Schema()
         .setNamespace(Namespaces.SYSTEM)
         .setName(Parameter.SCHEMA_NAME)
@@ -18,6 +22,18 @@ export class Parameter {
                 ],
             ]),
         );
+
+    public static readonly EXPRESSION: Schema = new Schema()
+        .setNamespace(Namespaces.SYSTEM)
+        .setName('ParameterExpression')
+        .setType(TypeUtil.of(SchemaType.OBJECT))
+        .setProperties(
+            new Map([
+                ['isExpression', Schema.ofBoolean('isExpression').setDefaultValue(true)],
+                [VALUE, Schema.ofAny(VALUE)],
+            ]),
+        );
+
     private schema: Schema; // NOSONAR - this is really getting on my nerves,I have a use case for same
 
     private parameterName: string;

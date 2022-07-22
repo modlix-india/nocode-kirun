@@ -30,8 +30,8 @@ export class SchemaValidator {
         }
         parents.push(schema);
 
-        if (isNullValue(element) && isNullValue(schema.getDefaultValue())) {
-            return schema.getDefaultValue();
+        if (isNullValue(element) && !isNullValue(schema.getDefaultValue())) {
+            return JSON.parse(JSON.stringify(schema.getDefaultValue()));
         }
 
         if (schema.getConstant()) {

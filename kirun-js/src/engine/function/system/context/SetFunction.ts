@@ -230,10 +230,7 @@ export class SetFunction extends AbstractFunction {
                 }
 
                 let index = prim.getT2() as number;
-                if (index >= el.length)
-                    throw new KIRuntimeException(
-                        StringFormatter.format('Index out of bound while accessing $', key),
-                    );
+                while (index >= el.length) el.push(undefined);
                 el[index] = value;
             } else {
                 let mem: string = je;

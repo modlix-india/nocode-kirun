@@ -75,7 +75,7 @@ export class GenericMathFunction extends AbstractFunction {
             v2 = PrimitiveUtil.findPrimitiveNumberType(context.getArguments().get(VALUE2)).getT2();
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[VALUE, this.mathFunction.apply(v1, v2)]])),
+            EventResult.outputOf(new Map([[VALUE, this.mathFunction.call(this, v1, v2)]])),
         ]);
     }
 }

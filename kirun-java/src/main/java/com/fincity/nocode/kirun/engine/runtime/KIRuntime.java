@@ -24,6 +24,8 @@ import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
+import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
@@ -348,16 +350,16 @@ public class KIRuntime extends AbstractFunction {
 		return vertex.getInVertices()
 		        .stream()
 		        .filter(e ->
-			        {
-				        String stepName = e.getT1()
-				                .getData()
-				                .getStatement()
-				                .getStatementName();
-				        String type = e.getT2();
+				{
+			        String stepName = e.getT1()
+			                .getData()
+			                .getStatement()
+			                .getStatementName();
+			        String type = e.getT2();
 
-				        return !(output.containsKey(stepName) && output.get(stepName)
-				                .containsKey(type));
-			        })
+			        return !(output.containsKey(stepName) && output.get(stepName)
+			                .containsKey(type));
+		        })
 		        .count() == 0;
 	}
 
@@ -368,33 +370,33 @@ public class KIRuntime extends AbstractFunction {
 		        .entrySet()
 		        .stream()
 		        .map(e ->
-			        {
-				        List<ParameterReference> prList = e.getValue();
+				{
+			        List<ParameterReference> prList = e.getValue();
 
-				        JsonElement ret = null;
+			        JsonElement ret = null;
 
-				        if (prList == null || prList.isEmpty())
-					        return Tuples.of(e.getKey(), ret);
-
-				        Parameter pDef = paramSet.get(e.getKey());
-
-				        if (pDef.isVariableArgument()) {
-
-					        ret = new JsonArray();
-
-					        prList.stream()
-					                .map(r -> this.parameterReferenceEvaluation(inContext, r))
-					                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
-					                        .spliterator(), false) : Stream.of(r))
-					                .forEachOrdered(((JsonArray) ret)::add);
-
-				        } else {
-
-					        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
-				        }
-
+			        if (prList == null || prList.isEmpty())
 				        return Tuples.of(e.getKey(), ret);
-			        })
+
+			        Parameter pDef = paramSet.get(e.getKey());
+
+			        if (pDef.isVariableArgument()) {
+
+				        ret = new JsonArray();
+
+				        prList.stream()
+				                .map(r -> this.parameterReferenceEvaluation(inContext, r))
+				                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
+				                        .spliterator(), false) : Stream.of(r))
+				                .forEachOrdered(((JsonArray) ret)::add);
+
+			        } else {
+
+				        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
+			        }
+
+			        return Tuples.of(e.getKey(), ret);
+		        })
 		        .filter(e -> !(e.getT2() == null || e.getT2()
 		                .isJsonNull()))
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
@@ -454,6 +456,11 @@ public class KIRuntime extends AbstractFunction {
 			paramSet.remove(p.getParameterName());
 		}
 
+		if (se.getStatement()
+		        .getDependentStatements() != null)
+			for (String statement : s.getDependentStatements())
+				se.addDependency(statement);
+
 		if (!paramSet.isEmpty()) {
 			for (Parameter param : paramSet.values()) {
 				if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
@@ -477,21 +484,71 @@ public class KIRuntime extends AbstractFunction {
 			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-			LinkedList<JsonElement> paramElements = new LinkedList<>();
-			paramElements.push(ref.getValue());
+			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
+			paramElements.push(Tuples.of(p.getSchema(), ref.getValue()));
 
 			while (!paramElements.isEmpty()) {
-				JsonElement e = paramElements.pop();
+				Tuple2<Schema, JsonElement> e = paramElements.pop();
 
-				if (e instanceof JsonExpression jexp) {
+				if (e.getT2() instanceof JsonExpression jexp) {
 					this.addDependencies(se, jexp.getExpression());
-				} else if (e.isJsonArray()) {
-					for (JsonElement je : e.getAsJsonArray())
-						paramElements.push(je);
-				} else if (e.isJsonObject()) {
-					for (Entry<String, JsonElement> entry : e.getAsJsonObject()
-					        .entrySet()) {
-						paramElements.push(entry.getValue());
+				} else {
+
+					if (e.getT1() == null || e.getT1()
+					        .getType() == null)
+						continue;
+
+					if (e.getT1()
+					        .getType()
+					        .contains(SchemaType.ARRAY)
+					        && e.getT2()
+					                .isJsonArray()) {
+						ArraySchemaType ast = e.getT1()
+						        .getItems();
+						if (ast == null) {
+							continue;
+						}
+						if (ast.isSingleType()) {
+							for (JsonElement je : e.getT2()
+							        .getAsJsonArray())
+								paramElements.push(Tuples.of(ast.getSingleSchema(), je));
+						} else {
+							JsonArray array = e.getT2()
+							        .getAsJsonArray();
+							for (int i = 0; i < array.size(); i++) {
+								paramElements.push(Tuples.of(ast.getTupleSchema()
+								        .get(i), array.get(i)));
+							}
+						}
+					} else if (e.getT1()
+					        .getType()
+					        .contains(SchemaType.OBJECT)
+					        && e.getT2()
+					                .isJsonObject()) {
+
+						Schema sch = e.getT1();
+
+						if (sch.getName()
+						        .equals(Parameter.EXPRESSION.getName())
+						        && sch.getNamespace()
+						                .equals(Parameter.EXPRESSION.getNamespace())) {
+							JsonObject obj = e.getT2()
+							        .getAsJsonObject();
+							boolean isExpression = obj.get("isExpression")
+							        .getAsBoolean();
+							if (isExpression) {
+								this.addDependencies(se, obj.get("value")
+								        .getAsString());
+							}
+						} else {
+
+							for (Entry<String, JsonElement> entry : e.getT2()
+							        .getAsJsonObject()
+							        .entrySet()) {
+								paramElements.push(Tuples.of(sch.getProperties()
+								        .get(entry.getKey()), entry.getValue()));
+							}
+						}
 					}
 				}
 			}
@@ -524,14 +581,6 @@ public class KIRuntime extends AbstractFunction {
 				continue;
 			se.addDependency(m.group(0));
 		}
-
-		if (se.getStatement()
-		        .getDependentStatements() == null)
-			return;
-
-		for (String statement : se.getStatement()
-		        .getDependentStatements())
-			se.addDependency(statement);
 	}
 
 	public List<Tuple2<String, String>> makeEdges(ExecutionGraph<String, StatementExecution> graph) {
@@ -545,21 +594,21 @@ public class KIRuntime extends AbstractFunction {
 		                .getDepenedencies()
 		                .stream()
 		                .map(d ->
-			                {
-				                int secondDot = d.indexOf('.', 6);
-				                String step = d.substring(6, secondDot);
-				                int eventDot = d.indexOf('.', secondDot + 1);
-				                String event = eventDot == -1 ? d.substring(secondDot + 1)
-				                        : d.substring(secondDot + 1, eventDot);
+						{
+			                int secondDot = d.indexOf('.', 6);
+			                String step = d.substring(6, secondDot);
+			                int eventDot = d.indexOf('.', secondDot + 1);
+			                String event = eventDot == -1 ? d.substring(secondDot + 1)
+			                        : d.substring(secondDot + 1, eventDot);
 
-				                if (!graph.getNodeMap()
-				                        .containsKey(step))
-					                return Tuples.of(step, event);
+			                if (!graph.getNodeMap()
+			                        .containsKey(step))
+				                return Tuples.of(step, event);
 
-				                e.addInEdgeTo(graph.getNodeMap()
-				                        .get(step), event);
-				                return null;
-			                })
+			                e.addInEdgeTo(graph.getNodeMap()
+			                        .get(step), event);
+			                return null;
+		                })
 		                .filter(Objects::nonNull))
 		        .toList();
 

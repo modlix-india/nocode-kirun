@@ -1,3 +1,4 @@
+import { KIRuntimeException } from '../../exception/KIRuntimeException';
 import { Schema } from '../../json/schema/Schema';
 import { Event } from '../../model/Event';
 import { EventResult } from '../../model/EventResult';
@@ -5,7 +6,10 @@ import { FunctionOutput } from '../../model/FunctionOutput';
 import { FunctionSignature } from '../../model/FunctionSignature';
 import { Parameter } from '../../model/Parameter';
 import { Namespaces } from '../../namespaces/Namespaces';
+import { ExpressionEvaluator } from '../../runtime/expression/ExpressionEvaluator';
 import { FunctionExecutionParameters } from '../../runtime/FunctionExecutionParameters';
+import { KIRuntime } from '../../runtime/KIRuntime';
+import { isNullValue } from '../../util/NullCheck';
 import { AbstractFunction } from '../AbstractFunction';
 
 const VALUE = 'value';
@@ -23,7 +27,7 @@ const SIGNATURE: FunctionSignature = new FunctionSignature()
                 Schema.ofObject(RESULTS).setProperties(
                     new Map([
                         ['name', Schema.ofString('name')],
-                        [VALUE, Schema.ofAny(VALUE)],
+                        [VALUE, Parameter.EXPRESSION],
                     ]),
                 ),
                 true,
@@ -50,7 +54,15 @@ export class GenerateEvent extends AbstractFunction {
         const map: Map<string, any> = context
             .getArguments()
             .get(RESULTS)
-            .map((e: ResultType) => [e.name, e[VALUE]])
+            .map((e: ResultType) => {
+                let je: any = e[VALUE];
+
+                if (isNullValue(je)) throw new KIRuntimeException('Expect a value object');
+
+                let v: any = je.value;
+                if (je.isExpression) v = new ExpressionEvaluator(v).evaluate(context);
+                return [e.name, v];
+            })
             .reduce((a: Map<string, any>, c: [string, any]) => {
                 a.set(c[0], c[1]);
                 return a;

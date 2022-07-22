@@ -142,12 +142,12 @@ export class LinkedList<T> {
         const v: T = this.tail.value;
         if (this.length == 0) {
             this.head = this.tail = undefined;
+        } else {
+            const n: Node<T> = this.tail.previous;
+            n.next = undefined;
+            this.tail.previous = undefined;
+            this.tail = n;
         }
-
-        const n: Node<T> = this.tail.previous;
-        n.next = undefined;
-        this.tail.previous = undefined;
-        this.tail = n;
 
         return v;
     }
@@ -210,5 +210,9 @@ class Node<T> {
         this.value = t;
         this.next = next;
         this.previous = previous;
+    }
+
+    public toString(): string {
+        return '' + this.value;
     }
 }

@@ -1,5 +1,6 @@
 import { ExecutionException } from '../../exception/ExecutionException';
 import { SchemaType } from '../../json/schema/type/SchemaType';
+import { isNullValue } from '../NullCheck';
 import { StringFormatter } from '../string/StringFormatter';
 import { Tuple2 } from '../Tuples';
 
@@ -23,7 +24,7 @@ export class PrimitiveUtil {
     }
 
     public static findPrimitive(element: any): Tuple2<SchemaType, any> {
-        if (!element) return new Tuple2(SchemaType.NULL, undefined);
+        if (isNullValue(element)) return new Tuple2(SchemaType.NULL, undefined);
 
         let typof: string = typeof element;
 
@@ -42,7 +43,7 @@ export class PrimitiveUtil {
     }
 
     public static findPrimitiveNumberType(element: any): Tuple2<SchemaType, any> {
-        if (!element || Array.isArray(element) || typeof element == 'object')
+        if (isNullValue(element) || Array.isArray(element) || typeof element == 'object')
             throw new ExecutionException(
                 StringFormatter.format('Unable to convert $ to a number.', element),
             );

@@ -21,7 +21,7 @@ export class FunctionOutput {
     }
 
     public next(): EventResult {
-        if (this.fo) {
+        if (!this.generator) {
             if (this.index < this.fo.length) return this.fo[this.index++];
             return undefined;
         }

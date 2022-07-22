@@ -1,3 +1,4 @@
+import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 
 export class ArraySchemaType {
@@ -5,7 +6,7 @@ export class ArraySchemaType {
     private tupleSchema: Schema[];
 
     public setSingleSchema(schema: Schema): ArraySchemaType {
-        this.singleSchema = this.singleSchema;
+        this.singleSchema = schema;
         return this;
     }
 
@@ -20,6 +21,10 @@ export class ArraySchemaType {
 
     public getTupleSchema(): Schema[] {
         return this.tupleSchema;
+    }
+
+    public isSingleType(): boolean {
+        return !isNullValue(this.singleSchema);
     }
 
     public static of(...schemas: Schema[]): ArraySchemaType {

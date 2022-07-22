@@ -100,10 +100,14 @@ export class RangeLoop extends AbstractFunction {
 
         const forward = step > 0;
         let current: number = from;
+        let done: boolean = false;
 
         return new FunctionOutput({
             next(): EventResult {
+                if (done) return undefined;
+
                 if ((forward && current >= to) || (!forward && current <= to)) {
+                    done = true;
                     return EventResult.outputOf(new Map([[VALUE, current]]));
                 }
 

@@ -1,4 +1,5 @@
 import { Schema } from '../json/schema/Schema';
+import { Parameter } from '../model/Parameter';
 import { Namespaces } from '../namespaces/Namespaces';
 import { Repository } from '../Repository';
 
@@ -11,6 +12,7 @@ const map: Map<string, Schema> = new Map([
     ['long', Schema.ofLong('long').setNamespace(Namespaces.SYSTEM)],
     ['number', Schema.ofNumber('number').setNamespace(Namespaces.SYSTEM)],
     ['string', Schema.ofString('string').setNamespace(Namespaces.SYSTEM)],
+    [Parameter.EXPRESSION.getName(), Parameter.EXPRESSION],
 ]);
 
 export class KIRunSchemaRepository implements Repository<Schema> {
