@@ -84,4 +84,17 @@ export class Parameter {
                 .setVariableArgument(variableArgument),
         ];
     }
+
+    public static of(
+        name: string,
+        schema: Schema,
+        variableArgument: boolean = false,
+        type: ParameterType = ParameterType.EXPRESSION,
+    ): Parameter {
+        return new Parameter()
+            .setParameterName(name)
+            .setSchema(schema)
+            .setType(type)
+            .setVariableArgument(variableArgument);
+    }
 }
