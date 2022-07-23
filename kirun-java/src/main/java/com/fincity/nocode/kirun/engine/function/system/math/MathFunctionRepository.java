@@ -8,7 +8,7 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 public class MathFunctionRepository implements Repository<Function> {
 
-	private static final Map<String, Function> repoMap = Map.ofEntries(
+	private static final Map<String, Function> REPO_MAP = Map.ofEntries(
 			AbstractUnaryMathFunction.ofEntryAnyType("Absolute",
 					Map.of(Integer.class, n -> Math.abs(n.intValue()), Float.class, n -> Math.abs(n.floatValue()),
 							Double.class, n -> Math.abs(n.doubleValue()), Long.class, n -> Math.abs(n.longValue()))),
@@ -42,6 +42,6 @@ public class MathFunctionRepository implements Repository<Function> {
 	public Function find(String namespace, String name) {
 		if (!namespace.equals(Namespaces.MATH))
 			return null;
-		return repoMap.get(name);
+		return REPO_MAP.get(name);
 	}
 }

@@ -14,7 +14,6 @@ import { ParameterReference } from '../../../src/engine/model/ParameterReference
 import { Schema } from '../../../src/engine/json/schema/Schema';
 import { KIRunFunctionRepository } from '../../../src/engine/repository/KIRunFunctionRepository';
 import { KIRunSchemaRepository } from '../../../src/engine/repository/KIRunSchemaRepository';
-import { JsonExpression } from '../../../src/engine/json/JsonExpression';
 import { Namespaces } from '../../../src/engine/namespaces/Namespaces';
 import { FunctionSignature } from '../../../src/engine/model/FunctionSignature';
 import { AbstractFunction } from '../../../src/engine/function/AbstractFunction';
