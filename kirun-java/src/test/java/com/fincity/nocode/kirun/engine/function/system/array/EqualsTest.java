@@ -82,7 +82,7 @@ class EqualsTest {
 
 		fo = equals.execute(fep);
 
-		assertEquals(new JsonPrimitive(false), fo.allResults()
+		assertEquals(new JsonPrimitive(true), fo.allResults()
 		        .get(0)
 		        .getResult()
 		        .get(Equals.EVENT_RESULT_NAME));
