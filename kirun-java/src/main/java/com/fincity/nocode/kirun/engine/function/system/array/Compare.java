@@ -94,7 +94,8 @@ public class Compare extends AbstractArrayFunction {
 
 				if (s == f)
 					x = 0;
-
+				else if (s)
+					x = -1;
 			} else if (source[i].isJsonPrimitive() && find[j].isJsonPrimitive()) {
 
 				JsonPrimitive s = source[i].getAsJsonPrimitive();
