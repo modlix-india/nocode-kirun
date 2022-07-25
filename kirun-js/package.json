@@ -6,6 +6,7 @@
     "scripts": {
         "build": "webpack --config webpack.prod.config.js",
         "test": "jest --watchAll",
+        "coverage": "jest --coverage",
         "tsc": "tsc"
     },
     "keywords": [
