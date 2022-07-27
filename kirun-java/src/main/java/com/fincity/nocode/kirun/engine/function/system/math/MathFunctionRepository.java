@@ -11,7 +11,7 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 public class MathFunctionRepository implements Repository<Function> {
 
 	private static final Map<String, Function> REPO_MAP = Map.ofEntries(
-			AbstractUnaryFunction.ofEntryAnyNumberType("Absolute",
+			AbstractUnaryFunction.ofEntryAnyType("Absolute",
 					Map.of(Integer.class, n -> Math.abs(n.intValue()), Float.class, n -> Math.abs(n.floatValue()),
 							Double.class, n -> Math.abs(n.doubleValue()), Long.class, n -> Math.abs(n.longValue())),
 					SchemaType.INTEGER, SchemaType.FLOAT, SchemaType.DOUBLE, SchemaType.LONG),
@@ -27,7 +27,7 @@ public class MathFunctionRepository implements Repository<Function> {
 			AbstractUnaryFunction.ofEntryDouble("Floor", Math::floor),
 			AbstractUnaryFunction.ofEntryDouble("LogNatural", Math::log),
 			AbstractUnaryFunction.ofEntryDouble("Log10", Math::log10),
-			AbstractUnaryFunction.ofEntryAnyNumberType("Round",
+			AbstractUnaryFunction.ofEntryAnyType("Round",
 					Map.of(Integer.class, n -> Math.round(n.floatValue()), Float.class, n -> Math.round(n.floatValue()),
 							Double.class, n -> Math.round(n.doubleValue()), Long.class,
 							n -> Math.round(n.doubleValue())),

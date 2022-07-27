@@ -148,7 +148,7 @@ public abstract class AbstractUnaryFunction<T> extends AbstractFunction {
 
 	}
 
-	public static Map.Entry<String, Function> ofEntryAnyNumberType(String name,
+	public static Map.Entry<String, Function> ofEntryAnyType(String name,
 			Map<Class<? extends Number>, UnaryOperator<Number>> map, SchemaType... schemaTypes) {
 
 		return ofEntryNumber(name, n -> map.get(n.getClass()).apply(n), schemaTypes);
