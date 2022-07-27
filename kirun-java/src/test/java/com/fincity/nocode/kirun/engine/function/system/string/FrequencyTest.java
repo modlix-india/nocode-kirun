@@ -14,10 +14,10 @@ class FrequencyTest {
 	@Test
 	void test() {
 		String s1 = " THIS IS A NOcoDE plATFNORM";
-		String s2 = " ";
+		String s2 = "";
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(5),
+		assertEquals(new JsonPrimitive(0),
 				freq.execute(new FunctionExecutionParameters().setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
 						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
 						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));

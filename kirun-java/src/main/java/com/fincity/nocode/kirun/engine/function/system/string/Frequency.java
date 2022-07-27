@@ -59,18 +59,24 @@ public class Frequency extends AbstractFunction {
 		Integer searchLength = search.length();
 		Integer frequency = 0;
 
+		if (searchLength < 1)
+			return 0;
+
 		for (int i = 0; i < inputLength - searchLength + 1; i++) {
-			if (input.charAt(i) == search.charAt(0)) {
-				boolean flag = true;
-				for (int j = 0; j < searchLength; j++) {
-					if (input.charAt(i + j) != search.charAt(j)) {
-						flag = false;
-						break;
-					}
+			if (input.charAt(i) != search.charAt(0))
+				continue;
+
+			boolean flag = true;
+			for (int j = 1; j < searchLength; j++) {
+				if (input.charAt(i + j) != search.charAt(j)) {
+
+					flag = false;
+					break;
 				}
-				if (flag)
-					frequency++;
 			}
+
+			if (flag)
+				frequency++;
 		}
 
 		return frequency;
