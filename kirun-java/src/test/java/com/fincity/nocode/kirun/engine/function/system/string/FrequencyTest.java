@@ -34,4 +34,28 @@ class FrequencyTest {
 						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
 						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
 	}
+
+	@Test
+	void test3() {
+		String s1 = "";
+		String s2 = "sdf";
+		Frequency freq = new Frequency();
+
+		assertEquals(new JsonPrimitive(0),
+				freq.execute(new FunctionExecutionParameters().setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
+						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+	}
+
+	@Test
+	void test4() {
+		String s1 = "";
+		String s2 = "";
+		Frequency freq = new Frequency();
+
+		assertEquals(new JsonPrimitive(0),
+				freq.execute(new FunctionExecutionParameters().setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
+						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+	}
 }
