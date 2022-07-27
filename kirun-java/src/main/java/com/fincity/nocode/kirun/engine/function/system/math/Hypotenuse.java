@@ -45,7 +45,7 @@ public class Hypotenuse extends AbstractFunction {
 
 		if (jsonElement.getAsJsonArray().isEmpty()) {
 
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(0)))));
 		}
 
 		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray().iterator();

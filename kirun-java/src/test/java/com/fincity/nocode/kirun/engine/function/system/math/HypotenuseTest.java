@@ -26,4 +26,15 @@ class HypotenuseTest {
 						.get("value"));
 	}
 
+	@Test
+	void test2() {
+
+		Hypotenuse hyp = new Hypotenuse();
+		var nums = new JsonArray();
+
+		assertEquals(new JsonPrimitive(0),
+				hyp.execute(new FunctionExecutionParameters().setArguments(Map.of("value", nums))).next().getResult()
+						.get("value"));
+	}
+
 }
