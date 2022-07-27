@@ -56,4 +56,21 @@ public class Parameter implements Serializable {
 		        .setSchema(schema)
 		        .setVariableArgument(variableArgument));
 	}
+
+	public static Parameter of(String name, Schema schema) {
+		return new Parameter().setParameterName(name)
+		        .setSchema(schema);
+	}
+
+	public static Parameter of(String name, Schema schema, ParameterType type) {
+		return new Parameter().setParameterName(name)
+		        .setSchema(schema)
+		        .setType(type);
+	}
+
+	public static Parameter of(String name, Schema schema, boolean variableArgument) {
+		return new Parameter().setParameterName(name)
+		        .setSchema(schema)
+		        .setVariableArgument(variableArgument);
+	}
 }

@@ -10,4 +10,14 @@ export class ArrayUtil {
             i--;
         }
     }
+
+    public static of<K>(...k: K[]): K[] {
+        const copy: K[] = new Array(k.length);
+
+        for (let i = 0; i < k.length; i++) copy[i] = k[i];
+
+        return copy;
+    }
+
+    private constructor() {}
 }
