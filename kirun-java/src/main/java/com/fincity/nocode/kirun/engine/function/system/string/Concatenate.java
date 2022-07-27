@@ -2,10 +2,9 @@ package com.fincity.nocode.kirun.engine.function.system.string;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import org.reactivestreams.Publisher;
 
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -21,21 +20,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 public class Concatenate extends AbstractFunction {
 
 	static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE)
-	        .setType(new SingleType(SchemaType.STRING));
+	private static final Schema SCHEMA = new Schema().setName(VALUE).setType(new SingleType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-	        .setNamespace(STRING)
-	        .setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA)
-	                .setVariableArgument(true)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
+			.setNamespace(STRING)
+			.setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -45,19 +39,17 @@ public class Concatenate extends AbstractFunction {
 	@Override
 	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
-		Mono<String> concatenatedString = Mono.just(context.getArguments()
-		        .get(VALUE))
-		        .map(JsonArray.class::cast)
-		        .flatMapMany(Flux::fromIterable)
-		        .filter(Objects::nonNull)
-		        .map(JsonElement::getAsString)
-		        .defaultIfEmpty("")
-		        .reduce((a, b) -> a + b);
+		JsonArray arugments = context.getArguments().get(VALUE).getAsJsonArray();
 
-		return new FunctionOutput(Flux.merge((Publisher<EventResult>) concatenatedString.map(JsonPrimitive::new)
-		        .map(e -> Map.of(VALUE, (JsonElement) e))
-		        .map(EventResult::outputOf))
-		        .collectList()
-		        .block());
+		StringBuilder concatenatedString = new StringBuilder();
+
+		Iterator<JsonElement> iterator = arugments.iterator();
+
+		while (iterator.hasNext()) {
+			concatenatedString.append(iterator.next().getAsString());
+		}
+
+		return new FunctionOutput(
+				List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(concatenatedString.toString())))));
 	}
 }
