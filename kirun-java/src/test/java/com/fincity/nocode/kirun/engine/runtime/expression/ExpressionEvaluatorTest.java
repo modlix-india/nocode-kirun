@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;

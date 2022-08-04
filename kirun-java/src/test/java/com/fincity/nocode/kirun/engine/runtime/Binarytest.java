@@ -67,7 +67,6 @@ public class Binarytest {
 		var arcTan = new MathFunctionRepository().find(Namespaces.MATH, "ArcTangent").getSignature();
 
 		var genEvent = new GenerateEvent().getSignature();
-		var nanVal = Double.POSITIVE_INFINITY - Double.POSITIVE_INFINITY;
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
