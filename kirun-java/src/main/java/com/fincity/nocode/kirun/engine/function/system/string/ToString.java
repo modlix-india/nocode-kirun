@@ -3,7 +3,6 @@ package com.fincity.nocode.kirun.engine.function.system.string;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -13,7 +12,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 

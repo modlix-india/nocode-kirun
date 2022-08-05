@@ -38,7 +38,7 @@ public abstract class AbstractBinaryStringFunction extends AbstractFunction {
 			.setSchema(Schema.ofInteger(PARAMETER_INDEX_NAME));
 
 	protected static final Parameter PARAMETER_SEARCH_STRING = new Parameter()
-			.setParameterName(PARAMETER_SEARCH_STRING_NAME).setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+			.setParameterName(PARAMETER_SEARCH_STRING_NAME).setSchema(Schema.ofString(PARAMETER_SEARCH_STRING_NAME));
 
 	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
