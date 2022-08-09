@@ -8,7 +8,7 @@
         "test": "jest --watchAll",
         "coverage": "jest --coverage",
         "tsc": "tsc",
-        "pretty": "prettier"
+        "pretty": "prettier --write ./src || prettier --write ./__tests__"
     },
     "keywords": [
         "kirun",
@@ -19,6 +19,7 @@
     "devDependencies": {
         "@types/jest": "^28.1.4",
         "jest": "^28.1.2",
+        "prettier": "2.7.1",
         "ts-jest": "^28.0.5",
         "ts-loader": "^9.3.1",
         "typescript": "^4.7.4",
