@@ -1,56 +1,62 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import java.util.List;
-import java.util.Map;
+export class TrimTo extends AbstractFunction {
+    public static readonly PARAMETER_STRING_NAME: string = 'string';
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    public static readonly PARAMETER_LENGTH_NAME: string = 'length';
 
-public class TrimTo extends AbstractFunction {
+    public static readonly EVENT_RESULT_NAME: string = 'result';
 
-	protected static final String PARAMETER_STRING_NAME = "string";
+    protected static readonly PARAMETER_STRING: Parameter = new Parameter()
+        .setParameterName(TrimTo.PARAMETER_STRING_NAME)
+        .setSchema(Schema.ofString(TrimTo.PARAMETER_STRING_NAME));
 
-	protected static final String PARAMETER_LENGTH_NAME = "length";
+    protected static readonly PARAMETER_LENGTH: Parameter = new Parameter()
+        .setParameterName(TrimTo.PARAMETER_LENGTH_NAME)
+        .setSchema(Schema.ofInteger(TrimTo.PARAMETER_LENGTH_NAME));
 
-	protected static final String EVENT_RESULT_NAME = "result";
+    protected static readonly EVENT_STRING: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(
+            new Map([[TrimTo.EVENT_RESULT_NAME, Schema.ofString(TrimTo.EVENT_RESULT_NAME)]]),
+        );
 
-	protected static final Parameter PARAMETER_STRING = new Parameter().setParameterName(PARAMETER_STRING_NAME)
-			.setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+    private signature: FunctionSignature = new FunctionSignature()
+        .setName('TrimTo')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [TrimTo.PARAMETER_STRING.getParameterName(), TrimTo.PARAMETER_STRING],
+                [TrimTo.PARAMETER_LENGTH.getParameterName(), TrimTo.PARAMETER_LENGTH],
+            ]),
+        )
+        .setEvents(new Map([[TrimTo.EVENT_STRING.getName(), TrimTo.EVENT_STRING]]));
 
-	protected static final Parameter PARAMETER_LENGTH = new Parameter().setParameterName(PARAMETER_LENGTH_NAME)
-			.setSchema(Schema.ofInteger(PARAMETER_LENGTH_NAME));
+    public getSignature(): FunctionSignature {
+        return this.signature;
+    }
 
-	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+    public constructor() {
+        super();
+    }
 
-	private final FunctionSignature signature = new FunctionSignature().setName("TrimTo")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(Map.of(PARAMETER_STRING.getParameterName(), PARAMETER_STRING,
-					PARAMETER_LENGTH.getParameterName(), PARAMETER_LENGTH))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let inputString: string = context.getArguments().get(TrimTo.PARAMETER_STRING_NAME);
+        let length: number = context.getArguments().get(TrimTo.PARAMETER_LENGTH_NAME);
 
-	@Override
-	public FunctionSignature getSignature() {
-
-		return signature;
-	}
-
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-
-		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsJsonPrimitive().getAsString();
-		Integer length = context.getArguments().get(PARAMETER_LENGTH_NAME).getAsJsonPrimitive().getAsInt();
-
-		return new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
-				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(inputString.substring(0, length))))));
-	}
-
+        return new FunctionOutput([
+            EventResult.of(
+                TrimTo.EVENT_RESULT_NAME,
+                new Map([[TrimTo.EVENT_RESULT_NAME, inputString.substring(0, length)]]),
+            ),
+        ]);
+    }
 }

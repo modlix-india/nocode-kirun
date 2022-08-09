@@ -1,48 +1,65 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { AbstractFunction } from '../../AbstractFunction';
+import { MapUtil } from '../../../util/MapUtil';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { TypeUtil } from '../../../json/schema/type/TypeUtil';
+import { SchemaType } from '../../../json/schema/type/SchemaType';
 
-import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
+export class Reverse extends AbstractFunction {
+    protected readonly VALUE: string = 'value';
 
-import java.util.List;
-import java.util.Map;
+    private readonly SIGNATURE: FunctionSignature = new FunctionSignature()
+        .setName('Reverse')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [
+                    this.VALUE,
+                    new Parameter()
+                        .setParameterName(this.VALUE)
+                        .setSchema(Schema.ofString(this.VALUE))
+                        .setVariableArgument(true),
+                ],
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.outputEventMapEntry(
+                    new Map([
+                        [
+                            this.VALUE,
+                            new Schema()
+                                .setType(TypeUtil.of(SchemaType.STRING))
+                                .setName(this.VALUE),
+                        ],
+                    ]),
+                ),
+            ]),
+        );
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    public constructor() {
+        super();
+    }
 
-public class Reverse extends AbstractFunction {
+    public getSignature(): FunctionSignature {
+        return this.SIGNATURE;
+    }
 
-	private static final String VALUE = "value";
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let acutalString: string = context.getArguments().get(this.VALUE);
+        let stringLength: number = acutalString.length - 1;
+        let reversedString: string = '';
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Reverse").setNamespace(STRING)
-			.setParameters(Map.of(VALUE,
-					new Parameter().setParameterName(VALUE).setSchema(Schema.ofString(VALUE))
-							.setVariableArgument(true)))
-			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
+        while (stringLength >= 0) {
+            reversedString += acutalString.charAt(stringLength--);
+        }
 
-	@Override
-	public FunctionSignature getSignature() {
-		return SIGNATURE;
-	}
-
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-
-		String acutalString = context.getArguments().get(VALUE).getAsString();
-		Integer stringLength = acutalString.length() - 1;
-		StringBuilder reversedString = new StringBuilder(stringLength);
-
-		while (stringLength >= 0) {
-			reversedString.append(acutalString.charAt(stringLength--));
-		}
-
-		return new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(reversedString.toString())))));
-	}
-
+        return new FunctionOutput([EventResult.outputOf(MapUtil.of(this.VALUE, reversedString))]);
+    }
 }

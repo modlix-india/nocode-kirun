@@ -36,5 +36,9 @@ class ToStringTest {
 								.setArguments(Map.of(ToString.PARAMETER_INPUT_ANYTYPE_NAME, JsonNull.INSTANCE)))
 						.allResults().get(0).getResult().get(ToString.EVENT_RESULT_NAME));
 	}
+	
+	void test2() {
+		
+	}
 
 }

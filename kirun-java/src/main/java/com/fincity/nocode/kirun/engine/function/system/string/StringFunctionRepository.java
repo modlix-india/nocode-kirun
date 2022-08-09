@@ -22,7 +22,6 @@ public class StringFunctionRepository implements Repository<Function> {
 			AbstractBinaryStringFunction.ofEntryAsStringBooleanOutput("Matches", String::matches),
 			AbstractBinaryStringFunction.ofEntryAsStringIntegerOutput("IndexOf", String::indexOf),
 			AbstractBinaryStringFunction.ofEntryAsStringIntegerOutput("LastIndexOf", String::lastIndexOf),
-//			AbstractBinaryStringFunction.ofEntryAsStringArrayOutput("Split", String::split),
 			AbstractBinaryStringFunction.ofEntryAsStringAndIntegerStringOutput("Repeat", String::repeat),
 
 			AbstractTertiaryStringFunction.ofEntryAsStringStringIntegerIntegerOutput("IndexOfWithStartPoint",

@@ -1,70 +1,81 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import java.util.List;
-import java.util.Map;
+export class InsertAtGivenPosition extends AbstractFunction {
+    public static readonly PARAMETER_STRING_NAME: string = 'string';
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    public static readonly PARAMETER_AT_POSITION_NAME: string = 'position';
 
-public class InsertAtGivenPosition extends AbstractFunction {
+    public static readonly PARAMETER_INSERT_STRING_NAME: string = 'insertString';
 
-	protected static final String PARAMETER_STRING_NAME = "string";
+    protected readonly EVENT_RESULT_NAME: string = 'result';
 
-	protected static final String PARAMETER_AT_POSITION_NAME = "position";
+    protected readonly PARAMETER_STRING: Parameter = new Parameter()
+        .setParameterName(InsertAtGivenPosition.PARAMETER_STRING_NAME)
+        .setSchema(Schema.ofString(InsertAtGivenPosition.PARAMETER_STRING_NAME));
 
-	protected static final String PARAMETER_INSERT_STRING_NAME = "insertString";
+    protected readonly PARAMETER_AT_POSITION: Parameter = new Parameter()
+        .setParameterName(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME)
+        .setSchema(Schema.ofInteger(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME));
 
-	protected static final String EVENT_RESULT_NAME = "result";
+    protected readonly PARAMETER_INSERT_STRING: Parameter = new Parameter()
+        .setParameterName(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME)
+        .setSchema(Schema.ofString(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME));
 
-	protected static final Parameter PARAMETER_STRING = new Parameter().setParameterName(PARAMETER_STRING_NAME)
-			.setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+    protected readonly EVENT_STRING: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(
+            new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
+        );
 
-	protected static final Parameter PARAMETER_AT_POSITION = new Parameter()
-			.setParameterName(PARAMETER_AT_POSITION_NAME).setSchema(Schema.ofInteger(PARAMETER_AT_POSITION_NAME));
+    private signature: FunctionSignature = new FunctionSignature()
+        .setName('InsertAtGivenPosition')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [this.PARAMETER_STRING.getParameterName(), this.PARAMETER_STRING],
+                [this.PARAMETER_AT_POSITION.getParameterName(), this.PARAMETER_AT_POSITION],
+                [this.PARAMETER_INSERT_STRING.getParameterName(), this.PARAMETER_INSERT_STRING],
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.outputEventMapEntry(
+                    new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
+                ),
+            ]),
+        );
 
-	protected static final Parameter PARAMETER_INSERT_STRING = new Parameter()
-			.setParameterName(PARAMETER_INSERT_STRING_NAME).setSchema(Schema.ofString(PARAMETER_INSERT_STRING_NAME));
+    public getSignature(): FunctionSignature {
+        return this.signature;
+    }
 
-	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let inputString: string = context
+            .getArguments()
+            .get(InsertAtGivenPosition.PARAMETER_STRING_NAME);
+        let at: number = context
+            .getArguments()
+            .get(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME);
+        let insertString: string = context
+            .getArguments()
+            .get(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME);
 
-	private final FunctionSignature signature = new FunctionSignature().setName("InsertAtGivenPosition")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(Map.of(PARAMETER_STRING.getParameterName(), PARAMETER_STRING,
-					PARAMETER_AT_POSITION.getParameterName(), PARAMETER_AT_POSITION,
-					PARAMETER_INSERT_STRING.getParameterName(), PARAMETER_INSERT_STRING))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+        let outputString: string = '';
 
-	@Override
-	public FunctionSignature getSignature() {
+        outputString += inputString.substring(0, at);
+        outputString += insertString;
+        outputString += inputString.substring(at);
 
-		return signature;
-	}
-
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-
-		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsJsonPrimitive().getAsString();
-		Integer at = context.getArguments().get(PARAMETER_AT_POSITION_NAME).getAsJsonPrimitive().getAsInt();
-		String insertString = context.getArguments().get(PARAMETER_INSERT_STRING_NAME).getAsJsonPrimitive()
-				.getAsString();
-
-		StringBuilder outputString = new StringBuilder();
-
-		outputString.append(inputString.substring(0, at));
-		outputString.append(insertString);
-		outputString.append(inputString.substring(at));
-
-		return new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
-				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString())))));
-	}
-
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[this.EVENT_RESULT_NAME, outputString]])),
+        ]);
+    }
 }

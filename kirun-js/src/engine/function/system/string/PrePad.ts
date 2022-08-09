@@ -1,74 +1,82 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import java.util.List;
-import java.util.Map;
+export class PrePad extends AbstractFunction {
+    public static readonly PARAMETER_STRING_NAME: string = 'string';
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    public static readonly PARAMETER_PREPAD_STRING_NAME: string = 'prepadString';
 
-public class PrePad extends AbstractFunction {
+    public static readonly PARAMETER_LENGTH_NAME: string = 'length';
 
-	protected static final String PARAMETER_STRING_NAME = "string";
+    public static readonly EVENT_RESULT_NAME: string = 'result';
 
-	protected static final String PARAMETER_PREPAD_STRING_NAME = "prepadString";
+    protected static readonly PARAMETER_STRING: Parameter = new Parameter()
+        .setParameterName(PrePad.PARAMETER_STRING_NAME)
+        .setSchema(Schema.ofString(PrePad.PARAMETER_STRING_NAME));
 
-	protected static final String PARAMETER_LENGTH_NAME = "length";
+    protected static readonly PARAMETER_PREPAD_STRING: Parameter = new Parameter()
+        .setParameterName(PrePad.PARAMETER_PREPAD_STRING_NAME)
+        .setSchema(Schema.ofString(PrePad.PARAMETER_PREPAD_STRING_NAME));
 
-	protected static final String EVENT_RESULT_NAME = "result";
+    protected static readonly PARAMETER_LENGTH: Parameter = new Parameter()
+        .setParameterName(PrePad.PARAMETER_LENGTH_NAME)
+        .setSchema(Schema.ofInteger(PrePad.PARAMETER_LENGTH_NAME));
 
-	protected static final Parameter PARAMETER_STRING = new Parameter().setParameterName(PARAMETER_STRING_NAME)
-			.setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+    protected static readonly EVENT_STRING: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(
+            new Map([[PrePad.EVENT_RESULT_NAME, Schema.ofString(PrePad.EVENT_RESULT_NAME)]]),
+        );
 
-	protected static final Parameter PARAMETER_PREPAD_STRING = new Parameter()
-			.setParameterName(PARAMETER_PREPAD_STRING_NAME).setSchema(Schema.ofString(PARAMETER_PREPAD_STRING_NAME));
+    private readonly signature: FunctionSignature = new FunctionSignature()
+        .setName('PrePad')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [PrePad.PARAMETER_STRING.getParameterName(), PrePad.PARAMETER_STRING],
+                [PrePad.PARAMETER_PREPAD_STRING.getParameterName(), PrePad.PARAMETER_PREPAD_STRING],
+                [PrePad.PARAMETER_LENGTH.getParameterName(), PrePad.PARAMETER_LENGTH],
+            ]),
+        )
+        .setEvents(new Map([[PrePad.EVENT_STRING.getName(), PrePad.EVENT_STRING]]));
 
-	protected static final Parameter PARAMETER_LENGTH = new Parameter().setParameterName(PARAMETER_LENGTH_NAME)
-			.setSchema(Schema.ofInteger(PARAMETER_LENGTH_NAME));
+    public getSignature(): FunctionSignature {
+        return this.signature;
+    }
 
-	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+    public constructor() {
+        super();
+    }
 
-	private final FunctionSignature signature = new FunctionSignature().setName("PrePad")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(Map.of(PARAMETER_STRING.getParameterName(), PARAMETER_STRING,
-					PARAMETER_PREPAD_STRING.getParameterName(), PARAMETER_PREPAD_STRING,
-					PARAMETER_LENGTH.getParameterName(), PARAMETER_LENGTH))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let inputString: string = context.getArguments().get(PrePad.PARAMETER_STRING_NAME);
+        let prepadString: string = context.getArguments().get(PrePad.PARAMETER_PREPAD_STRING_NAME);
+        let length: number = context.getArguments().get(PrePad.PARAMETER_LENGTH_NAME);
+        let outputString: string = '';
+        let prepadStringLength: number = prepadString.length;
 
-	@Override
-	public FunctionSignature getSignature() {
-		return signature;
-	}
+        while (prepadStringLength <= length) {
+            outputString += prepadString;
+            prepadStringLength += prepadString.length;
+        }
 
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsJsonPrimitive().getAsString();
-		String prepadString = context.getArguments().get(PARAMETER_PREPAD_STRING_NAME).getAsJsonPrimitive()
-				.getAsString();
-		Integer length = context.getArguments().get(PARAMETER_LENGTH_NAME).getAsJsonPrimitive().getAsInt();
-		StringBuilder outputString = new StringBuilder(inputString.length() + length);
-		Integer prepadStringLength = prepadString.length();
+        if (outputString.length < length) {
+            outputString += prepadString.substring(0, length - outputString.length);
+        }
 
-		while (prepadStringLength <= length) {
-			outputString.append(prepadString);
-			prepadStringLength += prepadString.length();
-		}
-
-		if (outputString.length() < length) {
-			outputString.append(prepadString.substring(0, length - outputString.length()));
-		}
-
-		outputString.append(inputString);
-		return new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
-				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString())))));
-	}
-
+        outputString += inputString;
+        return new FunctionOutput([
+            EventResult.of(
+                PrePad.EVENT_RESULT_NAME,
+                new Map([[PrePad.EVENT_RESULT_NAME, outputString]]),
+            ),
+        ]);
+    }
 }

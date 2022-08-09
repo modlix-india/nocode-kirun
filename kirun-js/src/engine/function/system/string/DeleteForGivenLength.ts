@@ -1,72 +1,91 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import java.util.List;
-import java.util.Map;
+export class DeleteForGivenLength extends AbstractFunction {
+    public static readonly PARAMETER_STRING_NAME: string = 'string';
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    public static readonly PARAMETER_AT_START_NAME: string = 'startPosition';
 
-public class DeleteForGivenLength extends AbstractFunction {
+    public static readonly PARAMETER_AT_END_NAME: string = 'endPosition';
 
-	protected static final String PARAMETER_STRING_NAME = "string";
+    public static readonly EVENT_RESULT_NAME: string = 'result';
 
-	protected static final String PARAMETER_AT_START_NAME = "startPosition";
+    protected readonly PARAMETER_STRING: Parameter = new Parameter()
+        .setParameterName(DeleteForGivenLength.PARAMETER_STRING_NAME)
+        .setSchema(Schema.ofString(DeleteForGivenLength.PARAMETER_STRING_NAME));
 
-	protected static final String PARAMETER_AT_END_NAME = "endPosition";
+    protected readonly PARAMETER_AT_START: Parameter = new Parameter()
+        .setParameterName(DeleteForGivenLength.PARAMETER_AT_START_NAME)
+        .setSchema(Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_START_NAME));
 
-	protected static final String EVENT_RESULT_NAME = "result";
+    protected readonly PARAMETER_AT_END: Parameter = new Parameter()
+        .setParameterName(DeleteForGivenLength.PARAMETER_AT_END_NAME)
+        .setSchema(Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_END_NAME));
 
-	protected static final Parameter PARAMETER_STRING = new Parameter().setParameterName(PARAMETER_STRING_NAME)
-			.setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+    protected readonly EVENT_STRING: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(
+            new Map([
+                [
+                    DeleteForGivenLength.EVENT_RESULT_NAME,
+                    Schema.ofString(DeleteForGivenLength.EVENT_RESULT_NAME),
+                ],
+            ]),
+        );
 
-	protected static final Parameter PARAMETER_AT_START = new Parameter().setParameterName(PARAMETER_AT_START_NAME)
-			.setSchema(Schema.ofInteger(PARAMETER_AT_START_NAME));
+    private signature: FunctionSignature = new FunctionSignature()
+        .setName('DeleteForGivenLength')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [this.PARAMETER_STRING.getParameterName(), this.PARAMETER_STRING],
+                [this.PARAMETER_AT_START.getParameterName(), this.PARAMETER_AT_START],
+                [this.PARAMETER_AT_END.getParameterName(), this.PARAMETER_AT_END],
+            ]),
+        )
+        .setEvents(new Map([[this.EVENT_STRING.getName(), this.EVENT_STRING]]));
 
-	protected static final Parameter PARAMETER_AT_END = new Parameter().setParameterName(PARAMETER_AT_END_NAME)
-			.setSchema(Schema.ofInteger(PARAMETER_AT_END_NAME));
+    public constructor() {
+        super();
+    }
 
-	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+    public getSignature(): FunctionSignature {
+        return this.signature;
+    }
 
-	private final FunctionSignature signature = new FunctionSignature().setName("DeleteForGivenLength")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(
-					Map.of(PARAMETER_STRING.getParameterName(), PARAMETER_STRING, PARAMETER_AT_START.getParameterName(),
-							PARAMETER_AT_START, PARAMETER_AT_END.getParameterName(), PARAMETER_AT_END))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let inputString: string = context
+            .getArguments()
+            .get(DeleteForGivenLength.PARAMETER_STRING_NAME);
+        let startPosition: number = context
+            .getArguments()
+            .get(DeleteForGivenLength.PARAMETER_AT_START_NAME);
+        let endPosition: number = context
+            .getArguments()
+            .get(DeleteForGivenLength.PARAMETER_AT_END_NAME);
 
-	@Override
-	public FunctionSignature getSignature() {
+        if (endPosition >= startPosition) {
+            let outputString: string = '';
 
-		return signature;
-	}
+            outputString += inputString.substring(0, startPosition);
+            outputString += inputString.substring(endPosition);
 
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+            return new FunctionOutput([
+                EventResult.outputOf(
+                    new Map([[DeleteForGivenLength.EVENT_RESULT_NAME, outputString.toString()]]),
+                ),
+            ]);
+        }
 
-		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsString();
-		Integer startPosition = context.getArguments().get(PARAMETER_AT_START_NAME).getAsInt();
-		Integer endPosition = context.getArguments().get(PARAMETER_AT_END_NAME).getAsInt();
-		Integer inputStringLength = inputString.length();
-
-		if (endPosition >= startPosition) {
-			StringBuilder outputString = new StringBuilder(inputStringLength - (endPosition - startPosition) + 1);
-			outputString.append(inputString.substring(0, startPosition));
-			outputString.append(inputString.substring(endPosition));
-			return new FunctionOutput(List
-					.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString())))));
-		}
-
-		return new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(inputString)))));
-	}
-
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[DeleteForGivenLength.EVENT_RESULT_NAME, inputString]])),
+        ]);
+    }
 }

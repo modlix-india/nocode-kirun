@@ -6,8 +6,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 class SplitTest {
@@ -66,6 +68,18 @@ class SplitTest {
 
 		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("output"));
 
+	}
+
+	@Test
+	void test3() {
+
+		Split split = new Split();
+
+		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+				.setArguments(Map.of(Split.PARAMETER_STRING_NAME, JsonNull.INSTANCE, Split.PARAMETER_SPLIT_STRING_NAME,
+						new JsonPrimitive("e")));
+
+		assertThrows(SchemaValidationException.class, () -> split.execute(fep));
 	}
 
 }

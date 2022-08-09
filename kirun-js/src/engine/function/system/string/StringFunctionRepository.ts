@@ -28,7 +28,6 @@ export class StringFunctionRepository implements Repository<Function> {
         AbstractStringFunction.ofEntryAsStringIntegerOutput('LastIndexOf', (a, b) =>
             a.lastIndexOf(b),
         ),
-        // AbstractStringFunction.ofEntryAsStringArrayOutput("Split", String::split),
         AbstractStringFunction.ofEntryAsStringAndIntegerStringOutput('Repeat', (a, b) =>
             a.repeat(b),
         ),

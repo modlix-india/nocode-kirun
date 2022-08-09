@@ -1,55 +1,58 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { SchemaType } from '../../../json/schema/type/SchemaType';
+import { SingleType } from '../../../json/schema/type/SingleType';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.STRING;
+export class Concatenate extends AbstractFunction {
+    public static VALUE: string = 'value';
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+    private static SCHEMA: Schema = new Schema()
+        .setName(Concatenate.VALUE)
+        .setType(new SingleType(SchemaType.STRING));
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.type.SingleType;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+    private static SIGNATURE: FunctionSignature = new FunctionSignature()
+        .setName('Concatenate')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [
+                    Concatenate.VALUE,
+                    new Parameter().setSchema(Concatenate.SCHEMA).setVariableArgument(true),
+                ],
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.outputEventMapEntry(
+                    new Map([[Concatenate.VALUE, Schema.ofString(Concatenate.VALUE)]]),
+                ),
+            ]),
+        );
 
-public class Concatenate extends AbstractFunction {
+    public constructor() {
+        super();
+    }
 
-	static final String VALUE = "value";
+    public getSignature(): FunctionSignature {
+        return Concatenate.SIGNATURE;
+    }
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE).setType(new SingleType(SchemaType.STRING));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let contextArgs: string[] = context.getArguments().get(Concatenate.VALUE);
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-			.setNamespace(STRING)
-			.setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
-			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
+        let concatenatedString: string = '';
 
-	@Override
-	public FunctionSignature getSignature() {
-		return SIGNATURE;
-	}
+        contextArgs.reduce((curr, next) => (concatenatedString = curr + next), concatenatedString);
 
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-
-		JsonArray arugments = context.getArguments().get(VALUE).getAsJsonArray();
-
-		StringBuilder concatenatedString = new StringBuilder();
-
-		Iterator<JsonElement> iterator = arugments.iterator();
-
-		while (iterator.hasNext()) {
-			concatenatedString.append(iterator.next().getAsString());
-		}
-
-		return new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(concatenatedString.toString())))));
-	}
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[Concatenate.VALUE, concatenatedString]])),
+        ]);
+    }
 }

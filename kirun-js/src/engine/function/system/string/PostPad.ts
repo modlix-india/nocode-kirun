@@ -1,74 +1,92 @@
-package com.fincity.nocode.kirun.engine.function.system.string;
+import { Schema } from '../../../json/schema/Schema';
+import { Event } from '../../../model/Event';
+import { EventResult } from '../../../model/EventResult';
+import { FunctionOutput } from '../../../model/FunctionOutput';
+import { FunctionSignature } from '../../../model/FunctionSignature';
+import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { AbstractFunction } from '../../AbstractFunction';
 
-import java.util.List;
-import java.util.Map;
+export class PostPad extends AbstractFunction {
+    protected static readonly PARAMETER_STRING_NAME: string = 'string';
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.model.Event;
-import com.fincity.nocode.kirun.engine.model.EventResult;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-import com.google.gson.JsonPrimitive;
+    protected static readonly PARAMETER_POSTPAD_STRING_NAME: string = 'postpadString';
 
-public class PostPad extends AbstractFunction {
+    protected static readonly PARAMETER_LENGTH_NAME: string = 'length';
 
-	protected static final String PARAMETER_STRING_NAME = "string";
+    protected static readonly EVENT_RESULT_NAME: string = 'result';
 
-	protected static final String PARAMETER_POSTPAD_STRING_NAME = "postpadString";
+    protected static PARAMETER_STRING: Parameter = new Parameter()
+        .setParameterName(PostPad.PARAMETER_STRING_NAME)
+        .setSchema(Schema.ofString(PostPad.PARAMETER_STRING_NAME));
 
-	protected static final String PARAMETER_LENGTH_NAME = "length";
+    protected static PARAMETER_POSTPAD_STRING: Parameter = new Parameter()
+        .setParameterName(PostPad.PARAMETER_POSTPAD_STRING_NAME)
+        .setSchema(Schema.ofString(PostPad.PARAMETER_POSTPAD_STRING_NAME));
 
-	protected static final String EVENT_RESULT_NAME = "result";
+    protected static PARAMETER_LENGTH: Parameter = new Parameter()
+        .setParameterName(PostPad.PARAMETER_LENGTH_NAME)
+        .setSchema(Schema.ofInteger(PostPad.PARAMETER_LENGTH_NAME));
 
-	protected static final Parameter PARAMETER_STRING = new Parameter().setParameterName(PARAMETER_STRING_NAME)
-			.setSchema(Schema.ofString(PARAMETER_STRING_NAME));
+    protected static EVENT_STRING: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(
+            new Map([[PostPad.EVENT_RESULT_NAME, Schema.ofString(PostPad.EVENT_RESULT_NAME)]]),
+        );
 
-	protected static final Parameter PARAMETER_POSTPAD_STRING = new Parameter()
-			.setParameterName(PARAMETER_POSTPAD_STRING_NAME).setSchema(Schema.ofString(PARAMETER_POSTPAD_STRING_NAME));
+    private signature: FunctionSignature = new FunctionSignature()
+        .setName('PostPad')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [PostPad.PARAMETER_STRING.getParameterName(), PostPad.PARAMETER_STRING],
+                [
+                    PostPad.PARAMETER_POSTPAD_STRING.getParameterName(),
+                    PostPad.PARAMETER_POSTPAD_STRING,
+                ],
+                [PostPad.PARAMETER_LENGTH.getParameterName(), PostPad.PARAMETER_LENGTH],
+            ]),
+        )
+        .setEvents(new Map([[PostPad.EVENT_STRING.getName(), PostPad.EVENT_STRING]]));
 
-	protected static final Parameter PARAMETER_LENGTH = new Parameter().setParameterName(PARAMETER_LENGTH_NAME)
-			.setSchema(Schema.ofInteger(PARAMETER_LENGTH_NAME));
+    public constructor() {
+        super();
+    }
 
-	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+    public getSignature(): FunctionSignature {
+        return this.signature;
+    }
 
-	private final FunctionSignature signature = new FunctionSignature().setName("PostPad")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(Map.of(PARAMETER_STRING.getParameterName(), PARAMETER_STRING,
-					PARAMETER_POSTPAD_STRING.getParameterName(), PARAMETER_POSTPAD_STRING,
-					PARAMETER_LENGTH.getParameterName(), PARAMETER_LENGTH))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        let inputString: string = context.getArguments().get(PostPad.PARAMETER_STRING_NAME);
+        let postpadString: string = context
+            .getArguments()
+            .get(PostPad.PARAMETER_POSTPAD_STRING_NAME);
 
-	@Override
-	public FunctionSignature getSignature() {
-		return signature;
-	}
+        let length: number = context.getArguments().get(PostPad.PARAMETER_LENGTH_NAME);
+        let outputString: string = '';
+        let prepadStringLength: number = postpadString.length;
 
-	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
-		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsJsonPrimitive().getAsString();
-		String postpadString = context.getArguments().get(PARAMETER_POSTPAD_STRING_NAME).getAsJsonPrimitive()
-				.getAsString();
-		Integer length = context.getArguments().get(PARAMETER_LENGTH_NAME).getAsJsonPrimitive().getAsInt();
-		StringBuilder outputString = new StringBuilder(inputString.length() + length);
-		Integer prepadStringLength = postpadString.length();
+        outputString += inputString;
 
-		outputString.append(inputString);
+        while (prepadStringLength <= length) {
+            outputString += postpadString;
+            prepadStringLength += postpadString.length;
+        }
 
-		while (prepadStringLength <= length) {
-			outputString.append(postpadString);
-			prepadStringLength += postpadString.length();
-		}
+        if (outputString.length - inputString.length < length) {
+            outputString += postpadString.substring(
+                0,
+                length - (outputString.length - inputString.length),
+            );
+        }
 
-		if (outputString.length() - inputString.length() < length) {
-			outputString.append(postpadString.substring(0, length - (outputString.length() - inputString.length())));
-		}
-
-		return new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
-				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString())))));
-	}
+        return new FunctionOutput([
+            EventResult.of(
+                PostPad.EVENT_RESULT_NAME,
+                new Map([[PostPad.EVENT_RESULT_NAME, outputString.toString()]]),
+            ),
+        ]);
+    }
 }

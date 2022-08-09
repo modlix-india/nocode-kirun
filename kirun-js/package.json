@@ -7,7 +7,8 @@
         "build": "webpack --config webpack.prod.config.js",
         "test": "jest --watchAll",
         "coverage": "jest --coverage",
-        "tsc": "tsc"
+        "tsc": "tsc",
+        "pretty": "prettier"
     },
     "keywords": [
         "kirun",
