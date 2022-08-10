@@ -31,7 +31,7 @@ public class AddFirst extends AbstractArrayFunction {
 			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 		}
 
-		source.add(input.deepCopy());
+		source.add(input);
 
 		int len = source.size() - 1;
 

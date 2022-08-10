@@ -197,6 +197,23 @@ export class Schema {
             .setName(id);
     }
 
+    public static ofAnyNotNull(id: string): Schema {
+        return new Schema()
+            .setType(
+                TypeUtil.of(
+                    SchemaType.INTEGER,
+                    SchemaType.LONG,
+                    SchemaType.FLOAT,
+                    SchemaType.DOUBLE,
+                    SchemaType.STRING,
+                    SchemaType.BOOLEAN,
+                    SchemaType.ARRAY,
+                    SchemaType.OBJECT,
+                ),
+            )
+            .setName(id);
+    }
+
     public static ofNumber(id: string): Schema {
         return new Schema()
             .setType(

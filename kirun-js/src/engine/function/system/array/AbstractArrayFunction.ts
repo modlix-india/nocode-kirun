@@ -1,4 +1,6 @@
 import { Schema } from '../../../json/schema/Schema';
+import { SchemaType } from '../../../json/schema/type/SchemaType';
+import { TypeUtil } from '../../../json/schema/type/TypeUtil';
 import { Event } from '../../../model/Event';
 import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
@@ -73,6 +75,31 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         'source',
         Schema.ofArray('eachSource', Schema.ofAny('eachSource')),
     );
+
+    public static readonly PARAMETER_ARRAY_SECOND_SOURCE: Parameter = Parameter.of(
+        'secondSource',
+        Schema.ofArray('eachSecondSource', Schema.ofAny('eachSecondSource')),
+    );
+
+    public static readonly PARAMETER_ARRAY_SOURCE_PRIMITIVE: Parameter = Parameter.of(
+        'source',
+        Schema.ofArray(
+            'eachSource',
+            new Schema()
+                .setName('eachSource')
+                .setType(
+                    TypeUtil.of(
+                        SchemaType.STRING,
+                        SchemaType.NULL,
+                        SchemaType.INTEGER,
+                        SchemaType.FLOAT,
+                        SchemaType.DOUBLE,
+                        SchemaType.LONG,
+                    ),
+                ),
+        ),
+    );
+
     public static readonly PARAMETER_BOOLEAN_DEEP_COPY: Parameter = Parameter.of(
         'deepCopy',
         Schema.ofBoolean('deepCopy').setDefaultValue(true),
@@ -80,6 +107,11 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
     public static readonly PARAMETER_ANY: Parameter = Parameter.of(
         'element',
         Schema.ofAny('element'),
+    );
+
+    public static readonly PARAMETER_ANY_NOT_NULL: Parameter = Parameter.of(
+        'elementObject',
+        Schema.ofAnyNotNull('elementObject'),
     );
 
     public static readonly PARAMETER_ARRAY_RESULT: Parameter = Parameter.of(

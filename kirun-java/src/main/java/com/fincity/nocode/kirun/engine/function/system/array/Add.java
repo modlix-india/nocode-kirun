@@ -25,7 +25,7 @@ public class Add extends AbstractArrayFunction {
 		if (secondSource.isJsonNull() || secondSource.isEmpty())
 			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 
-		source.addAll(secondSource.deepCopy());
+		source.addAll(secondSource);
 
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}
