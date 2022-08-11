@@ -128,7 +128,7 @@ export class SchemaValidator {
         if (!valid) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                'Value ' + element + ' is not of valid type(s)',
+                'Value ' + JSON.stringify(element) + ' is not of valid type(s)',
                 list,
             );
         }
