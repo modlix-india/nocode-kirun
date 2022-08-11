@@ -2,7 +2,6 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { ArrayUtil } from '../../../util/ArrayUtil';
 import { MapUtil } from '../../../util/MapUtil';
 import { isNullValue } from '../../../util/NullCheck';
 import { StringFormatter } from '../../../util/string/StringFormatter';

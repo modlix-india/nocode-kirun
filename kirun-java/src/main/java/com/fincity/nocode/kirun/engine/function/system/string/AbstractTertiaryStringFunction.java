@@ -73,7 +73,7 @@ public abstract class AbstractTertiaryStringFunction extends AbstractFunction {
 		return signature;
 	}
 
-	public static Map.Entry<String, Function> ofEntryAsString(final String name,
+	public static Map.Entry<String, Function> ofEntryAsStringStringStringStringOutput(final String name,
 			TriFunction<String, String, String, String> function) {
 		return Map.entry(name, new AbstractTertiaryStringFunction(Namespaces.STRING, name, PARAMETER_STRING,
 				PARAMETER_SECOND_STRING, PARAMETER_THIRD_STRING, EVENT_STRING) {
@@ -92,7 +92,7 @@ public abstract class AbstractTertiaryStringFunction extends AbstractFunction {
 		});
 	}
 
-	public static Map.Entry<String, Function> ofEntryAsStringAndSubStringOutput(final String name,
+	public static Map.Entry<String, Function> ofEntryAsStringIntegerIntegerStringOutput(final String name,
 			TriFunction<String, Integer, Integer, String> function) {
 		return Map.entry(name, new AbstractTertiaryStringFunction(Namespaces.STRING, name, PARAMETER_STRING,
 				PARAMETER_INDEX, PARAMETER_SECOND_INDEX, EVENT_STRING) {
@@ -110,7 +110,7 @@ public abstract class AbstractTertiaryStringFunction extends AbstractFunction {
 
 	}
 
-	public static Map.Entry<String, Function> ofEntryAsStringIntegerOutput(final String name,
+	public static Map.Entry<String, Function> ofEntryAsStringStringIntegerIntegerOutput(final String name,
 			TriFunction<String, String, Integer, Integer> function) {
 		return Map.entry(name, new AbstractTertiaryStringFunction(Namespaces.STRING, name, PARAMETER_STRING,
 				PARAMETER_SECOND_STRING, PARAMETER_INDEX, EVENT_INT) {

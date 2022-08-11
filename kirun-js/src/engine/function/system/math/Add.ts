@@ -29,7 +29,7 @@ export class Add extends AbstractFunction {
         let nums: number[] = context.getArguments().get(VALUE);
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[VALUE, Math.sqrt(nums.reduce((a, c) => (a += c), 0))]])),
+            EventResult.outputOf(new Map([[VALUE, nums.reduce((a, c) => (a += c), 0)]])),
         ]);
     }
 }

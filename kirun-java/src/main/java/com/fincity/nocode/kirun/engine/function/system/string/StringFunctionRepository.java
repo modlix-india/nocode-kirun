@@ -22,15 +22,16 @@ public class StringFunctionRepository implements Repository<Function> {
 			AbstractBinaryStringFunction.ofEntryAsStringBooleanOutput("Matches", String::matches),
 			AbstractBinaryStringFunction.ofEntryAsStringIntegerOutput("IndexOf", String::indexOf),
 			AbstractBinaryStringFunction.ofEntryAsStringIntegerOutput("LastIndexOf", String::lastIndexOf),
-			AbstractBinaryStringFunction.ofEntryAsStringArrayOutput("Split", String::split),
 			AbstractBinaryStringFunction.ofEntryAsStringAndIntegerStringOutput("Repeat", String::repeat),
 
-			AbstractTertiaryStringFunction.ofEntryAsStringIntegerOutput("IndexOfWithStartPoint", String::indexOf),
-			AbstractTertiaryStringFunction.ofEntryAsStringIntegerOutput("LastIndexOfWithStartPoint",
+			AbstractTertiaryStringFunction.ofEntryAsStringStringIntegerIntegerOutput("IndexOfWithStartPoint",
+					String::indexOf),
+			AbstractTertiaryStringFunction.ofEntryAsStringStringIntegerIntegerOutput("LastIndexOfWithStartPoint",
 					String::lastIndexOf),
-			AbstractTertiaryStringFunction.ofEntryAsString("Replace", String::replace),
-			AbstractTertiaryStringFunction.ofEntryAsString("ReplaceFirst", String::replaceFirst),
-			AbstractTertiaryStringFunction.ofEntryAsStringAndSubStringOutput("SubString", String::substring));
+			AbstractTertiaryStringFunction.ofEntryAsStringStringStringStringOutput("Replace", String::replace),
+			AbstractTertiaryStringFunction.ofEntryAsStringStringStringStringOutput("ReplaceFirst",
+					String::replaceFirst),
+			AbstractTertiaryStringFunction.ofEntryAsStringIntegerIntegerStringOutput("SubString", String::substring));
 
 	@Override
 	public Function find(String namespace, String name) {
