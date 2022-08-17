@@ -15,7 +15,7 @@ public class SubArray extends AbstractArrayFunction {
 
 	public SubArray() {
 		super("SubArray", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH),
-				EVENT_RESULT_EMPTY);
+				EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -43,15 +43,14 @@ public class SubArray extends AbstractArrayFunction {
 			throw new KIRuntimeException(
 					"Given find from point is more than the source size array or the Requested length for the subarray was more than the source size");
 
-		while (start != 0) {
-			source.remove(0);
-			start--;
+		JsonArray subArr = new JsonArray();
+		
+		
+		for(int i=0;i< len;i++) {
+			subArr.add(source.get(i+start));
 		}
 
-		while (source.size() > len)
-			source.remove(source.size() - 1);
-
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ARRAY.getName(), subArr))));
 	}
 
 }

@@ -40,14 +40,12 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)));
 
 		SubArray sub = new SubArray();
 
-		sub.execute(fep);
-
-		assertEquals(res, arr);
+		assertEquals(
+				sub.execute(fep).allResults().get(0).getResult().get( "output"), res);
 	}
 
 	@Test
@@ -81,8 +79,7 @@ class SubArrayTest {
 		res.add('d');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
-				Map.of("source", arr, "findFrom", new JsonPrimitive(1123), "length", new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				Map.of("source", arr, "findFrom", new JsonPrimitive(1123), "length", new JsonPrimitive(arr.size())));
 
 		SubArray sub = new SubArray();
 
@@ -113,14 +110,13 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)));
 
 		SubArray sub = new SubArray();
 
 		sub.execute(fep);
 
-		assertEquals(res, arr);
+		assertEquals(sub.execute(fep).allResults().get(0).getResult().get( "output"), res);
 	}
 
 	@Test
@@ -146,14 +142,13 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)));
 
 		SubArray sub = new SubArray();
 
-		sub.execute(fep);
+		
 
-		assertEquals(res, arr);
+		assertEquals(sub.execute(fep).allResults().get(0).getResult().get("output"), res);
 
 	}
 
@@ -245,14 +240,12 @@ class SubArrayTest {
 		res.add(array1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(3)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(3))) ;
 
 		SubArray mis = new SubArray();
 
-		mis.execute(fep);
 
-		assertEquals(res, arr);
+		assertEquals(mis.execute(fep).allResults().get(0).getResult().get("output"), res);
 
 	}
 }

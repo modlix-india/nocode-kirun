@@ -35,20 +35,17 @@ test('SubArray of Test 1', () => {
     res.push('changes');
     res.push('with');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-                [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 4],
-                [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 9],
-            ]),
-        )
-        .setOutput(new Map([]))
-        .setContext(new Map([]));
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+        new Map<string, any>([
+            [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
+            [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 4],
+            [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 9],
+        ]),
+    );
 
-    sub.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    expect(
+        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+    ).toStrictEqual(res);
 });
 
 test('SubArray of Test 2', () => {
@@ -68,7 +65,7 @@ test('SubArray of Test 2', () => {
     expect(() => sub.execute(fep)).toThrow;
 });
 
-test('SubArray of Test 2', () => {
+test('SubArray of Test 5', () => {
     let sub: SubArray = new SubArray();
 
     let array: any[] = [];
@@ -93,20 +90,17 @@ test('SubArray of Test 2', () => {
     res.push('a');
     res.push('b');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-                [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
-                [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 7],
-            ]),
-        )
-        .setOutput(new Map([]))
-        .setContext(new Map([]));
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+        new Map<string, any>([
+            [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
+            [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
+            [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 7],
+        ]),
+    );
 
-    sub.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    expect(
+        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+    ).toStrictEqual(res);
 });
 
 test('SubArray of Test 3', () => {
@@ -134,16 +128,13 @@ test('SubArray of Test 3', () => {
     res.push('a');
     res.push('b');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-                [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1123],
-                [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 7],
-            ]),
-        )
-        .setOutput(new Map([]))
-        .setContext(new Map([]));
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+        new Map<string, any>([
+            [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
+            [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1123],
+            [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 7],
+        ]),
+    );
 
     expect(() => sub.execute(fep)).toThrow;
 });
@@ -232,18 +223,14 @@ test('SubArray of Test 4', () => {
     res.push(array4);
     res.push(array1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-                // [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
-                [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 3],
-            ]),
-        )
-        .setOutput(new Map([]))
-        .setContext(new Map([]));
-
-    sub.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+        new Map<string, any>([
+            [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
+            // [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
+            [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 3],
+        ]),
+    );
+    expect(
+        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+    ).toStrictEqual(res);
 });

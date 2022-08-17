@@ -13,7 +13,7 @@ export class SubArray extends AbstractArrayFunction {
                 SubArray.PARAMETER_INT_FIND_FROM,
                 SubArray.PARAMETER_INT_LENGTH,
             ],
-            SubArray.EVENT_RESULT_EMPTY,
+            SubArray.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -39,13 +39,10 @@ export class SubArray extends AbstractArrayFunction {
                 'Given find from point is more than the source size array or the Requested length for the subarray was more than the source size',
             );
 
-        while (start != 0) {
-            source.shift();
-            start--;
-        }
+        let slicedArray: any[] = source.slice(start, start + len);
 
-        while (source.length > len) source.pop();
-
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[SubArray.EVENT_RESULT_ARRAY.getName(), slicedArray]])),
+        ]);
     }
 }
