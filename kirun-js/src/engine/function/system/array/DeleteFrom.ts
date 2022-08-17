@@ -22,7 +22,7 @@ export class DeleteFrom extends AbstractArrayFunction {
             .getArguments()
             .get(DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        let from: number = context
+        let start: number = context
             .getArguments()
             .get(DeleteFrom.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
@@ -32,7 +32,10 @@ export class DeleteFrom extends AbstractArrayFunction {
 
         if (source.length == 0) throw new KIRuntimeException('There are no elements to be deleted');
 
-        let start: number = from < 0 || from > 0 ? 0 : from;
+        if (start >= source.length || start < 0)
+            throw new KIRuntimeException(
+                'The int source for the array should be in between 0 and length of the array ',
+            );
 
         if (len == -1) len = source.length - start;
 
@@ -41,10 +44,7 @@ export class DeleteFrom extends AbstractArrayFunction {
                 'Requested length to be deleted is more than the size of array ',
             );
 
-        while (len > 0) {
-            source[start];
-            len--;
-        }
+        source.splice(start, len);
 
         return new FunctionOutput([EventResult.outputOf(new Map([]))]);
     }
