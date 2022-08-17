@@ -45,7 +45,7 @@ export class MisMatch extends AbstractArrayFunction {
         let first: number = firstFind < firstSource.length && firstFind > 0 ? firstFind : 0;
         let second: number = secondFind < secondSource.length && secondFind > 0 ? secondFind : 0;
 
-        if (first + length > firstSource.length || second + length > secondSource.length)
+        if (first + length >= firstSource.length || second + length > secondSource.length)
             throw new KIRuntimeException(
                 'The size of the array for first and second which was being requested is more than size of the given array',
             );

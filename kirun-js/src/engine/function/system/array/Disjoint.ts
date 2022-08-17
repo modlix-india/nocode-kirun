@@ -66,20 +66,20 @@ export class Disjoint extends AbstractArrayFunction {
         let set3: Set<any> = new Set<any>();
 
         set1.forEach((element) => {
-            if (set2.has(element)) set3.delete(element);
-            if (!set2.has(element)) set3.add(element);
+            if (set2.has(element)) set2.delete(element);
+            else set3.add(element);
         });
 
         set2.forEach((element) => {
             if (!set1.has(element)) set3.add(element);
         });
 
-        let DisjointArray: any[] = [];
+        let disjointArray: any[] = [];
 
-        set3.forEach((element) => DisjointArray.push(element));
+        set3.forEach((element) => disjointArray.push(element));
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[Disjoint.EVENT_RESULT_ARRAY.getName(), DisjointArray]])),
+            EventResult.outputOf(new Map([[Disjoint.EVENT_RESULT_ARRAY.getName(), disjointArray]])),
         ]);
     }
 }
