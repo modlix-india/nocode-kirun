@@ -100,7 +100,7 @@ export class KIRuntime extends AbstractFunction {
 
         if (!inContext.getEvents()) inContext.setEvents(new Map());
 
-        if (!inContext.getOutput()) inContext.setOutput(new Map());
+        if (!inContext.getSteps()) inContext.setSteps(new Map());
 
         let eGraph: ExecutionGraph<string, StatementExecution> = this.getExecutionPlan(
             inContext.getContext(),
@@ -183,7 +183,7 @@ export class KIRuntime extends AbstractFunction {
         if (!executionQue.isEmpty()) {
             let vertex: GraphVertex<string, StatementExecution> = executionQue.pop();
 
-            if (!this.allDependenciesResolvedVertex(vertex, inContext.getOutput()))
+            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()))
                 executionQue.add(vertex);
             else this.executeVertex(vertex, inContext, branchQue, executionQue);
         }
@@ -209,7 +209,7 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             > = branchQue.pop();
 
-            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getOutput()))
+            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()))
                 branchQue.add(branch);
             else this.executeBranch(inContext, executionQue, branch);
         }
@@ -233,13 +233,13 @@ export class KIRuntime extends AbstractFunction {
             nextOutput = branch.getT3().next();
 
             if (nextOutput) {
-                if (!inContext.getOutput().has(vertex.getData().getStatement().getStatementName()))
+                if (!inContext.getSteps().has(vertex.getData().getStatement().getStatementName()))
                     inContext
-                        .getOutput()
+                        .getSteps()
                         .set(vertex.getData().getStatement().getStatementName(), new Map());
 
                 inContext
-                    .getOutput()
+                    .getSteps()
                     .get(vertex.getData().getStatement().getStatementName())
                     .set(
                         nextOutput.getName(),
@@ -285,7 +285,7 @@ export class KIRuntime extends AbstractFunction {
                 .setContext(context)
                 .setArguments(args)
                 .setEvents(inContext.getEvents())
-                .setOutput(inContext.getOutput())
+                .setSteps(inContext.getSteps())
                 .setStatementExecution(vertex.getData())
                 .setCount(inContext.getCount()),
         );
@@ -299,11 +299,11 @@ export class KIRuntime extends AbstractFunction {
 
         let isOutput: boolean = er.getName() == Event.OUTPUT;
 
-        if (!inContext.getOutput().has(s.getStatementName())) {
-            inContext.getOutput().set(s.getStatementName(), new Map());
+        if (!inContext.getSteps().has(s.getStatementName())) {
+            inContext.getSteps().set(s.getStatementName(), new Map());
         }
         inContext
-            .getOutput()
+            .getSteps()
             .get(s.getStatementName())
             .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
 
@@ -340,7 +340,7 @@ export class KIRuntime extends AbstractFunction {
             let exp: ExpressionEvaluator = new ExpressionEvaluator(
                 (value as JsonExpression).getExpression(),
             );
-            return exp.evaluate(inContext);
+            return exp.evaluate(inContext.getValuesMap());
         }
 
         if (Array.isArray(value)) {
@@ -439,7 +439,7 @@ export class KIRuntime extends AbstractFunction {
             !StringUtil.isNullOrBlank(ref.getExpression())
         ) {
             let exp: ExpressionEvaluator = new ExpressionEvaluator(ref.getExpression());
-            ret = exp.evaluate(inContext);
+            ret = exp.evaluate(inContext.getValuesMap());
         }
         return ret;
     }

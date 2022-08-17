@@ -36,10 +36,7 @@ import { ArithmeticUnaryPlusOperator } from './operators/unary/ArithmeticUnaryPl
 import { BitwiseComplementOperator } from './operators/unary/BitwiseComplementOperator';
 import { LogicalNotOperator } from './operators/unary/LogicalNotOperator';
 import { UnaryOperator } from './operators/unary/UnaryOperator';
-import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
-import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
-import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
 
 export class ExpressionEvaluator {
@@ -94,18 +91,8 @@ export class ExpressionEvaluator {
         }
     }
 
-    public evaluate(context: FunctionExecutionParameters): any {
+    public evaluate(valuesMap: Map<string, TokenValueExtractor>): any {
         if (!this.exp) this.exp = new Expression(this.expression);
-
-        let valuesMap: Map<string, TokenValueExtractor> = new Map([
-            ['Steps', new OutputMapTokenValueExtractor(context.getOutput()) as TokenValueExtractor],
-            [
-                'Argum',
-                new ArgumentsTokenValueExtractor(context.getArguments()) as TokenValueExtractor,
-            ],
-            ['Conte', new ContextTokenValueExtractor(context.getContext()) as TokenValueExtractor],
-        ]);
-
         return this.evaluateExpression(this.exp, valuesMap);
     }
 
@@ -220,7 +207,8 @@ export class ExpressionEvaluator {
         }
 
         let str: string = sb.toString();
-        if (str.length > 5 && valuesMap.has(sb.substring(0, 5)))
+        let key: string = str.substring(0, str.indexOf('.') + 1);
+        if (key.length > 2 && valuesMap.has(key))
             tokens.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
         else {
             let v: any = undefined;
@@ -307,8 +295,7 @@ export class ExpressionEvaluator {
     private getValue(path: string, valuesMap: Map<string, TokenValueExtractor>): any {
         if (path.length <= 5) return LiteralTokenValueExtractor.INSTANCE.getValue(path);
 
-        return (
-            valuesMap.get(path.substring(0, 5)) ?? LiteralTokenValueExtractor.INSTANCE
-        ).getValue(path);
+        const pathPrefix: string = path.substring(0, path.indexOf('.') + 1);
+        return (valuesMap.get(pathPrefix) ?? LiteralTokenValueExtractor.INSTANCE).getValue(path);
     }
 }

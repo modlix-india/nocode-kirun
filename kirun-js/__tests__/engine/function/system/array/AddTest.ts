@@ -26,7 +26,7 @@ test('Add Test 1', () => {
                 [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     add.execute(fep);
@@ -54,7 +54,7 @@ test('Add test 2', () => {
                 [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     add.execute(fep);
@@ -82,7 +82,7 @@ test('Add test 3', () => {
                 [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     add.execute(fep);
@@ -102,7 +102,7 @@ test('Add test 4', () => {
                 [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => add.execute(fep)).toThrow('');
@@ -120,7 +120,7 @@ test('Add test 5', () => {
                 [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => add.execute(fep)).toThrow(

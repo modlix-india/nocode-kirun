@@ -95,7 +95,7 @@ export class SetFunction extends AbstractFunction {
                     i,
                     new ExpressionTokenValue(
                         key,
-                        new ExpressionEvaluator(ex as Expression).evaluate(context),
+                        new ExpressionEvaluator(ex as Expression).evaluate(context.getValuesMap()),
                     ),
                 );
         }

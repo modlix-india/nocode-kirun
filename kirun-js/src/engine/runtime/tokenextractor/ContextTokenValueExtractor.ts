@@ -1,5 +1,5 @@
-import { ContextElement } from '../../ContextElement';
-import { TokenValueExtractor } from './TokenValueExtractor';
+import { ContextElement } from '../ContextElement';
+import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class ContextTokenValueExtractor extends TokenValueExtractor {
     public static readonly PREFIX: string = 'Context.';
