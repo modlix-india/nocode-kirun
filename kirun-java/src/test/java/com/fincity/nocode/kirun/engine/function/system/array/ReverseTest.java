@@ -34,7 +34,7 @@ class ReverseTest {
 		fep.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
 				Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 				Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(2))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		rev.execute(fep);
 
@@ -60,7 +60,7 @@ class ReverseTest {
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep);
 
@@ -80,7 +80,7 @@ class ReverseTest {
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep1);
 
@@ -168,7 +168,7 @@ class ReverseTest {
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add(array1);
@@ -203,7 +203,7 @@ class ReverseTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep);
 
@@ -224,7 +224,7 @@ class ReverseTest {
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep1);
 

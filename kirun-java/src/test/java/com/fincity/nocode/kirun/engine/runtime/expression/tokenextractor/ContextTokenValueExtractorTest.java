@@ -7,6 +7,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ContextTokenValueExtractor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 

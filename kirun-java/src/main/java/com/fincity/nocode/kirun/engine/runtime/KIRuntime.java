@@ -113,8 +113,8 @@ public class KIRuntime extends AbstractFunction {
 		if (inContext.getEvents() == null)
 			inContext.setEvents(new ConcurrentHashMap<>());
 
-		if (inContext.getOutput() == null)
-			inContext.setOutput(new ConcurrentHashMap<>());
+		if (inContext.getSteps() == null)
+			inContext.setSteps(new ConcurrentHashMap<>());
 
 		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
 
@@ -179,7 +179,7 @@ public class KIRuntime extends AbstractFunction {
 
 			var vertex = executionQue.pop();
 
-			if (!allDependenciesResolved(vertex, inContext.getOutput()))
+			if (!allDependenciesResolved(vertex, inContext.getSteps()))
 				executionQue.add(vertex);
 			else
 				executeVertex(vertex, inContext, branchQue, executionQue);
@@ -193,7 +193,7 @@ public class KIRuntime extends AbstractFunction {
 
 			var branch = branchQue.pop();
 
-			if (!allDependenciesResolved(branch.getT2(), inContext.getOutput()))
+			if (!allDependenciesResolved(branch.getT2(), inContext.getSteps()))
 				branchQue.add(branch);
 			else
 				executeBranch(inContext, executionQue, branch);
@@ -213,7 +213,7 @@ public class KIRuntime extends AbstractFunction {
 			        .next();
 
 			if (nextOutput != null)
-				inContext.getOutput()
+				inContext.getSteps()
 				        .computeIfAbsent(vertex.getData()
 				                .getStatement()
 				                .getStatementName(), k -> new ConcurrentHashMap<>())
@@ -251,7 +251,7 @@ public class KIRuntime extends AbstractFunction {
 		FunctionOutput result = fun.execute(new FunctionExecutionParameters().setContext(context)
 		        .setArguments(arguments)
 		        .setEvents(inContext.getEvents())
-		        .setOutput(inContext.getOutput())
+		        .setSteps(inContext.getSteps())
 		        .setStatementExecution(vertex.getData())
 		        .setCount(inContext.getCount()));
 
@@ -264,7 +264,7 @@ public class KIRuntime extends AbstractFunction {
 		boolean isOutput = er.getName()
 		        .equals(Event.OUTPUT);
 
-		inContext.getOutput()
+		inContext.getSteps()
 		        .computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
 		        .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
 
@@ -303,7 +303,7 @@ public class KIRuntime extends AbstractFunction {
 		if (value instanceof JsonExpression valueExpression) {
 
 			ExpressionEvaluator exp = new ExpressionEvaluator(valueExpression.getExpression());
-			return exp.evaluate(inContext);
+			return exp.evaluate(inContext.getValueExtractors());
 		}
 
 		if (value instanceof JsonObject valueObject) {
@@ -413,7 +413,7 @@ public class KIRuntime extends AbstractFunction {
 		        && !ref.getExpression()
 		                .isBlank()) {
 			ExpressionEvaluator exp = new ExpressionEvaluator(ref.getExpression());
-			ret = exp.evaluate(inContext);
+			ret = exp.evaluate(inContext.getValueExtractors());
 		}
 		return ret;
 	}

@@ -25,7 +25,7 @@ class FillTest {
 
 		fep.setArguments(Map.of("source", array, "element", new JsonPrimitive(3)))
 		        .setContext(Map.of())
-		        .setOutput(Map.of());
+		        .setSteps(Map.of());
 
 		fill.execute(fep);
 
@@ -38,7 +38,7 @@ class FillTest {
 		fep.setArguments(Map.of("source", array, "element", new JsonPrimitive(5), "srcFrom", new JsonPrimitive(2),
 		        "length", new JsonPrimitive(5)))
 		        .setContext(Map.of())
-		        .setOutput(Map.of());
+		        .setSteps(Map.of());
 
 		finArray = new JsonArray();
 		finArray.add(new JsonPrimitive(3));
@@ -55,7 +55,7 @@ class FillTest {
 		
 		fep.setArguments(Map.of("source", array, "element", new JsonPrimitive(25), "srcFrom", new JsonPrimitive(5)))
 		        .setContext(Map.of())
-		        .setOutput(Map.of());
+		        .setSteps(Map.of());
 
 		finArray = new JsonArray();
 		finArray.add(new JsonPrimitive(3));
@@ -72,7 +72,7 @@ class FillTest {
 		
 		fep.setArguments(Map.of("source", array, "element", new JsonPrimitive(20), "srcFrom", new JsonPrimitive(-1)))
         .setContext(Map.of())
-        .setOutput(Map.of());
+        .setSteps(Map.of());
 		
 		
 		assertThrows(IndexOutOfBoundsException.class, () -> fill.execute(fep));

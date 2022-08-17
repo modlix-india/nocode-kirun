@@ -32,7 +32,7 @@ class RotateTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters();
 
 		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		var res = new JsonArray();
 
@@ -58,7 +58,7 @@ class RotateTest {
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters();
 
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(0))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> rotate.execute(fep1));
 	}
@@ -82,7 +82,7 @@ class RotateTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters();
 
 		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		var res = new JsonArray();
 
@@ -108,7 +108,7 @@ class RotateTest {
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters();
 
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(-2))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> rotate.execute(fep1));
 	}

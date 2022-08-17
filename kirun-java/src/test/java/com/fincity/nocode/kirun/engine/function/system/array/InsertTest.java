@@ -41,7 +41,7 @@ class InsertTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(2), "element", new JsonPrimitive(9)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		ins.execute(fep);
 
@@ -76,7 +76,7 @@ class InsertTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		ins.execute(fep);
 
@@ -95,7 +95,7 @@ class InsertTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		ins.execute(fep);
 
@@ -113,7 +113,7 @@ class InsertTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
 				Map.of("source", JsonNull.INSTANCE, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ins.execute(fep));
 

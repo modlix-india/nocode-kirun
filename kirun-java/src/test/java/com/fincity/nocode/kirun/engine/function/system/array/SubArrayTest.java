@@ -41,7 +41,7 @@ class SubArrayTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
@@ -82,7 +82,7 @@ class SubArrayTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
 				Map.of("source", arr, "findFrom", new JsonPrimitive(1123), "length", new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
@@ -114,7 +114,7 @@ class SubArrayTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
@@ -147,7 +147,7 @@ class SubArrayTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
@@ -246,7 +246,7 @@ class SubArrayTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(3)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		SubArray mis = new SubArray();
 

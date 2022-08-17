@@ -41,7 +41,7 @@ class DeleteFromTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(6)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		del.execute(fep);
 
@@ -79,7 +79,7 @@ class DeleteFromTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(3)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		del.execute(fep);
 
@@ -197,7 +197,7 @@ class DeleteFromTest {
 				new FunctionExecutionParameters()
 						.setArguments(
 								Map.of("source", arr, "srcFrom", new JsonPrimitive(5), "length", new JsonPrimitive(3)))
-						.setContext(Map.of()).setOutput(Map.of());
+						.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFrom del = new DeleteFrom();
 		del.execute(fep);
@@ -237,7 +237,7 @@ class DeleteFromTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(3))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		del.execute(fep);
 

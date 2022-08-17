@@ -47,49 +47,54 @@ class ExpressionEvaluatorTest {
 
 		FunctionExecutionParameters parameters = new FunctionExecutionParameters().setArguments(Map.of())
 		        .setContext(Map.of())
-		        .setOutput(output);
+		        .setSteps(output);
 
-		assertEquals(new JsonPrimitive(10), new ExpressionEvaluator("3 + 7").evaluate(parameters));
-		assertEquals(new JsonPrimitive("asdf333"), new ExpressionEvaluator("\"asdf\"+333").evaluate(parameters));
-		assertEquals(new JsonPrimitive(422), new ExpressionEvaluator("10*11+12*13*14/7").evaluate(parameters));
-		assertEquals(new JsonPrimitive(true), new ExpressionEvaluator("34 >> 2 = 8 ").evaluate(parameters));
-
-		assertEquals(new JsonPrimitive(true), new ExpressionEvaluator("34 >> 2 = 8 ").evaluate(parameters));
-
-		assertEquals(null, new ExpressionEvaluator("Steps.step1.output.name1").evaluate(parameters));
+		assertEquals(new JsonPrimitive(10), new ExpressionEvaluator("3 + 7").evaluate(parameters.getValuesMap()));
+		assertEquals(new JsonPrimitive("asdf333"),
+		        new ExpressionEvaluator("\"asdf\"+333").evaluate(parameters.getValuesMap()));
+		assertEquals(new JsonPrimitive(422),
+		        new ExpressionEvaluator("10*11+12*13*14/7").evaluate(parameters.getValuesMap()));
+		assertEquals(new JsonPrimitive(true),
+		        new ExpressionEvaluator("34 >> 2 = 8 ").evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
-		        new ExpressionEvaluator("\"Kiran\" = Steps.step1.output.name ").evaluate(parameters));
+		        new ExpressionEvaluator("34 >> 2 = 8 ").evaluate(parameters.getValuesMap()));
+
+		assertEquals(null, new ExpressionEvaluator("Steps.step1.output.name1").evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
-		        new ExpressionEvaluator("null = Steps.step1.output.name1 ").evaluate(parameters));
+		        new ExpressionEvaluator("\"Kiran\" = Steps.step1.output.name ").evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(true),
+		        new ExpressionEvaluator("null = Steps.step1.output.name1 ").evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
 		        new ExpressionEvaluator("Steps.step1.output.obj.phone.phone2 = Steps.step1.output.obj.phone.phone2 ")
-		                .evaluate(parameters));
+		                .evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
 		        new ExpressionEvaluator(
 		                "Steps.step1.output.obj.address.phone.phone2 != Steps.step1.output.address.obj.phone.phone1 ")
-		                .evaluate(parameters));
+		                .evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(32),
 		        new ExpressionEvaluator("Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+2")
-		                .evaluate(parameters));
+		                .evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
 		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
-		        .evaluate(parameters));
+		        .evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
 		        "Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
-		        .evaluate(parameters));
+		        .evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(32),
 		        new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
-		                .evaluate(parameters));
+		                .evaluate(parameters.getValuesMap()));
 
-		assertEquals(new JsonPrimitive(17.3533f), new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters));
+		assertEquals(new JsonPrimitive(17.3533f),
+		        new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters.getValuesMap()));
 	}
 
 }

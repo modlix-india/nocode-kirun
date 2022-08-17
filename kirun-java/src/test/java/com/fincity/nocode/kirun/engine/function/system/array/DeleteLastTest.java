@@ -31,7 +31,7 @@ class DeleteLastTest {
 		arr1.add('i');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep);
 
@@ -45,7 +45,7 @@ class DeleteLastTest {
 		DeleteLast ad = new DeleteLast();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 	}
@@ -97,7 +97,7 @@ class DeleteLastTest {
 		res.add(js4);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteLast del = new DeleteLast();
 		del.execute(fep);
@@ -187,7 +187,7 @@ class DeleteLastTest {
 		res.add(array4);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteLast freq = new DeleteLast();
 		freq.execute(fep);
@@ -202,7 +202,7 @@ class DeleteLastTest {
 		DeleteLast ad = new DeleteLast();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
 	}
