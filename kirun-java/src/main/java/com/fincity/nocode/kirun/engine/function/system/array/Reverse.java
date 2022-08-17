@@ -3,12 +3,12 @@ package com.fincity.nocode.kirun.engine.function.system.array;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class Reverse extends AbstractArrayFunction {
 
@@ -22,27 +22,26 @@ public class Reverse extends AbstractArrayFunction {
 
 		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
-		JsonPrimitive start = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-				.getAsJsonPrimitive();
+		int st = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName()).getAsJsonPrimitive()
+				.getAsInt();
 
-		JsonPrimitive end = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive();
+		int length = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive()
+				.getAsInt();
 
-		if (source.isEmpty() || end.getAsInt() > source.size() - 1 || start.getAsInt() < 0)
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		if (length > source.size() || length > source.size() - st || st < 0)
+			throw new KIRuntimeException(
+					"Please provide start point between the start and end indexes or provide the length which was less than the source size ");
 
-		int st = start.getAsInt();
-		int ed = end.getAsInt();
+		if (length == -1)
+			length = source.size() - st;
 
-		if (end.equals(new JsonPrimitive(-1)))
-			ed = source.size() - st;
-		
-		ed--;
+		int endPoint = st + length - 1;
 
-		while (st < ed) {
+		while (st <= endPoint) {
 			JsonElement first = source.get(st);
-			JsonElement last = source.get(ed);
+			JsonElement last = source.get(endPoint);
 			source.set(st++, last);
-			source.set(ed--, first);
+			source.set(endPoint--, first);
 		}
 
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));

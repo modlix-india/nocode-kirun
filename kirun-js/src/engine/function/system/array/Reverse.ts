@@ -1,3 +1,4 @@
+import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
@@ -25,21 +26,23 @@ export class Reverse extends AbstractArrayFunction {
             .getArguments()
             .get(Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
-        let ed: number = context
+        let len: number = context
             .getArguments()
             .get(Reverse.PARAMETER_INT_LENGTH.getParameterName());
 
-        if (source.length == 0 || ed > source.length - 1 || st < 0)
-            return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        if (len > source.length || len > source.length - 1 || st < 0)
+            throw new KIRuntimeException(
+                'Please provide start point between the start and end indexes or provide the length which was less than the source size ',
+            );
 
-        if (ed == -1) ed = source.length - st;
-        ed--;
+        if (len == -1) len = source.length - st;
 
-        while (st < ed) {
+        let endpoint: number = st + len - 1;
+        while (st <= endpoint) {
             let first: any = source[st];
-            let last: any = source[ed];
+            let last: any = source[endpoint];
             source[st++] = last;
-            source[ed--] = first;
+            source[endpoint--] = first;
         }
 
         return new FunctionOutput([EventResult.outputOf(new Map([]))]);
