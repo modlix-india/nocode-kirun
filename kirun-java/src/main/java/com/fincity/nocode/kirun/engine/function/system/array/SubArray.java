@@ -38,7 +38,7 @@ public class SubArray extends AbstractArrayFunction {
 
 		int start = from.getAsInt();
 
-		if (!(start > 0 && start < source.size()) || start + len > source.size())
+		if (!(start >= 0 && start < source.size()) || start + len > source.size())
 
 			throw new KIRuntimeException(
 					"Given find from point is more than the source size array or the Requested length for the subarray was more than the source size");

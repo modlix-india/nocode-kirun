@@ -31,7 +31,7 @@ public class DeleteFrom extends AbstractArrayFunction {
 		if (source.size() == 0)
 			throw new KIRuntimeException("There are no elements to be deleted");
 
-		int start = from.getAsInt() < 0 ? 0 : from.getAsInt();
+		int start = from.getAsInt() > 0 ? 0 : from.getAsInt();
 
 		int len = length.getAsInt();
 

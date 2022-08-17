@@ -55,6 +55,10 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         .setName(Event.OUTPUT)
         .setParameters(MapUtil.of());
 
+    public static readonly EVENT_RESULT_ANY: Event = new Event()
+        .setName(Event.OUTPUT)
+        .setParameters(MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofAny(this.EVENT_RESULT_NAME)));
+
     public static readonly PARAMETER_INT_LENGTH: Parameter = Parameter.of(
         'length',
         Schema.ofInteger('length').setDefaultValue(-1),
@@ -67,10 +71,30 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         'srcFrom',
         Schema.ofInteger('srcFrom').setDefaultValue(0),
     );
+    public static readonly PARAMETER_INT_SECOND_SOURCE_FROM: Parameter = Parameter.of(
+        'secondSrcFrom',
+        Schema.ofInteger('secondSrcFrom').setDefaultValue(0),
+    );
     public static readonly PARAMETER_INT_FIND_FROM: Parameter = Parameter.of(
         'findFrom',
         Schema.ofInteger('findFrom').setDefaultValue(0),
     );
+
+    public static readonly PARAMETER_INT_OFFSET: Parameter = Parameter.of(
+        'offset',
+        Schema.ofInteger('offset').setDefaultValue(0),
+    );
+
+    public static readonly PARAMETER_ROTATE_LENGTH: Parameter = Parameter.of(
+        'rotateLength',
+        Schema.ofInteger('rotateLength').setDefaultValue(1).setMinimum(1),
+    );
+
+    public static readonly PARAMETER_BOOLEAN_ASCENDING: Parameter = Parameter.of(
+        'ascending',
+        Schema.ofBoolean('ascending').setDefaultValue(false),
+    );
+
     public static readonly PARAMETER_ARRAY_SOURCE: Parameter = Parameter.of(
         'source',
         Schema.ofArray('eachSource', Schema.ofAny('eachSource')),

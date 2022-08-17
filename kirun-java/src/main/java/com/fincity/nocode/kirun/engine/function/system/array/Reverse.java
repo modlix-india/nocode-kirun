@@ -35,6 +35,8 @@ public class Reverse extends AbstractArrayFunction {
 
 		if (end.equals(new JsonPrimitive(-1)))
 			ed = source.size() - st;
+		
+		ed--;
 
 		while (st < ed) {
 			JsonElement first = source.get(st);

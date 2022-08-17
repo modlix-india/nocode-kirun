@@ -13,7 +13,7 @@ import com.google.gson.JsonPrimitive;
 class ReverseTest {
 
 	@Test
-	void testInternalExecute() {
+	void test () {
 
 		Reverse rev = new Reverse();
 
@@ -26,9 +26,10 @@ class ReverseTest {
 		source.add(7);
 
 		JsonArray res = new JsonArray();
-		res.add(6);
 		res.add(5);
 		res.add(4);
+		res.add(6);
+
 		res.add(7);
 
 		fep.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
