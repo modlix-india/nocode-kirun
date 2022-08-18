@@ -25,60 +25,40 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static readonly PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
 
-    protected static readonly PARAMETER_SECOND_STRING: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME)
-        .setSchema(Schema.ofString(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME));
+    protected static readonly PARAMETER_SECOND_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME));
 
-    protected static readonly PARAMETER_THIRD_STRING: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME)
-        .setSchema(Schema.ofString(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME));
+    protected static readonly PARAMETER_THIRD_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME));
 
-    protected static readonly PARAMETER_INDEX: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_INDEX_NAME)
-        .setSchema(Schema.ofInteger(AbstractStringFunction.PARAMETER_INDEX_NAME));
+    protected static readonly PARAMETER_INDEX: Parameter =new Parameter(AbstractStringFunction.PARAMETER_INDEX_NAME,Schema.ofInteger(AbstractStringFunction.PARAMETER_INDEX_NAME));
 
-    protected static readonly PARAMETER_SECOND_INDEX: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME)
-        .setSchema(Schema.ofInteger(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME));
+    protected static readonly PARAMETER_SECOND_INDEX: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME,Schema.ofInteger(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME));
 
-    protected static readonly PARAMETER_SEARCH_STRING: Parameter = new Parameter()
-        .setParameterName(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME)
-        .setSchema(Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_SEARCH_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
 
-    protected static readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractStringFunction.EVENT_RESULT_NAME,
                 Schema.ofString(AbstractStringFunction.EVENT_RESULT_NAME),
             ),
         );
 
-    protected static readonly EVENT_BOOLEAN: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_BOOLEAN: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractStringFunction.EVENT_RESULT_NAME,
                 Schema.ofBoolean(AbstractStringFunction.EVENT_RESULT_NAME),
             ),
         );
 
-    protected static readonly EVENT_INT: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_INT: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractStringFunction.EVENT_RESULT_NAME,
                 Schema.ofInteger(AbstractStringFunction.EVENT_RESULT_NAME),
             ),
         );
 
-    protected static readonly EVENT_ARRAY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_ARRAY: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractStringFunction.EVENT_RESULT_NAME,
                 Schema.ofArray(AbstractStringFunction.EVENT_RESULT_NAME),
@@ -92,8 +72,7 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         const paramMap: Map<string, Parameter> = new Map();
         parameter.forEach((e) => paramMap.set(e.getParameterName(), e));
 
-        this.signature = new FunctionSignature()
-            .setName(functionName)
+        this.signature = new FunctionSignature(functionName)
             .setNamespace(namespace)
             .setParameters(paramMap)
             .setEvents(MapUtil.of(event.getName(), event));
@@ -121,11 +100,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ss: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -161,11 +140,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let count: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -201,11 +180,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s1: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let s2: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -238,8 +217,8 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -273,8 +252,8 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -309,15 +288,15 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ss: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     let ind: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -354,15 +333,15 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ind1: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     let ind2: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -402,14 +381,14 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s1: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let s2: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME);
                     let s3: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(

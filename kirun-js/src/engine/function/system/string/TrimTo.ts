@@ -15,22 +15,15 @@ export class TrimTo extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static readonly PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(TrimTo.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(TrimTo.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_STRING: Parameter =new Parameter(TrimTo.PARAMETER_STRING_NAME,Schema.ofString(TrimTo.PARAMETER_STRING_NAME));
 
-    protected static readonly PARAMETER_LENGTH: Parameter = new Parameter()
-        .setParameterName(TrimTo.PARAMETER_LENGTH_NAME)
-        .setSchema(Schema.ofInteger(TrimTo.PARAMETER_LENGTH_NAME));
+    protected static readonly PARAMETER_LENGTH: Parameter =new Parameter(TrimTo.PARAMETER_LENGTH_NAME,Schema.ofInteger(TrimTo.PARAMETER_LENGTH_NAME));
 
-    protected static readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([[TrimTo.EVENT_RESULT_NAME, Schema.ofString(TrimTo.EVENT_RESULT_NAME)]]),
         );
 
-    private signature: FunctionSignature = new FunctionSignature()
-        .setName('TrimTo')
+    private signature: FunctionSignature = new FunctionSignature('TrimTo')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -49,8 +42,8 @@ export class TrimTo extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let inputString: string = context.getArguments().get(TrimTo.PARAMETER_STRING_NAME);
-        let length: number = context.getArguments().get(TrimTo.PARAMETER_LENGTH_NAME);
+        let inputString: string = context.getArguments()?.get(TrimTo.PARAMETER_STRING_NAME);
+        let length: number = context.getArguments()?.get(TrimTo.PARAMETER_LENGTH_NAME);
 
         return new FunctionOutput([
             EventResult.of(

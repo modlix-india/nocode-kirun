@@ -13,8 +13,8 @@ export class Min extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Min.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
+            ?.getArguments()
+            ?.get(Min.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
 
         if (source.length == 0) throw new KIRuntimeException('Search source array cannot be empty');
 

@@ -15,7 +15,7 @@ test('Reverse test 1 ', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res = [5, 4, 6, 7];
     rev.execute(fep);
@@ -46,7 +46,7 @@ test('Reverse test 2 ', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     expect(() => rev.execute(fep)).toThrow();
 });
@@ -64,7 +64,7 @@ test('Reverse test 3', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     fep.setArguments(
         new Map<string, any>([
@@ -155,7 +155,7 @@ test('Rev test 4', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push(array1);
@@ -207,7 +207,7 @@ test('rev test 5', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push('a');

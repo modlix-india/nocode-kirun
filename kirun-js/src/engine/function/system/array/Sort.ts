@@ -21,18 +21,20 @@ export class Sort extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
+            ?.getArguments()
+            ?.get(Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
 
         let start: number = context
-            .getArguments()
-            .get(Sort.PARAMETER_INT_FIND_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(Sort.PARAMETER_INT_FIND_FROM.getParameterName());
 
-        let len: number = context.getArguments().get(Sort.PARAMETER_INT_LENGTH.getParameterName());
+        let len: number = context
+            ?.getArguments()
+            ?.get(Sort.PARAMETER_INT_LENGTH.getParameterName());
 
         let ascending: boolean = context
-            .getArguments()
-            .get(Sort.PARAMETER_BOOLEAN_ASCENDING.getParameterName());
+            ?.getArguments()
+            ?.get(Sort.PARAMETER_BOOLEAN_ASCENDING.getParameterName());
 
         if (source.length == 0)
             return new FunctionOutput([

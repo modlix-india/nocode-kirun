@@ -6,16 +6,16 @@ import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueEx
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 
 export class FunctionExecutionParameters {
-    private context: Map<string, ContextElement>;
-    private args: Map<string, any>;
-    private events: Map<string, Map<string, any>[]>;
-    private statementExecution: StatementExecution;
-    private steps: Map<string, Map<string, Map<string, any>>>;
+    private context?: Map<string, ContextElement>;
+    private args?: Map<string, any>;
+    private events?: Map<string, Map<string, any>[]>;
+    private statementExecution?: StatementExecution;
+    private steps?: Map<string, Map<string, Map<string, any>>>;
     private count: number = 0;
 
     private valueExtractors: Map<string, TokenValueExtractor> = new Map();
 
-    public getContext(): Map<string, ContextElement> {
+    public getContext(): Map<string, ContextElement> | undefined {
         return this.context;
     }
     public setContext(context: Map<string, ContextElement>): FunctionExecutionParameters {
@@ -24,7 +24,7 @@ export class FunctionExecutionParameters {
         this.valueExtractors.set(x.getPrefix(), x);
         return this;
     }
-    public getArguments(): Map<string, any> {
+    public getArguments(): Map<string, any> | undefined {
         return this.args;
     }
     public setArguments(args: Map<string, any>): FunctionExecutionParameters {
@@ -33,14 +33,14 @@ export class FunctionExecutionParameters {
         this.valueExtractors.set(x.getPrefix(), x);
         return this;
     }
-    public getEvents(): Map<string, Map<string, any>[]> {
+    public getEvents(): Map<string, Map<string, any>[]> | undefined {
         return this.events;
     }
     public setEvents(events: Map<string, Map<string, any>[]>): FunctionExecutionParameters {
         this.events = events;
         return this;
     }
-    public getStatementExecution(): StatementExecution {
+    public getStatementExecution(): StatementExecution | undefined {
         return this.statementExecution;
     }
     public setStatementExecution(
@@ -49,7 +49,7 @@ export class FunctionExecutionParameters {
         this.statementExecution = statementExecution;
         return this;
     }
-    public getSteps(): Map<string, Map<string, Map<string, any>>> {
+    public getSteps(): Map<string, Map<string, Map<string, any>>> | undefined {
         return this.steps;
     }
     public setSteps(

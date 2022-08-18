@@ -180,7 +180,7 @@ export class Operation {
         return this.operatorName;
     }
 
-    public valueOf(str: string): Operation {
+    public valueOf(str: string): Operation | undefined {
         return Operation.VALUE_OF.get(str);
     }
 

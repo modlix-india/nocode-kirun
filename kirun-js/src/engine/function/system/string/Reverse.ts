@@ -14,16 +14,13 @@ import { SchemaType } from '../../../json/schema/type/SchemaType';
 export class Reverse extends AbstractFunction {
     protected readonly VALUE: string = 'value';
 
-    private readonly SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('Reverse')
+    private readonly SIGNATURE: FunctionSignature = new FunctionSignature('Reverse')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
                 [
                     this.VALUE,
-                    new Parameter()
-                        .setParameterName(this.VALUE)
-                        .setSchema(Schema.ofString(this.VALUE))
+                   new Parameter(this.VALUE,Schema.ofString(this.VALUE))
                         .setVariableArgument(true),
                 ],
             ]),
@@ -52,7 +49,7 @@ export class Reverse extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let acutalString: string = context.getArguments().get(this.VALUE);
+        let acutalString: string = context.getArguments()?.get(this.VALUE);
         let stringLength: number = acutalString.length - 1;
         let reversedString: string = '';
 

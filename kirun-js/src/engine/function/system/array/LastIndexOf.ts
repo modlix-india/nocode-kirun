@@ -20,16 +20,16 @@ export class LastIndexOf extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         var find = context
-            .getArguments()
-            .get(LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.getArguments()
+            ?.get(LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
 
         let len = context
-            .getArguments()
-            .get(LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName());
 
         if (source.length == 0)
             return new FunctionOutput([

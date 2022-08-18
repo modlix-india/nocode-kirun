@@ -1,6 +1,6 @@
 export class SchemaValidationException extends Error {
     private schemaPath: string;
-
+    private cause?: Error;
     constructor(
         schemaPath: string,
         message: string,
@@ -9,13 +9,14 @@ export class SchemaValidationException extends Error {
     ) {
         super(message + (sve ? sve.map((e) => e.message).reduce((a, c) => a + '\n' + c, '') : ''));
         this.schemaPath = schemaPath;
-
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(err ?? this, SchemaValidationException);
-        }
+        this.cause = err;
     }
 
     public getSchemaPath(): string {
         return this.schemaPath;
+    }
+
+    public getCause(): Error | undefined {
+        return this.cause;
     }
 }

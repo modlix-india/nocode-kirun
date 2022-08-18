@@ -19,7 +19,11 @@ export class ParameterReference {
         );
     private type: ParameterReferenceType;
     private value: any;
-    private expression: string;
+    private expression?: string;
+
+    constructor(type: ParameterReferenceType) {
+        this.type = type;
+    }
 
     public getType(): ParameterReferenceType {
         return this.type;
@@ -35,7 +39,7 @@ export class ParameterReference {
         this.value = value;
         return this;
     }
-    public getExpression(): string {
+    public getExpression(): string | undefined {
         return this.expression;
     }
     public setExpression(expression: string): ParameterReference {
@@ -44,12 +48,10 @@ export class ParameterReference {
     }
 
     public static ofExpression(value: any): ParameterReference {
-        return new ParameterReference()
-            .setType(ParameterReferenceType.EXPRESSION)
-            .setExpression(value);
+        return new ParameterReference(ParameterReferenceType.EXPRESSION).setExpression(value);
     }
 
     public static ofValue(value: any): ParameterReference {
-        return new ParameterReference().setType(ParameterReferenceType.VALUE).setValue(value);
+        return new ParameterReference(ParameterReferenceType.VALUE).setValue(value);
     }
 }

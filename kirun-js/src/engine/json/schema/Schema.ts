@@ -2,11 +2,11 @@ import { Namespaces } from '../../namespaces/Namespaces';
 import { ArraySchemaType } from './array/ArraySchemaType';
 import { AdditionalPropertiesType } from './object/AdditionalPropertiesType';
 import { StringFormat } from './string/StringFormat';
-import { StringSchema } from './string/StringSchema';
 import { SchemaType } from './type/SchemaType';
 import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
+import { SingleType } from './type/SingleType';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';
@@ -251,21 +251,31 @@ export class Schema {
     }
 
     public static fromListOfSchemas(list: any): Schema[] {
-        return isNullValue(list) && !Array.isArray(list)
-            ? undefined
-            : Array.from(list).map((e) => Schema.from(e));
+        if (isNullValue(list) && !Array.isArray(list)) return [];
+        let x: Schema[] = [];
+        for (let e of Array.from(list)) {
+            let v = Schema.from(e);
+            if (!v) continue;
+            x.push(v);
+        }
+
+        return x;
     }
 
-    public static fromMapOfSchemas(map: any): Map<string, Schema> {
+    public static fromMapOfSchemas(map: any): Map<string, Schema> | undefined {
         if (isNullValue(map)) return undefined;
         const retMap = new Map<string, Schema>();
 
-        Object.entries(map).forEach(([k, v]) => retMap.set(k, Schema.from(v)));
+        Object.entries(map).forEach(([k, v]) => {
+            let value = Schema.from(v);
+            if (!value) return;
+            retMap.set(k, value);
+        });
 
         return retMap;
     }
 
-    public static from(obj: any): Schema {
+    public static from(obj: any, isStringSchema: boolean = false): Schema | undefined {
         if (isNullValue(obj)) return undefined;
 
         let schema: Schema = new Schema();
@@ -276,7 +286,9 @@ export class Schema {
 
         schema.ref = obj.ref;
 
-        schema.type = TypeUtil.from(schema.type);
+        if (!isStringSchema) schema.type = TypeUtil.from(schema.type);
+        else schema.type = new SingleType(SchemaType.STRING);
+
         schema.anyOf = Schema.fromListOfSchemas(obj.anyOf);
         schema.allOf = Schema.fromListOfSchemas(obj.allOf);
         schema.oneOf = Schema.fromListOfSchemas(obj.oneOf);
@@ -306,7 +318,7 @@ export class Schema {
         schema.properties = Schema.fromMapOfSchemas(obj.properties);
         schema.additionalProperties = AdditionalPropertiesType.from(obj.additionalProperties);
         schema.required = obj.required;
-        schema.propertyNames = Schema.from(obj.propertyNames);
+        schema.propertyNames = Schema.from(obj.propertyNames, true);
         schema.minProperties = obj.minProperties;
         schema.maxProperties = obj.maxProperties;
         schema.patternProperties = Schema.fromMapOfSchemas(obj.patternProperties);
@@ -325,68 +337,68 @@ export class Schema {
     }
 
     private namespace: string = TEMPORARY;
-    private name: string;
+    private name?: string;
 
     private version: number = 1;
 
-    private ref: string;
+    private ref?: string;
 
-    private type: Type;
-    private anyOf: Schema[];
-    private allOf: Schema[];
-    private oneOf: Schema[];
-    private not: Schema;
+    private type?: Type;
+    private anyOf?: Schema[];
+    private allOf?: Schema[];
+    private oneOf?: Schema[];
+    private not?: Schema;
 
-    private description: string;
-    private examples: any[];
-    private defaultValue: any;
-    private comment: string;
-    private enums: any[];
-    private constant: any;
+    private description?: string;
+    private examples?: any[];
+    private defaultValue?: any;
+    private comment?: string;
+    private enums?: any[];
+    private constant?: any;
 
     // String
-    private pattern: string;
-    private format: StringFormat;
-    private minLength: number;
-    private maxLength: number;
+    private pattern?: string;
+    private format?: StringFormat;
+    private minLength?: number;
+    private maxLength?: number;
 
     // Number
-    private multipleOf: number;
-    private minimum: number;
-    private maximum: number;
-    private exclusiveMinimum: number;
-    private exclusiveMaximum: number;
+    private multipleOf?: number;
+    private minimum?: number;
+    private maximum?: number;
+    private exclusiveMinimum?: number;
+    private exclusiveMaximum?: number;
 
     // Object
-    private properties: Map<string, Schema>;
-    private additionalProperties: AdditionalPropertiesType;
-    private required: string[];
-    private propertyNames: StringSchema;
-    private minProperties: number;
-    private maxProperties: number;
-    private patternProperties: Map<string, Schema>;
+    private properties?: Map<string, Schema>;
+    private additionalProperties?: AdditionalPropertiesType;
+    private required?: string[];
+    private propertyNames?: Schema;
+    private minProperties?: number;
+    private maxProperties?: number;
+    private patternProperties?: Map<string, Schema>;
 
     // Array
-    private items: ArraySchemaType;
-    private contains: Schema;
-    private minItems: number;
-    private maxItems: number;
-    private uniqueItems: boolean;
+    private items?: ArraySchemaType;
+    private contains?: Schema;
+    private minItems?: number;
+    private maxItems?: number;
+    private uniqueItems?: boolean;
 
-    private $defs: Map<string, Schema>;
-    private permission: string;
+    private $defs?: Map<string, Schema>;
+    private permission?: string;
 
-    public getTitle(): string {
+    public getTitle(): string | undefined {
         return this.getFullName();
     }
 
-    private getFullName(): string {
+    private getFullName(): string | undefined {
         if (!this.namespace || this.namespace == TEMPORARY) return this.name;
 
         return this.namespace + '.' + this.name;
     }
 
-    public get$defs(): Map<string, Schema> {
+    public get$defs(): Map<string, Schema> | undefined {
         return this.$defs;
     }
 
@@ -402,7 +414,7 @@ export class Schema {
         this.namespace = namespace;
         return this;
     }
-    public getName(): string {
+    public getName(): string | undefined {
         return this.name;
     }
     public setName(name: string): Schema {
@@ -416,56 +428,56 @@ export class Schema {
         this.version = version;
         return this;
     }
-    public getRef(): string {
+    public getRef(): string | undefined {
         return this.ref;
     }
     public setRef(ref: string): Schema {
         this.ref = ref;
         return this;
     }
-    public getType(): Type {
+    public getType(): Type | undefined {
         return this.type;
     }
     public setType(type: Type): Schema {
         this.type = type;
         return this;
     }
-    public getAnyOf(): Schema[] {
+    public getAnyOf(): Schema[] | undefined {
         return this.anyOf;
     }
     public setAnyOf(anyOf: Schema[]): Schema {
         this.anyOf = anyOf;
         return this;
     }
-    public getAllOf(): Schema[] {
+    public getAllOf(): Schema[] | undefined {
         return this.allOf;
     }
     public setAllOf(allOf: Schema[]): Schema {
         this.allOf = allOf;
         return this;
     }
-    public getOneOf(): Schema[] {
+    public getOneOf(): Schema[] | undefined {
         return this.oneOf;
     }
     public setOneOf(oneOf: Schema[]): Schema {
         this.oneOf = oneOf;
         return this;
     }
-    public getNot(): Schema {
+    public getNot(): Schema | undefined {
         return this.not;
     }
     public setNot(not: Schema): Schema {
         this.not = not;
         return this;
     }
-    public getDescription(): string {
+    public getDescription(): string | undefined {
         return this.description;
     }
     public setDescription(description: string): Schema {
         this.description = description;
         return this;
     }
-    public getExamples(): any[] {
+    public getExamples(): any[] | undefined {
         return this.examples;
     }
     public setExamples(examples: any[]): Schema {
@@ -479,14 +491,14 @@ export class Schema {
         this.defaultValue = defaultValue;
         return this;
     }
-    public getComment(): string {
+    public getComment(): string | undefined {
         return this.comment;
     }
     public setComment(comment: string): Schema {
         this.comment = comment;
         return this;
     }
-    public getEnums(): any[] {
+    public getEnums(): any[] | undefined {
         return this.enums;
     }
     public setEnums(enums: any[]): Schema {
@@ -500,154 +512,155 @@ export class Schema {
         this.constant = constant;
         return this;
     }
-    public getPattern(): string {
+    public getPattern(): string | undefined {
         return this.pattern;
     }
     public setPattern(pattern: string): Schema {
         this.pattern = pattern;
         return this;
     }
-    public getFormat(): StringFormat {
+    public getFormat(): StringFormat | undefined {
         return this.format;
     }
     public setFormat(format: StringFormat): Schema {
         this.format = format;
         return this;
     }
-    public getMinLength(): number {
+    public getMinLength(): number | undefined {
         return this.minLength;
     }
     public setMinLength(minLength: number): Schema {
         this.minLength = minLength;
         return this;
     }
-    public getMaxLength(): number {
+    public getMaxLength(): number | undefined {
         return this.maxLength;
     }
     public setMaxLength(maxLength: number): Schema {
         this.maxLength = maxLength;
         return this;
     }
-    public getMultipleOf(): number {
+    public getMultipleOf(): number | undefined {
         return this.multipleOf;
     }
     public setMultipleOf(multipleOf: number): Schema {
         this.multipleOf = multipleOf;
         return this;
     }
-    public getMinimum(): number {
+    public getMinimum(): number | undefined {
         return this.minimum;
     }
     public setMinimum(minimum: number): Schema {
         this.minimum = minimum;
         return this;
     }
-    public getMaximum(): number {
+    public getMaximum(): number | undefined {
         return this.maximum;
     }
     public setMaximum(maximum: number): Schema {
         this.maximum = maximum;
         return this;
     }
-    public getExclusiveMinimum(): number {
+    public getExclusiveMinimum(): number | undefined {
         return this.exclusiveMinimum;
     }
     public setExclusiveMinimum(exclusiveMinimum: number): Schema {
         this.exclusiveMinimum = exclusiveMinimum;
         return this;
     }
-    public getExclusiveMaximum(): number {
+    public getExclusiveMaximum(): number | undefined {
         return this.exclusiveMaximum;
     }
     public setExclusiveMaximum(exclusiveMaximum: number): Schema {
         this.exclusiveMaximum = exclusiveMaximum;
         return this;
     }
-    public getProperties(): Map<string, Schema> {
+    public getProperties(): Map<string, Schema> | undefined {
         return this.properties;
     }
     public setProperties(properties: Map<string, Schema>): Schema {
         this.properties = properties;
         return this;
     }
-    public getAdditionalProperties(): AdditionalPropertiesType {
+    public getAdditionalProperties(): AdditionalPropertiesType | undefined {
         return this.additionalProperties;
     }
     public setAdditionalProperties(additionalProperties: AdditionalPropertiesType): Schema {
         this.additionalProperties = additionalProperties;
         return this;
     }
-    public getRequired(): string[] {
+    public getRequired(): string[] | undefined {
         return this.required;
     }
     public setRequired(required: string[]): Schema {
         this.required = required;
         return this;
     }
-    public getPropertyNames(): StringSchema {
+    public getPropertyNames(): Schema | undefined {
         return this.propertyNames;
     }
-    public setPropertyNames(propertyNames: StringSchema): Schema {
+    public setPropertyNames(propertyNames: Schema): Schema {
         this.propertyNames = propertyNames;
+        this.propertyNames.type = new SingleType(SchemaType.STRING);
         return this;
     }
-    public getMinProperties(): number {
+    public getMinProperties(): number | undefined {
         return this.minProperties;
     }
     public setMinProperties(minProperties: number): Schema {
         this.minProperties = minProperties;
         return this;
     }
-    public getMaxProperties(): number {
+    public getMaxProperties(): number | undefined {
         return this.maxProperties;
     }
     public setMaxProperties(maxProperties: number): Schema {
         this.maxProperties = maxProperties;
         return this;
     }
-    public getPatternProperties(): Map<string, Schema> {
+    public getPatternProperties(): Map<string, Schema> | undefined {
         return this.patternProperties;
     }
     public setPatternProperties(patternProperties: Map<string, Schema>): Schema {
         this.patternProperties = patternProperties;
         return this;
     }
-    public getItems(): ArraySchemaType {
+    public getItems(): ArraySchemaType | undefined {
         return this.items;
     }
     public setItems(items: ArraySchemaType): Schema {
         this.items = items;
         return this;
     }
-    public getContains(): Schema {
+    public getContains(): Schema | undefined {
         return this.contains;
     }
     public setContains(contains: Schema): Schema {
         this.contains = contains;
         return this;
     }
-    public getMinItems(): number {
+    public getMinItems(): number | undefined {
         return this.minItems;
     }
     public setMinItems(minItems: number): Schema {
         this.minItems = minItems;
         return this;
     }
-    public getMaxItems(): number {
+    public getMaxItems(): number | undefined {
         return this.maxItems;
     }
     public setMaxItems(maxItems: number): Schema {
         this.maxItems = maxItems;
         return this;
     }
-    public getUniqueItems(): boolean {
+    public getUniqueItems(): boolean | undefined {
         return this.uniqueItems;
     }
     public setUniqueItems(uniqueItems: boolean): Schema {
         this.uniqueItems = uniqueItems;
         return this;
     }
-    public getPermission(): string {
+    public getPermission(): string | undefined {
         return this.permission;
     }
     public setPermission(permission: string): Schema {

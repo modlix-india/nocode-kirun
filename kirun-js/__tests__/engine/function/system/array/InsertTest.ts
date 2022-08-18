@@ -31,7 +31,7 @@ test('Insert of Test 1', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];
@@ -81,7 +81,7 @@ test('Insert of Test 2', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];
@@ -122,7 +122,7 @@ test('Insert of Test 3', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];
@@ -163,7 +163,7 @@ test('Insert of Test 4', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];
@@ -195,7 +195,7 @@ test('Insert of Test 5', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];
@@ -218,7 +218,7 @@ test('Insert of Test 6', () => {
                 [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     let res: any[] = [];

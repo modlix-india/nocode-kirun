@@ -1,5 +1,5 @@
 import { EventResult } from './EventResult';
 
 export interface FunctionOutputGenerator {
-    next(): EventResult;
+    next(): EventResult | undefined;
 }

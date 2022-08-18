@@ -12,12 +12,12 @@ const map: Map<string, Schema> = new Map([
     ['long', Schema.ofLong('long').setNamespace(Namespaces.SYSTEM)],
     ['number', Schema.ofNumber('number').setNamespace(Namespaces.SYSTEM)],
     ['string', Schema.ofString('string').setNamespace(Namespaces.SYSTEM)],
-    [Parameter.EXPRESSION.getName(), Parameter.EXPRESSION],
+    [Parameter.EXPRESSION.getName()!, Parameter.EXPRESSION],
 ]);
 
 export class KIRunSchemaRepository implements Repository<Schema> {
-    public find(namespace: string, name: string): Schema {
-        if (Namespaces.SYSTEM != namespace) return null;
+    public find(namespace: string, name: string): Schema | undefined {
+        if (Namespaces.SYSTEM != namespace) return undefined;
 
         return map.get(name);
     }

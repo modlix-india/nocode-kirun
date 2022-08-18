@@ -24,18 +24,18 @@ export class Frequency extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        let find: any = context.getArguments().get(Frequency.PARAMETER_ANY.getParameterName());
+        let find: any = context?.getArguments()?.get(Frequency.PARAMETER_ANY.getParameterName());
 
         let start: number = context
-            .getArguments()
-            .get(Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
         let length: number = context
-            .getArguments()
-            .get(Frequency.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(Frequency.PARAMETER_INT_LENGTH.getParameterName());
 
         if (source.length == 0)
             return new FunctionOutput([

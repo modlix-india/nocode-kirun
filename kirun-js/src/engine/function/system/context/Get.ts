@@ -16,8 +16,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
 const VALUE = 'value';
-const SIGNATURE = new FunctionSignature()
-    .setName('Get')
+const SIGNATURE = new FunctionSignature('Get')
     .setNamespace(Namespaces.SYSTEM_CTX)
     .setParameters(
         new Map([
@@ -42,15 +41,15 @@ export class Get extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        const name: string = context.getArguments().get(NAME);
+        const name: string = context?.getArguments()?.get(NAME);
 
-        if (!context.getContext().has(name))
+        if (!context.getContext()?.has(name))
             throw new KIRuntimeException(
                 StringFormatter.format("Context don't have an element for '$' ", name),
             );
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([VALUE, context.getContext().get(name).getElement()])),
+            EventResult.outputOf(new Map([VALUE, context.getContext()?.get(name)?.getElement()])),
         ]);
     }
 }

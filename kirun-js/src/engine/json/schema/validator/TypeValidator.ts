@@ -15,7 +15,7 @@ export class TypeValidator {
         parents: Schema[],
         type: SchemaType,
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> |undefined,
         element: any,
     ): any {
         if (type == SchemaType.STRING) {

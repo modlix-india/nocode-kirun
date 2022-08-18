@@ -57,7 +57,7 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
 
     public addOutEdgeTo(type: string, vertex: GraphVertex<K, T>): GraphVertex<K, T> {
         if (!this.outVertices.has(type)) this.outVertices.set(type, new Set());
-        this.outVertices.get(type).add(vertex);
+        this.outVertices.get(type)!.add(vertex);
         vertex.inVertices.add(new Tuple2(this, type));
         return vertex;
     }
@@ -65,7 +65,7 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
     public addInEdgeTo(vertex: GraphVertex<K, T>, type: string): GraphVertex<K, T> {
         this.inVertices.add(new Tuple2(vertex, type));
         if (!vertex.outVertices.has(type)) vertex.outVertices.set(type, new Set());
-        vertex.outVertices.get(type).add(this);
+        vertex.outVertices.get(type)!.add(this);
         return vertex;
     }
 
@@ -80,7 +80,7 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
     public getSubGraphOfType(type: string): ExecutionGraph<K, T> {
         let subGraph: ExecutionGraph<K, T> = new ExecutionGraph(true);
 
-        var typeVertices = new LinkedList(Array.from(this.outVertices.get(type)));
+        var typeVertices = new LinkedList(Array.from(this.outVertices.get(type) ?? []));
 
         typeVertices.map((e) => e.getData()).forEach((e) => subGraph.addVertex(e));
 
@@ -99,7 +99,7 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
 
     public toString(): string {
         var ins = Array.from(this.getInVertices())
-            .map((e) => e.getT1().getKey().toString() + '(' + e.getT2() + ')')
+            .map((e) => e.getT1().getKey() + '(' + e.getT2() + ')')
             .join(', ');
 
         var outs = Array.from(this.outVertices.entries())
@@ -113,6 +113,6 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
             )
             .join('\n\t\t');
 
-        return this.getKey().toString() + ':\n\tIn: ' + ins + '\n\tOut: \n\t\t' + outs;
+        return this.getKey() + ':\n\tIn: ' + ins + '\n\tOut: \n\t\t' + outs;
     }
 }

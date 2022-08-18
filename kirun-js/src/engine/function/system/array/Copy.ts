@@ -22,9 +22,11 @@ export class Copy extends AbstractArrayFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        var source = context.getArguments().get(Copy.PARAMETER_ARRAY_SOURCE.getParameterName());
-        var srcfrom = context.getArguments().get(Copy.PARAMETER_INT_SOURCE_FROM.getParameterName());
-        var length = context.getArguments().get(Copy.PARAMETER_INT_LENGTH.getParameterName());
+        var source = context?.getArguments()?.get(Copy.PARAMETER_ARRAY_SOURCE.getParameterName());
+        var srcfrom = context
+            ?.getArguments()
+            ?.get(Copy.PARAMETER_INT_SOURCE_FROM.getParameterName());
+        var length = context?.getArguments()?.get(Copy.PARAMETER_INT_LENGTH.getParameterName());
 
         if (length == -1) length = source.length - srcfrom;
 
@@ -38,7 +40,9 @@ export class Copy extends AbstractArrayFunction {
                 ),
             );
 
-        var deep = context.getArguments().get(Copy.PARAMETER_BOOLEAN_DEEP_COPY.getParameterName());
+        var deep = context
+            ?.getArguments()
+            ?.get(Copy.PARAMETER_BOOLEAN_DEEP_COPY.getParameterName());
 
         const ja: any[] = new Array(length);
 

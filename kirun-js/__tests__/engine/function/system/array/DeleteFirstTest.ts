@@ -10,7 +10,7 @@ test('DeleteFirst Test 1', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map([[DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source]]))
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     delet.execute(fep);
@@ -27,7 +27,7 @@ test('DeleteFirst Test 2', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map([[DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source]]))
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     delet.execute(fep);
@@ -42,7 +42,7 @@ test('DeleteFirst Test 3', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map([[DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source]]))
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => delet.execute(fep)).toThrow();
@@ -81,7 +81,7 @@ test('DeleteFirst Test 4', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map([[DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]))
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     delet.execute(fep);
@@ -96,7 +96,7 @@ test('DeleteFirst Test 5', () => {
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
         .setArguments(new Map([[DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source]]))
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => delet.execute(fep)).toThrow();

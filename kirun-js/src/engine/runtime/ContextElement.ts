@@ -3,7 +3,7 @@ import { Schema } from '../json/schema/Schema';
 export class ContextElement {
     public static readonly NULL: ContextElement = new ContextElement(Schema.NULL, undefined);
 
-    private schema: Schema;
+    private schema?: Schema;
     private element: any;
 
     public constructor(schema?: Schema, element?: any) {
@@ -11,7 +11,7 @@ export class ContextElement {
         this.element = element;
     }
 
-    public getSchema(): Schema {
+    public getSchema(): Schema | undefined {
         return this.schema;
     }
     public setSchema(schema: Schema): ContextElement {

@@ -13,8 +13,7 @@ const COUNT = 'count';
 const VALUE = 'value';
 const INDEX = 'index';
 
-const SIGNATURE = new FunctionSignature()
-    .setName('CountLoop')
+const SIGNATURE = new FunctionSignature('CountLoop')
     .setNamespace(Namespaces.SYSTEM_LOOP)
     .setParameters(
         new Map([
@@ -37,7 +36,7 @@ export class CountLoop extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let count: number = context.getArguments().get(COUNT);
+        let count: number = context.getArguments()?.get(COUNT);
         let current = 0;
 
         return new FunctionOutput({

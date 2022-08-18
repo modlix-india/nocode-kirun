@@ -37,7 +37,7 @@ export class NumberValidator {
 
         try {
             if (type == SchemaType.LONG || type == SchemaType.INTEGER) n = Math.round(n);
-        } catch (err) {
+        } catch (err: any) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element + ' is not a number of type ' + type,
@@ -61,7 +61,7 @@ export class NumberValidator {
     private static checkMultipleOf(parents: Schema[], schema: Schema, element: any, n: number) {
         if (schema.getMultipleOf()) {
             let l1: number = n;
-            let l2: number = schema.getMultipleOf();
+            let l2: number = schema.getMultipleOf()!;
 
             if (l1 % l2 != 0)
                 throw new SchemaValidationException(
@@ -72,14 +72,14 @@ export class NumberValidator {
     }
 
     private static checkRange(parents: Schema[], schema: Schema, element: any, n: number) {
-        if (schema.getMinimum() && NumberValidator.numberCompare(n, schema.getMinimum()) < 0) {
+        if (schema.getMinimum() && NumberValidator.numberCompare(n, schema.getMinimum()!) < 0) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' should be greater than or equal to ' + schema.getMinimum(),
             );
         }
 
-        if (schema.getMaximum() && NumberValidator.numberCompare(n, schema.getMaximum()) > 0) {
+        if (schema.getMaximum() && NumberValidator.numberCompare(n, schema.getMaximum()!) > 0) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' should be less than or equal to ' + schema.getMaximum(),
@@ -88,7 +88,7 @@ export class NumberValidator {
 
         if (
             schema.getExclusiveMinimum() &&
-            NumberValidator.numberCompare(n, schema.getExclusiveMinimum()) <= 0
+            NumberValidator.numberCompare(n, schema.getExclusiveMinimum()!) <= 0
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
@@ -98,7 +98,7 @@ export class NumberValidator {
 
         if (
             schema.getExclusiveMaximum() &&
-            NumberValidator.numberCompare(n, schema.getExclusiveMaximum()) > 0
+            NumberValidator.numberCompare(n, schema.getExclusiveMaximum()!) > 0
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),

@@ -39,7 +39,7 @@ export class LiteralTokenValueExtractor extends TokenValueExtractor {
             if (isNaN(v)) throw new Error('Parse number error');
 
             return v;
-        } catch (err) {
+        } catch (err: any) {
             throw new ExpressionEvaluationException(
                 token,
                 StringFormatter.format('Unable to parse the literal or expression $', token),

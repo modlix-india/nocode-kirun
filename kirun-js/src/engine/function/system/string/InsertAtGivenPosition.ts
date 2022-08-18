@@ -17,26 +17,17 @@ export class InsertAtGivenPosition extends AbstractFunction {
 
     protected readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(InsertAtGivenPosition.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(InsertAtGivenPosition.PARAMETER_STRING_NAME));
+    protected readonly PARAMETER_STRING: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_STRING_NAME,Schema.ofString(InsertAtGivenPosition.PARAMETER_STRING_NAME));
 
-    protected readonly PARAMETER_AT_POSITION: Parameter = new Parameter()
-        .setParameterName(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME)
-        .setSchema(Schema.ofInteger(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME));
+    protected readonly PARAMETER_AT_POSITION: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME,Schema.ofInteger(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME));
 
-    protected readonly PARAMETER_INSERT_STRING: Parameter = new Parameter()
-        .setParameterName(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME)
-        .setSchema(Schema.ofString(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME));
+    protected readonly PARAMETER_INSERT_STRING: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME,Schema.ofString(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME));
 
-    protected readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
         );
 
-    private signature: FunctionSignature = new FunctionSignature()
-        .setName('InsertAtGivenPosition')
+    private signature: FunctionSignature = new FunctionSignature('InsertAtGivenPosition')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -59,14 +50,14 @@ export class InsertAtGivenPosition extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_STRING_NAME);
         let at: number = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME);
         let insertString: string = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME);
 
         let outputString: string = '';
 

@@ -3,7 +3,7 @@ export class Argument {
     private name: string;
     private value: any;
 
-    public constructor(argumentIndex?: number, name?: string, value?: any) {
+    public constructor(argumentIndex: number, name: string, value?: any) {
         this.argumentIndex = argumentIndex;
         this.name = name;
         this.value = value;

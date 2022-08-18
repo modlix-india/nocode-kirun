@@ -11,8 +11,8 @@ export class DeleteLast extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(DeleteLast.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(DeleteLast.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         if (source.length == 0) throw new KIRuntimeException('Given source array is empty');
 

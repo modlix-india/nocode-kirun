@@ -4,6 +4,11 @@ import { Type } from './Type';
 export class MultipleType extends Type {
     private type: Set<SchemaType>;
 
+    constructor(type: Set<SchemaType>) {
+        super();
+        this.type = type;
+    }
+
     public getType(): Set<SchemaType> {
         return this.type;
     }

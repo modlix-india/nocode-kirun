@@ -27,7 +27,7 @@ test('delete from 1', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push('a');
@@ -66,7 +66,7 @@ test('del from 2 ', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push('a');
@@ -191,7 +191,7 @@ test('del from 3 ', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
     del.execute(fep);
 
     expect(arr).toStrictEqual(res);
@@ -225,7 +225,7 @@ test('del from 4', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
     del.execute(fep);
 
     expect(arr).toStrictEqual(res);

@@ -18,6 +18,11 @@ export class Position {
     private left: number;
     private top: number;
 
+    constructor(left: number, top: number) {
+        this.left = left;
+        this.top = top;
+    }
+
     public getLeft(): number {
         return this.left;
     }

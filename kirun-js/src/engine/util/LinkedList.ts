@@ -2,8 +2,8 @@ import { KIRuntimeException } from '../exception/KIRuntimeException';
 import { StringFormatter } from './string/StringFormatter';
 
 export class LinkedList<T> {
-    private head: Node<T> = undefined;
-    private tail: Node<T> = undefined;
+    private head?: Node<T> = undefined;
+    private tail?: Node<T> = undefined;
     public length: number = 0;
 
     public constructor(list?: T[]) {
@@ -13,7 +13,7 @@ export class LinkedList<T> {
                     this.tail = this.head = new Node(t);
                 } else {
                     const node = new Node(t, this.tail);
-                    this.tail.next = node;
+                    this.tail!.next = node;
                     this.tail = node;
                 }
             }
@@ -33,8 +33,10 @@ export class LinkedList<T> {
     }
 
     public pop(): T {
-        if (!this.length) return undefined;
-        const value: T = this.head.value;
+        if (!this.head) {
+            throw Error("List is empty and cannot pop further.");
+        }
+        const value: T = this.head!.value;
         this.length--;
 
         if (this.head == this.tail) {
@@ -42,13 +44,12 @@ export class LinkedList<T> {
             return value;
         }
 
-        const node: Node<T> = this.head;
+        const node: Node<T> = this.head!;
 
         this.head = node.next;
         node.next = undefined;
         node.previous = undefined;
-        node.value = undefined;
-        this.head.previous = undefined;
+        this.head!.previous = undefined;
         return value;
     }
 
@@ -61,15 +62,17 @@ export class LinkedList<T> {
     }
 
     public get(index: number): T {
-        if (index < 0 || index >= this.length) return undefined;
+        if (index < 0 || index >= this.length) {
+            throw new Error(`${index} is out of bounds [0,${this.length}]`);
+        }
 
         let x = this.head;
         while (index > 0) {
-            x = this.head.next;
+            x = this.head!.next;
             --index;
         }
 
-        return x.value;
+        return x!.value;
     }
 
     public set(index: number, value: T): LinkedList<T> {
@@ -83,15 +86,15 @@ export class LinkedList<T> {
 
         let x = this.head;
         while (index > 0) {
-            x = this.head.next;
+            x = this.head!.next;
             --index;
         }
-        x.value = value;
+        x!.value = value;
         return this;
     }
 
     public toString(): string {
-        let x: Node<T> = this.head;
+        let x = this.head;
         let str: string = '';
 
         while (x) {
@@ -106,7 +109,7 @@ export class LinkedList<T> {
     public toArray(): T[] {
         let arr: T[] = [];
 
-        let x: Node<T> = this.head;
+        let x = this.head;
 
         while (x) {
             arr.push(x.value);
@@ -117,18 +120,24 @@ export class LinkedList<T> {
     }
 
     public peek(): T {
-        if (!this.length) return undefined;
+        if (!this.head) {
+            throw new Error("List is empty so cannot peak");
+        }
 
         return this.head.value;
     }
 
     public peekLast(): T {
-        if (!this.length) return undefined;
+        if (!this.tail) {
+            throw new Error("List is empty so cannot peak");
+        }
         return this.tail.value;
     }
 
     public getFirst(): T {
-        if (!this.head) return undefined;
+        if (!this.head){
+            throw new Error("List is empty so cannot get first");
+        }
         return this.head.value;
     }
 
@@ -137,14 +146,16 @@ export class LinkedList<T> {
     }
 
     public removeLast(): T {
-        if (this.length <= 0) return undefined;
+        if (!this.tail) {
+            throw new Error("List is empty so cannot remove");
+        }
         --this.length;
         const v: T = this.tail.value;
         if (this.length == 0) {
             this.head = this.tail = undefined;
         } else {
-            const n: Node<T> = this.tail.previous;
-            n.next = undefined;
+            const n = this.tail.previous;
+            n!.next = undefined;
             this.tail.previous = undefined;
             this.tail = n;
         }
@@ -164,25 +175,25 @@ export class LinkedList<T> {
             this.head = this.tail = new Node(t);
         } else if (this.head === this.tail) {
             this.tail = new Node(t, this.head);
-            this.head.next = this.tail;
+            this.head!.next = this.tail;
         } else {
             this.tail = new Node(t, this.tail);
-            this.tail.previous.next = this.tail;
+            this.tail.previous!.next = this.tail;
         }
         return this;
     }
 
     public map<U>(
-        callbackfn: (value: T, index: number, array: T[]) => U,
+        callbackfn: (value: T, index: number) => U,
         thisArg?: any,
     ): LinkedList<U> {
         let newList: LinkedList<U> = new LinkedList();
 
-        let x: Node<T> = this.head;
+        let x = this.head;
 
         let index: number = 0;
         while (x) {
-            newList.add(callbackfn(x.value, index, undefined));
+            newList.add(callbackfn(x.value, index));
             x = x.next;
             ++index;
         }
@@ -190,11 +201,11 @@ export class LinkedList<T> {
         return newList;
     }
 
-    public forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: any): void {
-        let x: Node<T> = this.head;
+    public forEach(callbackfn: (value: T, index: number) => void, thisArg?: any): void {
+        let x = this.head;
         let index: number = 0;
         while (x) {
-            callbackfn(x.value, index, undefined);
+            callbackfn(x.value, index);
             x = x.next;
             ++index;
         }
@@ -203,8 +214,8 @@ export class LinkedList<T> {
 
 class Node<T> {
     public value: T;
-    public next: Node<T>;
-    public previous: Node<T>;
+    public next?: Node<T>;
+    public previous?: Node<T>;
 
     constructor(t: T, previous?: Node<T>, next?: Node<T>) {
         this.value = t;

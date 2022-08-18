@@ -9,7 +9,7 @@ export class ObjectValidator {
     public static validate(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ) {
         if (isNullValue(element))
@@ -53,12 +53,17 @@ export class ObjectValidator {
     private static checkPropertyNameSchema(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         keys: Set<String>,
     ) {
         for (let key of Array.from(keys.values())) {
             try {
-                SchemaValidator.validate(parents, schema.getPropertyNames(), repository, key);
+                SchemaValidator.validate(
+                    parents,
+                    schema.getPropertyNames() as Schema,
+                    repository,
+                    key,
+                );
             } catch (err) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
@@ -69,7 +74,7 @@ export class ObjectValidator {
     }
 
     private static checkRequired(parents: Schema[], schema: Schema, jsonObject: any) {
-        for (const key of schema.getRequired()) {
+        for (const key of schema.getRequired() ?? []) {
             if (isNullValue(jsonObject[key])) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
@@ -82,11 +87,11 @@ export class ObjectValidator {
     private static checkAddtionalProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
-        let apt: AdditionalPropertiesType = schema.getAdditionalProperties();
+        let apt: AdditionalPropertiesType = schema.getAdditionalProperties()!;
         if (apt.getSchemaValue()) {
             for (let key of Array.from(keys.values())) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
@@ -112,12 +117,12 @@ export class ObjectValidator {
     private static checkPatternProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
         const compiledPatterns: Map<string, RegExp> = new Map<string, RegExp>();
-        for (const keyPattern of Array.from(schema.getPatternProperties().keys()))
+        for (const keyPattern of Array.from(schema.getPatternProperties()!.keys()))
             compiledPatterns.set(keyPattern, new RegExp(keyPattern));
 
         let goodKeys: string[] = [];
@@ -129,7 +134,7 @@ export class ObjectValidator {
                 if (e[1].test(key)) {
                     const element: any = SchemaValidator.validate(
                         newParents,
-                        schema.getPatternProperties().get(e[0]),
+                        schema.getPatternProperties()!.get(e[0]),
                         repository,
                         jsonObject[key],
                     );
@@ -144,11 +149,11 @@ export class ObjectValidator {
     private static checkProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
-        for (const each of Array.from(schema.getProperties())) {
+        for (const each of Array.from(schema.getProperties()!)) {
             let value: any = jsonObject[each[0]];
             if (isNullValue(value)) continue;
 
@@ -160,14 +165,14 @@ export class ObjectValidator {
     }
 
     private static checkMinMaxProperties(parents: Schema[], schema: Schema, keys: Set<string>) {
-        if (schema.getMinProperties() && keys.size < schema.getMinProperties()) {
+        if (schema.getMinProperties() && keys.size < schema.getMinProperties()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Object should have minimum of ' + schema.getMinProperties() + ' properties',
             );
         }
 
-        if (schema.getMaxProperties() && keys.size > schema.getMaxProperties()) {
+        if (schema.getMaxProperties() && keys.size > schema.getMaxProperties()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Object can have maximum of ' + schema.getMaxProperties() + ' properties',

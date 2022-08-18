@@ -1,14 +1,14 @@
 import { Schema } from '../Schema';
 
 export class AdditionalPropertiesType {
-    private booleanValue: boolean;
-    private schemaValue: Schema;
+    private booleanValue?: boolean;
+    private schemaValue?: Schema;
 
-    public getBooleanValue(): boolean {
+    public getBooleanValue(): boolean | undefined {
         return this.booleanValue;
     }
 
-    public getSchemaValue(): Schema {
+    public getSchemaValue(): Schema | undefined {
         return this.schemaValue;
     }
 
@@ -22,7 +22,7 @@ export class AdditionalPropertiesType {
         return this;
     }
 
-    public static from(obj: any): AdditionalPropertiesType {
+    public static from(obj: any): AdditionalPropertiesType | undefined {
         if (!obj) return undefined;
         const ad = new AdditionalPropertiesType();
         ad.booleanValue = obj.booleanValue;

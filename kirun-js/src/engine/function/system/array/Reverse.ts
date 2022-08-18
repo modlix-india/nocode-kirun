@@ -19,16 +19,16 @@ export class Reverse extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let st: number = context
-            .getArguments()
-            .get(Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
         let len: number = context
-            .getArguments()
-            .get(Reverse.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(Reverse.PARAMETER_INT_LENGTH.getParameterName());
 
         if (len == -1) len = source.length - st;
 

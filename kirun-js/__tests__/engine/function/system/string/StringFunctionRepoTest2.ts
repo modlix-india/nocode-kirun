@@ -9,6 +9,11 @@ const stringRepo = new StringFunctionRepository();
 test('StringRepo - contains', () => {
     let fun = stringRepo.find(Namespaces.STRING, 'Contains');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+
+    if (!fun) {
+        throw new Error('Function not available');
+    }
+
     fep.setArguments(
         MapUtil.of(
             AbstractStringFunction.PARAMETER_STRING_NAME,
@@ -62,6 +67,10 @@ test('StringRepo - contains', () => {
 
 test('string function repo 2', () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
+
+    if (!fun) {
+        throw new Error('Function not available');
+    }
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(

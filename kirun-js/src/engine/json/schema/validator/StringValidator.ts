@@ -56,18 +56,18 @@ export class StringValidator {
                 parents,
                 schema,
                 element,
-                new RegExp(schema.getPattern()),
+                new RegExp(schema.getPattern()!),
                 'pattern ' + schema.getPattern(),
             );
         }
 
         let length: number = element.length;
-        if (schema.getMinLength() && length < schema.getMinLength()) {
+        if (schema.getMinLength() && length < schema.getMinLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a minimum of ' + schema.getMinLength() + ' characters',
             );
-        } else if (schema.getMaxLength() && length > schema.getMinLength()) {
+        } else if (schema.getMaxLength() && length > schema.getMinLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a maximum of ' + schema.getMaxLength() + ' characters',

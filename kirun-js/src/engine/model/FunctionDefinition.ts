@@ -38,8 +38,12 @@ export class FunctionDefinition extends FunctionSignature {
             ]),
         );
     private version: number = 1;
-    private steps: Map<string, Statement>;
-    private stepGroups: Map<string, StatementGroup>;
+    private steps?: Map<string, Statement>;
+    private stepGroups?: Map<string, StatementGroup>;
+
+    constructor(name: string) {
+        super(name);
+    }
 
     public getVersion(): number {
         return this.version;
@@ -49,13 +53,13 @@ export class FunctionDefinition extends FunctionSignature {
         return this;
     }
     public getSteps(): Map<string, Statement> {
-        return this.steps;
+        return this.steps ?? new Map();
     }
     public setSteps(steps: Map<string, Statement>): FunctionDefinition {
         this.steps = steps;
         return this;
     }
-    public getStepGroups(): Map<string, StatementGroup> {
+    public getStepGroups(): Map<string, StatementGroup> | undefined {
         return this.stepGroups;
     }
     public setStepGroups(stepGroups: Map<string, StatementGroup>): FunctionDefinition {

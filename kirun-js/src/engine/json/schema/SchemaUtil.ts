@@ -12,7 +12,7 @@ export class SchemaUtil {
 
     private static readonly CYCLIC_REFERENCE_LIMIT_COUNTER: number = 20;
 
-    public static getDefaultValue(s: Schema, sRepository: Repository<Schema>): any {
+    public static getDefaultValue(s: Schema | undefined, sRepository: Repository<Schema>): any {
         if (!s) return undefined;
 
         if (s.getConstant()) return s.getConstant();
@@ -27,21 +27,23 @@ export class SchemaUtil {
 
     public static getSchemaFromRef(
         schema: Schema,
-        sRepository: Repository<Schema>,
-        ref: string,
+        sRepository: Repository<Schema> | undefined,
+        ref: string | undefined,
         iteration: number = 0,
-    ): Schema {
+    ): Schema | undefined {
         iteration++;
 
         if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
-            throw new SchemaValidationException(ref, 'Schema has a cyclic reference');
+            throw new SchemaValidationException(ref ?? '', 'Schema has a cyclic reference');
 
-        if (!schema || StringUtil.isNullOrBlank(ref)) return undefined;
+        if (!schema || !ref || StringUtil.isNullOrBlank(ref)) return undefined;
 
         if (!ref.startsWith('#')) {
             var tuple = SchemaUtil.resolveExternalSchema(schema, sRepository, ref);
-            schema = tuple.getT1();
-            ref = tuple.getT2();
+            if (tuple) {
+                schema = tuple.getT1();
+                ref = tuple.getT2();
+            }
         }
 
         let parts: string[] = ref.split('/');
@@ -53,13 +55,14 @@ export class SchemaUtil {
     }
 
     private static resolveInternalSchema(
-        schema: Schema,
-        sRepository: Repository<Schema>,
+        inSchema: Schema,
+        sRepository: Repository<Schema> | undefined,
         ref: string,
         iteration: number,
         parts: string[],
         i: number,
     ): Schema {
+        let schema: Schema | undefined = inSchema;
         while (i < parts.length) {
             if (parts[i] === '$defs') {
                 i++;
@@ -70,15 +73,18 @@ export class SchemaUtil {
                         SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH,
                     );
 
-                schema = schema.get$defs().get(parts[i]);
+                schema = schema.get$defs()?.get(parts[i]);
             } else {
-                if (!schema.getType().contains(SchemaType.OBJECT) || !schema.getProperties())
+                if (
+                    schema &&
+                    (!schema.getType()?.contains(SchemaType.OBJECT) || !schema.getProperties())
+                )
                     throw new SchemaReferenceException(
                         ref,
                         'Cannot retrievie schema from non Object type schemas',
                     );
 
-                schema = schema.getProperties().get(parts[i]);
+                schema = schema.getProperties()?.get(parts[i]);
             }
 
             i++;
@@ -107,14 +113,21 @@ export class SchemaUtil {
     }
 
     private static resolveExternalSchema(
-        schema: Schema,
-        sRepository: Repository<Schema>,
+        inSchem: Schema,
+        sRepository: Repository<Schema> | undefined,
         ref: string,
-    ): Tuple2<Schema, string> {
-        let nms: string[] = StringUtil.splitAtFirstOccurance(schema.getRef(), '/');
-        let nmspnm: string[] = StringUtil.splitAtFirstOccurance(nms[0], '.');
+    ): Tuple2<Schema, string> | undefined {
 
-        schema = sRepository.find(nmspnm[0], nmspnm[1]);
+        if (!sRepository) return undefined;
+
+        let nms = StringUtil.splitAtFirstOccurance(inSchem?.getRef() ?? '', '/');
+        if (!nms[0]) return undefined;
+
+        let nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
+        if (!nmspnm[0] || !nmspnm[1]) return undefined;
+
+        let schema = sRepository.find(nmspnm[0], nmspnm[1]);
+        if (!schema) return undefined;
         if (!nms[1] || nms[1] === '') return new Tuple2(schema, ref);
 
         ref = '#/' + nms[1];

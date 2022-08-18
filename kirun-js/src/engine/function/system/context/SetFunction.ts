@@ -27,8 +27,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
 const VALUE = 'value';
-const SIGNATURE = new FunctionSignature()
-    .setName('Set')
+const SIGNATURE = new FunctionSignature('Set')
     .setNamespace(Namespaces.SYSTEM_CTX)
     .setParameters(
         new Map([
@@ -49,7 +48,7 @@ export class SetFunction extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let key: string = context.getArguments().get(NAME);
+        let key: string = context?.getArguments()?.get(NAME);
 
         if (StringUtil.isNullOrBlank(key)) {
             throw new KIRuntimeException(
@@ -57,7 +56,7 @@ export class SetFunction extends AbstractFunction {
             );
         }
 
-        let value: any = context.getArguments().get(VALUE);
+        let value: any = context?.getArguments()?.get(VALUE);
 
         const exp: Expression = new Expression(key);
 
@@ -104,9 +103,11 @@ export class SetFunction extends AbstractFunction {
         tokens.removeLast();
         let ops: LinkedList<Operation> = exp.getOperations();
         ops.removeLast();
-        let ce: ContextElement = context.getContext().get(tokens.removeLast().getExpression());
+        let ce: ContextElement | undefined = context
+            .getContext()
+            ?.get(tokens.removeLast().getExpression());
 
-        if (isNullValue(ce)) {
+        if (!ce) {
             throw new KIRuntimeException(
                 StringFormatter.format("Context doesn't have any element with name '$' ", key),
             );
@@ -135,7 +136,7 @@ export class SetFunction extends AbstractFunction {
                     );
                 }
 
-                let mem: string = undefined;
+                let mem: string | undefined = undefined;
                 if (token instanceof ExpressionTokenValue)
                     mem = (token as ExpressionTokenValue).getTokenValue().getAsString();
                 else mem = token.getExpression();

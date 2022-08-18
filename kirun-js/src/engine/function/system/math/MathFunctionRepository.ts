@@ -45,8 +45,8 @@ const functionObjectsIndex: any = {
     ToDegrees: new GenericMathFunction('ToDegrees', (v) => v * (Math.PI / 180)),
     ToRadians: new GenericMathFunction('ToRadians', (v) => v * (180 / Math.PI)),
     SquareRoot: new GenericMathFunction('SquareRoot', (v) => Math.sqrt(v)),
-    ArcTangent: new GenericMathFunction('ArcTangent2', (v1, v2) => Math.atan2(v1, v2), 2),
-    Power: new GenericMathFunction('Power', (v1, v2) => Math.pow(v1, v2), 2),
+    ArcTangent: new GenericMathFunction('ArcTangent2', (v1, v2) => Math.atan2(v1, v2!), 2),
+    Power: new GenericMathFunction('Power', (v1, v2) => Math.pow(v1, v2!), 2),
     Add: new Add(),
     Hypotenuse: new Hypotenuse(),
     Maximum: new Maximum(),
@@ -55,8 +55,8 @@ const functionObjectsIndex: any = {
 };
 
 export class MathFunctionRepository implements Repository<Function> {
-    find(namespace: string, name: string): Function {
-        if (namespace != Namespaces.MATH) return null;
+    find(namespace: string, name: string): Function | undefined {
+        if (namespace != Namespaces.MATH) return undefined;
 
         return functionObjectsIndex[name];
     }

@@ -69,7 +69,7 @@ export class PrimitiveUtil {
             let num: number = value as number;
             if (Number.isInteger(num)) return new Tuple2(SchemaType.LONG, num);
             else return new Tuple2(SchemaType.DOUBLE, num);
-        } catch (err) {
+        } catch (err: any) {
             throw new ExecutionException(
                 StringFormatter.format('Unable to convert $ to a number.', value),
                 err,
@@ -126,6 +126,8 @@ export class PrimitiveUtil {
         if (typeof oa == 'number' || typeof ob == 'number') {
             return oa - ob;
         }
+
+        return 0;
     }
 
     private static baseNumberType(num: number): SchemaType {

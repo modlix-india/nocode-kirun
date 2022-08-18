@@ -8,7 +8,9 @@ import { ExpressionToken } from './ExpressionToken';
 import { Operation } from './Operation';
 
 export class Expression extends ExpressionToken {
+    // Data structure for storing tokens
     private tokens: LinkedList<ExpressionToken> = new LinkedList();
+    // Data structure for storing operations
     private ops: LinkedList<Operation> = new LinkedList();
 
     public constructor(
@@ -37,7 +39,7 @@ export class Expression extends ExpressionToken {
         let chr: string = '';
 
         let sb: StringBuilder = new StringBuilder('');
-        let buff: string = undefined;
+        let buff: string | undefined = undefined;
         let i: number = 0;
         let isPrevOp: boolean = false;
 
@@ -231,11 +233,16 @@ export class Expression extends ExpressionToken {
     private checkUnaryOperator(
         tokens: LinkedList<ExpressionToken>,
         ops: LinkedList<Operation>,
-        op: Operation,
+        op: Operation | undefined,
         isPrevOp: boolean,
     ): void {
+        if(!op) return;
         if (isPrevOp || tokens.isEmpty()) {
-            if (Operation.UNARY_OPERATORS.has(op)) ops.push(Operation.UNARY_MAP.get(op));
+            if (Operation.UNARY_OPERATORS.has(op)){
+                const x = Operation.UNARY_MAP.get(op);
+                if(x)
+                    ops.push(x);  
+            } 
             else
                 throw new ExpressionEvaluationException(
                     this.expression,
@@ -260,9 +267,11 @@ export class Expression extends ExpressionToken {
     }
 
     private hasPrecedence(op1: Operation, op2: Operation): boolean {
-        let pre1: number = Operation.OPERATOR_PRIORITY.get(op1);
-        let pre2: number = Operation.OPERATOR_PRIORITY.get(op2);
-
+        let pre1: number | undefined = Operation.OPERATOR_PRIORITY.get(op1);
+        let pre2: number | undefined = Operation.OPERATOR_PRIORITY.get(op2);
+        if(!pre1 || !pre2) {
+            throw new Error('Unknown operators provided');
+        }
         return pre2 < pre1;
     }
 

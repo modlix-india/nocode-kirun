@@ -17,21 +17,13 @@ export class DeleteForGivenLength extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(DeleteForGivenLength.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(DeleteForGivenLength.PARAMETER_STRING_NAME));
+    protected readonly PARAMETER_STRING: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_STRING_NAME,Schema.ofString(DeleteForGivenLength.PARAMETER_STRING_NAME));
 
-    protected readonly PARAMETER_AT_START: Parameter = new Parameter()
-        .setParameterName(DeleteForGivenLength.PARAMETER_AT_START_NAME)
-        .setSchema(Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_START_NAME));
+    protected readonly PARAMETER_AT_START: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_AT_START_NAME,Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_START_NAME));
 
-    protected readonly PARAMETER_AT_END: Parameter = new Parameter()
-        .setParameterName(DeleteForGivenLength.PARAMETER_AT_END_NAME)
-        .setSchema(Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_END_NAME));
+    protected readonly PARAMETER_AT_END: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_AT_END_NAME,Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_END_NAME));
 
-    protected readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([
                 [
                     DeleteForGivenLength.EVENT_RESULT_NAME,
@@ -40,8 +32,7 @@ export class DeleteForGivenLength extends AbstractFunction {
             ]),
         );
 
-    private signature: FunctionSignature = new FunctionSignature()
-        .setName('DeleteForGivenLength')
+    private signature: FunctionSignature = new FunctionSignature('DeleteForGivenLength')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -62,14 +53,14 @@ export class DeleteForGivenLength extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_STRING_NAME);
         let startPosition: number = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_AT_START_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_AT_START_NAME);
         let endPosition: number = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_AT_END_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_AT_END_NAME);
 
         if (endPosition >= startPosition) {
             let outputString: string = '';

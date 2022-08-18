@@ -20,16 +20,16 @@ export class IndexOfArray extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let secondSource: any[] = context
-            .getArguments()
-            .get(IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
 
         let from: number = context
-            .getArguments()
-            .get(IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName());
 
         if (source.length == 0 || secondSource.length == 0)
             return new FunctionOutput([

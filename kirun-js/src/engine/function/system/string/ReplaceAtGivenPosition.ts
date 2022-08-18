@@ -18,25 +18,15 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
 
     protected static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(ReplaceAtGivenPosition.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(ReplaceAtGivenPosition.PARAMETER_STRING_NAME));
+    protected static PARAMETER_STRING: Parameter =new Parameter(ReplaceAtGivenPosition.PARAMETER_STRING_NAME,Schema.ofString(ReplaceAtGivenPosition.PARAMETER_STRING_NAME));
 
-    protected static PARAMETER_AT_START: Parameter = new Parameter()
-        .setParameterName(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME)
-        .setSchema(Schema.ofInteger(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME));
+    protected static PARAMETER_AT_START: Parameter =new Parameter(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME,Schema.ofInteger(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME));
 
-    protected static PARAMETER_AT_LENGTH: Parameter = new Parameter()
-        .setParameterName(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME)
-        .setSchema(Schema.ofInteger(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME));
+    protected static PARAMETER_AT_LENGTH: Parameter =new Parameter(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME,Schema.ofInteger(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME));
 
-    protected static PARAMETER_REPLACE_STRING: Parameter = new Parameter()
-        .setParameterName(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME)
-        .setSchema(Schema.ofString(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME));
+    protected static PARAMETER_REPLACE_STRING: Parameter =new Parameter(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME,Schema.ofString(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME));
 
-    protected static EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([
                 [
                     ReplaceAtGivenPosition.EVENT_RESULT_NAME,
@@ -45,8 +35,7 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
             ]),
         );
 
-    private signature: FunctionSignature = new FunctionSignature()
-        .setName('ReplaceAtGivenPosition')
+    private signature: FunctionSignature = new FunctionSignature('ReplaceAtGivenPosition')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -83,17 +72,17 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_STRING_NAME);
         let startPosition: number = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME);
         let length: number = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME);
         let replaceString: string = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME);
         let inputStringLength: number = inputString.length;
 
         if (startPosition < length) {

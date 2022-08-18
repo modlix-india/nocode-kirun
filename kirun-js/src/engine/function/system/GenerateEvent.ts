@@ -16,8 +16,7 @@ const VALUE = 'value';
 const EVENT_NAME = 'eventName';
 const RESULTS = 'results';
 
-const SIGNATURE: FunctionSignature = new FunctionSignature()
-    .setName('GenerateEvent')
+const SIGNATURE: FunctionSignature = new FunctionSignature('GenerateEvent')
     .setNamespace(Namespaces.SYSTEM)
     .setParameters(
         new Map([
@@ -46,14 +45,14 @@ export class GenerateEvent extends AbstractFunction {
         return SIGNATURE;
     }
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        const events: Map<string, Map<string, any>[]> = context.getEvents();
-        const args: Map<string, any> = context.getArguments();
+        const events: Map<string, Map<string, any>[]> | undefined = context.getEvents();
+        const args: Map<string, any> | undefined = context.getArguments();
 
-        const eventName: string = args.get(EVENT_NAME);
+        const eventName: string = args?.get(EVENT_NAME);
 
         const map: Map<string, any> = context
-            .getArguments()
-            .get(RESULTS)
+            ?.getArguments()
+            ?.get(RESULTS)
             .map((e: ResultType) => {
                 let je: any = e[VALUE];
 
@@ -69,8 +68,8 @@ export class GenerateEvent extends AbstractFunction {
                 return a;
             }, new Map());
 
-        if (!events.has(eventName)) events.set(eventName, []);
-        events.get(eventName).push(map);
+        if (!events?.has(eventName)) events?.set(eventName, []);
+        events?.get(eventName)?.push(map);
 
         return new FunctionOutput([EventResult.outputOf(new Map())]);
     }

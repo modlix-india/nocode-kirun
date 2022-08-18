@@ -12,52 +12,47 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
     public static readonly EVENT_INDEX_NAME: string = 'index';
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    public static readonly EVENT_INDEX: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
-            MapUtil.of(
-                AbstractArrayFunction.EVENT_INDEX_NAME,
-                Schema.ofInteger(AbstractArrayFunction.EVENT_INDEX_NAME),
-            ),
-        );
+    public static readonly EVENT_INDEX: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractArrayFunction.EVENT_INDEX_NAME,
+            Schema.ofInteger(AbstractArrayFunction.EVENT_INDEX_NAME),
+        ),
+    );
 
-    public static readonly EVENT_RESULT_INTEGER: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
-            MapUtil.of(
+    public static readonly EVENT_RESULT_INTEGER: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractArrayFunction.EVENT_RESULT_NAME,
+            Schema.ofInteger(AbstractArrayFunction.EVENT_RESULT_NAME),
+        ),
+    );
+
+    public static readonly EVENT_RESULT_BOOLEAN: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractArrayFunction.EVENT_RESULT_NAME,
+            Schema.ofBoolean(AbstractArrayFunction.EVENT_RESULT_NAME),
+        ),
+    );
+
+    public static readonly EVENT_RESULT_ARRAY: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractArrayFunction.EVENT_RESULT_NAME,
+            Schema.ofArray(
                 AbstractArrayFunction.EVENT_RESULT_NAME,
-                Schema.ofInteger(AbstractArrayFunction.EVENT_RESULT_NAME),
+                Schema.ofAny(AbstractArrayFunction.EVENT_RESULT_NAME),
             ),
-        );
+        ),
+    );
 
-    public static readonly EVENT_RESULT_BOOLEAN: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
-            MapUtil.of(
-                AbstractArrayFunction.EVENT_RESULT_NAME,
-                Schema.ofBoolean(AbstractArrayFunction.EVENT_RESULT_NAME),
-            ),
-        );
+    public static readonly EVENT_RESULT_EMPTY: Event = new Event(Event.OUTPUT, MapUtil.of());
 
-    public static readonly EVENT_RESULT_ARRAY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
-            MapUtil.of(
-                AbstractArrayFunction.EVENT_RESULT_NAME,
-                Schema.ofArray(
-                    AbstractArrayFunction.EVENT_RESULT_NAME,
-                    Schema.ofAny(AbstractArrayFunction.EVENT_RESULT_NAME),
-                ),
-            ),
-        );
-
-    public static readonly EVENT_RESULT_EMPTY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(MapUtil.of());
-
-    public static readonly EVENT_RESULT_ANY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofAny(this.EVENT_RESULT_NAME)));
+    public static readonly EVENT_RESULT_ANY: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofAny(this.EVENT_RESULT_NAME)),
+    );
 
     public static readonly PARAMETER_INT_LENGTH: Parameter = Parameter.of(
         'length',
@@ -151,9 +146,8 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         const paramMap: Map<string, Parameter> = new Map();
         for (const param of parameters) paramMap.set(param.getParameterName(), param);
 
-        this.signature = new FunctionSignature()
+        this.signature = new FunctionSignature(functionName)
             .setNamespace(Namespaces.SYSTEM_ARRAY)
-            .setName(functionName)
             .setParameters(paramMap)
             .setEvents(MapUtil.of(event.getName(), event));
     }

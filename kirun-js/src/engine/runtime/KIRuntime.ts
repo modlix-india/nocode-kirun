@@ -103,7 +103,7 @@ export class KIRuntime extends AbstractFunction {
         if (!inContext.getSteps()) inContext.setSteps(new Map());
 
         let eGraph: ExecutionGraph<string, StatementExecution> = this.getExecutionPlan(
-            inContext.getContext(),
+            inContext.getContext()!,
         );
 
         // if (logger.isDebugEnabled()) {
@@ -144,7 +144,7 @@ export class KIRuntime extends AbstractFunction {
 
         while (
             (!executionQue.isEmpty() || !branchQue.isEmpty()) &&
-            !inContext.getEvents().has(Event.OUTPUT)
+            !inContext.getEvents()?.has(Event.OUTPUT)
         ) {
             this.processBranchQue(inContext, executionQue, branchQue);
             this.processExecutionQue(inContext, executionQue, branchQue);
@@ -160,7 +160,7 @@ export class KIRuntime extends AbstractFunction {
         }
 
         return new FunctionOutput(
-            Array.from(inContext.getEvents().entries()).flatMap((e) =>
+            Array.from(inContext.getEvents()?.entries() ?? []).flatMap((e) =>
                 e[1].map((v) => EventResult.of(e[0], v)),
             ),
         );
@@ -181,7 +181,7 @@ export class KIRuntime extends AbstractFunction {
         if (!executionQue.isEmpty()) {
             let vertex: GraphVertex<string, StatementExecution> = executionQue.pop();
 
-            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()))
+            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!))
                 executionQue.add(vertex);
             else this.executeVertex(vertex, inContext, branchQue, executionQue);
         }
@@ -207,7 +207,7 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             > = branchQue.pop();
 
-            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()))
+            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!))
                 branchQue.add(branch);
             else this.executeBranch(inContext, executionQue, branch);
         }
@@ -224,22 +224,22 @@ export class KIRuntime extends AbstractFunction {
         >,
     ): void {
         let vertex: GraphVertex<string, StatementExecution> = branch.getT4();
-        let nextOutput: EventResult = undefined;
+        let nextOutput: EventResult | undefined = undefined;
 
         do {
             this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
 
             if (nextOutput) {
-                if (!inContext.getSteps().has(vertex.getData().getStatement().getStatementName()))
+                if (!inContext.getSteps()?.has(vertex.getData().getStatement().getStatementName()))
                     inContext
                         .getSteps()
-                        .set(vertex.getData().getStatement().getStatementName(), new Map());
+                        ?.set(vertex.getData().getStatement().getStatementName(), new Map());
 
                 inContext
                     .getSteps()
-                    .get(vertex.getData().getStatement().getStatementName())
-                    .set(
+                    ?.get(vertex.getData().getStatement().getStatementName())
+                    ?.set(
                         nextOutput.getName(),
                         this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
@@ -247,11 +247,7 @@ export class KIRuntime extends AbstractFunction {
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
-            vertex
-                .getOutVertices()
-                .get(Event.OUTPUT)
-
-                .forEach((e) => executionQue.add(e));
+            (vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []).forEach((e) => executionQue.add(e));
         }
     }
 
@@ -270,25 +266,35 @@ export class KIRuntime extends AbstractFunction {
     ): void {
         let s: Statement = vertex.getData().getStatement();
 
-        let fun: Function = this.fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = this.fRepo.find(s.getNamespace(), s.getName());
 
-        let paramSet: Map<string, Parameter> = fun.getSignature().getParameters();
+        if (!fun) {
+            throw new KIRuntimeException(
+                StringFormatter.format('$.$ function is not found.', s.getNamespace(), s.getName()),
+            );
+        }
 
-        let args: Map<string, any> = this.getArgumentsFromParametersMap(inContext, s, paramSet);
+        let paramSet: Map<string, Parameter> | undefined = fun?.getSignature().getParameters();
 
-        let context: Map<string, ContextElement> = inContext.getContext();
+        let args: Map<string, any> = this.getArgumentsFromParametersMap(
+            inContext,
+            s,
+            paramSet ?? new Map(),
+        );
+
+        let context: Map<string, ContextElement> = inContext.getContext()!;
 
         let result: FunctionOutput = fun.execute(
             new FunctionExecutionParameters()
                 .setContext(context)
                 .setArguments(args)
-                .setEvents(inContext.getEvents())
-                .setSteps(inContext.getSteps())
+                .setEvents(inContext.getEvents()!)
+                .setSteps(inContext.getSteps()!)
                 .setStatementExecution(vertex.getData())
                 .setCount(inContext.getCount()),
         );
 
-        let er: EventResult = result.next();
+        let er: EventResult | undefined = result.next();
 
         if (!er)
             throw new KIRuntimeException(
@@ -297,12 +303,12 @@ export class KIRuntime extends AbstractFunction {
 
         let isOutput: boolean = er.getName() == Event.OUTPUT;
 
-        if (!inContext.getSteps().has(s.getStatementName())) {
-            inContext.getSteps().set(s.getStatementName(), new Map());
+        if (!inContext.getSteps()?.has(s.getStatementName())) {
+            inContext.getSteps()!.set(s.getStatementName(), new Map());
         }
         inContext
-            .getSteps()
-            .get(s.getStatementName())
+            .getSteps()!
+            .get(s.getStatementName())!
             .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
 
         if (!isOutput) {
@@ -310,7 +316,7 @@ export class KIRuntime extends AbstractFunction {
             let unResolvedDependencies: Tuple2<string, string>[] = this.makeEdges(subGraph);
             branchQue.push(new Tuple4(subGraph, unResolvedDependencies, result, vertex));
         } else {
-            let out: Set<GraphVertex<string, StatementExecution>> = vertex
+            let out: Set<GraphVertex<string, StatementExecution>> | undefined = vertex
                 .getOutVertices()
                 .get(Event.OUTPUT);
             if (out) out.forEach((e) => executionQue.add(e));
@@ -370,7 +376,7 @@ export class KIRuntime extends AbstractFunction {
     ): boolean {
         for (let tup of unResolvedDependencies) {
             if (!output.has(tup.getT1())) return false;
-            if (!output.get(tup.getT1()).get(tup.getT2())) return false;
+            if (!output.get(tup.getT1())?.get(tup.getT2())) return false;
         }
 
         return true;
@@ -387,7 +393,7 @@ export class KIRuntime extends AbstractFunction {
                 let stepName: string = e.getT1().getData().getStatement().getStatementName();
                 let type: string = e.getT2();
 
-                return !(output.has(stepName) && output.get(stepName).has(type));
+                return !(output.has(stepName) && output.get(stepName)?.has(type));
             }).length == 0
         );
     }
@@ -405,7 +411,9 @@ export class KIRuntime extends AbstractFunction {
 
                 if (!prList?.length) return new Tuple2(e[0], ret);
 
-                let pDef: Parameter = paramSet.get(e[0]);
+                let pDef: Parameter | undefined = paramSet.get(e[0]);
+
+                if (!pDef) return new Tuple2(e[0], undefined);
 
                 if (pDef.isVariableArgument()) {
                     ret = prList
@@ -436,7 +444,7 @@ export class KIRuntime extends AbstractFunction {
             ref.getType() == ParameterReferenceType.EXPRESSION &&
             !StringUtil.isNullOrBlank(ref.getExpression())
         ) {
-            let exp: ExpressionEvaluator = new ExpressionEvaluator(ref.getExpression());
+            let exp: ExpressionEvaluator = new ExpressionEvaluator(ref.getExpression() ?? '');
             ret = exp.evaluate(inContext.getValuesMap());
         }
         return ret;
@@ -448,12 +456,19 @@ export class KIRuntime extends AbstractFunction {
     ): StatementExecution {
         let se: StatementExecution = new StatementExecution(s);
 
-        let fun: Function = this.fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = this.fRepo.find(s.getNamespace(), s.getName());
+
+        if (!fun) {
+            throw new KIRuntimeException(
+                StringFormatter.format('$.$ was not available', s.getNamespace(), s.getName()),
+            );
+        }
 
         let paramSet: Map<string, Parameter> = new Map(fun.getSignature().getParameters());
 
         for (let param of Array.from(s.getParameterMap().entries())) {
-            let p: Parameter = paramSet.get(param[0]);
+            let p: Parameter | undefined = paramSet.get(param[0]);
+            if (!p) continue;
 
             let refList: ParameterReference[] = param[1];
 
@@ -535,24 +550,24 @@ export class KIRuntime extends AbstractFunction {
                     if (isNullValue(e.getT1()) || isNullValue(e.getT1().getType())) continue;
 
                     if (
-                        e.getT1().getType().contains(SchemaType.ARRAY) &&
+                        e.getT1().getType()?.contains(SchemaType.ARRAY) &&
                         Array.isArray(e.getT2())
                     ) {
-                        let ast: ArraySchemaType = e.getT1().getItems();
-                        if (ast == null) {
+                        let ast: ArraySchemaType | undefined = e.getT1().getItems();
+                        if (!ast) {
                             continue;
                         }
                         if (ast.isSingleType()) {
                             for (let je of e.getT2())
-                                paramElements.push(new Tuple2(ast.getSingleSchema(), je));
+                                paramElements.push(new Tuple2(ast.getSingleSchema()!, je));
                         } else {
                             let array: any[] = e.getT2() as any[];
                             for (let i = 0; i < array.length; i++) {
-                                paramElements.push(new Tuple2(ast.getTupleSchema()[i], array[i]));
+                                paramElements.push(new Tuple2(ast.getTupleSchema()![i], array[i]));
                             }
                         }
                     } else if (
-                        e.getT1().getType().contains(SchemaType.OBJECT) &&
+                        e.getT1().getType()?.contains(SchemaType.OBJECT) &&
                         typeof e.getT2() == 'object'
                     ) {
                         let sch: Schema = e.getT1();
@@ -567,10 +582,13 @@ export class KIRuntime extends AbstractFunction {
                                 this.addDependencies(se, obj['value']);
                             }
                         } else {
-                            for (let entry of Object.entries(e.getT2())) {
-                                paramElements.push(
-                                    new Tuple2(sch.getProperties().get(entry[0]), entry[1]),
-                                );
+                            if (sch.getProperties()) {
+                                for (let entry of Object.entries(e.getT2())) {
+                                    if (!sch.getProperties()!.has(entry[0])) continue;
+                                    paramElements.push(
+                                        new Tuple2(sch.getProperties()!.get(entry[0])!, entry[1]),
+                                    );
+                                }
                             }
                         }
                     }
@@ -600,32 +618,36 @@ export class KIRuntime extends AbstractFunction {
         }
     }
 
-    private addDependencies(se: StatementExecution, expression: string): void {
+    private addDependencies(se: StatementExecution, expression: string | undefined): void {
+        if (!expression) return;
+
         Array.from(expression.match(KIRuntime.STEP_REGEX_PATTERN) ?? []).forEach((e) =>
             se.addDependency(e),
         );
     }
 
     public makeEdges(graph: ExecutionGraph<string, StatementExecution>): Tuple2<string, string>[] {
-        return Array.from(graph.getNodeMap().values())
-            .filter((e) => !!e.getData().getDepenedencies())
-            .flatMap((e) =>
-                Array.from(e.getData().getDepenedencies())
-                    .map((d) => {
-                        let secondDot: number = d.indexOf('.', 6);
-                        let step: string = d.substring(6, secondDot);
-                        let eventDot: number = d.indexOf('.', secondDot + 1);
-                        let event: string =
-                            eventDot == -1
-                                ? d.substring(secondDot + 1)
-                                : d.substring(secondDot + 1, eventDot);
+        let values = graph.getNodeMap().values();
 
-                        if (!graph.getNodeMap().has(step)) return new Tuple2(step, event);
+        let retValue: Tuple2<string, string>[] = [];
 
-                        e.addInEdgeTo(graph.getNodeMap().get(step), event);
-                        return undefined;
-                    })
-                    .filter((e) => !!e),
-            );
+        for (let e of Array.from(values)) {
+            for (let d of e.getData().getDependencies()) {
+                let secondDot: number = d.indexOf('.', 6);
+                let step: string = d.substring(6, secondDot);
+                let eventDot: number = d.indexOf('.', secondDot + 1);
+                let event: string =
+                    eventDot == -1
+                        ? d.substring(secondDot + 1)
+                        : d.substring(secondDot + 1, eventDot);
+
+                if (!graph.getNodeMap().has(step)) retValue.push(new Tuple2(step, event));
+
+                let st = graph.getNodeMap()!.get(step);
+                if (st) e.addInEdgeTo(st, event);
+            }
+        }
+
+        return retValue;
     }
 }

@@ -18,13 +18,13 @@ const VALUE2 = 'value2';
 const paramFunctions = [
     () => {
         return new Map([
-            [VALUE, new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))],
+            [VALUE,new Parameter(VALUE,Schema.ofNumber(VALUE))],
         ]);
     },
     () => {
         return new Map([
-            [VALUE1, new Parameter().setParameterName(VALUE1).setSchema(Schema.ofNumber(VALUE1))],
-            [VALUE2, new Parameter().setParameterName(VALUE2).setSchema(Schema.ofNumber(VALUE2))],
+            [VALUE1, new Parameter(VALUE1, Schema.ofNumber(VALUE1))],
+            [VALUE2, new Parameter(VALUE2, Schema.ofNumber(VALUE2))],
         ]);
     },
 ];
@@ -44,8 +44,7 @@ export class GenericMathFunction extends AbstractFunction {
         if (!returnType || !returnType.length) returnType = [SchemaType.DOUBLE];
         this.parametersNumber = parametersNumber;
         this.mathFunction = mathFunction;
-        this.signature = new FunctionSignature()
-            .setName(functionName)
+        this.signature = new FunctionSignature(functionName)
             .setNamespace(Namespaces.MATH)
             .setParameters(paramFunctions[parametersNumber - 1]())
             .setEvents(
@@ -68,11 +67,11 @@ export class GenericMathFunction extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let v1 = PrimitiveUtil.findPrimitiveNumberType(
-            context.getArguments().get(this.parametersNumber == 1 ? VALUE : VALUE1),
+            context.getArguments()?.get(this.parametersNumber == 1 ? VALUE : VALUE1),
         ).getT2();
         let v2;
         if (this.parametersNumber == 2)
-            v2 = PrimitiveUtil.findPrimitiveNumberType(context.getArguments().get(VALUE2)).getT2();
+            v2 = PrimitiveUtil.findPrimitiveNumberType(context.getArguments()?.get(VALUE2)).getT2();
 
         return new FunctionOutput([
             EventResult.outputOf(new Map([[VALUE, this.mathFunction.call(this, v1, v2)]])),
