@@ -7,7 +7,7 @@ import com.google.gson.JsonPrimitive;
 public class Min extends Max {
 
 	public Min() {
-		super("Min", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_ANY);
+		super("Min", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE), EVENT_RESULT_ANY);
 	}
 
 	@Override

@@ -1,4 +1,6 @@
 import { ExecutionException } from '../../exception/ExecutionException';
+import { KIRuntimeException } from '../../exception/KIRuntimeException';
+import { JsonExpression } from '../../json/JsonExpression';
 import { SchemaType } from '../../json/schema/type/SchemaType';
 import { isNullValue } from '../NullCheck';
 import { StringFormatter } from '../string/StringFormatter';
@@ -72,6 +74,57 @@ export class PrimitiveUtil {
                 StringFormatter.format('Unable to convert $ to a number.', value),
                 err,
             );
+        }
+    }
+
+    public static compare(a: any, b: any): number {
+        if (a == b) return 0;
+
+        if (isNullValue(a) || isNullValue(b)) return isNullValue(a) ? -1 : 1;
+
+        if (Array.isArray(a) || Array.isArray(b)) {
+            if (Array.isArray(a) || Array.isArray(b)) {
+                if (a.length != b.length) return a.length - b.length;
+                for (let i = 0; i < a.length; i++) {
+                    let cmp: number = this.compare(a[i], b[i]);
+                    if (cmp != 0) return cmp;
+                }
+                return 0;
+            }
+            return Array.isArray(a) ? -1 : 1;
+        }
+
+        const typofa = typeof a;
+        const typofb = typeof b;
+
+        if (typofa === 'object' || typofb === 'object') {
+            if (typofa === 'object' && typofb === 'object') {
+                Object.keys(a).forEach((key) => {
+                    let cmp = this.compare(a[key], b[key]);
+                    if (cmp != 0) return cmp;
+                });
+            }
+        }
+
+        return this.comparePrimitive(a, b);
+    }
+
+    public static comparePrimitive(oa: any, ob: any): number {
+        if (isNullValue(oa) || isNullValue(ob)) {
+            if (isNullValue(oa) && isNullValue(ob)) return 0;
+            return isNullValue(oa) ? -1 : 1;
+        }
+
+        if (oa == ob) return 0;
+
+        if (typeof oa == 'boolean' || typeof ob == 'boolean') return oa ? -1 : 1;
+
+        if (typeof oa == 'string' || typeof ob == 'string') {
+            return oa + '' < ob + '' ? -1 : 1;
+        }
+
+        if (typeof oa == 'number' || typeof ob == 'number') {
+            return oa - ob;
         }
     }
 

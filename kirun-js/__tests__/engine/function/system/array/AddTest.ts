@@ -1,10 +1,5 @@
-import { AbstractArrayFunction } from '../../../../../src/engine/function/system/array/AbstractArrayFunction';
 import { Add } from '../../../../../src/engine/function/system/array/Add';
-import { Schema } from '../../../../../src/engine/json/schema/Schema';
-import { SchemaValidationException } from '../../../../../src/engine/json/schema/validator/exception/SchemaValidationException';
-import { FunctionOutput } from '../../../../../src/engine/model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
-import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 test('Add Test 1', () => {
     let add: Add = new Add();

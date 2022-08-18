@@ -7,6 +7,7 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
@@ -42,12 +43,8 @@ public class LastIndexOf extends AbstractArrayFunction {
 		if (find.isJsonNull())
 			throw new KIRuntimeException("Please provide the valid find object or primitive in order to verify");
 
-		for (int i = source.size() - 1; i >= 0; i--) {
-			if (find.isJsonPrimitive() && source.get(i).isJsonPrimitive()
-					&& source.get(i).equals(find.getAsJsonPrimitive())
-					|| find.isJsonArray() && source.get(i).isJsonArray() && source.get(i).equals(find.getAsJsonArray())
-					|| find.isJsonObject() && source.get(i).isJsonObject()
-							&& source.get(i).equals(find.getAsJsonObject())) {
+		for (int i = source.size() - 1; i >= len; i--) {
+			if (PrimitiveUtil.compare(source.get(i), find) == 0) {
 				index = i;
 				break;
 			}
