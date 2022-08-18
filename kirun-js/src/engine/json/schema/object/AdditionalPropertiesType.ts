@@ -1,14 +1,14 @@
 import { Schema } from '../Schema';
 
 export class AdditionalPropertiesType {
-    private booleanValue: boolean;
-    private schemaValue: Schema;
+    private booleanValue?: boolean;
+    private schemaValue?: Schema;
 
-    public getBooleanValue(): boolean {
+    public getBooleanValue(): boolean | undefined {
         return this.booleanValue;
     }
 
-    public getSchemaValue(): Schema {
+    public getSchemaValue(): Schema | undefined {
         return this.schemaValue;
     }
 

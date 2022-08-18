@@ -14,12 +14,12 @@ export class Rotate extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Rotate.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Rotate.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let rotLen: number = context
-            .getArguments()
-            .get(Rotate.PARAMETER_ROTATE_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(Rotate.PARAMETER_ROTATE_LENGTH.getParameterName());
 
         if (source.length == 0) return new FunctionOutput([EventResult.outputOf(new Map([]))]);
 

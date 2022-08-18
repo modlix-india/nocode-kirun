@@ -10,6 +10,10 @@ test('StringRepo3 - EqualsIgnoreCase', () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
+    if (!fun) {
+        throw new Error('Function not available');
+    }
+
     fep.setArguments(
         MapUtil.of(
             AbstractStringFunction.PARAMETER_STRING_NAME,

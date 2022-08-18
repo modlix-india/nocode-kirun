@@ -21,24 +21,24 @@ export class Disjoint extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let firstSource: any[] = context
-            .getArguments()
-            .get(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let first: number = context
-            .getArguments()
-            .get(Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
         let secondSource: any[] = context
-            .getArguments()
-            .get(Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
 
         let second: number = context
-            .getArguments()
-            .get(Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName());
 
         let len: number = context
-            .getArguments()
-            .get(Disjoint.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(Disjoint.PARAMETER_INT_LENGTH.getParameterName());
 
         if (len == -1)
             len =

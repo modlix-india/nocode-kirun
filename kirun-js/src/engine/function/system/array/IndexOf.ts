@@ -21,14 +21,14 @@ export class IndexOf extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context.getArguments().get(IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
+        var find = context?.getArguments()?.get(IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
 
         let len: number = context
-            .getArguments()
-            .get(IndexOf.PARAMETER_INT_FIND_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(IndexOf.PARAMETER_INT_FIND_FROM.getParameterName());
 
         if (source.length == 0)
             return new FunctionOutput([

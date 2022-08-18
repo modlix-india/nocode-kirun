@@ -19,16 +19,16 @@ export class DeleteFrom extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let start: number = context
-            .getArguments()
-            .get(DeleteFrom.PARAMETER_INT_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(DeleteFrom.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
         let len: number = context
-            .getArguments()
-            .get(DeleteFrom.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(DeleteFrom.PARAMETER_INT_LENGTH.getParameterName());
 
         if (source.length == 0) throw new KIRuntimeException('There are no elements to be deleted');
 

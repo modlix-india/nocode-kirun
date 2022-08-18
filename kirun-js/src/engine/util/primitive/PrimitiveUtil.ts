@@ -126,6 +126,8 @@ export class PrimitiveUtil {
         if (typeof oa == 'number' || typeof ob == 'number') {
             return oa - ob;
         }
+
+        return 0;
     }
 
     private static baseNumberType(num: number): SchemaType {

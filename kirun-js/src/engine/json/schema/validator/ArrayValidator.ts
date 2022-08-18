@@ -40,7 +40,7 @@ export class ArrayValidator {
     public static checkContains(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         array: any[],
     ) {
         if (!schema.getContains()) return;
@@ -97,7 +97,7 @@ export class ArrayValidator {
     public static checkItems(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         array: any[],
     ) {
         if (!schema.getItems()) return;

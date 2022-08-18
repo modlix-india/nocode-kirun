@@ -2,11 +2,11 @@ import { Namespaces } from '../../namespaces/Namespaces';
 import { ArraySchemaType } from './array/ArraySchemaType';
 import { AdditionalPropertiesType } from './object/AdditionalPropertiesType';
 import { StringFormat } from './string/StringFormat';
-import { StringSchema } from './string/StringSchema';
 import { SchemaType } from './type/SchemaType';
 import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
+import { SingleType } from './type/SingleType';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';
@@ -275,13 +275,10 @@ export class Schema {
         return retMap;
     }
 
-    public static from(
-        obj: any,
-        isStringSchema: boolean = false,
-    ): Schema | StringSchema | undefined {
+    public static from(obj: any, isStringSchema: boolean = false): Schema | undefined {
         if (isNullValue(obj)) return undefined;
 
-        let schema: Schema = isStringSchema ? new StringSchema() : new Schema();
+        let schema: Schema = new Schema();
         schema.namespace = obj.namespace;
         schema.name = obj.name;
 
@@ -290,6 +287,8 @@ export class Schema {
         schema.ref = obj.ref;
 
         if (!isStringSchema) schema.type = TypeUtil.from(schema.type);
+        else schema.type = new SingleType(SchemaType.STRING);
+
         schema.anyOf = Schema.fromListOfSchemas(obj.anyOf);
         schema.allOf = Schema.fromListOfSchemas(obj.allOf);
         schema.oneOf = Schema.fromListOfSchemas(obj.oneOf);
@@ -374,7 +373,7 @@ export class Schema {
     private properties?: Map<string, Schema>;
     private additionalProperties?: AdditionalPropertiesType;
     private required?: string[];
-    private propertyNames?: StringSchema;
+    private propertyNames?: Schema;
     private minProperties?: number;
     private maxProperties?: number;
     private patternProperties?: Map<string, Schema>;
@@ -551,7 +550,7 @@ export class Schema {
     public getMinimum(): number | undefined {
         return this.minimum;
     }
-    public setMinimum(minimum: number): Schema | undefined {
+    public setMinimum(minimum: number): Schema {
         this.minimum = minimum;
         return this;
     }
@@ -597,11 +596,12 @@ export class Schema {
         this.required = required;
         return this;
     }
-    public getPropertyNames(): StringSchema | undefined {
+    public getPropertyNames(): Schema | undefined {
         return this.propertyNames;
     }
-    public setPropertyNames(propertyNames: StringSchema): Schema {
+    public setPropertyNames(propertyNames: Schema): Schema {
         this.propertyNames = propertyNames;
+        this.propertyNames.type = new SingleType(SchemaType.STRING);
         return this;
     }
     public getMinProperties(): number | undefined {

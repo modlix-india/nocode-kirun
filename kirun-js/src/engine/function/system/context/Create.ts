@@ -45,17 +45,21 @@ export class Create extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        const name: string = context.getArguments().get(NAME);
+        const name: string = context?.getArguments()?.get(NAME);
 
-        if (context.getContext().has(name))
+        if (context?.getContext()?.has(name))
             throw new KIRuntimeException(
                 StringFormatter.format("Context already has an element for '$' ", name),
             );
 
-        let s: Schema = Schema.from(context.getArguments().get(SCHEMA));
+        let s: Schema | undefined = Schema.from(context?.getArguments()?.get(SCHEMA));
+
+        if (!s) {
+            throw new KIRuntimeException('Schema is not supplied.');
+        }
 
         context
-            .getContext()
+            .getContext()!
             .set(
                 name,
                 new ContextElement(

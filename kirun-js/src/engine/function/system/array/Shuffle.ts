@@ -10,8 +10,8 @@ export class Shuffle extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         if (source.length <= 1) return new FunctionOutput([EventResult.outputOf(new Map([]))]);
 

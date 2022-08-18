@@ -24,15 +24,17 @@ export class Compare extends AbstractArrayFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        var source = context.getArguments().get(Compare.PARAMETER_ARRAY_SOURCE.getParameterName());
+        var source = context
+            ?.getArguments()
+            ?.get(Compare.PARAMETER_ARRAY_SOURCE.getParameterName());
         var srcfrom = context
-            .getArguments()
-            .get(Compare.PARAMETER_INT_SOURCE_FROM.getParameterName());
-        var find = context.getArguments().get(Compare.PARAMETER_ARRAY_FIND.getParameterName());
+            ?.getArguments()
+            ?.get(Compare.PARAMETER_INT_SOURCE_FROM.getParameterName());
+        var find = context?.getArguments()?.get(Compare.PARAMETER_ARRAY_FIND.getParameterName());
         var findfrom = context
-            .getArguments()
-            .get(Compare.PARAMETER_INT_FIND_FROM.getParameterName());
-        var length = context.getArguments().get(Compare.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(Compare.PARAMETER_INT_FIND_FROM.getParameterName());
+        var length = context?.getArguments()?.get(Compare.PARAMETER_INT_LENGTH.getParameterName());
 
         if (source.length == 0) {
             throw new KIRuntimeException('Compare source array cannot be empty');

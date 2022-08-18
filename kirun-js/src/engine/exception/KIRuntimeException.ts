@@ -1,9 +1,12 @@
 export class KIRuntimeException extends Error {
+    private cause?: Error;
+
     constructor(message: string, err?: Error) {
         super(message);
+        this.cause = err;
+    }
 
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(err ?? this, KIRuntimeException);
-        }
+    public getCause(): Error | undefined {
+        return this.cause;
     }
 }

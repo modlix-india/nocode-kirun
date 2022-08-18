@@ -17,7 +17,7 @@ test('Delete Test 1', () => {
                 [Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     delet.execute(fep);
@@ -41,7 +41,7 @@ test('Delete Test 2', () => {
                 [Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     delet.execute(fep);
@@ -63,7 +63,7 @@ test('Delete Test 3', () => {
                 [Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => delet.execute(fep)).toThrow();
@@ -83,7 +83,7 @@ test('Delete Test 3', () => {
                 [Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => delet.execute(fep)).toThrow();
@@ -103,7 +103,7 @@ test('Delete Test 4', () => {
                 [Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => delet.execute(fep)).toThrow();

@@ -59,7 +59,7 @@ test('SubArray of Test 2', () => {
                 [SubArray.PARAMETER_INT_LENGTH.getParameterName(), 9],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => sub.execute(fep)).toThrow();

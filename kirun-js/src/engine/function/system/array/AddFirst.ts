@@ -17,12 +17,12 @@ export class AddFirst extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(AbstractArrayFunction.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(AbstractArrayFunction.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let input: any = context
-            .getArguments()
-            .get(AbstractArrayFunction.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.getArguments()
+            ?.get(AbstractArrayFunction.PARAMETER_ANY_NOT_NULL.getParameterName());
 
         if (source.length == 0) {
             source.push(input);

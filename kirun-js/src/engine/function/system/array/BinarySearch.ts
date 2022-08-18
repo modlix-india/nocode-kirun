@@ -21,20 +21,20 @@ export class BinarySearch extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let start: number = context
-            .getArguments()
-            .get(BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
         let find: any = context
-            .getArguments()
-            .get(BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.getArguments()
+            ?.get(BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName());
 
         let end: number = context
-            .getArguments()
-            .get(BinarySearch.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(BinarySearch.PARAMETER_INT_LENGTH.getParameterName());
 
         if (source.length == 0 || start < 0 || start > source.length)
             throw new KIRuntimeException('Search source array cannot be empty');

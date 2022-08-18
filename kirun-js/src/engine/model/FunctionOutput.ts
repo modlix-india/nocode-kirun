@@ -26,7 +26,7 @@ export class FunctionOutput {
             return undefined;
         }
 
-        const er: EventResult = this.generator.next();
+        const er: EventResult | undefined = this.generator.next();
         if (er) this.fo.push(er);
         return er;
     }

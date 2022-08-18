@@ -7,7 +7,7 @@ export class TypeUtil {
     public static of(...types: SchemaType[]): Type {
         if (types.length == 1) return new SingleType(types[0]);
 
-        return new MultipleType().setType(new Set(types));
+        return new MultipleType(new Set(types));
     }
 
     public static from(types: any): Type | undefined {

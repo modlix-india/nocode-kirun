@@ -37,7 +37,7 @@ export class NumberValidator {
 
         try {
             if (type == SchemaType.LONG || type == SchemaType.INTEGER) n = Math.round(n);
-        } catch (err) {
+        } catch (err: any) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element + ' is not a number of type ' + type,

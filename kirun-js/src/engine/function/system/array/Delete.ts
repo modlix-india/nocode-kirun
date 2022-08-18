@@ -18,12 +18,12 @@ export class Delete extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Delete.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
+            ?.getArguments()
+            ?.get(Delete.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());
 
         let deletable: any[] = context
-            .getArguments()
-            .get(Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Delete.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
 
         if (source.length == 0 || deletable.length == 0 || deletable.length > source.length)
             throw new KIRuntimeException(

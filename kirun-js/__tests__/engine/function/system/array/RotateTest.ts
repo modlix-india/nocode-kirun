@@ -26,7 +26,7 @@ test('Rotate test1 ', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push('to');
@@ -72,7 +72,7 @@ test('rotate  test 2', () => {
             ]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
 
@@ -114,7 +114,7 @@ test('rotate test 3', () => {
             new Map<string, any>([[Rotate.PARAMETER_ARRAY_SOURCE.getParameterName(), array]]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let res: any[] = [];
     res.push('am');

@@ -22,10 +22,12 @@ export class Fill extends AbstractArrayFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        var source = context.getArguments().get(Fill.PARAMETER_ARRAY_SOURCE.getParameterName());
-        var srcfrom = context.getArguments().get(Fill.PARAMETER_INT_SOURCE_FROM.getParameterName());
-        var length = context.getArguments().get(Fill.PARAMETER_INT_LENGTH.getParameterName());
-        var element = context.getArguments().get(Fill.PARAMETER_ANY.getParameterName());
+        var source = context?.getArguments()?.get(Fill.PARAMETER_ARRAY_SOURCE.getParameterName());
+        var srcfrom = context
+            ?.getArguments()
+            ?.get(Fill.PARAMETER_INT_SOURCE_FROM.getParameterName());
+        var length = context?.getArguments()?.get(Fill.PARAMETER_INT_LENGTH.getParameterName());
+        var element = context?.getArguments()?.get(Fill.PARAMETER_ANY.getParameterName());
 
         if (srcfrom < 0)
             throw new KIRuntimeException(

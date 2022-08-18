@@ -41,7 +41,7 @@ test('shuffle test 1', () => {
             new Map<string, any>([[Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName(), array]]),
         )
         .setContext(new Map([]))
-        .setOutput(new Map([]));
+        .setSteps(new Map([]));
 
     let set2: Set<any> = new Set<any>();
 
@@ -141,7 +141,7 @@ test('Shuffle test 2', () => {
         .setArguments(
             new Map<string, any>([[Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     shuffle.execute(fep);

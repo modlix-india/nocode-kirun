@@ -19,16 +19,16 @@ export class SubArray extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let start: number = context
-            .getArguments()
-            .get(SubArray.PARAMETER_INT_FIND_FROM.getParameterName());
+            ?.getArguments()
+            ?.get(SubArray.PARAMETER_INT_FIND_FROM.getParameterName());
 
         let len: number = context
-            .getArguments()
-            .get(SubArray.PARAMETER_INT_LENGTH.getParameterName());
+            ?.getArguments()
+            ?.get(SubArray.PARAMETER_INT_LENGTH.getParameterName());
 
         if (len == -1) len = source.length - start;
 

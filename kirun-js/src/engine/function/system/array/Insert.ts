@@ -16,14 +16,14 @@ export class Insert extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(Insert.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(Insert.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let offset: number = context
-            .getArguments()
-            .get(Insert.PARAMETER_INT_OFFSET.getParameterName());
+            ?.getArguments()
+            ?.get(Insert.PARAMETER_INT_OFFSET.getParameterName());
 
-        var output = context.getArguments().get(Insert.PARAMETER_ANY.getParameterName());
+        var output = context?.getArguments()?.get(Insert.PARAMETER_ANY.getParameterName());
 
         if (isNullValue(output) || isNullValue(offset) || offset > source.length)
             throw new KIRuntimeException('Please valid resouces to insert at the correct location');

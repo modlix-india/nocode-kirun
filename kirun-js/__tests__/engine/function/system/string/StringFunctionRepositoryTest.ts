@@ -8,7 +8,9 @@ const repo = new StringFunctionRepository();
 
 test('StringFunctionRepository - Trim', () => {
     let fun = repo.find(Namespaces.STRING, 'Trim');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(MapUtil.of(AbstractStringFunction.PARAMETER_STRING_NAME, ' Kiran '));
     expect(
@@ -18,7 +20,9 @@ test('StringFunctionRepository - Trim', () => {
 
 test('StringFunctionRepo -Repeat', () => {
     let fun = repo.find(Namespaces.STRING, 'Repeat');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -37,6 +41,9 @@ test('StringFunctionRepo -Repeat', () => {
 
 test('StringFunctionRepo -Lowercase', () => {
     let fun = repo.find(Namespaces.STRING, 'LowerCase');
+    if (!fun) {
+        throw new Error('Function not available');
+    }
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
@@ -54,7 +61,9 @@ test('StringFunctionRepo -Lowercase', () => {
 
 test('StringFunctionRepo -UpperCase', () => {
     let fun = repo.find(Namespaces.STRING, 'UpperCase');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -71,7 +80,9 @@ test('StringFunctionRepo -UpperCase', () => {
 
 test('StringFunctionRepo -Blank1', () => {
     let fun = repo.find(Namespaces.STRING, 'Blank');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -85,7 +96,9 @@ test('StringFunctionRepo -Blank1', () => {
 
 test('StringFunctionRepo -Blank2', () => {
     let fun = repo.find(Namespaces.STRING, 'Blank');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -102,7 +115,9 @@ test('StringFunctionRepo -Blank2', () => {
 
 test('StringFunctionRepo -Empty1', () => {
     let fun = repo.find(Namespaces.STRING, 'Empty');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -116,7 +131,9 @@ test('StringFunctionRepo -Empty1', () => {
 
 test('StringFunctionRepo -Empty2', () => {
     let fun = repo.find(Namespaces.STRING, 'Empty');
-
+    if (!fun) {
+        throw new Error('Function not available');
+    }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(

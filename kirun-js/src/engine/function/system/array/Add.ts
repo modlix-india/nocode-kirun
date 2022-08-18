@@ -17,12 +17,12 @@ export class Add extends AbstractArrayFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let source: any[] = context
-            .getArguments()
-            .get(AbstractArrayFunction.PARAMETER_ARRAY_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(AbstractArrayFunction.PARAMETER_ARRAY_SOURCE.getParameterName());
 
         let secondSource: any[] = context
-            .getArguments()
-            .get(AbstractArrayFunction.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
+            ?.getArguments()
+            ?.get(AbstractArrayFunction.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
 
         source.splice(source.length, 0, ...secondSource);
 

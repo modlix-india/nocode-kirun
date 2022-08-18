@@ -53,12 +53,17 @@ export class ObjectValidator {
     private static checkPropertyNameSchema(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         keys: Set<String>,
     ) {
         for (let key of Array.from(keys.values())) {
             try {
-                SchemaValidator.validate(parents, schema.getPropertyNames(), repository, key);
+                SchemaValidator.validate(
+                    parents,
+                    schema.getPropertyNames() as Schema,
+                    repository,
+                    key,
+                );
             } catch (err) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
@@ -82,7 +87,7 @@ export class ObjectValidator {
     private static checkAddtionalProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
@@ -112,7 +117,7 @@ export class ObjectValidator {
     private static checkPatternProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
@@ -144,7 +149,7 @@ export class ObjectValidator {
     private static checkProperties(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
     ) {
