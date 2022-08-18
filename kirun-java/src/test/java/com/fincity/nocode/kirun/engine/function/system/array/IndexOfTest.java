@@ -241,7 +241,7 @@ class IndexOfTest {
 
 		IndexOf ind = new IndexOf();
 
-		assertEquals(new JsonPrimitive(0), ind.execute(fep).allResults().get(0).getResult().get("output"));
+		assertEquals(new JsonPrimitive(3), ind.execute(fep).allResults().get(0).getResult().get("output"));
 	}
 
 	@Test

@@ -1,6 +1,9 @@
+import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { isNullValue } from '../../../util/NullCheck';
+import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class Frequency extends AbstractArrayFunction {
@@ -24,9 +27,9 @@ export class Frequency extends AbstractArrayFunction {
             .getArguments()
             .get(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context.getArguments().get(Frequency.PARAMETER_ANY.getParameterName());
+        let find: any = context.getArguments().get(Frequency.PARAMETER_ANY.getParameterName());
 
-        let from: number = context
+        let start: number = context
             .getArguments()
             .get(Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
@@ -35,34 +38,30 @@ export class Frequency extends AbstractArrayFunction {
             .get(Frequency.PARAMETER_INT_LENGTH.getParameterName());
 
         if (source.length == 0)
-            return new this.FunctionOutput([
+            return new FunctionOutput([
                 EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_INTEGER.getName(), 0]])),
             ]);
 
-        let end: number = length > 0 ? length : source.length;
+        if (start > source.length)
+            throw new KIRuntimeException('Given start point is more than the size of source');
 
-        if (length == -1) end = source.length - from;
+        if (isNullValue(find))
+            throw new KIRuntimeException('Given find was null. Hence cannot be found in the array');
 
-        let start: number = from < 0 ? 0 : from;
+        let end: number = start + length;
+
+        if (length == -1) end = source.length - start;
+
+        if (end > source.length)
+            throw new KIRuntimeException('Given length is more than the size of source');
 
         let frequency: number = 0;
 
         for (let i: number = start; i < end && i < source.length; i++) {
-            if (
-                (find.isJsonPrimitive() &&
-                    source.get(i).isJsonPrimitive() &&
-                    source.get(i).equals(find.getAsJsonPrimitive())) ||
-                (find.isJsonArray() &&
-                    source.get(i).isJsonArray() &&
-                    source.get(i).equals(find.getAsJsonArray())) ||
-                (find.isJsonObject() &&
-                    source.get(i).isJsonObject() &&
-                    source.get(i).equals(find.getAsJsonObject()))
-            )
-                frequency++;
+            if (PrimitiveUtil.compare(source[i], find) == 0) frequency++;
         }
 
-        return new this.FunctionOutput([
+        return new FunctionOutput([
             EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_INTEGER.getName(), frequency]])),
         ]);
     }

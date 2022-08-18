@@ -7,9 +7,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -36,17 +37,14 @@ class FrequencyTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
-				"element", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(10)));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of(
+				Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array, Frequency.PARAMETER_ANY.getParameterName(),
+				new JsonPrimitive("I"), Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
+				Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
 
 		Frequency freq = new Frequency();
 
 		assertEquals(new JsonPrimitive(2), freq.execute(fep).allResults().get(0).getResult().get("output"));
-
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(Map.of("source", array,
-				"element", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(6)));
-
-		assertThrows(NullPointerException.class, () -> freq.execute(fep1));
 	}
 
 	@Test
@@ -71,18 +69,20 @@ class FrequencyTest {
 		array.add("developement");
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", array, "element", new JsonPrimitive("developement"), "findFrom",
-						new JsonPrimitive(-2), "length", new JsonPrimitive(array.size() - 2)));
+				.setArguments(Map.of(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
+						Frequency.PARAMETER_ANY.getParameterName(), new JsonPrimitive("developement"),
+						Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-2),
+						Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(array.size() - 2)));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(1), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		assertThrows(SchemaValidationException.class, () -> freq.execute(fep));
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", array, "element", new JsonPrimitive("developement"), "findFrom",
 						new JsonPrimitive(2), "length", new JsonPrimitive(20)));
 
-		assertEquals(new JsonPrimitive(2), freq.execute(fep1).allResults().get(0).getResult().get("output"));
+		assertThrows(KIRuntimeException.class, () -> freq.execute(fep1));
 	}
 
 	@Test
@@ -139,11 +139,11 @@ class FrequencyTest {
 		arr.add(js1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr,
-				"element", js1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(10)));
+				"element", js1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(3), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		assertEquals(new JsonPrimitive(2), freq.execute(fep).allResults().get(0).getResult().get("output"));
 
 	}
 
@@ -224,7 +224,7 @@ class FrequencyTest {
 		arr.add(array1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr,
-				"element", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(10)));
+				"element", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
 
@@ -276,7 +276,7 @@ class FrequencyTest {
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(3), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		assertEquals(new JsonPrimitive(1), freq.execute(fep).allResults().get(0).getResult().get("output"));
 
 	}
 }

@@ -69,7 +69,7 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
     );
     public static readonly PARAMETER_INT_SOURCE_FROM: Parameter = Parameter.of(
         'srcFrom',
-        Schema.ofInteger('srcFrom').setDefaultValue(0),
+        Schema.ofInteger('srcFrom').setDefaultValue(0).setMinimum(0),
     );
     public static readonly PARAMETER_INT_SECOND_SOURCE_FROM: Parameter = Parameter.of(
         'secondSrcFrom',

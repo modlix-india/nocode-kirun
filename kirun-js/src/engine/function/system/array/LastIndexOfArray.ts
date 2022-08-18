@@ -1,6 +1,8 @@
+import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class LastIndexOfArray extends AbstractArrayFunction {
@@ -29,34 +31,26 @@ export class LastIndexOfArray extends AbstractArrayFunction {
             .getArguments()
             .get(LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName());
 
-        if (secondSource.length == 0)
+        if (source.length == 0)
             return new FunctionOutput([
                 EventResult.outputOf(
                     new Map([[LastIndexOfArray.EVENT_RESULT_ARRAY.getName(), -1]]),
                 ),
             ]);
 
-        let len: number = from >= source.length ? 0 : from;
+        if (from < 0 || from > source.length || secondSource.length > source.length)
+            throw new KIRuntimeException(
+                'Given from index is more than the size of the source array',
+            );
+
         let secondSourceSize: number = secondSource.length;
         let index: number = -1;
 
-        for (let i: number = len; i < source.length; i++) {
+        for (let i: number = from; i < source.length; i++) {
             let j: number = 0;
-            if (
-                typeof source[i] != null &&
-                typeof source[i] != undefined &&
-                typeof secondSource[j] != null &&
-                typeof secondSource[j] != undefined &&
-                source[i] == secondSource[j]
-            ) {
+            if (PrimitiveUtil.compare(source[i], secondSource[j]) == 0) {
                 while (j < secondSourceSize) {
-                    if (
-                        typeof source[i] == null ||
-                        typeof source[i] == undefined ||
-                        typeof secondSource[j] == null ||
-                        typeof secondSource[j] == undefined ||
-                        source[i + j] != secondSource[j]
-                    ) {
+                    if (PrimitiveUtil.compare(source[i + j], secondSource[j]) != 0) {
                         break;
                     }
                     j++;
@@ -68,7 +62,9 @@ export class LastIndexOfArray extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[LastIndexOfArray.EVENT_RESULT_ARRAY.getName(), index]])),
+            EventResult.outputOf(
+                new Map([[LastIndexOfArray.EVENT_RESULT_INTEGER.getName(), index]]),
+            ),
         ]);
     }
 }

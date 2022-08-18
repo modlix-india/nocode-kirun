@@ -3,9 +3,11 @@ package com.fincity.nocode.kirun.engine.function.system.array;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
@@ -27,17 +29,23 @@ public class IndexOfArray extends AbstractArrayFunction {
 		JsonPrimitive from = context.getArguments().get(PARAMETER_INT_FIND_FROM.getParameterName())
 				.getAsJsonPrimitive();
 
-		int len = from.getAsInt() >= source.size() ? 0 : from.getAsInt();
+		if (source.isEmpty() || secondSource.isEmpty())
+			return new FunctionOutput(
+					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1)))));
+
+		if (from.getAsInt() < 0 || from.getAsInt() > source.size() || source.size() < secondSource.size())
+			throw new KIRuntimeException("Given from second source is more than the size of the source array");
+
+		int len = from.getAsInt();
 		int secondSourceSize = secondSource.size();
 		int index = -1;
 
 		for (int i = len; i < source.size(); i++) {
 			int j = 0;
-			if (!source.get(i).isJsonNull() && !secondSource.get(j).isJsonNull()
-					&& source.get(i).equals(secondSource.get(j))) {
+
+			if (PrimitiveUtil.compare(source.get(i), secondSource.get(j)) == 0) {
 				while (j < secondSourceSize) {
-					if (source.get(i).isJsonNull() || secondSource.get(j).isJsonNull()
-							|| !source.get(i + j).equals(secondSource.get(j))) {
+					if (PrimitiveUtil.compare(source.get(i + j), secondSource.get(j)) != 0) {
 						break;
 					}
 					j++;

@@ -2,6 +2,8 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { isNullValue } from '../../../util/NullCheck';
+import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class IndexOf extends AbstractArrayFunction {
@@ -33,11 +35,6 @@ export class IndexOf extends AbstractArrayFunction {
                 EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_INTEGER.getName(), -1]])),
             ]);
 
-        if (typeof find == null || typeof find == undefined)
-            throw new KIRuntimeException(
-                'Please provide the valid find object or primitive in order to verify',
-            );
-
         if (len < 0 || len > source.length)
             throw new KIRuntimeException(
                 'The size of the search index of the array is greater than the size of the array',
@@ -46,7 +43,7 @@ export class IndexOf extends AbstractArrayFunction {
         let index: number = -1;
 
         for (let i: number = len; i < source.length; i++) {
-            if (source[i] == find) {
+            if (PrimitiveUtil.compare(source[i], find) == 0) {
                 index = i;
                 break;
             }

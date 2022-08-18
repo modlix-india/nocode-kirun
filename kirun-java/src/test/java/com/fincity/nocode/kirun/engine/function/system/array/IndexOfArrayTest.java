@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
@@ -38,7 +39,7 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1)));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
 		assertEquals(new JsonPrimitive(1),
 				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
@@ -70,7 +71,7 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(4)));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
 		assertEquals(new JsonPrimitive(5),
 				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
@@ -166,7 +167,7 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(arr.size())));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
 		IndexOfArray ind = new IndexOfArray();
 
@@ -196,7 +197,7 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(4)));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
 		assertEquals(new JsonPrimitive(-1),
 				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
@@ -221,7 +222,7 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(4)));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
 		assertThrows(SchemaValidationException.class, () -> ind.execute(fep).allResults().get(0).getResult()
 				.get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
@@ -278,10 +279,35 @@ class IndexOfArrayTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as,
-						IndexOfArray.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-2)));
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(-2)));
 
-		assertEquals(new JsonPrimitive(6),
-				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
+		assertThrows(KIRuntimeException.class, () -> ind.execute(fep));
+	}
 
+	@Test
+	void test8() {
+		IndexOfArray ind = new IndexOfArray();
+
+		JsonArray arr = new JsonArray();
+		arr.add('a');
+		arr.add('b');
+		arr.add('c');
+		arr.add('d');
+		arr.add('a');
+		arr.add('b');
+		arr.add('c');
+		arr.add('e');
+		arr.add('d');
+
+		JsonArray as = new JsonArray();
+		as.add('c');
+		as.add('e');
+
+		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), as,
+						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
+						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(0)));
+
+		assertThrows(KIRuntimeException.class, () -> ind.execute(fep));
 	}
 }

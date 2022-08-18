@@ -20,7 +20,7 @@ export class Max extends AbstractArrayFunction {
         let max: any = source[0];
         for (let i: number = 1; i < source.length; i++) {
             let y: any = source[i];
-            if (PrimitiveUtil.compareFunction(max, y) >= 0) continue;
+            if (PrimitiveUtil.comparePrimitive(max, y) >= 0) continue;
             max = y;
         }
 

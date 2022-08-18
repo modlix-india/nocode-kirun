@@ -2,6 +2,7 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class LastIndexOf extends AbstractArrayFunction {
@@ -47,8 +48,8 @@ export class LastIndexOf extends AbstractArrayFunction {
                 'Please provide the valid find object or primitive in order to verify',
             );
 
-        for (let i: number = source.length - 1; i >= 0; i--) {
-            if (find == source[i]) {
+        for (let i: number = source.length - 1; i >= len; i--) {
+            if (PrimitiveUtil.compare(source[i], find) == 0) {
                 index = i;
                 break;
             }

@@ -69,7 +69,18 @@ test('Index of Test 2', () => {
         ]),
     );
 
-    expect(() => ind.execute(fep)).toThrow;
+    expect(() => ind.execute(fep)).toThrow();
+
+    fep.setArguments(
+        new Map<string, any>([
+            [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), []],
+            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
+        ]),
+    );
+    expect(ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_INDEX.getName())).toBe(
+        -1,
+    );
 });
 
 test('Index of Test 3', () => {
@@ -196,7 +207,7 @@ test('Index of Test 4', () => {
 
     expect(
         ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
-    ).toBe(5);
+    ).toBe(2);
 });
 
 test('indexof test 5', () => {
@@ -245,4 +256,12 @@ test('indexof test 5', () => {
     expect(
         ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(5);
+
+    fep.setArguments(
+        new Map<string, any>([
+            [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
+            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), null],
+        ]),
+    );
+    expect(() => ind.execute(fep)).toThrow();
 });

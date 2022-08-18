@@ -21,7 +21,7 @@ export class Min extends AbstractArrayFunction {
         let min: any = undefined;
         for (let i: number = 0; i < source.length; i++) {
             if (isNullValue(source[i])) continue;
-            if (min === undefined || PrimitiveUtil.compareFunction(source[i], min) < 0)
+            if (min === undefined || PrimitiveUtil.comparePrimitive(source[i], min) < 0)
                 min = source[i];
         }
 
