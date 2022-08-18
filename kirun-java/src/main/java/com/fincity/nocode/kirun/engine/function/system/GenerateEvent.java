@@ -73,7 +73,7 @@ public class GenerateEvent extends AbstractFunction {
 
 			        if (jo.get("isExpression")
 			                .getAsBoolean())
-				        v = (new ExpressionEvaluator(v.getAsString()).evaluate(context));
+				        v = (new ExpressionEvaluator(v.getAsString()).evaluate(context.getValuesMap()));
 
 			        return Tuples.of(e.get("name")
 			                .getAsString(), v);

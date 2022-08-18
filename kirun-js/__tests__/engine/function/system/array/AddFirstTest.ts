@@ -18,7 +18,7 @@ test('Add Test 1', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     addFirst.execute(fep);
@@ -42,7 +42,7 @@ test('Add Test 2', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     addFirst.execute(fep);
@@ -89,7 +89,7 @@ test('Add Test 3', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     addFirst.execute(fep);
@@ -186,7 +186,7 @@ test('Add Test 5', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), obj],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     addFirst.execute(fep);
@@ -208,7 +208,7 @@ test('Add Test 4', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => addFirst.execute(fep)).toThrow();
@@ -228,7 +228,7 @@ test('Add Test 5', () => {
                 [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
             ]),
         )
-        .setOutput(new Map([]))
+        .setSteps(new Map([]))
         .setContext(new Map([]));
 
     expect(() => addFirst.execute(fep)).toThrow();

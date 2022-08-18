@@ -1,4 +1,4 @@
-import { TokenValueExtractor } from './TokenValueExtractor';
+import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
     public static readonly PREFIX: string = 'Arguments.';

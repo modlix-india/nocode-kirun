@@ -35,7 +35,7 @@ class AddFirstTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive('a'))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		ad.execute(fep);
 
@@ -67,7 +67,7 @@ class AddFirstTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive("surendhar")))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		add.execute(fep);
 
@@ -194,7 +194,7 @@ class AddFirstTest {
 		FunctionExecutionParameters fep =
 
 				new FunctionExecutionParameters().setArguments(Map.of("source", arr, "elementObject", obj))
-						.setContext(Map.of()).setOutput(Map.of());
+						.setContext(Map.of()).setSteps(Map.of());
 
 		AddFirst add = new AddFirst();
 		add.execute(fep);
@@ -214,7 +214,7 @@ class AddFirstTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "elementObject", arr)).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
 
@@ -232,7 +232,7 @@ class AddFirstTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "elementObject", JsonNull.INSTANCE)).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
 

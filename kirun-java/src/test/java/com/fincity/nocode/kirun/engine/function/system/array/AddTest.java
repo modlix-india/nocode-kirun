@@ -24,7 +24,7 @@ class AddTest {
 		Add ad = new Add();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", arr2)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "secondSource", arr2)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add(12);
@@ -43,7 +43,7 @@ class AddTest {
 		res1.add(14);
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr1, "secondSource", arr)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr1, "secondSource", arr)).setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep1);
 
@@ -63,7 +63,7 @@ class AddTest {
 		Add ad = new Add();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add("nocode");
@@ -84,7 +84,7 @@ class AddTest {
 		Add ad = new Add();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep);
 
@@ -104,7 +104,7 @@ class AddTest {
 		Add ad = new Add();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", emp, "secondSource", arr)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", emp, "secondSource", arr)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add("nocode");
@@ -127,7 +127,7 @@ class AddTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "secondSource", arr)).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add("nocode");
@@ -148,7 +148,7 @@ class AddTest {
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("source", arr, "secondSource", JsonNull.INSTANCE)).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		var res = new JsonArray();
 		res.add("nocode");

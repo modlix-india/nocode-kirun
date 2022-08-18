@@ -97,7 +97,8 @@ public class Set extends AbstractFunction {
 			if (exp.getTokens()
 			        .get(i) instanceof Expression ex)
 				exp.getTokens()
-				        .set(i, new ExpressionTokenValue(key, new ExpressionEvaluator(ex).evaluate(context)));
+				        .set(i, new ExpressionTokenValue(key,
+				                new ExpressionEvaluator(ex).evaluate(context.getValuesMap())));
 		}
 
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
@@ -182,7 +183,7 @@ public class Set extends AbstractFunction {
 
 		Operation op = ops.removeLast();
 		ExpressionToken token = tokens.removeLast();
-		
+
 		// TODO: Here I need to validate the schema of the value I have to put in the
 		// context.
 
@@ -231,7 +232,7 @@ public class Set extends AbstractFunction {
 				        .add(mem, value);
 			}
 		}
-		
+
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}
 

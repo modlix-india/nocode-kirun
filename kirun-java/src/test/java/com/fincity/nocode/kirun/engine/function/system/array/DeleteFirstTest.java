@@ -32,7 +32,7 @@ class DeleteFirstTest {
 		arr1.add('e');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep);
 
@@ -46,7 +46,7 @@ class DeleteFirstTest {
 		DeleteFirst ad = new DeleteFirst();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 	}
@@ -98,7 +98,7 @@ class DeleteFirstTest {
 		res.add(js1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFirst del = new DeleteFirst();
 		del.execute(fep);
@@ -190,7 +190,7 @@ class DeleteFirstTest {
 		res.add(array1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFirst freq = new DeleteFirst();
 		freq.execute(fep);
@@ -206,7 +206,7 @@ class DeleteFirstTest {
 		DeleteFirst ad = new DeleteFirst();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
 	}

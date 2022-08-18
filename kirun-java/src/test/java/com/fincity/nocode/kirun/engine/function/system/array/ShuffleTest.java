@@ -20,7 +20,7 @@ class ShuffleTest {
 		var arr = new JsonArray();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
@@ -35,7 +35,7 @@ class ShuffleTest {
 		arr.add("surendhar");
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
@@ -64,7 +64,7 @@ class ShuffleTest {
 			set1.add(res.get(i).getAsInt());
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
@@ -106,7 +106,7 @@ class ShuffleTest {
 			set1.add(res.get(i).getAsString());
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle suf = new Shuffle();
 		suf.execute(fep);
@@ -167,7 +167,7 @@ class ShuffleTest {
 			set1.add(res.get(i).getAsJsonObject());
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle freq = new Shuffle();
 
@@ -272,7 +272,7 @@ class ShuffleTest {
 			set1.add(res.get(i));
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle suf = new Shuffle();
 

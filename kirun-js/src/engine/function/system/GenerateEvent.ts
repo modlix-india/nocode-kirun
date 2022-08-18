@@ -60,7 +60,8 @@ export class GenerateEvent extends AbstractFunction {
                 if (isNullValue(je)) throw new KIRuntimeException('Expect a value object');
 
                 let v: any = je.value;
-                if (je.isExpression) v = new ExpressionEvaluator(v).evaluate(context);
+                if (je.isExpression)
+                    v = new ExpressionEvaluator(v).evaluate(context.getValuesMap());
                 return [e.name, v];
             })
             .reduce((a: Map<string, any>, c: [string, any]) => {

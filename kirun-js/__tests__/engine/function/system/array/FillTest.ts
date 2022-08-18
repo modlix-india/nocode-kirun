@@ -15,7 +15,7 @@ test('Fill Test', () => {
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 5, 'srcFrom', 2, 'length', 5))
         .setContext(MapUtil.of())
-        .setOutput(MapUtil.of());
+        .setSteps(MapUtil.of());
 
     let finArray = [3, 3, 5, 5, 5, 5, 5];
     fill.execute(fep);

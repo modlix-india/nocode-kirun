@@ -1,4 +1,4 @@
-import { TokenValueExtractor } from './TokenValueExtractor';
+import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class OutputMapTokenValueExtractor extends TokenValueExtractor {
     public static readonly PREFIX: string = 'Steps.';

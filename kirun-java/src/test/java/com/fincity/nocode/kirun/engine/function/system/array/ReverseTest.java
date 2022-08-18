@@ -6,16 +6,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ReverseTest {
 
 	@Test
-	void test() {
+	void testInternalExecute() {
 
 		Reverse rev = new Reverse();
 
@@ -28,16 +26,15 @@ class ReverseTest {
 		source.add(7);
 
 		JsonArray res = new JsonArray();
+		res.add(6);
 		res.add(5);
 		res.add(4);
-		res.add(6);
-
 		res.add(7);
 
 		fep.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
 				Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 				Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(2))).setContext(Map.of())
-				.setOutput(Map.of());
+				.setSteps(Map.of());
 
 		rev.execute(fep);
 
@@ -62,7 +59,10 @@ class ReverseTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)));
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
+				.setContext(Map.of()).setSteps(Map.of());
+
+		rev.execute(fep);
 
 		JsonArray res = new JsonArray();
 		res.add('a');
@@ -74,15 +74,17 @@ class ReverseTest {
 		res.add('d');
 		res.add('c');
 
-		assertThrows(KIRuntimeException.class, () -> rev.execute(fep));
+		assertEquals(res, arr);
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
-		assertThrows(KIRuntimeException.class, () -> rev.execute(fep1));
+		rev.execute(fep1);
+
+		assertEquals(res, arr);
 
 	}
 
@@ -165,40 +167,24 @@ class ReverseTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 2)))
-				.setContext(Map.of()).setOutput(Map.of());
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
+				.setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
+		res.add(array1);
 		res.add(array1);
 		res.add(array4);
 		res.add(array2);
 		res.add(array3);
-		res.add(array1);
 
 		Reverse rev = new Reverse();
 
 		rev.execute(fep);
 
-		assertEquals(arr, res);
-
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
-				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
-				.setContext(Map.of()).setOutput(Map.of());
-
-		var res1 = new JsonArray();
-		res1.add(array1);
-		res1.add(array1);
-		res1.add(array3);
-		res1.add(array2);
-		res1.add(array4);
-
-		rev.execute(fep1);
-		assertEquals(arr, res1);
+		assertEquals(res, arr);
 	}
 
-	 @Test
+	@Test
 	void test5() {
 
 		Reverse rev = new Reverse();
@@ -217,20 +203,20 @@ class ReverseTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2)))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep);
 
 		JsonArray res = new JsonArray();
 		res.add('a');
 		res.add('b');
-		res.add('d');
 		res.add('c');
 		res.add('b');
 		res.add('a');
 		res.add('d');
 		res.add('c');
 		res.add('a');
+		res.add('d');
 
 		assertEquals(res, arr);
 
@@ -238,11 +224,11 @@ class ReverseTest {
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setOutput(Map.of());
+				.setContext(Map.of()).setSteps(Map.of());
 
+		rev.execute(fep1);
 
-
-		assertThrows(KIRuntimeException.class, () -> 		rev.execute(fep1));
+		assertEquals(res, arr);
 
 	}
 }

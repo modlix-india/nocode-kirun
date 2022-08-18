@@ -47,70 +47,82 @@ test('Expression Test', () => {
                 ],
             ]),
         )
-        .setOutput(output);
+        .setSteps(output);
 
     expect(
         new ExpressionEvaluator(
             'Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(3);
 
-    expect(new ExpressionEvaluator('3 + 7').evaluate(parameters)).toBe(10);
-    expect(new ExpressionEvaluator('"asdf"+333').evaluate(parameters)).toBe('asdf333');
-    expect(new ExpressionEvaluator('34 >> 2 = 8 ').evaluate(parameters)).toBe(true);
-    expect(new ExpressionEvaluator('10*11+12*13*14/7').evaluate(parameters)).toBe(422);
+    expect(new ExpressionEvaluator('3 + 7').evaluate(parameters.getValuesMap())).toBe(10);
+    expect(new ExpressionEvaluator('"asdf"+333').evaluate(parameters.getValuesMap())).toBe(
+        'asdf333',
+    );
+    expect(new ExpressionEvaluator('34 >> 2 = 8 ').evaluate(parameters.getValuesMap())).toBe(true);
+    expect(new ExpressionEvaluator('10*11+12*13*14/7').evaluate(parameters.getValuesMap())).toBe(
+        422,
+    );
 
     expect(
-        new ExpressionEvaluator('Steps.step1.output.name1').evaluate(parameters),
+        new ExpressionEvaluator('Steps.step1.output.name1').evaluate(parameters.getValuesMap()),
     ).toBeUndefined();
 
-    expect(new ExpressionEvaluator('"Kiran" = Steps.step1.output.name ').evaluate(parameters)).toBe(
-        true,
-    );
-
-    expect(new ExpressionEvaluator('null = Steps.step1.output.name1 ').evaluate(parameters)).toBe(
-        true,
-    );
+    expect(
+        new ExpressionEvaluator('"Kiran" = Steps.step1.output.name ').evaluate(
+            parameters.getValuesMap(),
+        ),
+    ).toBe(true);
 
     expect(
-        new ExpressionEvaluator('Steps.step1.output.obj.address.phone.phone2').evaluate(parameters),
+        new ExpressionEvaluator('null = Steps.step1.output.name1 ').evaluate(
+            parameters.getValuesMap(),
+        ),
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj.address.phone.phone2').evaluate(
+            parameters.getValuesMap(),
+        ),
     ).toBe('5678');
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.address.phone.phone2 = Steps.step1.output.obj.address.phone.phone2 ',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(true);
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.address.phone.phone2 != Steps.step1.output.address.obj.phone.phone1 ',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(true);
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+2',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(32);
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(60);
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(60);
 
     expect(
         new ExpressionEvaluator(
             'Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2',
-        ).evaluate(parameters),
+        ).evaluate(parameters.getValuesMap()),
     ).toBe(32);
 
-    expect(new ExpressionEvaluator('2.43*4.22+7.0987').evaluate(parameters)).toBe(17.3533);
+    expect(new ExpressionEvaluator('2.43*4.22+7.0987').evaluate(parameters.getValuesMap())).toBe(
+        17.3533,
+    );
 });

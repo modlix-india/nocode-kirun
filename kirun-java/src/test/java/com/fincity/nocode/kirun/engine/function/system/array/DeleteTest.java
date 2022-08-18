@@ -34,7 +34,7 @@ class DeleteTest {
 		Delete del = new Delete();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", res)).setContext(Map.of()).setOutput(Map.of());
+				.setArguments(Map.of("source", arr, "secondSource", res)).setContext(Map.of()).setSteps(Map.of());
 
 		del.execute(fep);
 
@@ -56,7 +56,7 @@ class DeleteTest {
 		Delete del = new Delete();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", res)).setOutput(Map.of()).setContext(Map.of());
+				.setArguments(Map.of("source", arr, "secondSource", res)).setSteps(Map.of()).setContext(Map.of());
 
 		var ares = new JsonArray();
 		ares.add("nocode");
@@ -80,7 +80,7 @@ class DeleteTest {
 		Delete del = new Delete();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", arr, "secondSource", JsonNull.INSTANCE)).setOutput(Map.of())
+				.setArguments(Map.of("source", arr, "secondSource", JsonNull.INSTANCE)).setSteps(Map.of())
 				.setContext(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> del.execute(fep));
@@ -100,7 +100,7 @@ class DeleteTest {
 		Delete del = new Delete();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", JsonNull.INSTANCE, "secondSource", arr)).setOutput(Map.of())
+				.setArguments(Map.of("source", JsonNull.INSTANCE, "secondSource", arr)).setSteps(Map.of())
 				.setContext(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> del.execute(fep));
@@ -120,7 +120,7 @@ class DeleteTest {
 		Delete del = new Delete();
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of("source", res, "secondSource", arr)).setOutput(Map.of()).setContext(Map.of());
+				.setArguments(Map.of("source", res, "secondSource", arr)).setSteps(Map.of()).setContext(Map.of());
 
 		assertThrows(KIRuntimeException.class, () -> del.execute(fep));
 

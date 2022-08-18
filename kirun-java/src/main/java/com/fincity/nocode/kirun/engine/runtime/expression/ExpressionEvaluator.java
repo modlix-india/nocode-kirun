@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticAdditionOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticDivisionOperator;
@@ -61,10 +60,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.Arithm
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.BitwiseComplementOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.LogicalNotOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.UnaryOperator;
-import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.ArgumentsTokenValueExtractor;
-import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.ContextTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.LiteralTokenValueExtractor;
-import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.OutputMapTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
@@ -113,15 +109,10 @@ public class ExpressionEvaluator {
 		this.expression = exp.getExpression();
 	}
 
-	public JsonElement evaluate(FunctionExecutionParameters context) {
+	public JsonElement evaluate(Map<String, TokenValueExtractor> valuesMap) {
 
 		if (exp == null)
 			exp = new Expression(this.expression);
-
-		Map<String, TokenValueExtractor> valuesMap = Map.of("Steps",
-		        new OutputMapTokenValueExtractor(context.getOutput()), "Argum",
-		        new ArgumentsTokenValueExtractor(context.getArguments()), "Conte",
-		        new ContextTokenValueExtractor(context.getContext()));
 
 		return this.evaluateExpression(exp, valuesMap);
 	}
@@ -216,7 +207,8 @@ public class ExpressionEvaluator {
 		}
 
 		String str = sb.toString();
-		if (str.length() > 5 && valuesMap.containsKey(sb.substring(0, 5)))
+		String key = str.substring(0, str.indexOf('.')+1);
+		if (key.length() > 2 && valuesMap.containsKey(key))
 			tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
 		else {
 			JsonElement v = null;
@@ -275,7 +267,8 @@ public class ExpressionEvaluator {
 		if (path.length() <= 5)
 			return LiteralTokenValueExtractor.INSTANCE.getValue(path);
 
-		return valuesMap.getOrDefault(path.substring(0, 5), LiteralTokenValueExtractor.INSTANCE)
+		String pathPrefix = path.substring(0, path.indexOf('.') + 1);
+		return valuesMap.getOrDefault(pathPrefix, LiteralTokenValueExtractor.INSTANCE)
 		        .getValue(path);
 	}
 }
