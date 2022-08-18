@@ -1,14 +1,3 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist/",
-        "noImplicitAny": true,
-        "target": "es5",
-        "moduleResolution": "node",
-        "preserveConstEnums": true,
-        "declaration": true,
-        "sourceMap": true,
-        "lib": ["es2017"]
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "**/*.spec.ts"]
+    "extends": "@tsconfig/recommended/tsconfig.json"
 }

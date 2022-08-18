@@ -8,7 +8,9 @@ import { ExpressionToken } from './ExpressionToken';
 import { Operation } from './Operation';
 
 export class Expression extends ExpressionToken {
+    // Data structure for storing tokens
     private tokens: LinkedList<ExpressionToken> = new LinkedList();
+    // Data structure for storing operations
     private ops: LinkedList<Operation> = new LinkedList();
 
     public constructor(

@@ -2,14 +2,14 @@ import { KIRuntimeException } from '../exception/KIRuntimeException';
 import { StringFormatter } from './string/StringFormatter';
 
 export class LinkedList<T> {
-    private head: Node<T> = undefined;
-    private tail: Node<T> = undefined;
+    private head: Node<T> | undefined = undefined;
+    private tail: Node<T> | undefined = undefined;
     public length: number = 0;
 
     public constructor(list?: T[]) {
         if (list?.length) {
             for (const t of list) {
-                if (!this.head) {
+                if (!this.head || !this.tail) {
                     this.tail = this.head = new Node(t);
                 } else {
                     const node = new Node(t, this.tail);
@@ -32,9 +32,9 @@ export class LinkedList<T> {
         this.length++;
     }
 
-    public pop(): T {
+    public pop(): T | undefined {
         if (!this.length) return undefined;
-        const value: T = this.head.value;
+        const value: T | undefined = this.head?.value;
         this.length--;
 
         if (this.head == this.tail) {
@@ -42,9 +42,9 @@ export class LinkedList<T> {
             return value;
         }
 
-        const node: Node<T> = this.head;
+        const node: Node<T | undefined> | undefined = this.head;
 
-        this.head = node.next;
+        this.head = node?.next;
         node.next = undefined;
         node.previous = undefined;
         node.value = undefined;
@@ -203,8 +203,8 @@ export class LinkedList<T> {
 
 class Node<T> {
     public value: T;
-    public next: Node<T>;
-    public previous: Node<T>;
+    public next: Node<T> | undefined;
+    public previous: Node<T> | undefined;
 
     constructor(t: T, previous?: Node<T>, next?: Node<T>) {
         this.value = t;
