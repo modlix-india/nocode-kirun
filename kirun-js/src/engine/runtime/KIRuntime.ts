@@ -103,7 +103,7 @@ export class KIRuntime extends AbstractFunction {
         if (!inContext.getSteps()) inContext.setSteps(new Map());
 
         let eGraph: ExecutionGraph<string, StatementExecution> = this.getExecutionPlan(
-            inContext.getContext(),
+            inContext.getContext()!,
         );
 
         // if (logger.isDebugEnabled()) {
