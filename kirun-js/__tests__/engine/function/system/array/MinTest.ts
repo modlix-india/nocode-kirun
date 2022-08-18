@@ -24,7 +24,7 @@ test('min test 2 ', () => {
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
 
-    expect(() => min.execute(fep)).toThrow;
+    expect(() => min.execute(fep)).toThrow();
 });
 
 test('min test 3', () => {
@@ -69,11 +69,12 @@ test('min test 6', () => {
     arr.push('NoCode');
     arr.push('platform');
     arr.push(123);
+    arr.push(1);
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe(123);
+    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe(1);
 });
 
 test('min test 7', () => {
@@ -87,4 +88,12 @@ test('min test 7', () => {
     );
 
     expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe('c');
+});
+
+test('min test 8', () => {
+    let arr: any[] = ['surendhar'];
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+        new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
+    );
+    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe('surendhar');
 });

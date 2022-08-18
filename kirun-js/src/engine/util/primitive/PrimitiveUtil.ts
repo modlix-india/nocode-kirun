@@ -1,4 +1,5 @@
 import { ExecutionException } from '../../exception/ExecutionException';
+import { KIRuntimeException } from '../../exception/KIRuntimeException';
 import { SchemaType } from '../../json/schema/type/SchemaType';
 import { isNullValue } from '../NullCheck';
 import { StringFormatter } from '../string/StringFormatter';
@@ -72,6 +73,23 @@ export class PrimitiveUtil {
                 StringFormatter.format('Unable to convert $ to a number.', value),
                 err,
             );
+        }
+    }
+
+    public static compareFunction(oa: any, ob: any): number {
+        if (isNullValue(oa) || isNullValue(ob)) {
+            if (isNullValue(oa) && isNullValue(ob)) return 0;
+            return isNullValue(oa) ? -1 : 1;
+        }
+
+        if (oa == ob) return 0;
+
+        if (typeof oa == 'string' || typeof ob == 'string') {
+            return oa + '' < ob + '' ? -1 : 1;
+        }
+
+        if (typeof oa == 'number' || typeof ob == 'number') {
+            return oa - ob;
         }
     }
 
