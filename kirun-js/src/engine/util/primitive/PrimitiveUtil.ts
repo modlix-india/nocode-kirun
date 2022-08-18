@@ -67,7 +67,7 @@ export class PrimitiveUtil {
             let num: number = value as number;
             if (Number.isInteger(num)) return new Tuple2(SchemaType.LONG, num);
             else return new Tuple2(SchemaType.DOUBLE, num);
-        } catch (err) {
+        } catch (err: any) {
             throw new ExecutionException(
                 StringFormatter.format('Unable to convert $ to a number.', value),
                 err,

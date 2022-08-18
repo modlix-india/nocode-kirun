@@ -29,7 +29,7 @@ export class StringUtil {
         return -1;
     }
 
-    public static splitAtFirstOccurance(str: string, c: string): string[] {
+    public static splitAtFirstOccurance(str: string, c: string): Array<string | undefined> {
         if (!str) return new Array(2);
 
         let index: number = str.indexOf(c);
@@ -39,7 +39,7 @@ export class StringUtil {
         return [str.substring(0, index), str.substring(index + 1)];
     }
 
-    public static isNullOrBlank(str: string): boolean {
+    public static isNullOrBlank(str: string | undefined): boolean {
         return !str || str.trim() == '';
     }
 }

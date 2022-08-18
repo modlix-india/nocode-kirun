@@ -80,7 +80,7 @@ export class ExpressionEvaluator {
     );
 
     private expression: string;
-    private exp: Expression;
+    private exp?: Expression;
 
     public constructor(exp: Expression | string) {
         if (exp instanceof Expression) {
@@ -155,11 +155,14 @@ export class ExpressionEvaluator {
         valuesMap: Map<string, TokenValueExtractor>,
         ops: LinkedList<Operation>,
         tokens: LinkedList<ExpressionToken>,
-        operator: Operation,
-        token: ExpressionToken,
+        operator?: Operation,
+        token?: ExpressionToken,
     ): void {
         const objTokens: LinkedList<ExpressionToken> = new LinkedList();
         const objOperations: LinkedList<Operation> = new LinkedList();
+
+        if (!operator || !token)
+            return;
 
         do {
             objOperations.push(operator);
@@ -170,7 +173,8 @@ export class ExpressionEvaluator {
                         this.evaluateExpression(token as Expression, valuesMap),
                     ),
                 );
-            else objTokens.push(token);
+            else if (token)
+                objTokens.push(token);
             token = tokens.isEmpty() ? undefined : tokens.pop();
             operator = ops.isEmpty() ? undefined : ops.pop();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
@@ -236,7 +240,7 @@ export class ExpressionEvaluator {
                 ),
             );
 
-        let op: BinaryOperator = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
+        let op: BinaryOperator | undefined = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
 
         if (!op)
             throw new ExpressionEvaluationException(
@@ -265,7 +269,7 @@ export class ExpressionEvaluator {
                 ),
             );
 
-        let op: UnaryOperator = ExpressionEvaluator.UNARY_OPERATORS_MAP.get(operator);
+        let op: UnaryOperator | undefined = ExpressionEvaluator.UNARY_OPERATORS_MAP.get(operator);
 
         if (!op)
             throw new ExpressionEvaluationException(
