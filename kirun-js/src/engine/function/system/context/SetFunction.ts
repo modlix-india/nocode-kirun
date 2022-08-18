@@ -27,8 +27,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
 const VALUE = 'value';
-const SIGNATURE = new FunctionSignature()
-    .setName('Set')
+const SIGNATURE = new FunctionSignature('Set')
     .setNamespace(Namespaces.SYSTEM_CTX)
     .setParameters(
         new Map([

@@ -9,7 +9,7 @@ export class ObjectValidator {
     public static validate(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ) {
         if (isNullValue(element))

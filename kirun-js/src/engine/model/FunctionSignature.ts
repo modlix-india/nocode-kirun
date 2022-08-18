@@ -27,7 +27,7 @@ export class FunctionSignature {
                 ],
             ]),
         );
-    private namespace?: string;
+    private namespace: string = '_';
     private name: string;
     private parameters: Map<string, Parameter> = new Map();
     private events: Map<string, Event> = new Map();
@@ -36,7 +36,7 @@ export class FunctionSignature {
         this.name = name;
     }
 
-    public getNamespace(): string | undefined {
+    public getNamespace(): string {
         return this.namespace;
     }
     public setNamespace(namespace: string): FunctionSignature {

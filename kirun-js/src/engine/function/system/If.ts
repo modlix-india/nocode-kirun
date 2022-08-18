@@ -12,8 +12,7 @@ import { AbstractFunction } from '../AbstractFunction';
 export class If extends AbstractFunction {
     private static readonly CONDITION: string = 'condition';
 
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('If')
+    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('If')
         .setNamespace(Namespaces.SYSTEM)
         .setParameters(
             new Map([Parameter.ofEntry(If.CONDITION, Schema.of(If.CONDITION, SchemaType.BOOLEAN))]),

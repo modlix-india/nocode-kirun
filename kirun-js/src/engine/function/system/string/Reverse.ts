@@ -14,16 +14,13 @@ import { SchemaType } from '../../../json/schema/type/SchemaType';
 export class Reverse extends AbstractFunction {
     protected readonly VALUE: string = 'value';
 
-    private readonly SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('Reverse')
+    private readonly SIGNATURE: FunctionSignature = new FunctionSignature('Reverse')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
                 [
                     this.VALUE,
-                    new Parameter()
-                        .setParameterName(this.VALUE)
-                        .setSchema(Schema.ofString(this.VALUE))
+                   new Parameter(this.VALUE,Schema.ofString(this.VALUE))
                         .setVariableArgument(true),
                 ],
             ]),

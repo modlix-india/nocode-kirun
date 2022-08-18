@@ -17,14 +17,13 @@ export class Concatenate extends AbstractFunction {
         .setName(Concatenate.VALUE)
         .setType(new SingleType(SchemaType.STRING));
 
-    private static SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('Concatenate')
+    private static SIGNATURE: FunctionSignature = new FunctionSignature('Concatenate')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
                 [
                     Concatenate.VALUE,
-                    new Parameter().setSchema(Concatenate.SCHEMA).setVariableArgument(true),
+                    new Parameter( Concatenate.VALUE, Concatenate.SCHEMA).setVariableArgument(true),
                 ],
             ]),
         )

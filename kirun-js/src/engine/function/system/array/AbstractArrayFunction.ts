@@ -12,36 +12,28 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
     public static readonly EVENT_INDEX_NAME: string = 'index';
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    public static readonly EVENT_INDEX: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    public static readonly EVENT_INDEX: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractArrayFunction.EVENT_INDEX_NAME,
                 Schema.ofInteger(AbstractArrayFunction.EVENT_INDEX_NAME),
             ),
         );
 
-    public static readonly EVENT_RESULT_INTEGER: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    public static readonly EVENT_RESULT_INTEGER: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractArrayFunction.EVENT_RESULT_NAME,
                 Schema.ofInteger(AbstractArrayFunction.EVENT_RESULT_NAME),
             ),
         );
 
-    public static readonly EVENT_RESULT_BOOLEAN: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    public static readonly EVENT_RESULT_BOOLEAN: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractArrayFunction.EVENT_RESULT_NAME,
                 Schema.ofBoolean(AbstractArrayFunction.EVENT_RESULT_NAME),
             ),
         );
 
-    public static readonly EVENT_RESULT_ARRAY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    public static readonly EVENT_RESULT_ARRAY: Event =new Event(Event.OUTPUT,
             MapUtil.of(
                 AbstractArrayFunction.EVENT_RESULT_NAME,
                 Schema.ofArray(
@@ -51,9 +43,7 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
             ),
         );
 
-    public static readonly EVENT_RESULT_EMPTY: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(MapUtil.of());
+    public static readonly EVENT_RESULT_EMPTY: Event =new Event(Event.OUTPUT,MapUtil.of());
 
     public static readonly PARAMETER_INT_LENGTH: Parameter = Parameter.of(
         'length',

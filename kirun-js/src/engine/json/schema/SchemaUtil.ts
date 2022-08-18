@@ -27,7 +27,7 @@ export class SchemaUtil {
 
     public static getSchemaFromRef(
         schema: Schema,
-        sRepository: Repository<Schema>,
+        sRepository: Repository<Schema> | undefined,
         ref: string | undefined,
         iteration: number = 0,
     ): Schema | undefined {
@@ -56,7 +56,7 @@ export class SchemaUtil {
 
     private static resolveInternalSchema(
         inSchema: Schema,
-        sRepository: Repository<Schema>,
+        sRepository: Repository<Schema> | undefined,
         ref: string,
         iteration: number,
         parts: string[],
@@ -114,9 +114,12 @@ export class SchemaUtil {
 
     private static resolveExternalSchema(
         inSchem: Schema,
-        sRepository: Repository<Schema>,
+        sRepository: Repository<Schema> | undefined,
         ref: string,
     ): Tuple2<Schema, string> | undefined {
+
+        if (!sRepository) return undefined;
+
         let nms = StringUtil.splitAtFirstOccurance(inSchem?.getRef() ?? '', '/');
         if (!nms[0]) return undefined;
 

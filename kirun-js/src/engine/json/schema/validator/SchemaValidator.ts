@@ -111,7 +111,7 @@ export class SchemaValidator {
     public static typeValidation(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ) {
         let valid: boolean = false;

@@ -44,9 +44,7 @@ test('KIRuntime Test 1', () => {
         defaultValue: new Array(),
         items: integerSchema,
     };
-    var createArray = new Statement('createArray')
-        .setNamespace(create.getNamespace())
-        .setName(create.getName())
+    var createArray =new Statement('createArray', create.getNamespace(), create.getName())
         .setParameterMap(
             new Map([
                 ['name', [ParameterReference.ofValue('a')]],
@@ -55,9 +53,7 @@ test('KIRuntime Test 1', () => {
         );
 
     var rangeLoop = new RangeLoop().getSignature();
-    var loop = new Statement('loop')
-        .setNamespace(rangeLoop.getNamespace())
-        .setName(rangeLoop.getName())
+    var loop =new Statement('loop', rangeLoop.getNamespace(), rangeLoop.getName())
         .setParameterMap(
             new Map([
                 ['from', [ParameterReference.ofValue(0)]],
@@ -69,9 +65,7 @@ test('KIRuntime Test 1', () => {
     var resultObj = { name: 'result', value: { isExpression: true, value: 'Context.a' } };
 
     var generate = new GenerateEvent().getSignature();
-    var outputGenerate = new Statement('outputStep')
-        .setNamespace(generate.getNamespace())
-        .setName(generate.getName())
+    var outputGenerate =new Statement('outputStep', generate.getNamespace(), generate.getName())
         .setParameterMap(
             new Map([
                 ['eventName', [ParameterReference.ofValue('output')]],
@@ -81,9 +75,7 @@ test('KIRuntime Test 1', () => {
         .setDependentStatements(['Steps.loop.output']);
 
     var ifFunction = new If().getSignature();
-    var ifStep = new Statement('if')
-        .setNamespace(ifFunction.getNamespace())
-        .setName(ifFunction.getName())
+    var ifStep =new Statement('if', ifFunction.getNamespace(), ifFunction.getName())
         .setParameterMap(
             new Map([
                 [
@@ -98,9 +90,7 @@ test('KIRuntime Test 1', () => {
         );
 
     var set = new SetFunction().getSignature();
-    var set1 = new Statement('setOnTrue')
-        .setNamespace(set.getNamespace())
-        .setName(set.getName())
+    var set1 =new Statement('setOnTrue', set.getNamespace(), set.getName())
         .setParameterMap(
             new Map([
                 ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
@@ -108,9 +98,7 @@ test('KIRuntime Test 1', () => {
             ]),
         )
         .setDependentStatements(['Steps.if.true']);
-    var set2 = new Statement('setOnFalse')
-        .setNamespace(set.getNamespace())
-        .setName(set.getName())
+    var set2 =new Statement('setOnFalse', set.getNamespace(), set.getName())
         .setParameterMap(
             new Map([
                 ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
@@ -128,7 +116,7 @@ test('KIRuntime Test 1', () => {
 
     start = new Date().getTime();
     let out: EventResult[] = new KIRuntime(
-        new FunctionDefinition()
+        new FunctionDefinition('Fibonacci')
             .setSteps(
                 new Map([
                     Statement.ofEntry(createArray),
@@ -140,7 +128,6 @@ test('KIRuntime Test 1', () => {
                 ]),
             )
             .setNamespace('Test')
-            .setName('Fibonacci')
             .setEvents(
                 new Map([
                     Event.outputEventMapEntry(
@@ -152,9 +139,7 @@ test('KIRuntime Test 1', () => {
                 new Map([
                     [
                         'Count',
-                        new Parameter()
-                            .setParameterName('Count')
-                            .setSchema(Schema.ofInteger('Count')),
+                       new Parameter('Count',Schema.ofInteger('Count')),
                     ],
                 ]),
             ) as FunctionDefinition,
@@ -176,25 +161,20 @@ test('KIRuntime Test 2', () => {
 
     let out: EventResult[] = new KIRuntime(
         (
-            new FunctionDefinition()
+            new FunctionDefinition('SingleCall')
                 .setNamespace('Test')
-                .setName('SingleCall')
                 .setParameters(
                     new Map([
                         [
                             'Value',
-                            new Parameter()
-                                .setParameterName('Value')
-                                .setSchema(Schema.ofInteger('Value')),
+                           new Parameter('Value',Schema.ofInteger('Value')),
                         ],
                     ]),
                 ) as FunctionDefinition
         ).setSteps(
             new Map([
                 Statement.ofEntry(
-                    new Statement('first')
-                        .setNamespace(Namespaces.MATH)
-                        .setName('Absolute')
+                   new Statement('first', Namespaces.MATH, 'Absolute')
                         .setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
@@ -202,9 +182,7 @@ test('KIRuntime Test 2', () => {
                         ),
                 ),
                 Statement.ofEntry(
-                    new Statement('second')
-                        .setNamespace(genEvent.getNamespace())
-                        .setName(genEvent.getName())
+                   new Statement('second', genEvent.getNamespace(), genEvent.getName())
                         .setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],
@@ -231,25 +209,20 @@ test('KIRuntime Test 3', () => {
 
     let out: EventResult[] = new KIRuntime(
         (
-            new FunctionDefinition()
+            new FunctionDefinition('SingleCall')
                 .setNamespace('Test')
-                .setName('SingleCall')
                 .setParameters(
                     new Map([
                         [
                             'Value',
-                            new Parameter()
-                                .setParameterName('Value')
-                                .setSchema(Schema.ofInteger('Value')),
+                           new Parameter('Value',Schema.ofInteger('Value')),
                         ],
                     ]),
                 ) as FunctionDefinition
         ).setSteps(
             new Map([
                 Statement.ofEntry(
-                    new Statement('first')
-                        .setNamespace(Namespaces.MATH)
-                        .setName('CubeRoot')
+                   new Statement('first', Namespaces.MATH, 'CubeRoot')
                         .setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
@@ -257,9 +230,7 @@ test('KIRuntime Test 3', () => {
                         ),
                 ),
                 Statement.ofEntry(
-                    new Statement('second')
-                        .setNamespace(genEvent.getNamespace())
-                        .setName(genEvent.getName())
+                   new Statement('second', genEvent.getNamespace(), genEvent.getName())
                         .setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],
@@ -293,14 +264,13 @@ test('KIRuntime Test 4', () => {
 
     console.log('Normal Logic : ' + (new Date().getTime() - start));
 
-    var fibFunctionSignature = new FunctionSignature()
-        .setName('FibFunction')
+    var fibFunctionSignature = new FunctionSignature('FibFunction')
         .setNamespace('FibSpace')
         .setParameters(
             new Map([
                 [
                     'value',
-                    new Parameter().setParameterName('value').setSchema(Schema.ofInteger('value')),
+                   new Parameter('value',Schema.ofInteger('value')),
                 ],
             ]),
         )
@@ -317,7 +287,7 @@ test('KIRuntime Test 4', () => {
         }
 
         protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-            let count = context.getArguments().get('value');
+            let count = context.getArguments()?.get('value');
             let a = new Array(count);
             for (let i = 0; i < count; i++) a[i] = i < 2 ? i : a[i - 1] + a[i - 2];
             return new FunctionOutput([EventResult.outputOf(new Map([['value', a]]))]);
@@ -340,25 +310,20 @@ test('KIRuntime Test 4', () => {
     start = new Date().getTime();
     let out: EventResult[] = new KIRuntime(
         (
-            new FunctionDefinition()
+            new FunctionDefinition('CustomFunction')
                 .setNamespace('Test')
-                .setName('CustomFunction')
                 .setParameters(
                     new Map([
                         [
                             'Value',
-                            new Parameter()
-                                .setParameterName('Value')
-                                .setSchema(Schema.ofInteger('Value')),
+                           new Parameter('Value',Schema.ofInteger('Value')),
                         ],
                     ]),
                 ) as FunctionDefinition
         ).setSteps(
             new Map([
                 Statement.ofEntry(
-                    new Statement('fib')
-                        .setNamespace(fibFunctionSignature.getNamespace())
-                        .setName('asdf')
+                   new Statement('fib', fibFunctionSignature.getNamespace(), 'asdf')
                         .setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
@@ -366,9 +331,7 @@ test('KIRuntime Test 4', () => {
                         ),
                 ),
                 Statement.ofEntry(
-                    new Statement('fiboutput')
-                        .setNamespace(genEvent.getNamespace())
-                        .setName(genEvent.getName())
+                   new Statement('fiboutput', genEvent.getNamespace(), genEvent.getName())
                         .setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],

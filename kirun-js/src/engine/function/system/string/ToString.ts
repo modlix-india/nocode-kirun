@@ -13,19 +13,14 @@ export class ToString extends AbstractFunction {
 
     protected readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_INPUT_ANYTYPE: Parameter = new Parameter()
-        .setParameterName(this.PARAMETER_INPUT_ANYTYPE_NAME)
-        .setSchema(Schema.ofAny(this.PARAMETER_INPUT_ANYTYPE_NAME));
+    protected readonly PARAMETER_INPUT_ANYTYPE: Parameter =new Parameter(this.PARAMETER_INPUT_ANYTYPE_NAME,Schema.ofAny(this.PARAMETER_INPUT_ANYTYPE_NAME));
 
-    protected readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
         );
 
     public getSignature(): FunctionSignature {
-        return new FunctionSignature()
-            .setName('ToString')
+        return new FunctionSignature('ToString')
             .setNamespace(Namespaces.STRING)
             .setParameters(
                 new Map([

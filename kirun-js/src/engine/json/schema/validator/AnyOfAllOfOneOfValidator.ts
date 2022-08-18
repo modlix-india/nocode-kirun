@@ -7,7 +7,7 @@ export class AnyOfAllOfOneOfValidator {
     public static validate(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ): any {
         let list: SchemaValidationException[] = [];
@@ -25,7 +25,7 @@ export class AnyOfAllOfOneOfValidator {
     private static anyOf(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> |undefined,
         element: any,
         list: SchemaValidationException[],
     ) {
@@ -35,7 +35,7 @@ export class AnyOfAllOfOneOfValidator {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag = true;
                 break;
-            } catch (err) {
+            } catch (err: any) {
                 flag = false;
                 list.push(err);
             }
@@ -53,7 +53,7 @@ export class AnyOfAllOfOneOfValidator {
     private static allOf(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
         list: SchemaValidationException[],
     ) {
@@ -62,7 +62,7 @@ export class AnyOfAllOfOneOfValidator {
             try {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag++;
-            } catch (err) {
+            } catch (err: any) {
                 list.push(err);
             }
         }
@@ -79,7 +79,7 @@ export class AnyOfAllOfOneOfValidator {
     private static oneOf(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
         list: SchemaValidationException[],
     ) {
@@ -88,7 +88,7 @@ export class AnyOfAllOfOneOfValidator {
             try {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag++;
-            } catch (err) {
+            } catch (err : any) {
                 list.push(err);
             }
         }

@@ -17,26 +17,17 @@ export class PostPad extends AbstractFunction {
 
     protected static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(PostPad.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(PostPad.PARAMETER_STRING_NAME));
+    protected static PARAMETER_STRING: Parameter =new Parameter(PostPad.PARAMETER_STRING_NAME,Schema.ofString(PostPad.PARAMETER_STRING_NAME));
 
-    protected static PARAMETER_POSTPAD_STRING: Parameter = new Parameter()
-        .setParameterName(PostPad.PARAMETER_POSTPAD_STRING_NAME)
-        .setSchema(Schema.ofString(PostPad.PARAMETER_POSTPAD_STRING_NAME));
+    protected static PARAMETER_POSTPAD_STRING: Parameter =new Parameter(PostPad.PARAMETER_POSTPAD_STRING_NAME,Schema.ofString(PostPad.PARAMETER_POSTPAD_STRING_NAME));
 
-    protected static PARAMETER_LENGTH: Parameter = new Parameter()
-        .setParameterName(PostPad.PARAMETER_LENGTH_NAME)
-        .setSchema(Schema.ofInteger(PostPad.PARAMETER_LENGTH_NAME));
+    protected static PARAMETER_LENGTH: Parameter =new Parameter(PostPad.PARAMETER_LENGTH_NAME,Schema.ofInteger(PostPad.PARAMETER_LENGTH_NAME));
 
-    protected static EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([[PostPad.EVENT_RESULT_NAME, Schema.ofString(PostPad.EVENT_RESULT_NAME)]]),
         );
 
-    private signature: FunctionSignature = new FunctionSignature()
-        .setName('PostPad')
+    private signature: FunctionSignature = new FunctionSignature('PostPad')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([

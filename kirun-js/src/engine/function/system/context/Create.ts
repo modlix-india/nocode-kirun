@@ -19,8 +19,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 const NAME = 'name';
 const SCHEMA = 'schema';
 
-const SIGNATURE: FunctionSignature = new FunctionSignature()
-    .setName('Create')
+const SIGNATURE: FunctionSignature = new FunctionSignature('Create')
     .setNamespace(Namespaces.SYSTEM_CTX)
     .setParameters(
         new Map([

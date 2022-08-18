@@ -13,16 +13,13 @@ import { AbstractFunction } from '../../AbstractFunction';
 const VALUE = 'value';
 
 export class Hypotenuse extends AbstractFunction {
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('Hypotenuse')
+    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Hypotenuse')
         .setNamespace(Namespaces.MATH)
         .setParameters(
             new Map([
                 [
                     VALUE,
-                    new Parameter()
-                        .setParameterName(VALUE)
-                        .setSchema(Schema.ofNumber(VALUE))
+                   new Parameter(VALUE,Schema.ofNumber(VALUE))
                         .setVariableArgument(true),
                 ],
             ]),
@@ -49,7 +46,7 @@ export class Hypotenuse extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let nums: number[] = context.getArguments().get(VALUE);
+        let nums: number[] = context.getArguments()?.get(VALUE);
 
         return new FunctionOutput([
             EventResult.outputOf(

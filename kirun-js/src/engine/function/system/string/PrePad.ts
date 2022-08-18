@@ -17,26 +17,17 @@ export class PrePad extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static readonly PARAMETER_STRING: Parameter = new Parameter()
-        .setParameterName(PrePad.PARAMETER_STRING_NAME)
-        .setSchema(Schema.ofString(PrePad.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_STRING: Parameter =new Parameter(PrePad.PARAMETER_STRING_NAME,Schema.ofString(PrePad.PARAMETER_STRING_NAME));
 
-    protected static readonly PARAMETER_PREPAD_STRING: Parameter = new Parameter()
-        .setParameterName(PrePad.PARAMETER_PREPAD_STRING_NAME)
-        .setSchema(Schema.ofString(PrePad.PARAMETER_PREPAD_STRING_NAME));
+    protected static readonly PARAMETER_PREPAD_STRING: Parameter =new Parameter(PrePad.PARAMETER_PREPAD_STRING_NAME,Schema.ofString(PrePad.PARAMETER_PREPAD_STRING_NAME));
 
-    protected static readonly PARAMETER_LENGTH: Parameter = new Parameter()
-        .setParameterName(PrePad.PARAMETER_LENGTH_NAME)
-        .setSchema(Schema.ofInteger(PrePad.PARAMETER_LENGTH_NAME));
+    protected static readonly PARAMETER_LENGTH: Parameter =new Parameter(PrePad.PARAMETER_LENGTH_NAME,Schema.ofInteger(PrePad.PARAMETER_LENGTH_NAME));
 
-    protected static readonly EVENT_STRING: Event = new Event()
-        .setName(Event.OUTPUT)
-        .setParameters(
+    protected static readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
             new Map([[PrePad.EVENT_RESULT_NAME, Schema.ofString(PrePad.EVENT_RESULT_NAME)]]),
         );
 
-    private readonly signature: FunctionSignature = new FunctionSignature()
-        .setName('PrePad')
+    private readonly signature: FunctionSignature = new FunctionSignature('PrePad')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([

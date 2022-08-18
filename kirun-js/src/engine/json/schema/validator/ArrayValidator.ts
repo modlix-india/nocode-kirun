@@ -9,7 +9,7 @@ export class ArrayValidator {
     public static validate(
         parents: Schema[],
         schema: Schema,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ): any {
         if (isNullValue(element))

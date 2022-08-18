@@ -40,7 +40,7 @@ export class Parameter {
     private variableArgument: boolean = false;
     private type: ParameterType = ParameterType.EXPRESSION;
 
-    constructor(schema: Schema, parameterName: string) {
+    constructor(parameterName: string, schema: Schema) {
         this.schema = schema;
         this.parameterName = parameterName;
     }
@@ -82,7 +82,7 @@ export class Parameter {
     ): [string, Parameter] {
         return [
             name,
-            new Parameter(schema, name).setType(type).setVariableArgument(variableArgument),
+            new Parameter(name, schema).setType(type).setVariableArgument(variableArgument),
         ];
     }
 
@@ -92,6 +92,6 @@ export class Parameter {
         variableArgument: boolean = false,
         type: ParameterType = ParameterType.EXPRESSION,
     ): Parameter {
-        return new Parameter(schema, name).setType(type).setVariableArgument(variableArgument);
+        return new Parameter(name, schema).setType(type).setVariableArgument(variableArgument);
     }
 }

@@ -10,8 +10,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'value';
 export class Random extends AbstractFunction {
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature()
-        .setName('Random')
+    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Random')
         .setNamespace(Namespaces.MATH)
         .setEvents(
             new Map<string, Event>([

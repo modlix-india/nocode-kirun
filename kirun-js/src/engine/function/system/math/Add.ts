@@ -10,12 +10,11 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'value';
 
-const SIGNATURE = new FunctionSignature()
-    .setName('Add')
+const SIGNATURE = new FunctionSignature('Add')
     .setNamespace(Namespaces.MATH)
     .setParameters(
         new Map([
-            [VALUE, new Parameter().setSchema(Schema.ofNumber(VALUE)).setVariableArgument(true)],
+            [VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)],
         ]),
     )
     .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]));
@@ -26,7 +25,7 @@ export class Add extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let nums: number[] = context.getArguments().get(VALUE);
+        let nums: number[] = context.getArguments()?.get(VALUE);
 
         return new FunctionOutput([
             EventResult.outputOf(new Map([[VALUE, nums.reduce((a, c) => (a += c), 0)]])),

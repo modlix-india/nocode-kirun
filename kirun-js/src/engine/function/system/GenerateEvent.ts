@@ -16,8 +16,7 @@ const VALUE = 'value';
 const EVENT_NAME = 'eventName';
 const RESULTS = 'results';
 
-const SIGNATURE: FunctionSignature = new FunctionSignature()
-    .setName('GenerateEvent')
+const SIGNATURE: FunctionSignature = new FunctionSignature('GenerateEvent')
     .setNamespace(Namespaces.SYSTEM)
     .setParameters(
         new Map([

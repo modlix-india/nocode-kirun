@@ -15,8 +15,7 @@ const STEP = 'step';
 const VALUE = 'value';
 const INDEX = 'index';
 
-const SIGNATURE = new FunctionSignature()
-    .setName('RangeLoop')
+const SIGNATURE = new FunctionSignature('RangeLoop')
     .setNamespace(Namespaces.SYSTEM_LOOP)
     .setParameters(
         new Map([
@@ -94,16 +93,16 @@ export class RangeLoop extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let from: number = context.getArguments().get(FROM);
-        let to: number = context.getArguments().get(TO);
-        let step: number = context.getArguments().get(STEP);
+        let from: number = context.getArguments()?.get(FROM);
+        let to: number = context.getArguments()?.get(TO);
+        let step: number = context.getArguments()?.get(STEP);
 
         const forward = step > 0;
         let current: number = from;
         let done: boolean = false;
 
         return new FunctionOutput({
-            next(): EventResult {
+            next(): EventResult | undefined {
                 if (done) return undefined;
 
                 if ((forward && current >= to) || (!forward && current <= to)) {
