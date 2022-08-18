@@ -15,7 +15,7 @@ import com.google.gson.JsonPrimitive;
 public class Max extends AbstractArrayFunction {
 
 	public Max() {
-		this("Max", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_ANY);
+		this("Max", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE), EVENT_RESULT_ANY);
 	}
 
 	protected Max(String functionName, List<Parameter> parameters, Event event) {
@@ -25,7 +25,7 @@ public class Max extends AbstractArrayFunction {
 	@Override
 	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName()).getAsJsonArray();
 
 		if (source.size() == 0)
 			throw new KIRuntimeException("Search source array cannot be empty");

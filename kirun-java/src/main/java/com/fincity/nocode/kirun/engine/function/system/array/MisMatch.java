@@ -41,7 +41,7 @@ public class MisMatch extends AbstractArrayFunction {
 		int second = secondFind.getAsInt() < secondSource.size() && secondFind.getAsInt() > 0 ? secondFind.getAsInt()
 				: 0;
 
-		if (first + length.getAsInt() > firstSource.size() || second + length.getAsInt() > secondSource.size())
+		if (first + length.getAsInt() >= firstSource.size() || second + length.getAsInt() > secondSource.size())
 			throw new KIRuntimeException(
 					"The size of the array for first and second which was being requested is more than size of the given array");
 

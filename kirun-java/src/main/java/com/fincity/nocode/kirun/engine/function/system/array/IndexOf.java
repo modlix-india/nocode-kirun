@@ -7,6 +7,7 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
@@ -31,9 +32,6 @@ public class IndexOf extends AbstractArrayFunction {
 			return new FunctionOutput(
 					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1)))));
 
-		if (find.isJsonNull() || find == null)
-			throw new KIRuntimeException("Please provide the valid find object or primitive in order to verify");
-
 		int len = srcFrom.getAsInt();
 
 		if (len < 0 || len > source.size())
@@ -44,12 +42,7 @@ public class IndexOf extends AbstractArrayFunction {
 
 		for (int i = len; i < source.size(); i++) {
 
-			if (find.isJsonPrimitive() && source.get(i).isJsonPrimitive()
-					&& source.get(i).equals(find.getAsJsonPrimitive())
-					|| find.isJsonArray() && source.get(i).isJsonArray() && source.get(i).equals(find.getAsJsonArray())
-					|| find.isJsonObject() && source.get(i).isJsonObject()
-							&& source.get(i).equals(find.getAsJsonObject())) {
-
+			if (PrimitiveUtil.compare(source.get(i), find) == 0) {
 				index = i;
 				break;
 			}

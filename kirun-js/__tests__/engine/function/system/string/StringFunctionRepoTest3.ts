@@ -25,27 +25,15 @@ test('StringRepo3 - EqualsIgnoreCase', () => {
     fep.setArguments(
         MapUtil.of(
             AbstractStringFunction.PARAMETER_STRING_NAME,
-            '			',
+            '    20934 123 123 245-0 34" 3434 " 123',
             AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME,
-            ' 			',
-        ),
-    );
-    expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
-    ).toBeTruthy();
-
-    fep.setArguments(
-        MapUtil.of(
-            AbstractStringFunction.PARAMETER_STRING_NAME,
-            '		20934 123 123 245-0 34" 3434 " 123		',
-            AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME,
-            '	20934 123 123 245-0 34" 3434 " 123		',
+            '  w20934 123 123 245-0 34" 3434 " 123   ',
         ),
     );
 
     expect(
         fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
-    ).toBe(true);
+    ).toBe(false);
 
     fep.setArguments(
         MapUtil.of(

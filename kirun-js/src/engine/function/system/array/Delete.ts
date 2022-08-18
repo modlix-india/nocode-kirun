@@ -36,16 +36,12 @@ export class Delete extends AbstractArrayFunction {
 
         for (let i = 0; i < source.length; i++) {
             let j: number = 0;
-            if (
-                !source.get(i).isJsonNull() &&
-                !deletable.get(j).isJsonNull() &&
-                source.get(i).equals(deletable.get(j))
-            ) {
+            if (source[i] !== null && deletable[j] !== null && source[i] == deletable[j]) {
                 while (j < deletableSize) {
                     if (
-                        source.get(i).isJsonNull() ||
-                        deletable.get(j).isJsonNull() ||
-                        !source.get(i + j).equals(deletable.get(j))
+                        source[i] == null ||
+                        deletable[j] == null ||
+                        source[i + j] != deletable[j]
                     ) {
                         break;
                     }
@@ -59,11 +55,9 @@ export class Delete extends AbstractArrayFunction {
         }
 
         if (index != -1) {
-            for (let i = index; i <= deletableSize; i++) {
-                source.remove(index);
-            }
+            source.splice(index, deletableSize);
         }
 
-        return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
     }
 }

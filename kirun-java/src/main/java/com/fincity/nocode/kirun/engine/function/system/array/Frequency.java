@@ -3,10 +3,13 @@ package com.fincity.nocode.kirun.engine.function.system.array;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 public class Frequency extends AbstractArrayFunction {
@@ -22,10 +25,10 @@ public class Frequency extends AbstractArrayFunction {
 
 		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
-		var find = context.getArguments().get(PARAMETER_ANY.getParameterName());
+		JsonElement find = context.getArguments().get(PARAMETER_ANY.getParameterName());
 
-		JsonPrimitive from = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-				.getAsJsonPrimitive();
+		int start = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName()).getAsJsonPrimitive()
+				.getAsInt();
 
 		int length = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive()
 				.getAsInt();
@@ -34,26 +37,26 @@ public class Frequency extends AbstractArrayFunction {
 			return new FunctionOutput(
 					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(0)))));
 
-		int end = length > 0 ? length : source.size();
+		if (start > source.size())
+			throw new KIRuntimeException("Given start point is more than the size of source");
+
+		if (find == null || find.isJsonNull())
+			throw new KIRuntimeException("Given find was null. Hence cannot be found in the array");
+
+		int end = start + length;
 
 		if (length == -1)
-			end = source.size() - from.getAsInt();
+			end = source.size() - start;
 
-		int start = from.getAsInt() < 0  ? 0 : from.getAsInt();
+		if (end > source.size())
+			throw new KIRuntimeException("Given length is more than the size of source");
 
-		Integer frequency = 0;
+		int frequency = 0;
 
-		for (int i = start; i < end && i < source.size(); i++) {
+		for (int i = start; i < end; i++) {
 
-			if (find.isJsonPrimitive() && source.get(i).isJsonPrimitive()
-					&& source.get(i).equals(find.getAsJsonPrimitive()) ||
-
-					find.isJsonArray() && source.get(i).isJsonArray() && source.get(i).equals(find.getAsJsonArray()) ||
-
-					find.isJsonObject() && source.get(i).isJsonObject() && source.get(i).equals(find.getAsJsonObject()))
-
+			if (PrimitiveUtil.compare(source.get(i), find) == 0)
 				frequency++;
-
 		}
 
 		return new FunctionOutput(
