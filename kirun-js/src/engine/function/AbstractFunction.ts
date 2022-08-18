@@ -40,7 +40,7 @@ export abstract class AbstractFunction implements Function {
                         ),
                     );
 
-                let array: any[] = undefined;
+                let array: any[] | undefined = undefined;
 
                 if (Array.isArray(jsonElement)) array = jsonElement as any[];
                 else {
@@ -61,7 +61,7 @@ export abstract class AbstractFunction implements Function {
     }
 
     public execute(context: FunctionExecutionParameters): FunctionOutput {
-        context.setArguments(this.validateArguments(context.getArguments()));
+        context.setArguments(this.validateArguments(context.getArguments()??new Map()));
         return this.internalExecute(context);
     }
 

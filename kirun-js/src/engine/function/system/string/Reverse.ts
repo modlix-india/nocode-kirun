@@ -52,7 +52,7 @@ export class Reverse extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let acutalString: string = context.getArguments().get(this.VALUE);
+        let acutalString: string = context.getArguments()?.get(this.VALUE);
         let stringLength: number = acutalString.length - 1;
         let reversedString: string = '';
 

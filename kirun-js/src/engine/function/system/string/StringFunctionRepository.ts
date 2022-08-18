@@ -51,9 +51,9 @@ export class StringFunctionRepository implements Repository<Function> {
         ),
     );
 
-    public find(namespace: string, name: string): Function {
+    public find(namespace: string, name: string): Function | undefined {
         if (namespace != Namespaces.STRING) {
-            return null;
+            return undefined;
         }
         return StringFunctionRepository.repoMap.get(name);
     }

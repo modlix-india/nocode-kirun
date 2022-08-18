@@ -19,9 +19,9 @@ export class SchemaValidator {
     }
 
     public static validate(
-        parents: Schema[],
+        parents: Schema[] | undefined,
         schema: Schema | undefined,
-        repository: Repository<Schema>,
+        repository: Repository<Schema> | undefined,
         element: any,
     ): any {
         if (!schema) {
@@ -122,7 +122,7 @@ export class SchemaValidator {
                 TypeValidator.validate(parents, type, schema, repository, element);
                 valid = true;
                 break;
-            } catch (err) {
+            } catch (err: any) {
                 valid = false;
                 list.push(err);
             }

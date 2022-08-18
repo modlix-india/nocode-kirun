@@ -50,8 +50,8 @@ export class Split extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let s1: string = context.getArguments().get(this.PARAMETER_STRING_NAME);
-        let s2: string = context.getArguments().get(this.PARAMETER_SPLIT_STRING_NAME);
+        let s1: string = context.getArguments()?.get(this.PARAMETER_STRING_NAME);
+        let s2: string = context.getArguments()?.get(this.PARAMETER_SPLIT_STRING_NAME);
 
         return new FunctionOutput([
             EventResult.outputOf(MapUtil.of(this.EVENT_ARRAY.getName(), s1.split(s2))),

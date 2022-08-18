@@ -40,7 +40,7 @@ export class ToString extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let input: any = context.getArguments().get(this.PARAMETER_INPUT_ANYTYPE_NAME);
+        let input: any = context.getArguments()?.get(this.PARAMETER_INPUT_ANYTYPE_NAME);
         let output: string = input + '';
 
         return new FunctionOutput([

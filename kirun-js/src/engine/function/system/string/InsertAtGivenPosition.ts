@@ -59,14 +59,14 @@ export class InsertAtGivenPosition extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_STRING_NAME);
         let at: number = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME);
         let insertString: string = context
-            .getArguments()
-            .get(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME);
+            ?.getArguments()
+            ?.get(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME);
 
         let outputString: string = '';
 

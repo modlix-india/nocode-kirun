@@ -45,7 +45,7 @@ export class Concatenate extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let contextArgs: string[] = context.getArguments().get(Concatenate.VALUE);
+        let contextArgs: string[] = context.getArguments()?.get(Concatenate.VALUE);
 
         let concatenatedString: string = '';
 

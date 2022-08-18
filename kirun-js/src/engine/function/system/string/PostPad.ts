@@ -59,12 +59,12 @@ export class PostPad extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let inputString: string = context.getArguments().get(PostPad.PARAMETER_STRING_NAME);
+        let inputString: string = context.getArguments()?.get(PostPad.PARAMETER_STRING_NAME);
         let postpadString: string = context
-            .getArguments()
-            .get(PostPad.PARAMETER_POSTPAD_STRING_NAME);
+            ?.getArguments()
+            ?.get(PostPad.PARAMETER_POSTPAD_STRING_NAME);
 
-        let length: number = context.getArguments().get(PostPad.PARAMETER_LENGTH_NAME);
+        let length: number = context.getArguments()?.get(PostPad.PARAMETER_LENGTH_NAME);
         let outputString: string = '';
         let prepadStringLength: number = postpadString.length;
 

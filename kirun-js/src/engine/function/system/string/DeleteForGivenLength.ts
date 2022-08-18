@@ -62,14 +62,14 @@ export class DeleteForGivenLength extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_STRING_NAME);
         let startPosition: number = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_AT_START_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_AT_START_NAME);
         let endPosition: number = context
-            .getArguments()
-            .get(DeleteForGivenLength.PARAMETER_AT_END_NAME);
+            ?.getArguments()
+            ?.get(DeleteForGivenLength.PARAMETER_AT_END_NAME);
 
         if (endPosition >= startPosition) {
             let outputString: string = '';

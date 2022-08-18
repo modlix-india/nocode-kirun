@@ -83,17 +83,17 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
         let inputString: string = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_STRING_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_STRING_NAME);
         let startPosition: number = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_AT_START_NAME);
         let length: number = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_AT_LENGTH_NAME);
         let replaceString: string = context
-            .getArguments()
-            .get(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME);
+            ?.getArguments()
+            ?.get(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME);
         let inputStringLength: number = inputString.length;
 
         if (startPosition < length) {

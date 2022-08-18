@@ -97,16 +97,16 @@ export class RegionMatches extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let inputString: string = context.getArguments().get(RegionMatches.PARAMETER_STRING_NAME);
-        let ignoreCase: boolean = context.getArguments().get(RegionMatches.PARAMETER_BOOLEAN_NAME);
-        let toffSet: number = context.getArguments().get(RegionMatches.PARAMETER_FIRST_OFFSET_NAME);
+        let inputString: string = context.getArguments()?.get(RegionMatches.PARAMETER_STRING_NAME);
+        let ignoreCase: boolean = context.getArguments()?.get(RegionMatches.PARAMETER_BOOLEAN_NAME);
+        let toffSet: number = context.getArguments()?.get(RegionMatches.PARAMETER_FIRST_OFFSET_NAME);
         let otherString: string = context
-            .getArguments()
-            .get(RegionMatches.PARAMETER_OTHER_STRING_NAME);
+            ?.getArguments()
+            ?.get(RegionMatches.PARAMETER_OTHER_STRING_NAME);
         let oOffSet: number = context
-            .getArguments()
-            .get(RegionMatches.PARAMETER_SECOND_OFFSET_NAME);
-        let length: number = context.getArguments().get(RegionMatches.PARAMETER_INTEGER_NAME);
+            ?.getArguments()
+            ?.get(RegionMatches.PARAMETER_SECOND_OFFSET_NAME);
+        let length: number = context.getArguments()?.get(RegionMatches.PARAMETER_INTEGER_NAME);
 
         let matches: boolean = false;
 

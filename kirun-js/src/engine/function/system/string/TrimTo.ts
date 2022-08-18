@@ -49,8 +49,8 @@ export class TrimTo extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let inputString: string = context.getArguments().get(TrimTo.PARAMETER_STRING_NAME);
-        let length: number = context.getArguments().get(TrimTo.PARAMETER_LENGTH_NAME);
+        let inputString: string = context.getArguments()?.get(TrimTo.PARAMETER_STRING_NAME);
+        let length: number = context.getArguments()?.get(TrimTo.PARAMETER_LENGTH_NAME);
 
         return new FunctionOutput([
             EventResult.of(

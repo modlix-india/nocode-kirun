@@ -121,11 +121,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ss: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -161,11 +161,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let count: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -201,11 +201,11 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s1: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let s2: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -238,8 +238,8 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -273,8 +273,8 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -309,15 +309,15 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ss: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME);
 
                     let ind: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -354,15 +354,15 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let ind1: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_INDEX_NAME);
 
                     let ind2: number = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(
@@ -402,14 +402,14 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
                 protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
                     let s1: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
                     let s2: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME);
                     let s3: string = context
-                        .getArguments()
-                        .get(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME);
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME);
 
                     return new FunctionOutput([
                         EventResult.outputOf(

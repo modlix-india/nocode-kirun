@@ -56,9 +56,9 @@ export class PrePad extends AbstractFunction {
     }
 
     protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
-        let inputString: string = context.getArguments().get(PrePad.PARAMETER_STRING_NAME);
-        let prepadString: string = context.getArguments().get(PrePad.PARAMETER_PREPAD_STRING_NAME);
-        let length: number = context.getArguments().get(PrePad.PARAMETER_LENGTH_NAME);
+        let inputString: string = context.getArguments()?.get(PrePad.PARAMETER_STRING_NAME);
+        let prepadString: string = context.getArguments()?.get(PrePad.PARAMETER_PREPAD_STRING_NAME);
+        let length: number = context.getArguments()?.get(PrePad.PARAMETER_LENGTH_NAME);
         let outputString: string = '';
         let prepadStringLength: number = prepadString.length;
 
