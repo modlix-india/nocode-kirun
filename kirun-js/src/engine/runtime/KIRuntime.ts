@@ -144,7 +144,7 @@ export class KIRuntime extends AbstractFunction {
 
         while (
             (!executionQue.isEmpty() || !branchQue.isEmpty()) &&
-            !inContext.getEvents().has(Event.OUTPUT)
+            !inContext.getEvents()?.has(Event.OUTPUT)
         ) {
             this.processBranchQue(inContext, executionQue, branchQue);
             this.processExecutionQue(inContext, executionQue, branchQue);
@@ -160,7 +160,7 @@ export class KIRuntime extends AbstractFunction {
         }
 
         return new FunctionOutput(
-            Array.from(inContext.getEvents().entries()).flatMap((e) =>
+            Array.from(inContext.getEvents()?.entries()??[]).flatMap((e) =>
                 e[1].map((v) => EventResult.of(e[0], v)),
             ),
         );
@@ -181,7 +181,7 @@ export class KIRuntime extends AbstractFunction {
         if (!executionQue.isEmpty()) {
             let vertex: GraphVertex<string, StatementExecution> = executionQue.pop();
 
-            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()))
+            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!))
                 executionQue.add(vertex);
             else this.executeVertex(vertex, inContext, branchQue, executionQue);
         }
@@ -207,7 +207,7 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             > = branchQue.pop();
 
-            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()))
+            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!))
                 branchQue.add(branch);
             else this.executeBranch(inContext, executionQue, branch);
         }
@@ -224,22 +224,22 @@ export class KIRuntime extends AbstractFunction {
         >,
     ): void {
         let vertex: GraphVertex<string, StatementExecution> = branch.getT4();
-        let nextOutput: EventResult = undefined;
+        let nextOutput: EventResult | undefined = undefined;
 
         do {
             this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
 
             if (nextOutput) {
-                if (!inContext.getSteps().has(vertex.getData().getStatement().getStatementName()))
+                if (!inContext.getSteps()?.has(vertex.getData().getStatement().getStatementName()))
                     inContext
                         .getSteps()
-                        .set(vertex.getData().getStatement().getStatementName(), new Map());
+                        ?.set(vertex.getData().getStatement().getStatementName(), new Map());
 
                 inContext
                     .getSteps()
-                    .get(vertex.getData().getStatement().getStatementName())
-                    .set(
+                    ?.get(vertex.getData().getStatement().getStatementName())
+                    ?.set(
                         nextOutput.getName(),
                         this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
@@ -247,9 +247,9 @@ export class KIRuntime extends AbstractFunction {
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
-            vertex
-                .getOutVertices()
-                .get(Event.OUTPUT)
+            (vertex
+                ?.getOutVertices()
+                ?.get(Event.OUTPUT) ?? [])
 
                 .forEach((e) => executionQue.add(e));
         }
@@ -270,9 +270,9 @@ export class KIRuntime extends AbstractFunction {
     ): void {
         let s: Statement = vertex.getData().getStatement();
 
-        let fun: Function = this.fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = this.fRepo.find(s.getNamespace(), s.getName());
 
-        let paramSet: Map<string, Parameter> = fun.getSignature().getParameters();
+        let paramSet: Map<string, Parameter> | undefined = fun?.getSignature().getParameters();
 
         let args: Map<string, any> = this.getArgumentsFromParametersMap(inContext, s, paramSet);
 
