@@ -106,8 +106,6 @@ export class KIRuntime extends AbstractFunction {
             inContext.getContext(),
         );
 
-        console.log('Execution Graph');
-        console.log(eGraph.toString());
         // if (logger.isDebugEnabled()) {
         // 	logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
         // 	logger.debug(eGraph.toString());
