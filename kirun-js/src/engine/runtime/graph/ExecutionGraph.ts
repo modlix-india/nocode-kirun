@@ -19,15 +19,15 @@ export class ExecutionGraph<K, T extends GraphVertexType<K>> {
             let t = new GraphVertex(this, data);
             this.nodeMap.set(data.getUniqueKey(), t);
         }
-        return this.nodeMap.get(data.getUniqueKey());
+        return this.nodeMap.get(data.getUniqueKey())!;
     }
 
-    public getVertex(key: K): GraphVertex<K, T> {
+    public getVertex(key: K): GraphVertex<K, T> | undefined {
         return this.nodeMap.get(key);
     }
 
-    public getVertexData(key: K): T {
-        if (this.nodeMap.has(key)) return this.nodeMap.get(key).getData();
+    public getVertexData(key: K): T | undefined {
+        if (this.nodeMap.has(key)) return this.nodeMap.get(key)!.getData();
         return undefined;
     }
 

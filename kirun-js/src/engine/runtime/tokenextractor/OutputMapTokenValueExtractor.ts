@@ -15,10 +15,10 @@ export class OutputMapTokenValueExtractor extends TokenValueExtractor {
 
         let ind: number = 1;
 
-        let events: Map<string, Map<string, any>> = this.output.get(parts[ind++]);
+        let events: Map<string, Map<string, any>> | undefined = this.output.get(parts[ind++]);
         if (!events || ind >= parts.length) return undefined;
 
-        let eachEvent: Map<string, any> = events.get(parts[ind++]);
+        let eachEvent: Map<string, any> | undefined = events.get(parts[ind++]);
         if (!eachEvent || ind >= parts.length) return undefined;
 
         let element: any = eachEvent.get(parts[ind++]);

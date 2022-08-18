@@ -22,6 +22,11 @@ export class StatementGroup extends AbstractStatement {
 
     private statementGroupName: string;
 
+    constructor(statementGroupName: string) {
+        super();
+        this.statementGroupName = statementGroupName;
+    }
+
     public getStatementGroupName(): string {
         return this.statementGroupName;
     }

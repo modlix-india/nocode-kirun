@@ -3,6 +3,12 @@ import { Event } from './Event';
 export class EventResult {
     private name: string;
     private result: Map<string, any>;
+
+    constructor(name: string, result: Map<string, any>) {
+        this.name = name;
+        this.result = result;
+    }
+
     public getName(): string {
         return this.name;
     }
@@ -23,6 +29,6 @@ export class EventResult {
     }
 
     public static of(eventName: string, result: Map<string, any>): EventResult {
-        return new EventResult().setName(eventName).setResult(result);
+        return new EventResult(eventName, result);
     }
 }

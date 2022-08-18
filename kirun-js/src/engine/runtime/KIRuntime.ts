@@ -160,7 +160,7 @@ export class KIRuntime extends AbstractFunction {
         }
 
         return new FunctionOutput(
-            Array.from(inContext.getEvents()?.entries()??[]).flatMap((e) =>
+            Array.from(inContext.getEvents()?.entries() ?? []).flatMap((e) =>
                 e[1].map((v) => EventResult.of(e[0], v)),
             ),
         );
@@ -247,11 +247,7 @@ export class KIRuntime extends AbstractFunction {
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
-            (vertex
-                ?.getOutVertices()
-                ?.get(Event.OUTPUT) ?? [])
-
-                .forEach((e) => executionQue.add(e));
+            (vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []).forEach((e) => executionQue.add(e));
         }
     }
 
@@ -274,7 +270,11 @@ export class KIRuntime extends AbstractFunction {
 
         let paramSet: Map<string, Parameter> | undefined = fun?.getSignature().getParameters();
 
-        let args: Map<string, any> = this.getArgumentsFromParametersMap(inContext, s, paramSet);
+        let args: Map<string, any> = this.getArgumentsFromParametersMap(
+            inContext,
+            s,
+            paramSet ?? new Map(),
+        );
 
         let context: Map<string, ContextElement> = inContext.getContext();
 

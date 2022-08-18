@@ -40,12 +40,14 @@ export class Statement extends AbstractStatement {
     private statementName: string;
     private namespace: string;
     private name: string;
-    private parameterMap: Map<string, ParameterReference[]>;
-    private dependentStatements: string[];
+    private parameterMap?: Map<string, ParameterReference[]>;
+    private dependentStatements?: string[];
 
-    public constructor(statementName: string) {
+    public constructor(statementName: string, namespace: string, name: string) {
         super();
         this.statementName = statementName;
+        this.namespace = namespace;
+        this.name = name;
     }
 
     public getStatementName(): string {
@@ -80,7 +82,7 @@ export class Statement extends AbstractStatement {
         return this;
     }
     public getDependentStatements(): string[] {
-        return this.dependentStatements;
+        return this.dependentStatements ?? [];
     }
     public setDependentStatements(dependentStatements: string[]): Statement {
         this.dependentStatements = dependentStatements;

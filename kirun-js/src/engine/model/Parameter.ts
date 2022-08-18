@@ -34,11 +34,16 @@ export class Parameter {
             ]),
         );
 
-    private schema: Schema; // NOSONAR - this is really getting on my nerves,I have a use case for same
+    private schema: Schema;
 
     private parameterName: string;
     private variableArgument: boolean = false;
     private type: ParameterType = ParameterType.EXPRESSION;
+
+    constructor(schema: Schema, parameterName: string) {
+        this.schema = schema;
+        this.parameterName = parameterName;
+    }
 
     public getSchema(): Schema {
         return this.schema;
@@ -77,11 +82,7 @@ export class Parameter {
     ): [string, Parameter] {
         return [
             name,
-            new Parameter()
-                .setParameterName(name)
-                .setSchema(schema)
-                .setType(type)
-                .setVariableArgument(variableArgument),
+            new Parameter(schema, name).setType(type).setVariableArgument(variableArgument),
         ];
     }
 
@@ -91,10 +92,6 @@ export class Parameter {
         variableArgument: boolean = false,
         type: ParameterType = ParameterType.EXPRESSION,
     ): Parameter {
-        return new Parameter()
-            .setParameterName(name)
-            .setSchema(schema)
-            .setType(type)
-            .setVariableArgument(variableArgument);
+        return new Parameter(schema, name).setType(type).setVariableArgument(variableArgument);
     }
 }

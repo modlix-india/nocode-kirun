@@ -7,7 +7,7 @@ export class FunctionOutput {
     private fo: EventResult[];
 
     private index: number = 0;
-    private generator: FunctionOutputGenerator;
+    private generator?: FunctionOutputGenerator;
 
     public constructor(arg: EventResult[] | FunctionOutputGenerator) {
         if (isNullValue(arg)) throw new KIRuntimeException('Function output is generating null');
@@ -20,7 +20,7 @@ export class FunctionOutput {
         }
     }
 
-    public next(): EventResult {
+    public next(): EventResult | undefined {
         if (!this.generator) {
             if (this.index < this.fo.length) return this.fo[this.index++];
             return undefined;

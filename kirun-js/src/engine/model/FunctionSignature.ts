@@ -27,12 +27,16 @@ export class FunctionSignature {
                 ],
             ]),
         );
-    private namespace: string;
+    private namespace?: string;
     private name: string;
     private parameters: Map<string, Parameter> = new Map();
     private events: Map<string, Event> = new Map();
 
-    public getNamespace(): string {
+    constructor(name: string) {
+        this.name = name;
+    }
+
+    public getNamespace(): string | undefined {
         return this.namespace;
     }
     public setNamespace(namespace: string): FunctionSignature {

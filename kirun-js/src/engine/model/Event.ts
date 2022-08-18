@@ -29,6 +29,11 @@ export class Event {
     private name: string;
     private parameters: Map<string, Schema>;
 
+    constructor(name: string, parameters: Map<string, Schema>) {
+        this.name = name;
+        this.parameters = parameters;
+    }
+
     public getName(): string {
         return this.name;
     }
@@ -52,6 +57,6 @@ export class Event {
         eventName: string,
         parameters: Map<string, Schema>,
     ): [string, Event] {
-        return [eventName, new Event().setName(eventName).setParameters(parameters)];
+        return [eventName, new Event(eventName, parameters)];
     }
 }

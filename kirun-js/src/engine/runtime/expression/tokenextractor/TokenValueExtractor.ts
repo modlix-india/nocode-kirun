@@ -63,7 +63,7 @@ export abstract class TokenValueExtractor {
                     if (index >= a.length) return undefined;
 
                     return a[index];
-                } catch (err) {
+                } catch (err: any) {
                     throw new ExpressionEvaluationException(
                         token,
                         StringFormatter.format("$ couldn't be parsed into integer in $", c, token),
@@ -103,7 +103,7 @@ export abstract class TokenValueExtractor {
             if (index >= a.length) return undefined;
 
             return a[index];
-        } catch (err) {
+        } catch (err: any) {
             throw new ExpressionEvaluationException(
                 token,
                 StringFormatter.format("$ couldn't be parsed into integer in $", c, token),
