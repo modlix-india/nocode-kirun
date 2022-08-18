@@ -79,14 +79,14 @@ export class ArrayValidator {
     }
 
     public static checkMinMaxItems(parents: Schema[], schema: Schema, array: any[]): void {
-        if (schema.getMinItems() && schema.getMinItems() > array.length) {
+        if (schema.getMinItems() && schema.getMinItems()! > array.length) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Array should have minimum of ' + schema.getMinItems() + ' elements',
             );
         }
 
-        if (schema.getMaxItems() && schema.getMaxItems() < array.length) {
+        if (schema.getMaxItems() && schema.getMaxItems()! < array.length) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Array can have  maximum of ' + schema.getMaxItems() + ' elements',
@@ -100,9 +100,9 @@ export class ArrayValidator {
         repository: Repository<Schema>,
         array: any[],
     ) {
-        let type: ArraySchemaType = schema.getItems();
+        if (!schema.getItems()) return;
 
-        if (!type) return;
+        let type: ArraySchemaType = schema.getItems()!;
 
         if (type.getSingleSchema()) {
             for (let i = 0; i < array.length; i++) {
@@ -118,11 +118,11 @@ export class ArrayValidator {
         }
 
         if (type.getTupleSchema()) {
-            if (type.getTupleSchema().length !== array.length) {
+            if (type.getTupleSchema()!.length !== array.length) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
                     'Expected an array with only ' +
-                        type.getTupleSchema().length +
+                        type.getTupleSchema()!.length +
                         ' but found ' +
                         array.length,
                 );
@@ -132,7 +132,7 @@ export class ArrayValidator {
                 let newParents: Schema[] = !parents ? [] : [...parents];
                 let element: any = SchemaValidator.validate(
                     newParents,
-                    type.getTupleSchema()[i],
+                    type.getTupleSchema()![i],
                     repository,
                     array[i],
                 );

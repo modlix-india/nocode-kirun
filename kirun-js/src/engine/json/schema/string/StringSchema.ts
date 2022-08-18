@@ -6,7 +6,7 @@ import { Type } from '../type/Type';
 export class StringSchema extends Schema {
     private static readonly TYPE: Type = new SingleType(SchemaType.STRING);
 
-    public getType(): Type {
+    public getType(): Type | undefined {
         return StringSchema.TYPE;
     }
 }

@@ -30,7 +30,7 @@ export class AnyOfAllOfOneOfValidator {
         list: SchemaValidationException[],
     ) {
         let flag: boolean = false;
-        for (let s of schema.getAnyOf()) {
+        for (let s of schema.getAnyOf() ?? []) {
             try {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag = true;
@@ -58,7 +58,7 @@ export class AnyOfAllOfOneOfValidator {
         list: SchemaValidationException[],
     ) {
         let flag: number = 0;
-        for (let s of schema.getAllOf()) {
+        for (let s of schema.getAllOf() ?? []) {
             try {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag++;
@@ -67,7 +67,7 @@ export class AnyOfAllOfOneOfValidator {
             }
         }
 
-        if (flag !== schema.getAllOf().length) {
+        if (flag !== schema.getAllOf()?.length) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 "The value doesn't satisfy some of the schemas.",
@@ -84,7 +84,7 @@ export class AnyOfAllOfOneOfValidator {
         list: SchemaValidationException[],
     ) {
         let flag: number = 0;
-        for (let s of schema.getOneOf()) {
+        for (let s of schema.getOneOf() ?? []) {
             try {
                 AnyOfAllOfOneOfValidator.validate(parents, s, repository, element);
                 flag++;

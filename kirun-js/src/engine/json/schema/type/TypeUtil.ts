@@ -10,7 +10,7 @@ export class TypeUtil {
         return new MultipleType().setType(new Set(types));
     }
 
-    public static from(types: any): Type {
+    public static from(types: any): Type | undefined {
         if (typeof types === 'string') {
             return TypeUtil.of(types as SchemaType);
         } else if (Array.isArray(types)) {
@@ -20,7 +20,6 @@ export class TypeUtil {
                     .map((e) => e as SchemaType),
             );
         }
-
         return undefined;
     }
 }

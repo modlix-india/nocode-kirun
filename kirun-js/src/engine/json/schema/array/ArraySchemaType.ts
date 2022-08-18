@@ -2,8 +2,8 @@ import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 
 export class ArraySchemaType {
-    private singleSchema: Schema;
-    private tupleSchema: Schema[];
+    private singleSchema: Schema | undefined;
+    private tupleSchema: Schema[] | undefined;
 
     public setSingleSchema(schema: Schema): ArraySchemaType {
         this.singleSchema = schema;
@@ -15,11 +15,11 @@ export class ArraySchemaType {
         return this;
     }
 
-    public getSingleSchema(): Schema {
+    public getSingleSchema(): Schema | undefined {
         return this.singleSchema;
     }
 
-    public getTupleSchema(): Schema[] {
+    public getTupleSchema(): Schema[] | undefined {
         return this.tupleSchema;
     }
 
@@ -33,9 +33,12 @@ export class ArraySchemaType {
         return new ArraySchemaType().setTupleSchema(schemas);
     }
 
-    public static from(obj: any): ArraySchemaType {
+    public static from(obj: any): ArraySchemaType | undefined {
         if (!obj) return undefined;
         if (Array.isArray(obj)) ArraySchemaType.of(...Schema.fromListOfSchemas(obj));
-        return ArraySchemaType.of(Schema.from(obj));
+
+        let x = Schema.from(obj);
+        if (!x) return undefined;
+        return ArraySchemaType.of(x);
     }
 }

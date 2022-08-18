@@ -29,8 +29,11 @@ export class StringUtil {
         return -1;
     }
 
-    public static splitAtFirstOccurance(str: string, c: string): Array<string | undefined> {
-        if (!str) return new Array(2);
+    public static splitAtFirstOccurance(
+        str: string,
+        c: string,
+    ): [string | undefined, string | undefined] {
+        if (!str) return [undefined, undefined];
 
         let index: number = str.indexOf(c);
 

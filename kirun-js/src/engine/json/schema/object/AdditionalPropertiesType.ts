@@ -22,7 +22,7 @@ export class AdditionalPropertiesType {
         return this;
     }
 
-    public static from(obj: any): AdditionalPropertiesType {
+    public static from(obj: any): AdditionalPropertiesType | undefined {
         if (!obj) return undefined;
         const ad = new AdditionalPropertiesType();
         ad.booleanValue = obj.booleanValue;

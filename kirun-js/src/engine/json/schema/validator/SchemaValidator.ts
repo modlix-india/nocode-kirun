@@ -9,15 +9,18 @@ import { SchemaValidationException } from './exception/SchemaValidationException
 import { TypeValidator } from './TypeValidator';
 
 export class SchemaValidator {
-    public static path(parents: Schema[]): string {
+    public static path(parents: Schema[] | undefined): string {
+        if (!parents) return '';
+
         return parents
-            ? parents.map((e) => e.getTitle()).reduce((a, c, i) => a + (i === 0 ? '' : '.') + c, '')
-            : '';
+            .map((e) => e.getTitle() ?? '')
+            .filter((e) => !!e)
+            .reduce((a, c, i) => a + (i === 0 ? '' : '.') + c, '');
     }
 
     public static validate(
         parents: Schema[],
-        schema: Schema,
+        schema: Schema | undefined,
         repository: Repository<Schema>,
         element: any,
     ): any {
@@ -38,7 +41,7 @@ export class SchemaValidator {
             return SchemaValidator.constantValidation(parents, schema, element);
         }
 
-        if (schema.getEnums() && !schema.getEnums().length) {
+        if (schema.getEnums() && !schema.getEnums()?.length) {
             return SchemaValidator.enumCheck(parents, schema, element);
         }
 
@@ -89,7 +92,7 @@ export class SchemaValidator {
 
     public static enumCheck(parents: Schema[], schema: Schema, element: any): any {
         let x: boolean = false;
-        for (let e of schema.getEnums()) {
+        for (let e of schema.getEnums() ?? []) {
             if (e === element) {
                 x = true;
                 break;
@@ -114,7 +117,7 @@ export class SchemaValidator {
         let valid: boolean = false;
         let list: SchemaValidationException[] = [];
 
-        for (const type of Array.from(schema.getType().getAllowedSchemaTypes().values())) {
+        for (const type of Array.from(schema.getType()?.getAllowedSchemaTypes()?.values() ?? [])) {
             try {
                 TypeValidator.validate(parents, type, schema, repository, element);
                 valid = true;
