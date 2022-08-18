@@ -98,7 +98,7 @@ test('last index of array test 3', () => {
         ]),
     );
 
-    expect(() => larr.execute(fep)).toThrow;
+    expect(() => larr.execute(fep)).toThrow();
 
     let fep1: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map<string, any>([

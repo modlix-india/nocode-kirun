@@ -2,6 +2,7 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class BinarySearch extends AbstractArrayFunction {
@@ -11,7 +12,7 @@ export class BinarySearch extends AbstractArrayFunction {
             [
                 BinarySearch.PARAMETER_ARRAY_SOURCE,
                 BinarySearch.PARAMETER_INT_SOURCE_FROM,
-                BinarySearch.PARAMETER_ARRAY_FIND,
+                BinarySearch.PARAMETER_ANY_NOT_NULL,
                 BinarySearch.PARAMETER_INT_LENGTH,
             ],
             BinarySearch.EVENT_INDEX,
@@ -23,65 +24,43 @@ export class BinarySearch extends AbstractArrayFunction {
             .getArguments()
             .get(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        let from: number = context
+        let start: number = context
             .getArguments()
             .get(BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName());
 
-        let find: any[] = context
+        let find: any = context
             .getArguments()
-            .get(BinarySearch.PARAMETER_ARRAY_FIND.getParameterName());
+            .get(BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName());
 
-        let length: number = context
+        let end: number = context
             .getArguments()
             .get(BinarySearch.PARAMETER_INT_LENGTH.getParameterName());
 
-        if (source.length == 0) {
+        if (source.length == 0 || start < 0 || start > source.length)
             throw new KIRuntimeException('Search source array cannot be empty');
+
+        if (end == -1) end = source.length - start;
+
+        end = start + end;
+
+        if (end > source.length)
+            throw new KIRuntimeException(
+                'End point for array cannot be more than the size of the source array',
+            );
+
+        let index: number = -1;
+
+        while (start <= end) {
+            let mid: number = Math.floor((start + end) / 2);
+            if (PrimitiveUtil.compare(source[mid], find) == 0) {
+                index = mid;
+                break;
+            } else if (PrimitiveUtil.compare(source[mid], find) > 0) end = mid - 1;
+            else start = mid + 1;
         }
-
-        if (find.length == 0) {
-            throw new KIRuntimeException('Find array cannot be empty');
-        }
-
-        if (length == -1) length = source.length;
-
-        if (find.length > source.length || find.length > length - from)
-            throw new KIRuntimeException('Find array is larger than the source array');
 
         return new FunctionOutput([
-            EventResult.outputOf(
-                new Map([
-                    [
-                        BinarySearch.EVENT_INDEX_NAME,
-                        bMultiSearch(source, from, length + from, find),
-                    ],
-                ]),
-            ),
+            EventResult.outputOf(new Map([[BinarySearch.EVENT_INDEX.getName(), index]])),
         ]);
     }
-}
-
-function bMultiSearch(src: any[], start: number, end: number, fnd: any[]): number {
-    let ind: number = bSearch(src, start, end, fnd[0]);
-    if (fnd.length > 1) {
-        let j: number = 0;
-        if (ind == -1) return ind;
-        for (let i: number = ind; i < ind + fnd.length; i++) {
-            if (src[i] != fnd[j++]) {
-                return -1;
-            }
-        }
-    }
-    return ind;
-}
-
-function bSearch(src: any[], start: number, end: number, search: any): number {
-    while (start <= end) {
-        let mid: number = Math.floor((start + end) / 2);
-        if (src[mid] == search) return mid;
-        else if (src[mid] > search) end = mid - 1;
-        else start = mid + 1;
-    }
-
-    return -1;
 }

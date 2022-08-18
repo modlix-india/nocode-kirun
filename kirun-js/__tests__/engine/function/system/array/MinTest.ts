@@ -57,7 +57,7 @@ test('min test 5', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), null]]),
     );
-    expect(() => min.execute(fep)).toThrow;
+    expect(() => min.execute(fep)).toThrow();
 });
 
 test('min test 6', () => {

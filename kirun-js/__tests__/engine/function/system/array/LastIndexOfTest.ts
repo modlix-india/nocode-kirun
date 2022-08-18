@@ -72,7 +72,7 @@ test('Last Index of Test 2', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow;
+    expect(() => lind.execute(fep)).toThrow();
 });
 
 test('Last Index of Test 3', () => {
@@ -106,7 +106,7 @@ test('Last Index of Test 3', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow;
+    expect(() => lind.execute(fep)).toThrow();
 });
 
 test('Last Index of Test 4', () => {
@@ -195,7 +195,7 @@ test('Last Index of Test 5', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow;
+    expect(() => lind.execute(fep)).toThrow();
 });
 
 test('Last Index of Test 6', () => {

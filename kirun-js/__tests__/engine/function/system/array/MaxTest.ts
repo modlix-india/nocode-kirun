@@ -24,7 +24,7 @@ test('max test 2 ', () => {
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
 
-    expect(() => max.execute(fep)).toThrow;
+    expect(() => max.execute(fep)).toThrow();
 });
 
 test('max test 3', () => {
@@ -56,7 +56,7 @@ test('Max test 6', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), null]]),
     );
-    expect(() => max.execute(fep)).toThrow;
+    expect(() => max.execute(fep)).toThrow();
 });
 
 test('Max test 5', () => {

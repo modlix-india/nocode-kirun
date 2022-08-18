@@ -225,26 +225,5 @@ test('Insert of Test 6', () => {
 
     res.push(['this is an array']);
 
-    expect(() => ins.execute(fep)).toThrow;
-});
-
-test('Insert of Test 7', () => {
-    let ins: Insert = new Insert();
-
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), []],
-                [Insert.PARAMETER_INT_OFFSET.getParameterName(), undefined],
-                [Insert.PARAMETER_ANY.getParameterName(), ['this is an array']],
-            ]),
-        )
-        .setOutput(new Map([]))
-        .setContext(new Map([]));
-
-    let res: any[] = [];
-
-    res.push(['this is an array']);
-
-    expect(() => ins.execute(fep)).toThrow;
+    expect(() => ins.execute(fep)).toThrow();
 });

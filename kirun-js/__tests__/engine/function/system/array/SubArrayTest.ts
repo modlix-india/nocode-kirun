@@ -62,7 +62,7 @@ test('SubArray of Test 2', () => {
         .setOutput(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => sub.execute(fep)).toThrow;
+    expect(() => sub.execute(fep)).toThrow();
 });
 
 test('SubArray of Test 5', () => {
@@ -136,7 +136,7 @@ test('SubArray of Test 3', () => {
         ]),
     );
 
-    expect(() => sub.execute(fep)).toThrow;
+    expect(() => sub.execute(fep)).toThrow();
 });
 
 test('SubArray of Test 4', () => {

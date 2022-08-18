@@ -246,7 +246,7 @@ test('index of array 6', () => {
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
         ]),
     );
-    expect(() => ioa.execute(fep)).toThrow;
+    expect(() => ioa.execute(fep)).toThrow();
 });
 
 test('index of array 3', () => {

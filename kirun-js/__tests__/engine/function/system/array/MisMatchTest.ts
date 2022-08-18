@@ -70,7 +70,7 @@ test('mismatch test 2', () => {
         ]),
     );
 
-    expect(() => mismatch.execute(fep)).toThrow;
+    expect(() => mismatch.execute(fep)).toThrow();
 });
 
 test('Mismatch test 3', () => {

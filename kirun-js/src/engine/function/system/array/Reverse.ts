@@ -30,12 +30,12 @@ export class Reverse extends AbstractArrayFunction {
             .getArguments()
             .get(Reverse.PARAMETER_INT_LENGTH.getParameterName());
 
-        if (len > source.length || len > source.length - 1 || st < 0)
+        if (len == -1) len = source.length - st;
+
+        if (len >= source.length || len < 0 || st < 0)
             throw new KIRuntimeException(
                 'Please provide start point between the start and end indexes or provide the length which was less than the source size ',
             );
-
-        if (len == -1) len = source.length - st;
 
         let endpoint: number = st + len - 1;
         while (st <= endpoint) {

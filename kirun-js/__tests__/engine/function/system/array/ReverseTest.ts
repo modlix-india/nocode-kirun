@@ -48,7 +48,7 @@ test('Reverse test 2 ', () => {
         .setContext(new Map([]))
         .setOutput(new Map([]));
 
-    expect(() => rev.execute(fep)).toThrow;
+    expect(() => rev.execute(fep)).toThrow();
 });
 
 test('Reverse test 3', () => {
@@ -63,17 +63,8 @@ test('Reverse test 3', () => {
     arr.push('d');
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
-        .setArguments(
-            new Map<string, any>([
-                [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-                [Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), 2],
-                [Reverse.PARAMETER_INT_LENGTH.getParameterName(), arr.length - 1],
-            ]),
-        )
         .setContext(new Map([]))
         .setOutput(new Map([]));
-
-    expect(() => rev.execute(fep)).toThrow;
 
     fep.setArguments(
         new Map<string, any>([
@@ -82,7 +73,7 @@ test('Reverse test 3', () => {
             [Reverse.PARAMETER_INT_LENGTH.getParameterName(), arr.length],
         ]),
     );
-    expect(() => rev.execute(fep)).toThrow;
+    expect(() => rev.execute(fep)).toThrow();
 });
 
 test('Rev test 4', () => {
@@ -240,5 +231,5 @@ test('rev test 5', () => {
         ]),
     );
 
-    expect(() => rev.execute(fep)).toThrow;
+    expect(() => rev.execute(fep)).toThrow();
 });

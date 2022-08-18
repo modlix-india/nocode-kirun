@@ -2,6 +2,7 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
+import { isNullValue } from '../../../util/NullCheck';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class Insert extends AbstractArrayFunction {
@@ -24,7 +25,7 @@ export class Insert extends AbstractArrayFunction {
 
         var output = context.getArguments().get(Insert.PARAMETER_ANY.getParameterName());
 
-        if (typeof output == null || typeof output == undefined)
+        if (isNullValue(output) || isNullValue(offset) || offset > source.length)
             throw new KIRuntimeException('Please valid resouces to insert at the correct location');
 
         if (source.length == 0) {
