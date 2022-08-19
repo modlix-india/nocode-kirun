@@ -18,7 +18,7 @@ export class StringValidator {
         if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                'Expected a string but found null',
+                'Expected a string but found ' + element,
             );
 
         if (typeof element !== 'string')

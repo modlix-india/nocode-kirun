@@ -83,7 +83,7 @@ export class PrimitiveUtil {
         if (isNullValue(a) || isNullValue(b)) return isNullValue(a) ? -1 : 1;
 
         if (Array.isArray(a) || Array.isArray(b)) {
-            if (Array.isArray(a) || Array.isArray(b)) {
+            if (Array.isArray(a) && Array.isArray(b)) {
                 if (a.length != b.length) return a.length - b.length;
                 for (let i = 0; i < a.length; i++) {
                     let cmp: number = this.compare(a[i], b[i]);
@@ -104,6 +104,7 @@ export class PrimitiveUtil {
                     if (cmp != 0) return cmp;
                 });
             }
+            return typofa === 'object' ? -1 : 1;
         }
 
         return this.comparePrimitive(a, b);

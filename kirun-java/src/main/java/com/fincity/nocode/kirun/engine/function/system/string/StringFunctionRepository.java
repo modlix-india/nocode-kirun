@@ -13,8 +13,8 @@ public class StringFunctionRepository implements Repository<Function> {
 			AbstractUnaryFunction.ofEntryString("Trim", String::trim),
 			AbstractUnaryFunction.ofEntryString("LowerCase", String::toLowerCase),
 			AbstractUnaryFunction.ofEntryString("UpperCase", String::toUpperCase),
-			AbstractUnaryFunction.ofEntryStringBooleanOutput("Blank", String::isBlank),
-			AbstractUnaryFunction.ofEntryStringBooleanOutput("Empty", String::isEmpty),
+			AbstractUnaryFunction.ofEntryStringBooleanOutput("IsBlank", String::isBlank),
+			AbstractUnaryFunction.ofEntryStringBooleanOutput("IsEmpty", String::isEmpty),
 
 			AbstractBinaryStringFunction.ofEntryAsStringBooleanOutput("Contains", String::contains),
 			AbstractBinaryStringFunction.ofEntryAsStringBooleanOutput("EndsWith", String::endsWith),

@@ -1,4 +1,4 @@
-import { OutputMapTokenValueExtractor } from '../../../../../src/engine/runtime/expression/tokenextractor/OutputMapTokenValueExtractor';
+import { OutputMapTokenValueExtractor } from '../../../../../src/engine/runtime/tokenextractor/OutputMapTokenValueExtractor';
 
 test('OutputMapTokenValueExtractor Test', () => {
     let phone: any = {

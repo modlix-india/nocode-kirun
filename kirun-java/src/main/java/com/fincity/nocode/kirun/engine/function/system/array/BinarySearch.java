@@ -14,16 +14,17 @@ import com.google.gson.JsonPrimitive;
 public class BinarySearch extends AbstractArrayFunction {
 
 	public BinarySearch() {
-		super("BinarySearch", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_ANY_NOT_NULL,
-				PARAMETER_INT_LENGTH), EVENT_INDEX);
+		super("BinarySearch", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE, PARAMETER_INT_SOURCE_FROM,
+				PARAMETER_FIND_PRIMITIVE, PARAMETER_INT_LENGTH), EVENT_INDEX);
 	}
 
 	@Override
 	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+
 		var source = ArrayUtil.jsonArrayToArray(
-				context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray());
+				context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName()).getAsJsonArray());
 		int start = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName()).getAsInt();
-		var find = context.getArguments().get(PARAMETER_ANY_NOT_NULL.getParameterName());
+		var find = context.getArguments().get(PARAMETER_FIND_PRIMITIVE.getParameterName());
 		int end = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsInt();
 
 		if (source.length == 0 || start < 0 || start > source.length) {
@@ -35,7 +36,7 @@ public class BinarySearch extends AbstractArrayFunction {
 
 		end = start + end;
 
-		if (end > source.length )
+		if (end > source.length)
 			throw new KIRuntimeException("End point for array cannot be more than the size of the source array");
 
 		int index = -1;

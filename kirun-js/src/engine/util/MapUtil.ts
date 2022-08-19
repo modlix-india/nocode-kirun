@@ -25,25 +25,25 @@ export class MapUtil {
     ): Map<K, V> {
         const map: Map<K, V> = new Map();
 
-        if (k1 && v1) map.set(k1, v1);
+        if (!isNullValue(k1) && !isNullValue(v1)) map.set(k1!, v1!);
 
-        if (k2 && v2) map.set(k2, v2);
+        if (!isNullValue(k2) && !isNullValue(v2)) map.set(k2!, v2!);
 
-        if (k3 && v3) map.set(k3, v3);
+        if (!isNullValue(k3) && !isNullValue(v3)) map.set(k3!, v3!);
 
-        if (k4 && v4) map.set(k4, v4);
+        if (!isNullValue(k4) && !isNullValue(v4)) map.set(k4!, v4!);
 
-        if (k5 && v5) map.set(k5, v5);
+        if (!isNullValue(k5) && !isNullValue(v5)) map.set(k5!, v5!);
 
-        if (k6 && v6) map.set(k6, v6);
+        if (!isNullValue(k6) && !isNullValue(v6)) map.set(k6!, v6!);
 
-        if (k7 && v7) map.set(k7, v7);
+        if (!isNullValue(k7) && !isNullValue(v7)) map.set(k7!, v7!);
 
-        if (k8 && v8) map.set(k8, v8);
+        if (!isNullValue(k8) && !isNullValue(v8)) map.set(k8!, v8!);
 
-        if (k9 && v9) map.set(k9, v9);
+        if (!isNullValue(k9) && !isNullValue(v9)) map.set(k9!, v9!);
 
-        if (k10 && v10) map.set(k10, v10);
+        if (!isNullValue(k10) && !isNullValue(v10)) map.set(k10!, v10!);
 
         return map;
     }

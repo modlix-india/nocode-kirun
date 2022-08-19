@@ -10,9 +10,9 @@ export class BinarySearch extends AbstractArrayFunction {
         super(
             'BinarySearch',
             [
-                BinarySearch.PARAMETER_ARRAY_SOURCE,
+                BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE,
                 BinarySearch.PARAMETER_INT_SOURCE_FROM,
-                BinarySearch.PARAMETER_ANY_NOT_NULL,
+                BinarySearch.PARAMETER_FIND_PRIMITIVE,
                 BinarySearch.PARAMETER_INT_LENGTH,
             ],
             BinarySearch.EVENT_INDEX,
@@ -30,7 +30,7 @@ export class BinarySearch extends AbstractArrayFunction {
 
         let find: any = context
             ?.getArguments()
-            ?.get(BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.get(BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName());
 
         let end: number = context
             ?.getArguments()

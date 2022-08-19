@@ -25,45 +25,67 @@ export abstract class AbstractStringFunction extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected static readonly PARAMETER_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_STRING: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_STRING_NAME,
+        Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME),
+    );
 
-    protected static readonly PARAMETER_SECOND_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME));
+    protected static readonly PARAMETER_SECOND_STRING: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_SECOND_STRING_NAME,
+        Schema.ofString(AbstractStringFunction.PARAMETER_SECOND_STRING_NAME),
+    );
 
-    protected static readonly PARAMETER_THIRD_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME));
+    protected static readonly PARAMETER_THIRD_STRING: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_THIRD_STRING_NAME,
+        Schema.ofString(AbstractStringFunction.PARAMETER_THIRD_STRING_NAME),
+    );
 
-    protected static readonly PARAMETER_INDEX: Parameter =new Parameter(AbstractStringFunction.PARAMETER_INDEX_NAME,Schema.ofInteger(AbstractStringFunction.PARAMETER_INDEX_NAME));
+    protected static readonly PARAMETER_INDEX: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_INDEX_NAME,
+        Schema.ofInteger(AbstractStringFunction.PARAMETER_INDEX_NAME),
+    );
 
-    protected static readonly PARAMETER_SECOND_INDEX: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME,Schema.ofInteger(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME));
+    protected static readonly PARAMETER_SECOND_INDEX: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME,
+        Schema.ofInteger(AbstractStringFunction.PARAMETER_SECOND_INDEX_NAME),
+    );
 
-    protected static readonly PARAMETER_SEARCH_STRING: Parameter =new Parameter(AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME,Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME));
+    protected static readonly PARAMETER_SEARCH_STRING: Parameter = new Parameter(
+        AbstractStringFunction.PARAMETER_SEARCH_STRING_NAME,
+        Schema.ofString(AbstractStringFunction.PARAMETER_STRING_NAME),
+    );
 
-    protected static readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
-            MapUtil.of(
-                AbstractStringFunction.EVENT_RESULT_NAME,
-                Schema.ofString(AbstractStringFunction.EVENT_RESULT_NAME),
-            ),
-        );
+    protected static readonly EVENT_STRING: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractStringFunction.EVENT_RESULT_NAME,
+            Schema.ofString(AbstractStringFunction.EVENT_RESULT_NAME),
+        ),
+    );
 
-    protected static readonly EVENT_BOOLEAN: Event =new Event(Event.OUTPUT,
-            MapUtil.of(
-                AbstractStringFunction.EVENT_RESULT_NAME,
-                Schema.ofBoolean(AbstractStringFunction.EVENT_RESULT_NAME),
-            ),
-        );
+    protected static readonly EVENT_BOOLEAN: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractStringFunction.EVENT_RESULT_NAME,
+            Schema.ofBoolean(AbstractStringFunction.EVENT_RESULT_NAME),
+        ),
+    );
 
-    protected static readonly EVENT_INT: Event =new Event(Event.OUTPUT,
-            MapUtil.of(
-                AbstractStringFunction.EVENT_RESULT_NAME,
-                Schema.ofInteger(AbstractStringFunction.EVENT_RESULT_NAME),
-            ),
-        );
+    protected static readonly EVENT_INT: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractStringFunction.EVENT_RESULT_NAME,
+            Schema.ofInteger(AbstractStringFunction.EVENT_RESULT_NAME),
+        ),
+    );
 
-    protected static readonly EVENT_ARRAY: Event =new Event(Event.OUTPUT,
-            MapUtil.of(
-                AbstractStringFunction.EVENT_RESULT_NAME,
-                Schema.ofArray(AbstractStringFunction.EVENT_RESULT_NAME),
-            ),
-        );
+    protected static readonly EVENT_ARRAY: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(
+            AbstractStringFunction.EVENT_RESULT_NAME,
+            Schema.ofArray(AbstractStringFunction.EVENT_RESULT_NAME),
+        ),
+    );
 
     private signature: FunctionSignature;
 
