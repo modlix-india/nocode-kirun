@@ -240,7 +240,7 @@ test('indexof test 5', () => {
     let js4: object = {
         boolean: false,
         array: array1,
-        char: 'o',
+        char: 'oa',
     };
 
     let arr: any[] = [js1, js2, js1, js3, js3, js4, js1];

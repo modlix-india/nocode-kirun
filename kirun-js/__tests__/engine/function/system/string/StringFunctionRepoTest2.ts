@@ -110,6 +110,16 @@ test('string function repo 2', () => {
     expect(
         fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
+});
+
+test('string function repo 3', () => {
+    let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
+
+    if (!fun) {
+        throw new Error('Function not available');
+    }
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
         MapUtil.of(

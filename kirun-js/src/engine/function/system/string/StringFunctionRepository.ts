@@ -9,8 +9,8 @@ export class StringFunctionRepository implements Repository<Function> {
         AbstractStringFunction.ofEntryString('Trim', (e) => e.trim()),
         AbstractStringFunction.ofEntryString('LowerCase', (e) => e.toLocaleLowerCase()),
         AbstractStringFunction.ofEntryString('UpperCase', (e) => e.toUpperCase()),
-        AbstractStringFunction.ofEntryStringBooleanOutput('Blank', (e) => e.trim() == ''),
-        AbstractStringFunction.ofEntryStringBooleanOutput('Empty', (e) => e == ''),
+        AbstractStringFunction.ofEntryStringBooleanOutput('IsBlank', (e) => e.trim() === ''),
+        AbstractStringFunction.ofEntryStringBooleanOutput('IsEmpty', (e) => e === ''),
 
         AbstractStringFunction.ofEntryAsStringBooleanOutput(
             'Contains',

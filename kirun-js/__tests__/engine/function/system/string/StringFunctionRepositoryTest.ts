@@ -79,15 +79,13 @@ test('StringFunctionRepo -UpperCase', () => {
 });
 
 test('StringFunctionRepo -Blank1', () => {
-    let fun = repo.find(Namespaces.STRING, 'Blank');
+    let fun = repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
     }
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
-    fep.setArguments(
-        MapUtil.of<string, string | number>(AbstractStringFunction.PARAMETER_STRING_NAME, ''),
-    );
+    fep.setArguments(MapUtil.of<string, string>(AbstractStringFunction.PARAMETER_STRING_NAME, ''));
 
     expect(
         fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
@@ -95,7 +93,7 @@ test('StringFunctionRepo -Blank1', () => {
 });
 
 test('StringFunctionRepo -Blank2', () => {
-    let fun = repo.find(Namespaces.STRING, 'Blank');
+    let fun = repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -114,7 +112,7 @@ test('StringFunctionRepo -Blank2', () => {
 });
 
 test('StringFunctionRepo -Empty1', () => {
-    let fun = repo.find(Namespaces.STRING, 'Empty');
+    let fun = repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -130,7 +128,7 @@ test('StringFunctionRepo -Empty1', () => {
 });
 
 test('StringFunctionRepo -Empty2', () => {
-    let fun = repo.find(Namespaces.STRING, 'Empty');
+    let fun = repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
     }

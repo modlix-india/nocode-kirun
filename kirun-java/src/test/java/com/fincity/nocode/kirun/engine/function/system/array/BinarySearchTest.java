@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
@@ -28,9 +27,9 @@ class BinarySearchTest {
 		var search = new JsonPrimitive(20);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName(), src,
+				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
-						BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName(), search,
+						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), search,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 		BinarySearch bs = new BinarySearch();
 
@@ -49,9 +48,9 @@ class BinarySearchTest {
 		src.add(1233);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName(), src,
+				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
-						BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName(), JsonNull.INSTANCE,
+						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), JsonNull.INSTANCE,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 		BinarySearch bs = new BinarySearch();
 
@@ -78,9 +77,9 @@ class BinarySearchTest {
 		var res = new JsonPrimitive('c');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
+				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
-						BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName(), res,
+						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), res,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(8)));
 		BinarySearch bs = new BinarySearch();
 
@@ -108,9 +107,36 @@ class BinarySearchTest {
 		var res = new JsonPrimitive('z');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
+				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-1),
-						BinarySearch.PARAMETER_ANY_NOT_NULL.getParameterName(), res,
+						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), res,
+						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
+		BinarySearch bs = new BinarySearch();
+
+		assertThrows(SchemaValidationException.class, () -> bs.execute(fep));
+	}
+	
+	@Test
+	void test5() {
+
+		JsonArray arr = new JsonArray();
+		arr.add('a');
+		arr.add('b');
+		arr.add('c');
+		arr.add('d');
+		arr.add('e');
+		arr.add('g');
+		arr.add('i');
+		arr.add('j');
+		arr.add('k');
+		arr.add('r');
+		arr.add('s');
+		arr.add('z');
+
+		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
+						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(4),
+						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), new JsonArray(),
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
 		BinarySearch bs = new BinarySearch();
 

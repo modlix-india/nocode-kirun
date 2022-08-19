@@ -90,6 +90,18 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         Schema.ofBoolean('ascending').setDefaultValue(false),
     );
 
+    public static readonly PARAMETER_FIND_PRIMITIVE: Parameter = Parameter.of(
+        'findPrimitive',
+        Schema.of(
+            'findPrimitive',
+            SchemaType.STRING,
+            SchemaType.DOUBLE,
+            SchemaType.FLOAT,
+            SchemaType.INTEGER,
+            SchemaType.LONG,
+        ),
+    );
+
     public static readonly PARAMETER_ARRAY_SOURCE: Parameter = Parameter.of(
         'source',
         Schema.ofArray('eachSource', Schema.ofAny('eachSource')),
