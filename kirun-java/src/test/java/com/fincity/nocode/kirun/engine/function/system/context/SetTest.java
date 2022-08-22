@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -43,7 +44,30 @@ class SetTest {
 		        .getAsJsonObject()
 		        .get("c")
 		        .getAsJsonArray()
-		        .get(2));
+		        .get(2)
+		        .getAsJsonObject()
+		        .get("d"));
+
+	}
+	
+	@Test
+	void testFirstLevelArray() {
+
+		Set setFunction = new Set();
+
+		FunctionExecutionParameters fep = new FunctionExecutionParameters();
+
+		Map<String, ContextElement> contextMap = new HashMap<>();
+		contextMap.put("a", new ContextElement(Schema.ofAny("test"), new JsonArray()));
+		fep.setContext(contextMap);
+		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a[1]"), "value", new JsonPrimitive(240)));
+
+		setFunction.execute(fep);
+
+		assertEquals(new JsonPrimitive(240), contextMap.get("a")
+		        .getElement()
+		        .getAsJsonArray()
+		        .get(1));
 
 	}
 

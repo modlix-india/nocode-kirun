@@ -25,15 +25,11 @@ import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionToken;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionTokenValue;
 import com.fincity.nocode.kirun.engine.runtime.expression.Operation;
-import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
-import reactor.util.function.Tuple2;
 
 public class Set extends AbstractFunction {
 
@@ -102,6 +98,14 @@ public class Set extends AbstractFunction {
 				                new ExpressionEvaluator(ex).evaluate(context.getValuesMap())));
 		}
 
+		// TODO: Here I need to validate the schema of the value I have to put in the
+		// context.
+
+		return modifyContext(context, key, value, exp);
+	}
+
+	private FunctionOutput modifyContext(FunctionExecutionParameters context, String key, JsonElement value,
+	        Expression exp) {
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
 		tokens.removeLast();
 		LinkedList<Operation> ops = exp.getOperations();
@@ -121,108 +125,106 @@ public class Set extends AbstractFunction {
 		}
 
 		JsonElement el = ce.getElement();
-		JsonElement prev = el;
+
 		Operation op = ops.removeLast();
-		ExpressionToken token;
-		JsonPrimitive mem = null;
+		ExpressionToken token = tokens.removeLast();
+		String mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
+		        .getAsString() : token.getExpression();
 
-		while (ops.size() > 1 && el != null) {
-
-			prev = el;
+		if (el == null || el.isJsonNull()) {
+			el = op == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
+			ce.setElement(el);
+		}
+		
+		while (!ops.isEmpty()) {
+		
+			if (op == Operation.OBJECT_OPERATOR) {
+				el = this.getDataFromObject(el, mem, ops.peekLast());
+			}else {
+				el = this.getDataFromArray(el, mem, ops.peekLast());
+			}
+			
 			op = ops.removeLast();
 			token = tokens.removeLast();
-
-			if (op == Operation.OBJECT_OPERATOR) {
-
-				if (!el.isJsonObject()) {
-					throw new KIRuntimeException(StringFormatter.format("$ has no object in the context", key));
-				}
-
-				mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
-				        .getAsJsonPrimitive() : new JsonPrimitive(token.getExpression());
-
-				el = el.getAsJsonObject()
-				        .get(mem.getAsString());
-			} else {
-				mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
-				        .getAsJsonPrimitive() : new JsonPrimitive(token.getExpression());
-
-				if (el.isJsonArray()) {
-
-					Tuple2<SchemaType, Object> prim = PrimitiveUtil.findPrimitive(mem);
-
-					if (prim.getT1() != SchemaType.INTEGER || prim.getT1() != SchemaType.LONG) {
-						throw new KIRuntimeException(
-						        StringFormatter.format("Expecting a numerical index but found $", mem));
-					}
-
-					int index = ((Number) prim.getT2()).intValue();
-					JsonArray ja = el.getAsJsonArray();
-					if (index < 0 || index >= ja.size())
-						throw new KIRuntimeException(
-						        StringFormatter.format("Index out of bound while accessing $", key));
-					el = ja.get(index);
-					mem = new JsonPrimitive(index);
-				} else {
-
-					el = el.getAsJsonObject()
-					        .get(mem.getAsString());
-				}
-			}
+			mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
+			        .getAsString() : token.getExpression();
 		}
-
-		el = prev;
-		do {
-
-			if (mem != null) {
-				JsonElement je = null;
-				if (op == Operation.OBJECT_OPERATOR) {
-					je = new JsonObject();
-				} else {
-					je = new JsonArray();
-				}
-
-				if (el.isJsonObject()) {
-					el.getAsJsonObject()
-					        .add(mem.getAsString(), je);
-				} else if (el.isJsonArray()) {
-					JsonArray arr = el.getAsJsonArray();
-					int ind = mem.getAsInt();
-					while (ind >= arr.size())
-						arr.add(JsonNull.INSTANCE);
-					arr.set(ind, je);
-				}
-				el = je;
-			}
-
-			if (!ops.isEmpty())
-				op = ops.removeLast();
-			if (!tokens.isEmpty()) {
-				token = tokens.removeLast();
-				mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
-				        .getAsJsonPrimitive() : new JsonPrimitive(token.getExpression());
-			}
-
-		} while (!ops.isEmpty() && !tokens.isEmpty());
-
-		// TODO: Here I need to validate the schema of the value I have to put in the
-		// context.
-
-		if (mem != null) {
-
-			if (el.isJsonObject()) {
-				el.getAsJsonObject()
-				        .add(mem.getAsString(), value);
-			} else if (el.isJsonArray()) {
-				JsonArray arr = el.getAsJsonArray();
-				int ind = mem.getAsInt();
-				while (ind >= arr.size())
-					arr.add(JsonNull.INSTANCE);
-				arr.set(ind, value);
-			}
-		}
-
+		
+		if (op == Operation.OBJECT_OPERATOR)
+			this.putDataInObject(el, mem, value);
+		else
+			this.putDataInArray(el, mem, value);
+		
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}
 
+	private JsonElement getDataFromArray(JsonElement el, String mem, Operation nextOp) {
+		
+		if (!el.isJsonArray())
+			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", el));
+		
+		try {
+			int index = Integer.parseInt(mem);
+			
+			if (index < 0)
+				throw new KIRuntimeException(StringFormatter.format("Array index is out of bound - $", mem));
+			
+			JsonArray ja = el.getAsJsonArray();
+			while (index >= ja.size())
+				ja.add(JsonNull.INSTANCE);
+			
+			JsonElement je = ja.get(index);
+			if (je == null || je.isJsonNull()) {
+				je = nextOp == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
+				ja.set(index, je);
+			}
+			return je;
+		}catch (Exception ex) {
+			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));	
+		}
+	}
+
+	private JsonElement getDataFromObject(JsonElement el, String mem, Operation nextOp) {
+		
+		if (!el.isJsonObject())
+			throw new KIRuntimeException(StringFormatter.format("Expected an object but found $", el));
+		
+		JsonObject jo = el.getAsJsonObject();
+		JsonElement je = jo.get(mem);
+		
+		if (je == null || je.isJsonNull()) {
+			je = nextOp == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
+			jo.add(mem, je);
+		}
+		return je;
+	}
+
+	private void putDataInArray(JsonElement el, String mem, JsonElement value) {
+		
+		if (!el.isJsonArray())
+			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", el));
+		
+		try {
+			int index = Integer.parseInt(mem);
+			
+			if (index < 0)
+				throw new KIRuntimeException(StringFormatter.format("Array index is out of bound - $", mem));
+			
+			JsonArray ja = el.getAsJsonArray();
+			while (index >= ja.size())
+				ja.add(JsonNull.INSTANCE);
+			
+			ja.set(index, value);
+		}catch (Exception ex) {
+			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));	
+		}
+	}
+
+	private void putDataInObject(JsonElement el, String mem, JsonElement value) {
+	
+		if (!el.isJsonObject())
+			throw new KIRuntimeException(StringFormatter.format("Expected an object but found $", el));
+		
+		el.getAsJsonObject().add(mem, value);
+	}
 }
