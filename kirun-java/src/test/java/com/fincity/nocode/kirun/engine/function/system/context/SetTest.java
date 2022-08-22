@@ -28,15 +28,23 @@ class SetTest {
 		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a.b"), "value", new JsonPrimitive(20)));
 
 		setFunction.execute(fep);
-		
-		assertEquals(new JsonPrimitive(20), contextMap.get("a").getElement().getAsJsonObject().get("b"));
-		
+
+		assertEquals(new JsonPrimitive(20), contextMap.get("a")
+		        .getElement()
+		        .getAsJsonObject()
+		        .get("b"));
+
 		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a.c[2].d"), "value", new JsonPrimitive(25)));
-		
+
 		setFunction.execute(fep);
-		
-		System.out.println(contextMap);
-		
+
+		assertEquals(new JsonPrimitive(25), contextMap.get("a")
+		        .getElement()
+		        .getAsJsonObject()
+		        .get("c")
+		        .getAsJsonArray()
+		        .get(2));
+
 	}
 
 }
