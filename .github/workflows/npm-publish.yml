@@ -19,7 +19,9 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
+        working-directory: ./kirun-js
       - run: npm run build
+        working-directory: ./kirun-js
 
   publish-npm:
     needs: build
@@ -34,7 +36,10 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: npm ci
+        working-directory: ./kirun-js
       - run: npm run build
-      - run: npm publish --access public     
+        working-directory: ./kirun-js
+      - run: npm publish --access public
+        working-directory: ./kirun-js    
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
