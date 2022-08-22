@@ -83,6 +83,9 @@ public abstract class AbstractArrayFunction extends AbstractFunction {
 	protected static final Parameter PARAMETER_ANY_NOT_NULL = Parameter.of("elementObject",
 			Schema.ofAnyNotNull("elementObject"));
 
+	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of("element", Schema.ofAny("element"))
+			.setVariableArgument(true);
+
 	protected static final Parameter PARAMETER_ARRAY_RESULT = Parameter.of(EVENT_RESULT_NAME,
 			Schema.ofArray("eachResult", Schema.ofAny("eachResult")));
 
