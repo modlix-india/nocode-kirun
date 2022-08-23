@@ -134,7 +134,7 @@ export class Expression extends ExpressionToken {
 
         for (let size = start; size > 0; size--) {
             let op: string = this.expression.substring(i, i + size);
-            if (Operation.OPERATORS.has(op)) {
+            if (Operation.OPERATORS_WITHOUT_SPACE_WRAP.has(op)) {
                 if (!StringUtil.isNullOrBlank(buff)) {
                     this.tokens.push(new ExpressionToken(buff));
                     isPrevOp = false;
@@ -236,14 +236,12 @@ export class Expression extends ExpressionToken {
         op: Operation | undefined,
         isPrevOp: boolean,
     ): void {
-        if(!op) return;
+        if (!op) return;
         if (isPrevOp || tokens.isEmpty()) {
-            if (Operation.UNARY_OPERATORS.has(op)){
+            if (Operation.UNARY_OPERATORS.has(op)) {
                 const x = Operation.UNARY_MAP.get(op);
-                if(x)
-                    ops.push(x);  
-            } 
-            else
+                if (x) ops.push(x);
+            } else
                 throw new ExpressionEvaluationException(
                     this.expression,
                     StringFormatter.format('Extra operator $ found.', op),
@@ -269,7 +267,7 @@ export class Expression extends ExpressionToken {
     private hasPrecedence(op1: Operation, op2: Operation): boolean {
         let pre1: number | undefined = Operation.OPERATOR_PRIORITY.get(op1);
         let pre2: number | undefined = Operation.OPERATOR_PRIORITY.get(op2);
-        if(!pre1 || !pre2) {
+        if (!pre1 || !pre2) {
             throw new Error('Unknown operators provided');
         }
         return pre2 < pre1;
