@@ -31,6 +31,12 @@ class ExpressionTest {
 		assertEquals("(Context.(a[((Steps.(loop.(iteration.index)))[((Steps.(loop.(iteration.index)))+1))))", arrays.toString());
 		assertEquals("(Context.(a.(b.c)))", deepObject.toString());
 		assertEquals("(Context.(a.(b[(2.c))))", deepObjectWithArray.toString());
+		
+		Expression opInTheName = new Expression("Store.a.b.c or Store.c.d.x");
+		assertEquals("((Store.(a.(b.c)))or(Store.(c.(d.x))))", opInTheName.toString());
+		
+		opInTheName = new Expression("Store.a.b.corStore.c.d.x");
+		assertEquals("(Store.(a.(b.(corStore.(c.(d.x))))))", opInTheName.toString());
 	}
 
 }

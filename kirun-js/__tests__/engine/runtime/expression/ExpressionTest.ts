@@ -30,4 +30,10 @@ test('Expression Test', () => {
     );
     expect(deepObject.toString()).toBe('(Context.(a.(b.c)))');
     expect(deepObjectWithArray.toString()).toBe('(Context.(a.(b[(2.c))))');
+
+    let opInTheName = new Expression('Store.a.b.c or Store.c.d.x');
+    expect(opInTheName.toString()).toBe('((Store.(a.(b.c)))or(Store.(c.(d.x))))');
+
+    opInTheName = new Expression('Store.a.b.corStore.c.d.x');
+    expect(opInTheName.toString()).toBe('(Store.(a.(b.(corStore.(c.(d.x))))))');
 });
