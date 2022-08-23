@@ -42,16 +42,11 @@ export class Delete extends AbstractArrayFunction {
         for (let i: number = source.length - 1; i >= 0; i--) {
             for (let j: number = 0; j < receivedArgs.length; j++) {
                 if (!indexes.has(i) && PrimitiveUtil.compare(source[i], receivedArgs[j]) == 0)
-                    indexes.add(i);
+                    indexes.add(source[i]);
             }
         }
 
-        console.log(indexes);
-
-        for (let i: number = 0; i <= source.length - 1; i++) {
-            if (!indexes.has(i)) duplicateResource.push(source[i]);
-        }
-        console.log(duplicateResource);
+        duplicateResource = source.filter((value) => !indexes.has(value));
 
         source.splice(0, source.length, ...duplicateResource);
 

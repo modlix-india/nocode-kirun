@@ -189,4 +189,32 @@ class DeleteTest {
 		assertEquals(res, arr);
 
 	}
+	
+	@Test
+	void failingTest() {
+		
+		var arr1 = new JsonArray();
+		arr1.add("nocode");
+		arr1.add("platform");
+		arr1.add(14);
+		
+		var delArr = new JsonArray();
+		
+		delArr.add("platform");
+		delArr.add(14);
+		
+		Delete del = new Delete();
+
+		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
+						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), delArr))
+				.setSteps(Map.of()).setContext(Map.of());
+
+		del.execute(fep);
+		
+		var res = new JsonArray();
+		res.add("nocode");
+
+		assertEquals(res, arr1);
+	}
 }

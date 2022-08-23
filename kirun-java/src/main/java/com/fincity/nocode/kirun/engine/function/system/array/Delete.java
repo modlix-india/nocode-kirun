@@ -1,9 +1,8 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -33,11 +32,8 @@ public class Delete extends AbstractArrayFunction {
 		if (source.isEmpty() || deletable.isEmpty())
 			throw new KIRuntimeException("Expected a source or deletable for an array but not found any");
 
-		Set<Integer> indexes = new HashSet<>();
-		JsonArray duplicateSource = new JsonArray();
-		duplicateSource.addAll(source); // to have reference as the size of the source is continuously changing after
-										// removing any index or element
-
+		List<Integer> indexes = new ArrayList<>();
+		
 		for (int i = source.size() - 1; i >= 0; i--) {
 			for (int j = 0; j < deletable.size(); j++) {
 				if (!indexes.contains(i) && (PrimitiveUtil.compare(source.get(i), deletable.get(j)) == 0))
@@ -45,7 +41,7 @@ public class Delete extends AbstractArrayFunction {
 			}
 		}
 
-		indexes.stream().forEach(index -> source.remove(duplicateSource.get(index)));
+		indexes.stream().forEach(source::remove);
 
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}
