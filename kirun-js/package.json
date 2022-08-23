@@ -1,17 +1,16 @@
 {
     "name": "@fincity/kirun-js",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Javascript Runtime for Kinetic Instructions",
+    "type": "module",
     "source": "src/index.ts",
     "main": "dist/index.js",
-    "module": "dist/module.js",
     "types": "dist/types.d.ts",
     "targets": {
         "main": {
-            "optimize": true
-        },
-        "module": {
-            "optimize": true
+            "optimize": true,
+            "outputFormat": "esmodule",
+            "isLibrary": true
         }
     },
     "scripts": {
