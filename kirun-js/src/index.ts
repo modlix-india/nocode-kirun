@@ -22,5 +22,6 @@ export * from './engine/util/LinkedList';
 export * from './engine/util/NullCheck';
 export * from './engine/util/string/StringFormatter';
 export * from './engine/util/string/StringUtil';
+export * from './engine/util/Tuples';
 export * from './engine/runtime/expression/operators/binary';
 export * from './engine/runtime/expression/operators/unary';
