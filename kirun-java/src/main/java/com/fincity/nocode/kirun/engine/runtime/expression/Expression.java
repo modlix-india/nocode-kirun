@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OPERATORS;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OPERATORS_WITHOUT_SPACE_WRAP;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OPERATOR_PRIORITY;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MAP;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_OPERATORS;
@@ -136,7 +137,7 @@ public class Expression extends ExpressionToken {
 
 		for (int size = start; size > 0; size--) {
 			String op = this.expression.substring(i, i + size);
-			if (OPERATORS.contains(op)) {
+			if (OPERATORS_WITHOUT_SPACE_WRAP.contains(op)) {
 				if (!buff.isBlank()) {
 					tokens.push(new ExpressionToken(buff));
 					isPrevOp = false;
