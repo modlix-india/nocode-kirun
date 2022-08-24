@@ -1,7 +1,7 @@
 import { SubArray } from '../../../../../src/engine/function/system/array/SubArray';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('SubArray of Test 1', () => {
+test('SubArray of Test 1', async () => {
     let sub: SubArray = new SubArray();
 
     let array: any[] = [];
@@ -44,11 +44,14 @@ test('SubArray of Test 1', () => {
     );
 
     expect(
-        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+        (await sub.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
     ).toStrictEqual(res);
 });
 
-test('SubArray of Test 2', () => {
+test('SubArray of Test 2', async () => {
     let sub: SubArray = new SubArray();
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
@@ -62,10 +65,10 @@ test('SubArray of Test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => sub.execute(fep)).toThrow();
+    await expect(sub.execute(fep)).rejects.toThrow();
 });
 
-test('SubArray of Test 5', () => {
+test('SubArray of Test 5', async () => {
     let sub: SubArray = new SubArray();
 
     let array: any[] = [];
@@ -99,11 +102,14 @@ test('SubArray of Test 5', () => {
     );
 
     expect(
-        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+        (await sub.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
     ).toStrictEqual(res);
 });
 
-test('SubArray of Test 3', () => {
+test('SubArray of Test 3', async () => {
     let sub: SubArray = new SubArray();
 
     let array: any[] = [];
@@ -136,10 +142,10 @@ test('SubArray of Test 3', () => {
         ]),
     );
 
-    expect(() => sub.execute(fep)).toThrow();
+    await expect(sub.execute(fep)).rejects.toThrow();
 });
 
-test('SubArray of Test 4', () => {
+test('SubArray of Test 4', async () => {
     let sub: SubArray = new SubArray();
 
     let array1: any[] = [];
@@ -231,6 +237,9 @@ test('SubArray of Test 4', () => {
         ]),
     );
     expect(
-        sub.execute(fep).allResults()[0].getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()),
+        (await sub.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
     ).toStrictEqual(res);
 });

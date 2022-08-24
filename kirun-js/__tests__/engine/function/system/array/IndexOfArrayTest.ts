@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let ioa: IndexOfArray = new IndexOfArray();
 
-test('index of array 1', () => {
+test('index of array 1', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -29,15 +29,14 @@ test('index of array 1', () => {
     );
 
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(1);
 });
 
-test('Index of array 2', () => {
+test('Index of array 2', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -64,15 +63,14 @@ test('Index of array 2', () => {
     );
 
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(5);
 });
 
-test('index of array 3', () => {
+test('index of array 3', async () => {
     let array1: any[] = [];
     array1.push('test');
     array1.push('Driven');
@@ -161,15 +159,14 @@ test('index of array 3', () => {
     );
 
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(7);
 });
 
-test('index of array test 4', () => {
+test('index of array test 4', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -195,15 +192,14 @@ test('index of array test 4', () => {
     );
 
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(-1);
 });
 
-test('index of array 5', () => {
+test('index of array 5', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -226,15 +222,14 @@ test('index of array 5', () => {
         ]),
     );
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(6);
 });
 
-test('index of array 6', () => {
+test('index of array 6', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -246,10 +241,10 @@ test('index of array 6', () => {
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
         ]),
     );
-    expect(() => ioa.execute(fep)).toThrow();
+    await expect(ioa.execute(fep)).rejects.toThrow();
 });
 
-test('index of array 3', () => {
+test('index of array 3', async () => {
     let array1: any[] = [];
     array1.push('test');
     array1.push('Driven');
@@ -338,8 +333,7 @@ test('index of array 3', () => {
     );
 
     expect(
-        ioa
-            .execute(fep)
+        (await ioa.execute(fep))
             .allResults()[0]
             .getResult()
             .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),

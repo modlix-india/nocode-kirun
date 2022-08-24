@@ -6,7 +6,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const repo = new StringFunctionRepository();
 
-test('StringFunctionRepository - Trim', () => {
+test('StringFunctionRepository - Trim', async () => {
     let fun = repo.find(Namespaces.STRING, 'Trim');
     if (!fun) {
         throw new Error('Function not available');
@@ -14,11 +14,14 @@ test('StringFunctionRepository - Trim', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(MapUtil.of(AbstractStringFunction.PARAMETER_STRING_NAME, ' Kiran '));
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe('Kiran');
 });
 
-test('StringFunctionRepo -Repeat', () => {
+test('StringFunctionRepo -Repeat', async () => {
     let fun = repo.find(Namespaces.STRING, 'Repeat');
     if (!fun) {
         throw new Error('Function not available');
@@ -35,11 +38,14 @@ test('StringFunctionRepo -Repeat', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(' surendhar  surendhar  surendhar ');
 });
 
-test('StringFunctionRepo -Lowercase', () => {
+test('StringFunctionRepo -Lowercase', async () => {
     let fun = repo.find(Namespaces.STRING, 'LowerCase');
     if (!fun) {
         throw new Error('Function not available');
@@ -55,11 +61,14 @@ test('StringFunctionRepo -Lowercase', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(' surendhar ');
 });
 
-test('StringFunctionRepo -UpperCase', () => {
+test('StringFunctionRepo -UpperCase', async () => {
     let fun = repo.find(Namespaces.STRING, 'UpperCase');
     if (!fun) {
         throw new Error('Function not available');
@@ -74,11 +83,14 @@ test('StringFunctionRepo -UpperCase', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(' SURENDHAR ');
 });
 
-test('StringFunctionRepo -Blank1', () => {
+test('StringFunctionRepo -Blank1', async () => {
     let fun = repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
@@ -88,11 +100,14 @@ test('StringFunctionRepo -Blank1', () => {
     fep.setArguments(MapUtil.of<string, string>(AbstractStringFunction.PARAMETER_STRING_NAME, ''));
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 });
 
-test('StringFunctionRepo -Blank2', () => {
+test('StringFunctionRepo -Blank2', async () => {
     let fun = repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
@@ -107,11 +122,14 @@ test('StringFunctionRepo -Blank2', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(false);
 });
 
-test('StringFunctionRepo -Empty1', () => {
+test('StringFunctionRepo -Empty1', async () => {
     let fun = repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
@@ -123,11 +141,14 @@ test('StringFunctionRepo -Empty1', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 });
 
-test('StringFunctionRepo -Empty2', () => {
+test('StringFunctionRepo -Empty2', async () => {
     let fun = repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
@@ -139,6 +160,9 @@ test('StringFunctionRepo -Empty2', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(false);
 });

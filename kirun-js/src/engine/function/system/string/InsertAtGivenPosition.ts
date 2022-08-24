@@ -17,15 +17,25 @@ export class InsertAtGivenPosition extends AbstractFunction {
 
     protected readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_STRING: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_STRING_NAME,Schema.ofString(InsertAtGivenPosition.PARAMETER_STRING_NAME));
+    protected readonly PARAMETER_STRING: Parameter = new Parameter(
+        InsertAtGivenPosition.PARAMETER_STRING_NAME,
+        Schema.ofString(InsertAtGivenPosition.PARAMETER_STRING_NAME),
+    );
 
-    protected readonly PARAMETER_AT_POSITION: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME,Schema.ofInteger(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME));
+    protected readonly PARAMETER_AT_POSITION: Parameter = new Parameter(
+        InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME,
+        Schema.ofInteger(InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME),
+    );
 
-    protected readonly PARAMETER_INSERT_STRING: Parameter =new Parameter(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME,Schema.ofString(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME));
+    protected readonly PARAMETER_INSERT_STRING: Parameter = new Parameter(
+        InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME,
+        Schema.ofString(InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME),
+    );
 
-    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
-            new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
-        );
+    protected readonly EVENT_STRING: Event = new Event(
+        Event.OUTPUT,
+        new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
+    );
 
     private signature: FunctionSignature = new FunctionSignature('InsertAtGivenPosition')
         .setNamespace(Namespaces.STRING)
@@ -48,7 +58,7 @@ export class InsertAtGivenPosition extends AbstractFunction {
         return this.signature;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let inputString: string = context
             ?.getArguments()
             ?.get(InsertAtGivenPosition.PARAMETER_STRING_NAME);

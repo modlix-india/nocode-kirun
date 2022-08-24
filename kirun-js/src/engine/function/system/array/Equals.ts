@@ -20,10 +20,10 @@ export class Equals extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let compare: Compare = new Compare();
 
-        let fo: FunctionOutput = compare.execute(context);
+        let fo: FunctionOutput = await compare.execute(context);
 
         let resultMap: Map<string, any> = fo.allResults()[0].getResult();
 

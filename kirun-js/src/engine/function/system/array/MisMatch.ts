@@ -19,7 +19,7 @@ export class MisMatch extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let firstSource: any[] = context
             ?.getArguments()
             ?.get(MisMatch.PARAMETER_ARRAY_SOURCE.getParameterName());

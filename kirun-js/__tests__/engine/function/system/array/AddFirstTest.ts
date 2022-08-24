@@ -1,8 +1,9 @@
+import { SchemaValidationException } from '../../../../../src';
 import { AddFirst } from '../../../../../src/engine/function/system/array/AddFirst';
 
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Add Test 1', () => {
+test('Add Test 1', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let source: any[] = ['c', 'p', 3, 4, 5];
@@ -21,12 +22,12 @@ test('Add Test 1', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    addFirst.execute(fep);
+    await addFirst.execute(fep);
 
     expect(source).toStrictEqual(temp2);
 });
 
-test('Add Test 2', () => {
+test('Add Test 2', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let source: any[] = ['a', 'b', 'c', 'd', 'a', 'b', 'c', 'e', 'd'];
@@ -45,12 +46,12 @@ test('Add Test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    addFirst.execute(fep);
+    await addFirst.execute(fep);
 
     expect(source).toStrictEqual(temp2);
 });
 
-test('Add Test 3', () => {
+test('Add Test 3', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let source: any[] = [
@@ -92,12 +93,12 @@ test('Add Test 3', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    addFirst.execute(fep);
+    await addFirst.execute(fep);
 
     expect(source).toStrictEqual(temp2);
 });
 
-test('Add Test 5', () => {
+test('Add Test 5', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let source1: any[] = [
@@ -189,12 +190,12 @@ test('Add Test 5', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    addFirst.execute(fep);
+    await addFirst.execute(fep);
 
     expect(source).toStrictEqual(temp2);
 });
 
-test('Add Test 4', () => {
+test('Add Test 4', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let temp: any = 'a';
@@ -211,10 +212,10 @@ test('Add Test 4', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => addFirst.execute(fep)).toThrow();
+    await expect(() => addFirst.execute(fep)).rejects.toThrow();
 });
 
-test('Add Test 5', () => {
+test('Add Test 5', async () => {
     let addFirst: AddFirst = new AddFirst();
 
     let temp: any = null;
@@ -231,5 +232,5 @@ test('Add Test 5', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => addFirst.execute(fep)).toThrow();
+    await expect(addFirst.execute(fep)).rejects.toThrow();
 });

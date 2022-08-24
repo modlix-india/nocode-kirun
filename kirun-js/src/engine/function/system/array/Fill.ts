@@ -21,7 +21,7 @@ export class Fill extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         var source = context?.getArguments()?.get(Fill.PARAMETER_ARRAY_SOURCE.getParameterName());
         var srcfrom = context
             ?.getArguments()

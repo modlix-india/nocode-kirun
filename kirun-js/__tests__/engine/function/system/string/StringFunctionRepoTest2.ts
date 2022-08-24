@@ -6,7 +6,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const stringRepo = new StringFunctionRepository();
 
-test('StringRepo - contains', () => {
+test('StringRepo - contains', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'Contains');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
@@ -23,7 +23,10 @@ test('StringRepo - contains', () => {
         ),
     );
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 
     fep.setArguments(
@@ -35,7 +38,10 @@ test('StringRepo - contains', () => {
         ),
     );
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 
     fep.setArguments(
@@ -48,7 +54,10 @@ test('StringRepo - contains', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 
     fep.setArguments(
@@ -61,11 +70,14 @@ test('StringRepo - contains', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(false);
 });
 
-test('string function repo 2', () => {
+test('string function repo 2', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
 
     if (!fun) {
@@ -82,7 +94,10 @@ test('string function repo 2', () => {
         ),
     );
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 
     fep.setArguments(
@@ -95,7 +110,10 @@ test('string function repo 2', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 
     fep.setArguments(
@@ -108,11 +126,14 @@ test('string function repo 2', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 });
 
-test('string function repo 3', () => {
+test('string function repo 3', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
 
     if (!fun) {
@@ -131,6 +152,9 @@ test('string function repo 3', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(false);
 });

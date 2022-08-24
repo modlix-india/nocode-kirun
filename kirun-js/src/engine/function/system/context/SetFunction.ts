@@ -47,7 +47,7 @@ export class SetFunction extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let key: string = context?.getArguments()?.get(NAME);
 
         if (StringUtil.isNullOrBlank(key)) {

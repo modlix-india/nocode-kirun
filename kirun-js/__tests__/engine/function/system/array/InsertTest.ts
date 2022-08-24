@@ -1,7 +1,7 @@
 import { Insert } from '../../../../../src/engine/function/system/array/Insert';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Insert of Test 1', () => {
+test('Insert of Test 1', async () => {
     let ins: Insert = new Insert();
 
     let array: any[] = [];
@@ -54,12 +54,12 @@ test('Insert of Test 1', () => {
     res.push('Driven');
     res.push('developement');
 
-    ins.execute(fep);
+    await ins.execute(fep);
 
     expect(array).toStrictEqual(res);
 });
 
-test('Insert of Test 2', () => {
+test('Insert of Test 2', async () => {
     let ins: Insert = new Insert();
 
     let arr: any[] = [];
@@ -95,12 +95,12 @@ test('Insert of Test 2', () => {
     res.push(6);
     res.push(7);
     res.push(8);
-    ins.execute(fep);
+    await ins.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('Insert of Test 3', () => {
+test('Insert of Test 3', async () => {
     let ins: Insert = new Insert();
 
     let arr: any[] = [];
@@ -136,12 +136,12 @@ test('Insert of Test 3', () => {
     res.push(6);
     res.push(7);
     res.push(8);
-    ins.execute(fep);
+    await ins.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('Insert of Test 4', () => {
+test('Insert of Test 4', async () => {
     let ins: Insert = new Insert();
 
     let arr: any[] = [];
@@ -178,12 +178,12 @@ test('Insert of Test 4', () => {
     res.push(8);
     res.push(['this is an array']);
 
-    ins.execute(fep);
+    await ins.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('Insert of Test 5', () => {
+test('Insert of Test 5', async () => {
     let ins: Insert = new Insert();
 
     let arr: any[] = [];
@@ -202,12 +202,12 @@ test('Insert of Test 5', () => {
 
     res.push(['this is an array']);
 
-    ins.execute(fep);
+    await ins.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('Insert of Test 6', () => {
+test('Insert of Test 6', async () => {
     let ins: Insert = new Insert();
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
@@ -225,5 +225,5 @@ test('Insert of Test 6', () => {
 
     res.push(['this is an array']);
 
-    expect(() => ins.execute(fep)).toThrow();
+    await expect(ins.execute(fep)).rejects.toThrow();
 });

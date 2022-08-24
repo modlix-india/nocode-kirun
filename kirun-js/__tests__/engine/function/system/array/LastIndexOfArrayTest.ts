@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let larr: LastIndexOfArray = new LastIndexOfArray();
 
-test('Last Index of array Test 1', () => {
+test('Last Index of array Test 1', async () => {
     let array: string[] = [];
 
     array.push('a');
@@ -32,15 +32,14 @@ test('Last Index of array Test 1', () => {
         ]),
     );
     expect(
-        larr
-            .execute(fep)
+        (await larr.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(9);
 });
 
-test('last index of array test 2', () => {
+test('last index of array test 2', async () => {
     let arr: any[] = [];
     arr.push('b');
     arr.push('c');
@@ -67,15 +66,14 @@ test('last index of array test 2', () => {
     );
 
     expect(
-        larr
-            .execute(fep)
+        (await larr.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),
     ).toBe(-1);
 });
 
-test('last index of array test 3', () => {
+test('last index of array test 3', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -98,7 +96,7 @@ test('last index of array test 3', () => {
         ]),
     );
 
-    expect(() => larr.execute(fep)).toThrow();
+    await expect(larr.execute(fep)).rejects.toThrow();
 
     let fep1: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map<string, any>([
@@ -108,10 +106,10 @@ test('last index of array test 3', () => {
         ]),
     );
 
-    expect(() => larr.execute(fep1)).toThrow();
+    await expect(larr.execute(fep1)).rejects.toThrow();
 });
 
-test('last index of array test 4', () => {
+test('last index of array test 4', async () => {
     let array1: any[] = [];
 
     array1.push('test');
@@ -204,8 +202,7 @@ test('last index of array test 4', () => {
     );
 
     expect(
-        larr
-            .execute(fep)
+        (await larr.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),

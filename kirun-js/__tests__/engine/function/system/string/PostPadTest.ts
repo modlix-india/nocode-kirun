@@ -4,7 +4,7 @@ import { MapEntry, MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const reve: PostPad = new PostPad();
 
-test('postpad test1', () => {
+test('postpad test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -17,10 +17,10 @@ test('postpad test1', () => {
 
     let padded: string = ' THIScompatY IS A NOcoDE plATFNORMhiranhiranhi';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(padded);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(padded);
 });
 
-test('postpad test2', () => {
+test('postpad test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -33,10 +33,10 @@ test('postpad test2', () => {
 
     let reveresed: string = ' THIScompatY IS A NOcoDE plATFNORM h  h  h  h  h ';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(reveresed);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(reveresed);
 });
 
-test('postpad test3', () => {
+test('postpad test3', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -50,5 +50,5 @@ test('postpad test3', () => {
     let reveresed: string =
         ' THIScompatY IS A NOcoDE plATFNORM surendhar  surendhar  surendhar  surendhar  surendhar  surendhar  surendhar  surendhar  surendhar  ';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(reveresed);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(reveresed);
 });

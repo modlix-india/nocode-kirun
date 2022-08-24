@@ -60,8 +60,8 @@ export abstract class AbstractFunction implements Function {
             }, new Map<string, any>());
     }
 
-    public execute(context: FunctionExecutionParameters): FunctionOutput {
-        context.setArguments(this.validateArguments(context.getArguments()??new Map()));
+    public async execute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
+        context.setArguments(this.validateArguments(context.getArguments() ?? new Map()));
         return this.internalExecute(context);
     }
 
@@ -71,6 +71,8 @@ export abstract class AbstractFunction implements Function {
         return this.getSignature().getEvents();
     }
 
-    protected abstract internalExecute(context: FunctionExecutionParameters): FunctionOutput;
+    protected abstract internalExecute(
+        context: FunctionExecutionParameters,
+    ): Promise<FunctionOutput>;
     public abstract getSignature(): FunctionSignature;
 }

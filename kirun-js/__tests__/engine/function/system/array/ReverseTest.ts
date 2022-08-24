@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let rev: Reverse = new Reverse();
 
-test('Reverse test 1 ', () => {
+test('Reverse test 1 ', async () => {
     let src: any[] = [4, 5, 6, 7];
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
@@ -18,11 +18,11 @@ test('Reverse test 1 ', () => {
         .setSteps(new Map([]));
 
     let res = [5, 4, 6, 7];
-    rev.execute(fep);
+    await rev.execute(fep);
     expect(src).toStrictEqual(res);
 });
 
-test('Reverse test 2 ', () => {
+test('Reverse test 2 ', async () => {
     let src: any[] = [];
 
     src.push('I');
@@ -48,10 +48,10 @@ test('Reverse test 2 ', () => {
         .setContext(new Map([]))
         .setSteps(new Map([]));
 
-    expect(() => rev.execute(fep)).toThrow();
+    await expect(rev.execute(fep)).rejects.toThrow();
 });
 
-test('Reverse test 3', () => {
+test('Reverse test 3', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -73,10 +73,10 @@ test('Reverse test 3', () => {
             [Reverse.PARAMETER_INT_LENGTH.getParameterName(), arr.length],
         ]),
     );
-    expect(() => rev.execute(fep)).toThrow();
+    await expect(rev.execute(fep)).rejects.toThrow();
 });
 
-test('Rev test 4', () => {
+test('Rev test 4', async () => {
     let array1: any[] = [];
     array1.push('test');
     array1.push('Driven');
@@ -164,7 +164,7 @@ test('Rev test 4', () => {
     res.push(array3);
     res.push(array1);
 
-    rev.execute(fep);
+    await rev.execute(fep);
 
     expect(arr).toStrictEqual(res);
 
@@ -183,11 +183,11 @@ test('Rev test 4', () => {
     res1.push(array2);
     res1.push(array4);
 
-    rev.execute(fep);
+    await rev.execute(fep);
     expect(arr).toStrictEqual(res1);
 });
 
-test('rev test 5', () => {
+test('rev test 5', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -220,7 +220,7 @@ test('rev test 5', () => {
     res.push('c');
     res.push('a');
 
-    rev.execute(fep);
+    await rev.execute(fep);
     expect(arr).toStrictEqual(res);
 
     fep.setArguments(
@@ -231,5 +231,5 @@ test('rev test 5', () => {
         ]),
     );
 
-    expect(() => rev.execute(fep)).toThrow();
+    await expect(rev.execute(fep)).rejects.toThrow();
 });

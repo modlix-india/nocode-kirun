@@ -13,9 +13,7 @@ const VALUE = 'value';
 const SIGNATURE = new FunctionSignature('Maximum')
     .setNamespace(Namespaces.MATH)
     .setParameters(
-        new Map([
-            [VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)],
-        ]),
+        new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)]]),
     )
     .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]));
 
@@ -24,7 +22,7 @@ export class Maximum extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let nums: number[] = context.getArguments()?.get(VALUE);
 
         return new FunctionOutput([

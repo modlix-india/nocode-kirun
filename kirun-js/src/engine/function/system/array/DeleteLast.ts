@@ -9,7 +9,7 @@ export class DeleteLast extends AbstractArrayFunction {
         super('DeleteLast', [DeleteLast.PARAMETER_ARRAY_SOURCE], DeleteLast.EVENT_RESULT_EMPTY);
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(DeleteLast.PARAMETER_ARRAY_SOURCE.getParameterName());

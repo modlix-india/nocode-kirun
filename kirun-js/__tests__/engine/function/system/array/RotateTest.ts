@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let rotate: Rotate = new Rotate();
 
-test('Rotate test1 ', () => {
+test('Rotate test1 ', async () => {
     let array: any[] = [];
     array.push('I');
     array.push('am');
@@ -43,12 +43,12 @@ test('Rotate test1 ', () => {
     res.push('using');
     res.push('eclipse');
 
-    rotate.execute(fep);
+    await rotate.execute(fep);
 
     expect(array).toStrictEqual(res);
 });
 
-test('rotate  test 2', () => {
+test('rotate  test 2', async () => {
     let src: any[] = [];
 
     src.push('I');
@@ -89,12 +89,12 @@ test('rotate  test 2', () => {
     res.push('test');
     res.push('Driven');
 
-    rotate.execute(fep);
+    await rotate.execute(fep);
 
     expect(src).toStrictEqual(res);
 });
 
-test('rotate test 3', () => {
+test('rotate test 3', async () => {
     let array: any[] = [];
     array.push('I');
     array.push('am');
@@ -131,7 +131,7 @@ test('rotate test 3', () => {
 
     res.push('I');
 
-    rotate.execute(fep);
+    await rotate.execute(fep);
 
     expect(array).toStrictEqual(res);
 });

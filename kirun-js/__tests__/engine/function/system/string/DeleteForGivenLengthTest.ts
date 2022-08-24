@@ -5,7 +5,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const deleteT: DeleteForGivenLength = new DeleteForGivenLength();
 
-test('DeleteForGivenLength test1', () => {
+test('DeleteForGivenLength test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -18,10 +18,12 @@ test('DeleteForGivenLength test1', () => {
 
     let outputString: string = ' THIScompaNOcoDE plATFNORM';
 
-    expect(deleteT.execute(fep).allResults()[0].getResult().get('result')).toBe(outputString);
+    expect((await deleteT.execute(fep)).allResults()[0].getResult().get('result')).toBe(
+        outputString,
+    );
 });
 
-test('DeleteForGivenLength test2', () => {
+test('DeleteForGivenLength test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -34,5 +36,7 @@ test('DeleteForGivenLength test2', () => {
 
     let outputString: string = ' THItY IS A NOcoDE plATFNORM';
 
-    expect(deleteT.execute(fep).allResults()[0].getResult().get('result')).toBe(outputString);
+    expect((await deleteT.execute(fep)).allResults()[0].getResult().get('result')).toBe(
+        outputString,
+    );
 });

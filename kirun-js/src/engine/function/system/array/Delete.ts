@@ -16,7 +16,7 @@ export class Delete extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(Delete.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());

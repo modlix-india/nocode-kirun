@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let mismatch: MisMatch = new MisMatch();
 
-test('mismatch test 1', () => {
+test('mismatch test 1', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -33,15 +33,14 @@ test('mismatch test 1', () => {
     );
 
     expect(
-        mismatch
-            .execute(fep)
+        (await mismatch.execute(fep))
             .allResults()[0]
             .getResult()
             .get(MisMatch.EVENT_RESULT_INTEGER.getName()),
     ).toBe(2);
 });
 
-test('mismatch test 2', () => {
+test('mismatch test 2', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -70,10 +69,10 @@ test('mismatch test 2', () => {
         ]),
     );
 
-    expect(() => mismatch.execute(fep)).toThrow();
+    await expect(mismatch.execute(fep)).rejects.toThrow();
 });
 
-test('Mismatch test 3', () => {
+test('Mismatch test 3', async () => {
     let array1: any[] = [];
     array1.push('test');
     array1.push('Driven');
@@ -168,15 +167,14 @@ test('Mismatch test 3', () => {
     );
 
     expect(
-        mismatch
-            .execute(fep)
+        (await mismatch.execute(fep))
             .allResults()[0]
             .getResult()
             .get(MisMatch.EVENT_RESULT_INTEGER.getName()),
     ).toBe(2);
 });
 
-test('mismatch test 4', () => {
+test('mismatch test 4', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -206,8 +204,7 @@ test('mismatch test 4', () => {
     );
 
     expect(
-        mismatch
-            .execute(fep)
+        (await mismatch.execute(fep))
             .allResults()[0]
             .getResult()
             .get(MisMatch.EVENT_RESULT_INTEGER.getName()),

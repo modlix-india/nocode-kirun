@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let freq: Frequency = new Frequency();
 
-test('freq test 1', () => {
+test('freq test 1', async () => {
     let array: any[] = [];
     array.push('test');
     array.push('Driven');
@@ -31,12 +31,12 @@ test('freq test 1', () => {
         ]),
     );
 
-    expect(freq.execute(fep).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName())).toBe(
-        2,
-    );
+    expect(
+        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName()),
+    ).toBe(2);
 });
 
-test('freq test 2', () => {
+test('freq test 2', async () => {
     let array: any[] = [];
     array.push('test');
     array.push('Driven');
@@ -66,7 +66,7 @@ test('freq test 2', () => {
         ]),
     );
 
-    expect(() => freq.execute(fep)).toThrow();
+    await expect(freq.execute(fep)).rejects.toThrow();
 
     fep.setArguments(
         new Map<string, any>([
@@ -77,10 +77,10 @@ test('freq test 2', () => {
         ]),
     );
 
-    expect(() => freq.execute(fep)).toThrow();
+    await expect(freq.execute(fep)).rejects.toThrow();
 });
 
-test('freq test 3', () => {
+test('freq test 3', async () => {
     let array: any[] = [];
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map<string, any>([
@@ -91,7 +91,7 @@ test('freq test 3', () => {
         ]),
     );
 
-    expect(freq.execute(fep).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName())).toBe(
-        0,
-    );
+    expect(
+        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName()),
+    ).toBe(0);
 });

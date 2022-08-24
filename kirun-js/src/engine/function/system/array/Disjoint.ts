@@ -19,7 +19,7 @@ export class Disjoint extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let firstSource: any[] = context
             ?.getArguments()
             ?.get(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName());
