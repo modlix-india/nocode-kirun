@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let min: Min = new Min();
 
-test('min test 1 ', () => {
+test('min test 1 ', async () => {
     let arr: any[] = [];
     arr.push(null);
     arr.push(12);
@@ -12,22 +12,22 @@ test('min test 1 ', () => {
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
 
-    expect(min.execute(fep).allResults()[0].getResult().get(Min.EVENT_RESULT_ANY.getName())).toBe(
-        12,
-    );
+    expect(
+        (await min.execute(fep)).allResults()[0].getResult().get(Min.EVENT_RESULT_ANY.getName()),
+    ).toBe(12);
 });
 
-test('min test 2 ', () => {
+test('min test 2 ', async () => {
     let arr: any[] = [];
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
 
-    expect(() => min.execute(fep)).toThrow();
+    await expect(min.execute(fep)).rejects.toThrow();
 });
 
-test('min test 3', () => {
+test('min test 3', async () => {
     let arr: any[] = [];
     arr.push(12);
     arr.push(15);
@@ -38,10 +38,10 @@ test('min test 3', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe(1);
+    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe(1);
 });
 
-test('min test 4', () => {
+test('min test 4', async () => {
     let arr: any[] = [];
     arr.push('nocode');
     arr.push('NoCode');
@@ -50,17 +50,17 @@ test('min test 4', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe('NoCode');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('NoCode');
 });
 
-test('min test 5', () => {
+test('min test 5', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), null]]),
     );
-    expect(() => min.execute(fep)).toThrow();
+    await expect(min.execute(fep)).rejects.toThrow();
 });
 
-test('min test 6', () => {
+test('min test 6', async () => {
     let arr: any[] = [];
 
     arr.push(456);
@@ -74,10 +74,10 @@ test('min test 6', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe(1);
+    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe(1);
 });
 
-test('min test 7', () => {
+test('min test 7', async () => {
     let arr1: any[] = [];
     arr1.push('c');
     arr1.push('r');
@@ -87,13 +87,13 @@ test('min test 7', () => {
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1]]),
     );
 
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe('c');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('c');
 });
 
-test('min test 8', () => {
+test('min test 8', async () => {
     let arr: any[] = ['surendhar'];
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
     );
-    expect(min.execute(fep).allResults()[0].getResult().get('output')).toBe('surendhar');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('surendhar');
 });

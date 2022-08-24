@@ -17,11 +17,7 @@ export class Hypotenuse extends AbstractFunction {
         .setNamespace(Namespaces.MATH)
         .setParameters(
             new Map([
-                [
-                    VALUE,
-                   new Parameter(VALUE,Schema.ofNumber(VALUE))
-                        .setVariableArgument(true),
-                ],
+                [VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)],
             ]),
         )
         .setEvents(
@@ -45,7 +41,7 @@ export class Hypotenuse extends AbstractFunction {
         return Hypotenuse.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let nums: number[] = context.getArguments()?.get(VALUE);
 
         return new FunctionOutput([

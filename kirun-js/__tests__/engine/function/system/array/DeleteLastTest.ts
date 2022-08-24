@@ -1,7 +1,7 @@
 import { DeleteLast } from '../../../../../src/engine/function/system/array/DeleteLast';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('DeleteLast Test 1', () => {
+test('DeleteLast Test 1', async () => {
     let delet: DeleteLast = new DeleteLast();
 
     let source: any[] = [12, 14, 15, 9];
@@ -13,12 +13,12 @@ test('DeleteLast Test 1', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(source).toStrictEqual(temp);
 });
 
-test('DeleteLast Test 2', () => {
+test('DeleteLast Test 2', async () => {
     let delet: DeleteLast = new DeleteLast();
 
     let source: any[] = ['c', 'p', 'i', 'e'];
@@ -30,12 +30,12 @@ test('DeleteLast Test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(source).toStrictEqual(temp);
 });
 
-test('DeleteLast Test 3', () => {
+test('DeleteLast Test 3', async () => {
     let delet: DeleteLast = new DeleteLast();
 
     let source: any[] = [];
@@ -45,10 +45,10 @@ test('DeleteLast Test 3', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => delet.execute(fep)).toThrow();
+    await expect(delet.execute(fep)).rejects.toThrow();
 });
 
-test('DeleteFirst Test 4', () => {
+test('DeleteFirst Test 4', async () => {
     let delet: DeleteLast = new DeleteLast();
 
     var array1 = ['test', 'Driven', 'developement', 'I', 'am'];
@@ -84,12 +84,12 @@ test('DeleteFirst Test 4', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('DeleteFirst Test 5', () => {
+test('DeleteFirst Test 5', async () => {
     let delet: DeleteLast = new DeleteLast();
 
     let source = null;
@@ -99,5 +99,5 @@ test('DeleteFirst Test 5', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => delet.execute(fep)).toThrow();
+    await expect(delet.execute(fep)).rejects.toThrow();
 });

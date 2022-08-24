@@ -21,7 +21,7 @@ export class Random extends AbstractFunction {
     public getSignature(): FunctionSignature {
         return Random.SIGNATURE;
     }
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         return new FunctionOutput([EventResult.outputOf(new Map([[VALUE, Math.random()]]))]);
     }
 }

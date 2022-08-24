@@ -35,7 +35,7 @@ export class CountLoop extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let count: number = context.getArguments()?.get(COUNT);
         let current = 0;
 

@@ -6,7 +6,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const stringRepo = new StringFunctionRepository();
 
-test('StringRepo3 - EqualsIgnoreCase', () => {
+test('StringRepo3 - EqualsIgnoreCase', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
@@ -23,7 +23,10 @@ test('StringRepo3 - EqualsIgnoreCase', () => {
         ),
     );
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBeTruthy();
 
     fep.setArguments(
@@ -36,11 +39,14 @@ test('StringRepo3 - EqualsIgnoreCase', () => {
     );
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBeFalsy();
 });
 
-test('StringRepo3 - EqualsIgnoreCase', () => {
+test('StringRepo3 - EqualsIgnoreCase', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([
@@ -57,6 +63,9 @@ test('StringRepo3 - EqualsIgnoreCase', () => {
     }
 
     expect(
-        fun.execute(fep).allResults()[0].getResult().get(AbstractStringFunction.EVENT_RESULT_NAME),
+        (await fun.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractStringFunction.EVENT_RESULT_NAME),
     ).toBe(true);
 });

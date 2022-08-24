@@ -22,7 +22,7 @@ export class Frequency extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName());

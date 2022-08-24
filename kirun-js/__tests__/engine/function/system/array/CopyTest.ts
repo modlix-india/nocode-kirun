@@ -5,7 +5,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
-test('Compy Test', () => {
+test('Compy Test', async () => {
     let copy: Copy = new Copy();
 
     let source: any[] = [1, 2, 3, 4, 5];
@@ -21,7 +21,7 @@ test('Compy Test', () => {
         ),
     );
 
-    expect(() => copy.execute(fep1)).toThrow();
+    await expect(copy.execute(fep1)).rejects.toThrow();
 
     source.push(6);
 
@@ -38,7 +38,7 @@ test('Compy Test', () => {
         ),
     );
 
-    let fo: FunctionOutput = copy.execute(fep);
+    let fo: FunctionOutput = await copy.execute(fep);
     expect(fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME)).toStrictEqual(result);
 
     source = new Array();
@@ -64,7 +64,7 @@ test('Compy Test', () => {
         MapUtil.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source),
     );
 
-    fo = copy.execute(fep);
+    fo = await copy.execute(fep);
 
     expect(fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME)).toStrictEqual(result);
     expect(source[0] == result[0]).toBeFalsy();
@@ -78,7 +78,7 @@ test('Compy Test', () => {
         ),
     );
 
-    fo = copy.execute(fep);
+    fo = await copy.execute(fep);
 
     result = fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME);
 

@@ -4,14 +4,14 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const toString: ToString = new ToString();
 
-test('toString test1', () => {
+test('toString test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(MapUtil.of('anytype', 123));
 
-    expect(toString.execute(fep).allResults()[0].getResult().get('result')).toBe('123');
+    expect((await toString.execute(fep)).allResults()[0].getResult().get('result')).toBe('123');
 });
 
-// test('toString test2', () => {
+// test('toString test2', async () => {
 //     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
 //     let array: string[] = [];
@@ -30,14 +30,14 @@ test('toString test1', () => {
 
 //     fep.setArguments(MapUtil.of('anytype', array));
 
-//     expect(toString.execute(fep).allResults()[0].getResult().get('result')).toBe(
+//     expect((await toString.execute(fep)).allResults()[0].getResult().get('result')).toBe(
 //         'I am using eclipse to test the changes with test Driven developement',
 //     );
 // });
 
-test('toString test2 ', () => {
+test('toString test2 ', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(MapUtil.of('anytype', true));
 
-    expect(toString.execute(fep).allResults()[0].getResult().get('result')).toBe('true');
+    expect((await toString.execute(fep)).allResults()[0].getResult().get('result')).toBe('true');
 });

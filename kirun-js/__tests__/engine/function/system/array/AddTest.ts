@@ -1,7 +1,7 @@
 import { Add } from '../../../../../src/engine/function/system/array/Add';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Add Test 1', () => {
+test('Add Test 1', async () => {
     let add: Add = new Add();
 
     let source: any[] = [2, 2, 3, 4, 5];
@@ -24,12 +24,12 @@ test('Add Test 1', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    add.execute(fep);
+    await add.execute(fep);
 
     expect(source).toStrictEqual(temp1);
 });
 
-test('Add test 2', () => {
+test('Add test 2', async () => {
     let add: Add = new Add();
 
     let source: any[] = ['nocode', 'platform'];
@@ -52,12 +52,12 @@ test('Add test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    add.execute(fep);
+    await add.execute(fep);
 
     expect(source).toStrictEqual(temp1);
 });
 
-test('Add test 3', () => {
+test('Add test 3', async () => {
     let add: Add = new Add();
 
     let source: any[] = [];
@@ -80,12 +80,12 @@ test('Add test 3', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    add.execute(fep);
+    await add.execute(fep);
 
     expect(source).toStrictEqual(temp1);
 });
 
-test('Add test 4', () => {
+test('Add test 4', async () => {
     let add: Add = new Add();
 
     let secondSource: any[] = [];
@@ -100,10 +100,10 @@ test('Add test 4', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => add.execute(fep)).toThrow('');
+    await expect(add.execute(fep)).rejects.toThrow('');
 });
 
-test('Add test 5', () => {
+test('Add test 5', async () => {
     let add: Add = new Add();
 
     let secondSource: any[] = [];
@@ -118,9 +118,9 @@ test('Add test 5', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => add.execute(fep)).toThrow(
+    await expect(add.execute(fep)).rejects.toThrow(
         'Value undefined is not of valid type(s)\nExpected an array but found null',
     );
-    // expect(() => add.execute(fep)).toThrowError(
+    // await expect(add.execute(fep)).rejects.toThrowError(
     //     new SchemaValidationException(Schema.ofString("source"),'Value undefined is not of valid type(s)\nExpected an array but found null',       );
 });

@@ -72,9 +72,9 @@ export class KIRuntime extends AbstractFunction {
         return this.fd;
     }
 
-    private getExecutionPlan(
+    private async getExecutionPlan(
         context: Map<string, ContextElement>,
-    ): ExecutionGraph<string, StatementExecution> {
+    ): Promise<ExecutionGraph<string, StatementExecution>> {
         let g: ExecutionGraph<string, StatementExecution> = new ExecutionGraph();
         for (let s of Array.from(this.fd.getSteps().values()))
             g.addVertex(this.prepareStatementExecution(context, s));
@@ -95,14 +95,16 @@ export class KIRuntime extends AbstractFunction {
         return g;
     }
 
-    protected internalExecute(inContext: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(
+        inContext: FunctionExecutionParameters,
+    ): Promise<FunctionOutput> {
         if (!inContext.getContext()) inContext.setContext(new Map());
 
         if (!inContext.getEvents()) inContext.setEvents(new Map());
 
         if (!inContext.getSteps()) inContext.setSteps(new Map());
 
-        let eGraph: ExecutionGraph<string, StatementExecution> = this.getExecutionPlan(
+        let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
             inContext.getContext()!,
         );
 
@@ -123,13 +125,13 @@ export class KIRuntime extends AbstractFunction {
             );
         }
 
-        return this.executeGraph(eGraph, inContext);
+        return await this.executeGraph(eGraph, inContext);
     }
 
-    private executeGraph(
+    private async executeGraph(
         eGraph: ExecutionGraph<string, StatementExecution>,
         inContext: FunctionExecutionParameters,
-    ): FunctionOutput {
+    ): Promise<FunctionOutput> {
         let executionQue: LinkedList<GraphVertex<string, StatementExecution>> = new LinkedList();
         executionQue.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
@@ -146,8 +148,8 @@ export class KIRuntime extends AbstractFunction {
             (!executionQue.isEmpty() || !branchQue.isEmpty()) &&
             !inContext.getEvents()?.has(Event.OUTPUT)
         ) {
-            this.processBranchQue(inContext, executionQue, branchQue);
-            this.processExecutionQue(inContext, executionQue, branchQue);
+            await this.processBranchQue(inContext, executionQue, branchQue);
+            await this.processExecutionQue(inContext, executionQue, branchQue);
 
             inContext.setCount(inContext.getCount() + 1);
 
@@ -166,7 +168,7 @@ export class KIRuntime extends AbstractFunction {
         );
     }
 
-    private processExecutionQue(
+    private async processExecutionQue(
         inContext: FunctionExecutionParameters,
         executionQue: LinkedList<GraphVertex<string, StatementExecution>>,
         branchQue: LinkedList<
@@ -177,17 +179,17 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             >
         >,
-    ): void {
+    ) {
         if (!executionQue.isEmpty()) {
             let vertex: GraphVertex<string, StatementExecution> = executionQue.pop();
 
-            if (!this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!))
+            if (!(await this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!)))
                 executionQue.add(vertex);
-            else this.executeVertex(vertex, inContext, branchQue, executionQue);
+            else await this.executeVertex(vertex, inContext, branchQue, executionQue);
         }
     }
 
-    private processBranchQue(
+    private async processBranchQue(
         inContext: FunctionExecutionParameters,
         executionQue: LinkedList<GraphVertex<string, StatementExecution>>,
         branchQue: LinkedList<
@@ -198,7 +200,7 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             >
         >,
-    ): void {
+    ) {
         if (branchQue.length) {
             let branch: Tuple4<
                 ExecutionGraph<string, StatementExecution>,
@@ -207,13 +209,13 @@ export class KIRuntime extends AbstractFunction {
                 GraphVertex<string, StatementExecution>
             > = branchQue.pop();
 
-            if (!this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!))
+            if (!(await this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!)))
                 branchQue.add(branch);
-            else this.executeBranch(inContext, executionQue, branch);
+            else await this.executeBranch(inContext, executionQue, branch);
         }
     }
 
-    private executeBranch(
+    private async executeBranch(
         inContext: FunctionExecutionParameters,
         executionQue: LinkedList<GraphVertex<string, StatementExecution>>,
         branch: Tuple4<
@@ -222,12 +224,12 @@ export class KIRuntime extends AbstractFunction {
             FunctionOutput,
             GraphVertex<string, StatementExecution>
         >,
-    ): void {
+    ) {
         let vertex: GraphVertex<string, StatementExecution> = branch.getT4();
         let nextOutput: EventResult | undefined = undefined;
 
         do {
-            this.executeGraph(branch.getT1(), inContext);
+            await this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
 
             if (nextOutput) {
@@ -241,7 +243,7 @@ export class KIRuntime extends AbstractFunction {
                     ?.get(vertex.getData().getStatement().getStatementName())
                     ?.set(
                         nextOutput.getName(),
-                        this.resolveInternalExpressions(nextOutput.getResult(), inContext),
+                        await this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
             }
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
@@ -251,7 +253,7 @@ export class KIRuntime extends AbstractFunction {
         }
     }
 
-    private executeVertex(
+    private async executeVertex(
         vertex: GraphVertex<string, StatementExecution>,
         inContext: FunctionExecutionParameters,
         branchQue: LinkedList<
@@ -263,7 +265,7 @@ export class KIRuntime extends AbstractFunction {
             >
         >,
         executionQue: LinkedList<GraphVertex<string, StatementExecution>>,
-    ): void {
+    ) {
         let s: Statement = vertex.getData().getStatement();
 
         let fun: Function | undefined = this.fRepo.find(s.getNamespace(), s.getName());
@@ -284,7 +286,7 @@ export class KIRuntime extends AbstractFunction {
 
         let context: Map<string, ContextElement> = inContext.getContext()!;
 
-        let result: FunctionOutput = fun.execute(
+        let result: FunctionOutput = await fun.execute(
             new FunctionExecutionParameters()
                 .setContext(context)
                 .setArguments(args)

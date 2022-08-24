@@ -17,9 +17,7 @@ const VALUE2 = 'value2';
 
 const paramFunctions = [
     () => {
-        return new Map([
-            [VALUE,new Parameter(VALUE,Schema.ofNumber(VALUE))],
-        ]);
+        return new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE))]]);
     },
     () => {
         return new Map([
@@ -65,7 +63,7 @@ export class GenericMathFunction extends AbstractFunction {
         return this.signature;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let v1 = PrimitiveUtil.findPrimitiveNumberType(
             context.getArguments()?.get(this.parametersNumber == 1 ? VALUE : VALUE1),
         ).getT2();

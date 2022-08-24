@@ -21,7 +21,7 @@ import { FunctionOutput } from '../../../src/engine/model/FunctionOutput';
 import { HybridRepository } from '../../../src/engine/HybridRepository';
 import { Function } from '../../../src/engine/function/Function';
 
-test('KIRuntime Test 1', () => {
+test('KIRuntime Test 1', async () => {
     let start = new Date().getTime();
     let num: number = 7000;
     let array: number[] = [];
@@ -44,16 +44,19 @@ test('KIRuntime Test 1', () => {
         defaultValue: new Array(),
         items: integerSchema,
     };
-    var createArray =new Statement('createArray', create.getNamespace(), create.getName())
-        .setParameterMap(
-            new Map([
-                ['name', [ParameterReference.ofValue('a')]],
-                ['schema', [ParameterReference.ofValue(arrayOfIntegerSchema)]],
-            ]),
-        );
+    var createArray = new Statement(
+        'createArray',
+        create.getNamespace(),
+        create.getName(),
+    ).setParameterMap(
+        new Map([
+            ['name', [ParameterReference.ofValue('a')]],
+            ['schema', [ParameterReference.ofValue(arrayOfIntegerSchema)]],
+        ]),
+    );
 
     var rangeLoop = new RangeLoop().getSignature();
-    var loop =new Statement('loop', rangeLoop.getNamespace(), rangeLoop.getName())
+    var loop = new Statement('loop', rangeLoop.getNamespace(), rangeLoop.getName())
         .setParameterMap(
             new Map([
                 ['from', [ParameterReference.ofValue(0)]],
@@ -65,7 +68,7 @@ test('KIRuntime Test 1', () => {
     var resultObj = { name: 'result', value: { isExpression: true, value: 'Context.a' } };
 
     var generate = new GenerateEvent().getSignature();
-    var outputGenerate =new Statement('outputStep', generate.getNamespace(), generate.getName())
+    var outputGenerate = new Statement('outputStep', generate.getNamespace(), generate.getName())
         .setParameterMap(
             new Map([
                 ['eventName', [ParameterReference.ofValue('output')]],
@@ -75,22 +78,25 @@ test('KIRuntime Test 1', () => {
         .setDependentStatements(['Steps.loop.output']);
 
     var ifFunction = new If().getSignature();
-    var ifStep =new Statement('if', ifFunction.getNamespace(), ifFunction.getName())
-        .setParameterMap(
-            new Map([
+    var ifStep = new Statement(
+        'if',
+        ifFunction.getNamespace(),
+        ifFunction.getName(),
+    ).setParameterMap(
+        new Map([
+            [
+                'condition',
                 [
-                    'condition',
-                    [
-                        ParameterReference.ofExpression(
-                            'Steps.loop.iteration.index = 0 or Steps.loop.iteration.index = 1',
-                        ),
-                    ],
+                    ParameterReference.ofExpression(
+                        'Steps.loop.iteration.index = 0 or Steps.loop.iteration.index = 1',
+                    ),
                 ],
-            ]),
-        );
+            ],
+        ]),
+    );
 
     var set = new SetFunction().getSignature();
-    var set1 =new Statement('setOnTrue', set.getNamespace(), set.getName())
+    var set1 = new Statement('setOnTrue', set.getNamespace(), set.getName())
         .setParameterMap(
             new Map([
                 ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
@@ -98,7 +104,7 @@ test('KIRuntime Test 1', () => {
             ]),
         )
         .setDependentStatements(['Steps.if.true']);
-    var set2 =new Statement('setOnFalse', set.getNamespace(), set.getName())
+    var set2 = new Statement('setOnFalse', set.getNamespace(), set.getName())
         .setParameterMap(
             new Map([
                 ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
@@ -115,141 +121,132 @@ test('KIRuntime Test 1', () => {
         .setDependentStatements(['Steps.if.false']);
 
     start = new Date().getTime();
-    let out: EventResult[] = new KIRuntime(
-        new FunctionDefinition('Fibonacci')
-            .setSteps(
-                new Map([
-                    Statement.ofEntry(createArray),
-                    Statement.ofEntry(loop),
-                    Statement.ofEntry(outputGenerate),
-                    Statement.ofEntry(ifStep),
-                    Statement.ofEntry(set1),
-                    Statement.ofEntry(set2),
-                ]),
-            )
-            .setNamespace('Test')
-            .setEvents(
-                new Map([
-                    Event.outputEventMapEntry(
-                        new Map([['result', Schema.ofArray('result', Schema.ofInteger('result'))]]),
-                    ),
-                ]),
-            )
-            .setParameters(
-                new Map([
-                    [
-                        'Count',
-                       new Parameter('Count',Schema.ofInteger('Count')),
-                    ],
-                ]),
-            ) as FunctionDefinition,
-        new KIRunFunctionRepository(),
-        new KIRunSchemaRepository(),
-    )
-        .execute(new FunctionExecutionParameters().setArguments(new Map([['Count', num]])))
-        .allResults();
+    let out: EventResult[] = (
+        await new KIRuntime(
+            new FunctionDefinition('Fibonacci')
+                .setSteps(
+                    new Map([
+                        Statement.ofEntry(createArray),
+                        Statement.ofEntry(loop),
+                        Statement.ofEntry(outputGenerate),
+                        Statement.ofEntry(ifStep),
+                        Statement.ofEntry(set1),
+                        Statement.ofEntry(set2),
+                    ]),
+                )
+                .setNamespace('Test')
+                .setEvents(
+                    new Map([
+                        Event.outputEventMapEntry(
+                            new Map([
+                                ['result', Schema.ofArray('result', Schema.ofInteger('result'))],
+                            ]),
+                        ),
+                    ]),
+                )
+                .setParameters(
+                    new Map([['Count', new Parameter('Count', Schema.ofInteger('Count'))]]),
+                ) as FunctionDefinition,
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Count', num]])))
+    ).allResults();
     console.log('KIRunt Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });
 
-test('KIRuntime Test 2', () => {
+test('KIRuntime Test 2', async () => {
     var genEvent = new GenerateEvent().getSignature();
 
     var expression = { isExpression: true, value: 'Steps.first.output.value' };
 
     let resultObj = { name: 'result', value: expression };
 
-    let out: EventResult[] = new KIRuntime(
-        (
-            new FunctionDefinition('SingleCall')
-                .setNamespace('Test')
-                .setParameters(
-                    new Map([
-                        [
-                            'Value',
-                           new Parameter('Value',Schema.ofInteger('Value')),
-                        ],
-                    ]),
-                ) as FunctionDefinition
-        ).setSteps(
-            new Map([
-                Statement.ofEntry(
-                   new Statement('first', Namespaces.MATH, 'Absolute')
-                        .setParameterMap(
+    let out: EventResult[] = (
+        await new KIRuntime(
+            (
+                new FunctionDefinition('SingleCall')
+                    .setNamespace('Test')
+                    .setParameters(
+                        new Map([['Value', new Parameter('Value', Schema.ofInteger('Value'))]]),
+                    ) as FunctionDefinition
+            ).setSteps(
+                new Map([
+                    Statement.ofEntry(
+                        new Statement('first', Namespaces.MATH, 'Absolute').setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
                             ]),
                         ),
-                ),
-                Statement.ofEntry(
-                   new Statement('second', genEvent.getNamespace(), genEvent.getName())
-                        .setParameterMap(
+                    ),
+                    Statement.ofEntry(
+                        new Statement(
+                            'second',
+                            genEvent.getNamespace(),
+                            genEvent.getName(),
+                        ).setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],
                                 ['results', [ParameterReference.ofValue(resultObj)]],
                             ]),
                         ),
-                ),
-            ]),
-        ),
-        new KIRunFunctionRepository(),
-        new KIRunSchemaRepository(),
-    )
-        .execute(new FunctionExecutionParameters().setArguments(new Map([['Value', -10]])))
-        .allResults();
+                    ),
+                ]),
+            ),
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', -10]])))
+    ).allResults();
 
     expect(out[0].getResult().get('result')).toBe(10);
 });
-test('KIRuntime Test 3', () => {
+test('KIRuntime Test 3', async () => {
     var genEvent = new GenerateEvent().getSignature();
 
     var expression = { isExpression: true, value: 'Steps.first.output.value' };
 
     let resultObj = { name: 'result', value: expression };
 
-    let out: EventResult[] = new KIRuntime(
-        (
-            new FunctionDefinition('SingleCall')
-                .setNamespace('Test')
-                .setParameters(
-                    new Map([
-                        [
-                            'Value',
-                           new Parameter('Value',Schema.ofInteger('Value')),
-                        ],
-                    ]),
-                ) as FunctionDefinition
-        ).setSteps(
-            new Map([
-                Statement.ofEntry(
-                   new Statement('first', Namespaces.MATH, 'CubeRoot')
-                        .setParameterMap(
+    let out: EventResult[] = (
+        await new KIRuntime(
+            (
+                new FunctionDefinition('SingleCall')
+                    .setNamespace('Test')
+                    .setParameters(
+                        new Map([['Value', new Parameter('Value', Schema.ofInteger('Value'))]]),
+                    ) as FunctionDefinition
+            ).setSteps(
+                new Map([
+                    Statement.ofEntry(
+                        new Statement('first', Namespaces.MATH, 'CubeRoot').setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
                             ]),
                         ),
-                ),
-                Statement.ofEntry(
-                   new Statement('second', genEvent.getNamespace(), genEvent.getName())
-                        .setParameterMap(
+                    ),
+                    Statement.ofEntry(
+                        new Statement(
+                            'second',
+                            genEvent.getNamespace(),
+                            genEvent.getName(),
+                        ).setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],
                                 ['results', [ParameterReference.ofValue(resultObj)]],
                             ]),
                         ),
-                ),
-            ]),
-        ),
-        new KIRunFunctionRepository(),
-        new KIRunSchemaRepository(),
-    )
-        .execute(new FunctionExecutionParameters().setArguments(new Map([['Value', 27]])))
-        .allResults();
+                    ),
+                ]),
+            ),
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', 27]])))
+    ).allResults();
 
     expect(out[0].getResult().get('result')).toBe(3);
 });
 
-test('KIRuntime Test 4', () => {
+test('KIRuntime Test 4', async () => {
     let start = new Date().getTime();
     const num = 7;
     let array = new Array(num);
@@ -266,14 +263,7 @@ test('KIRuntime Test 4', () => {
 
     var fibFunctionSignature = new FunctionSignature('FibFunction')
         .setNamespace('FibSpace')
-        .setParameters(
-            new Map([
-                [
-                    'value',
-                   new Parameter('value',Schema.ofInteger('value')),
-                ],
-            ]),
-        )
+        .setParameters(new Map([['value', new Parameter('value', Schema.ofInteger('value'))]]))
         .setEvents(
             new Map([
                 Event.outputEventMapEntry(
@@ -286,7 +276,9 @@ test('KIRuntime Test 4', () => {
             return fibFunctionSignature;
         }
 
-        protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+        protected async internalExecute(
+            context: FunctionExecutionParameters,
+        ): Promise<FunctionOutput> {
             let count = context.getArguments()?.get('value');
             let a = new Array(count);
             for (let i = 0; i < count; i++) a[i] = i < 2 ? i : a[i - 1] + a[i - 2];
@@ -308,44 +300,45 @@ test('KIRuntime Test 4', () => {
     });
 
     start = new Date().getTime();
-    let out: EventResult[] = new KIRuntime(
-        (
-            new FunctionDefinition('CustomFunction')
-                .setNamespace('Test')
-                .setParameters(
-                    new Map([
-                        [
-                            'Value',
-                           new Parameter('Value',Schema.ofInteger('Value')),
-                        ],
-                    ]),
-                ) as FunctionDefinition
-        ).setSteps(
-            new Map([
-                Statement.ofEntry(
-                   new Statement('fib', fibFunctionSignature.getNamespace(), 'asdf')
-                        .setParameterMap(
+    let out: EventResult[] = (
+        await new KIRuntime(
+            (
+                new FunctionDefinition('CustomFunction')
+                    .setNamespace('Test')
+                    .setParameters(
+                        new Map([['Value', new Parameter('Value', Schema.ofInteger('Value'))]]),
+                    ) as FunctionDefinition
+            ).setSteps(
+                new Map([
+                    Statement.ofEntry(
+                        new Statement(
+                            'fib',
+                            fibFunctionSignature.getNamespace(),
+                            'asdf',
+                        ).setParameterMap(
                             new Map([
                                 ['value', [ParameterReference.ofExpression('Arguments.Value')]],
                             ]),
                         ),
-                ),
-                Statement.ofEntry(
-                   new Statement('fiboutput', genEvent.getNamespace(), genEvent.getName())
-                        .setParameterMap(
+                    ),
+                    Statement.ofEntry(
+                        new Statement(
+                            'fiboutput',
+                            genEvent.getNamespace(),
+                            genEvent.getName(),
+                        ).setParameterMap(
                             new Map([
                                 ['eventName', [ParameterReference.ofValue('output')]],
                                 ['results', [ParameterReference.ofValue(resultObj)]],
                             ]),
                         ),
-                ),
-            ]),
-        ),
-        hybrid,
-        new KIRunSchemaRepository(),
-    )
-        .execute(new FunctionExecutionParameters().setArguments(new Map([['Value', num]])))
-        .allResults();
+                    ),
+                ]),
+            ),
+            hybrid,
+            new KIRunSchemaRepository(),
+        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', num]])))
+    ).allResults();
     console.log('KIRun Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });

@@ -44,7 +44,7 @@ export class Create extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         const name: string = context?.getArguments()?.get(NAME);
 
         if (context?.getContext()?.has(name))

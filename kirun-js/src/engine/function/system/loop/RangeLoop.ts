@@ -92,7 +92,7 @@ export class RangeLoop extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let from: number = context.getArguments()?.get(FROM);
         let to: number = context.getArguments()?.get(TO);
         let step: number = context.getArguments()?.get(STEP);

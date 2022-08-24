@@ -4,7 +4,7 @@ import { MapEntry, MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const prepad: PrePad = new PrePad();
 
-test('prepad test1', () => {
+test('prepad test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -17,12 +17,12 @@ test('prepad test1', () => {
 
     let padded: string = 'hiranhiranhi THIScompatY IS A NOcoDE plATFNORM';
 
-    expect(prepad.execute(fep).allResults()[0].getResult().get(PrePad.EVENT_RESULT_NAME)).toBe(
-        padded,
-    );
+    expect(
+        (await prepad.execute(fep)).allResults()[0].getResult().get(PrePad.EVENT_RESULT_NAME),
+    ).toBe(padded);
 });
 
-test('prepad test2', () => {
+test('prepad test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -35,10 +35,10 @@ test('prepad test2', () => {
 
     let padded: string = ' h  h  h  h THIScompatY IS A NOcoDE plATFNORM';
 
-    expect(prepad.execute(fep).allResults()[0].getResult().get('result')).toBe(padded);
+    expect((await prepad.execute(fep)).allResults()[0].getResult().get('result')).toBe(padded);
 });
 
-test('prepad test3', () => {
+test('prepad test3', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -50,5 +50,5 @@ test('prepad test3', () => {
     );
 
     let reveresed: string = 'hira THIScompatY IS A NOcoDE plATFNORM';
-    expect(prepad.execute(fep).allResults()[0].getResult().get('result')).toBe(reveresed);
+    expect((await prepad.execute(fep)).allResults()[0].getResult().get('result')).toBe(reveresed);
 });

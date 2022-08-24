@@ -4,7 +4,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const region: RegionMatches = new RegionMatches();
 
-test('toString test1', () => {
+test('toString test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -25,11 +25,14 @@ test('toString test1', () => {
     );
 
     expect(
-        region.execute(fep).allResults()[0].getResult().get(RegionMatches.EVENT_RESULT_NAME),
+        (await region.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(RegionMatches.EVENT_RESULT_NAME),
     ).toBe(true);
 });
 
-test('toString test2', () => {
+test('toString test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(
         MapUtil.of<string, string | number | boolean>(
@@ -49,11 +52,14 @@ test('toString test2', () => {
     );
 
     expect(
-        region.execute(fep).allResults()[0].getResult().get(RegionMatches.EVENT_RESULT_NAME),
+        (await region.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(RegionMatches.EVENT_RESULT_NAME),
     ).toBe(false);
 });
 
-test('toString test3', () => {
+test('toString test3', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(
         MapUtil.of<string, string | number | boolean>(
@@ -73,6 +79,9 @@ test('toString test3', () => {
     );
 
     expect(
-        region.execute(fep).allResults()[0].getResult().get(RegionMatches.EVENT_RESULT_NAME),
+        (await region.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(RegionMatches.EVENT_RESULT_NAME),
     ).toBe(true);
 });
