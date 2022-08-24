@@ -50,3 +50,22 @@ test('Set function test 2', () => {
     setFunction.execute(fep);
     expect(contextMap.get('a')?.getElement()[1]).toBe(240);
 });
+
+test('Set function test 3', () => {
+    let setFunction: SetFunction = new SetFunction();
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+
+    let contextMap: Map<string, ContextElement> = new Map();
+    contextMap.set('a', new ContextElement(Schema.ofAny('test'), {}));
+    fep.setContext(contextMap);
+    fep.setArguments(
+        new Map<string, any>([
+            ['name', 'Context.a.b[1]'],
+            ['value', 240],
+        ]),
+    );
+
+    setFunction.execute(fep);
+    expect(contextMap.get('a')?.getElement().b[1]).toBe(240);
+});

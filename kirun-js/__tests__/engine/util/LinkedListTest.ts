@@ -27,3 +27,12 @@ test('LinkedList Test', () => {
     x.add(4);
     expect(x.toArray()).toStrictEqual([1, 2, 3, 4]);
 });
+
+test('LinkedList Test - peekLastTest', () => {
+    let x = new LinkedList();
+    x.push(230);
+    x.push(231);
+    x.push(233);
+
+    expect(x.peekLast()).toBe(230);
+});
