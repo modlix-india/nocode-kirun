@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let del: DeleteFrom = new DeleteFrom();
 
-test('delete from 1', () => {
+test('delete from 1', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -37,12 +37,12 @@ test('delete from 1', () => {
     res.push('e');
     res.push('f');
 
-    del.execute(fep);
+    await del.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('del from 2 ', () => {
+test('del from 2 ', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -79,12 +79,12 @@ test('del from 2 ', () => {
     res.push('a');
     res.push('a');
 
-    del.execute(fep);
+    await del.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('del from 3 ', () => {
+test('del from 3 ', async () => {
     let array1: any[] = [];
 
     array1.push('test');
@@ -192,12 +192,12 @@ test('del from 3 ', () => {
         )
         .setContext(new Map([]))
         .setSteps(new Map([]));
-    del.execute(fep);
+    await del.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
 
-test('del from 4', () => {
+test('del from 4', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -226,7 +226,7 @@ test('del from 4', () => {
         )
         .setContext(new Map([]))
         .setSteps(new Map([]));
-    del.execute(fep);
+    await del.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });

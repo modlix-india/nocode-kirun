@@ -1,7 +1,7 @@
 import { Disjoint } from '../../../../../src/engine/function/system/array/Disjoint';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Disjoint Test 1', () => {
+test('Disjoint Test 1', async () => {
     let dis: Disjoint = new Disjoint();
 
     let arr: any[] = [];
@@ -42,8 +42,7 @@ test('Disjoint Test 1', () => {
     set1.add('p');
 
     let set2: Set<any> = new Set<any>();
-    let res: any[] = dis
-        .execute(fep)
+    let res: any[] = (await dis.execute(fep))
         .allResults()[0]
         .getResult()
         .get(Disjoint.EVENT_RESULT_ARRAY.getName());
@@ -53,7 +52,7 @@ test('Disjoint Test 1', () => {
     expect(set1).toStrictEqual(set2);
 });
 
-test('Disjoint Test 2', () => {
+test('Disjoint Test 2', async () => {
     let dis: Disjoint = new Disjoint();
 
     let arr: any[] = [];
@@ -85,10 +84,10 @@ test('Disjoint Test 2', () => {
         ]),
     );
 
-    expect(() => dis.execute(fep)).toThrow;
+    await expect(dis.execute(fep)).rejects.toThrow;
 });
 
-test('Disjoint test 3', () => {
+test('Disjoint test 3', async () => {
     let dis: Disjoint = new Disjoint();
 
     let array1: any[] = [];
@@ -174,7 +173,7 @@ test('Disjoint test 3', () => {
         ]),
     );
 
-    var res: any[] = dis.execute(fep).allResults()[0].getResult().get('output');
+    var res: any[] = (await dis.execute(fep)).allResults()[0].getResult().get('output');
 
     let set2: Set<Object> = new Set<Object>();
 

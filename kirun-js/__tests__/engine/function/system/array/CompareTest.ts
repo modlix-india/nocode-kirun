@@ -4,7 +4,7 @@ import { FunctionOutput } from '../../../../../src/engine/model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
-test('Compare Test 1', () => {
+test('Compare Test 1', async () => {
     let compare: Compare = new Compare();
 
     let source: any[] = [2, 2, 3, 4, 5];
@@ -24,7 +24,7 @@ test('Compare Test 1', () => {
     expect(compare.compare(source, 0, source.length, find, 0, find.length)).toBe(1);
 });
 
-test('Compare Test 2', () => {
+test('Compare Test 2', async () => {
     let compare: Compare = new Compare();
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
@@ -42,7 +42,7 @@ test('Compare Test 2', () => {
         ),
     );
 
-    let fo: FunctionOutput = compare.execute(fep);
+    let fo: FunctionOutput = await compare.execute(fep);
 
     expect(fo.allResults()[0].getResult().get(AbstractArrayFunction.EVENT_RESULT_NAME)).toBe(5 - 6);
 });

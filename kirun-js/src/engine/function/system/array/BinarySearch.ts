@@ -19,7 +19,7 @@ export class BinarySearch extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(BinarySearch.PARAMETER_ARRAY_SOURCE.getParameterName());

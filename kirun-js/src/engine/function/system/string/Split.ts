@@ -14,11 +14,20 @@ export class Split extends AbstractFunction {
     protected readonly PARAMETER_SPLIT_STRING_NAME: string = 'searchString';
     protected readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_STRING: Parameter =new Parameter(this.PARAMETER_STRING_NAME,Schema.ofString(this.PARAMETER_STRING_NAME));
+    protected readonly PARAMETER_STRING: Parameter = new Parameter(
+        this.PARAMETER_STRING_NAME,
+        Schema.ofString(this.PARAMETER_STRING_NAME),
+    );
 
-    protected readonly PARAMETER_SPLIT_STRING: Parameter =new Parameter(this.PARAMETER_SPLIT_STRING_NAME,Schema.ofString(this.PARAMETER_SPLIT_STRING_NAME));
+    protected readonly PARAMETER_SPLIT_STRING: Parameter = new Parameter(
+        this.PARAMETER_SPLIT_STRING_NAME,
+        Schema.ofString(this.PARAMETER_SPLIT_STRING_NAME),
+    );
 
-    protected readonly EVENT_ARRAY: Event =new Event(Event.OUTPUT,MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofArray(this.EVENT_RESULT_NAME)));
+    protected readonly EVENT_ARRAY: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofArray(this.EVENT_RESULT_NAME)),
+    );
 
     public getSignature(): FunctionSignature {
         return new FunctionSignature('Split')
@@ -42,7 +51,7 @@ export class Split extends AbstractFunction {
         super();
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let s1: string = context.getArguments()?.get(this.PARAMETER_STRING_NAME);
         let s2: string = context.getArguments()?.get(this.PARAMETER_SPLIT_STRING_NAME);
 

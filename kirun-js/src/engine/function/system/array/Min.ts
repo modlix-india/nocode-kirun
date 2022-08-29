@@ -11,7 +11,7 @@ export class Min extends AbstractArrayFunction {
         super('Min', [Min.PARAMETER_ARRAY_SOURCE_PRIMITIVE], Min.EVENT_RESULT_ANY);
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(Min.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());

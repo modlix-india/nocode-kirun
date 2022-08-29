@@ -44,7 +44,7 @@ export class GenerateEvent extends AbstractFunction {
     public getSignature(): FunctionSignature {
         return SIGNATURE;
     }
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         const events: Map<string, Map<string, any>[]> | undefined = context.getEvents();
         const args: Map<string, any> | undefined = context.getArguments();
 

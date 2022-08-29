@@ -1,7 +1,7 @@
 import { IndexOf } from '../../../../../src/engine/function/system/array/IndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Index of Test 1', () => {
+test('Index of Test 1', async () => {
     let ind: IndexOf = new IndexOf();
 
     let array: string[] = [];
@@ -33,11 +33,14 @@ test('Index of Test 1', () => {
         ]),
     );
     expect(
-        ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(12);
 });
 
-test('Index of Test 2', () => {
+test('Index of Test 2', async () => {
     let ind: IndexOf = new IndexOf();
 
     let array: string[] = [];
@@ -69,7 +72,7 @@ test('Index of Test 2', () => {
         ]),
     );
 
-    expect(() => ind.execute(fep)).toThrow();
+    await expect(ind.execute(fep)).rejects.toThrow();
 
     fep.setArguments(
         new Map<string, any>([
@@ -78,12 +81,12 @@ test('Index of Test 2', () => {
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
-    expect(ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_INDEX.getName())).toBe(
-        -1,
-    );
+    expect(
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_INDEX.getName()),
+    ).toBe(-1);
 });
 
-test('Index of Test 3', () => {
+test('Index of Test 3', async () => {
     let ind: IndexOf = new IndexOf();
 
     let array: string[] = [];
@@ -116,11 +119,14 @@ test('Index of Test 3', () => {
     );
 
     expect(
-        ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(-1);
 });
 
-test('Index of Test 4', () => {
+test('Index of Test 4', async () => {
     let ind: IndexOf = new IndexOf();
 
     let array: string[] = [];
@@ -206,11 +212,14 @@ test('Index of Test 4', () => {
     );
 
     expect(
-        ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(2);
 });
 
-test('indexof test 5', () => {
+test('indexof test 5', async () => {
     let ind: IndexOf = new IndexOf();
 
     let array1: string[] = [];
@@ -254,7 +263,10 @@ test('indexof test 5', () => {
     );
 
     expect(
-        ind.execute(fep).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(5);
 
     fep.setArguments(
@@ -263,5 +275,5 @@ test('indexof test 5', () => {
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), null],
         ]),
     );
-    expect(() => ind.execute(fep)).toThrow();
+    await expect(ind.execute(fep)).rejects.toThrow();
 });

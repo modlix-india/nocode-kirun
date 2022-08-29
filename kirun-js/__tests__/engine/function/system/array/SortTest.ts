@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let sort: Sort = new Sort();
 
-test('sort test 1', () => {
+test('sort test 1', async () => {
     let arr: any[] = [];
 
     arr.push(12);
@@ -25,10 +25,10 @@ test('sort test 1', () => {
     res.push(15);
     res.push(98);
 
-    expect(sort.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
 });
 
-test('sort test 2', () => {
+test('sort test 2', async () => {
     let arr: any[] = [];
 
     arr.push(12);
@@ -50,10 +50,10 @@ test('sort test 2', () => {
     res.push(15);
     res.push(98);
 
-    expect(sort.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
 });
 
-test('sort test 3', () => {
+test('sort test 3', async () => {
     let arr: any[] = [];
     arr.push(12);
     arr.push(15);
@@ -78,10 +78,10 @@ test('sort test 3', () => {
         ]),
     );
 
-    expect(sort.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
 });
 
-test('sort test 4', () => {
+test('sort test 4', async () => {
     let a;
     let arr: any[] = [];
     arr.push(12);
@@ -112,10 +112,10 @@ test('sort test 4', () => {
         ]),
     );
 
-    expect(sort.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
 });
 
-test('sort test 5', () => {
+test('sort test 5', async () => {
     let arr: any[] = ['Banana', 'Orange', 'Apple', 'Mango'];
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
@@ -126,5 +126,5 @@ test('sort test 5', () => {
         ]),
     );
     let res: any[] = ['Banana', 'Apple', 'Mango', 'Orange'];
-    expect(sort.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
 });

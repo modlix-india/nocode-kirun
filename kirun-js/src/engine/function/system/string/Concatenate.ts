@@ -23,7 +23,7 @@ export class Concatenate extends AbstractFunction {
             new Map([
                 [
                     Concatenate.VALUE,
-                    new Parameter( Concatenate.VALUE, Concatenate.SCHEMA).setVariableArgument(true),
+                    new Parameter(Concatenate.VALUE, Concatenate.SCHEMA).setVariableArgument(true),
                 ],
             ]),
         )
@@ -43,7 +43,7 @@ export class Concatenate extends AbstractFunction {
         return Concatenate.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let contextArgs: string[] = context.getArguments()?.get(Concatenate.VALUE);
 
         let concatenatedString: string = '';

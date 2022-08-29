@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let bsearch: BinarySearch = new BinarySearch();
 
-test('Binary Search test 1', () => {
+test('Binary Search test 1', async () => {
     let src: any[] = [1, 4, 6, 7, 10, 14, 16, 20];
 
     let search: any = 16;
@@ -18,11 +18,14 @@ test('Binary Search test 1', () => {
     );
 
     expect(
-        bsearch.execute(fep).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(BinarySearch.EVENT_INDEX.getName()),
     ).toBe(6);
 });
 
-test('Binary Search test 2', () => {
+test('Binary Search test 2', async () => {
     let src: any[] = [1, 4, 6, 7, 10, 14, 16, 20];
 
     let search: any = 78;
@@ -37,11 +40,14 @@ test('Binary Search test 2', () => {
     );
 
     expect(
-        bsearch.execute(fep).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(BinarySearch.EVENT_INDEX.getName()),
     ).toBe(-1);
 });
 
-test('Binary Search test 3', () => {
+test('Binary Search test 3', async () => {
     let src: any[] = [1, 4, 6, 7, 10, 14, 16, 20];
 
     let search: any = 78;
@@ -55,10 +61,10 @@ test('Binary Search test 3', () => {
         ]),
     );
 
-    expect(() => bsearch.execute(fep)).toThrow();
+    await expect(bsearch.execute(fep)).rejects.toThrow();
 });
 
-test('Binary Search test 6', () => {
+test('Binary Search test 6', async () => {
     let src: any[] = [1, 4, 6, 7, 10, 14, 17, 20];
 
     let search: number = 17;
@@ -73,11 +79,14 @@ test('Binary Search test 6', () => {
     );
 
     expect(
-        bsearch.execute(fep).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(BinarySearch.EVENT_INDEX.getName()),
     ).toBe(-1);
 });
 
-// test('Binary Search test 7', () => {
+// test('Binary Search test 7', async () => {
 //     let src: any[] = [1, 4, 6, 7, 10, 14, 16, 20];
 
 //     let search: any[] = [10];
@@ -91,10 +100,10 @@ test('Binary Search test 6', () => {
 //         ]),
 //     );
 
-//     expect(bsearch.execute(fep)).toThrow();
+//     expect(await bsearch.execute(fep)).toThrow();
 // });
 
-test('Binary Search test 4', () => {
+test('Binary Search test 4', async () => {
     let src: any[] = ['a', 'b', 'd', 'f', 'h', 'k', 'z'];
 
     let search: any = 'z';
@@ -108,11 +117,14 @@ test('Binary Search test 4', () => {
     );
 
     expect(
-        bsearch.execute(fep).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(BinarySearch.EVENT_INDEX.getName()),
     ).toBe(src.length - 1);
 });
 
-test('Binary Search test 5', () => {
+test('Binary Search test 5', async () => {
     let arr: any[] = [];
     arr.push('a');
     arr.push('b');
@@ -139,6 +151,9 @@ test('Binary Search test 5', () => {
     );
 
     expect(
-        bsearch.execute(fep).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(BinarySearch.EVENT_INDEX.getName()),
     ).toBe(10);
 });

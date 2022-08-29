@@ -9,7 +9,7 @@ export class DeleteFirst extends AbstractArrayFunction {
         super('DeleteFirst', [DeleteFirst.PARAMETER_ARRAY_SOURCE], DeleteFirst.EVENT_RESULT_EMPTY);
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(DeleteFirst.PARAMETER_ARRAY_SOURCE.getParameterName());

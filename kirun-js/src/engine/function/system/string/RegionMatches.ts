@@ -23,26 +23,42 @@ export class RegionMatches extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    public static PARAMETER_STRING: Parameter =new Parameter(RegionMatches.PARAMETER_STRING_NAME,Schema.ofString(RegionMatches.PARAMETER_STRING_NAME));
+    public static PARAMETER_STRING: Parameter = new Parameter(
+        RegionMatches.PARAMETER_STRING_NAME,
+        Schema.ofString(RegionMatches.PARAMETER_STRING_NAME),
+    );
 
-    protected static PARAMETER_OTHER_STRING: Parameter =new Parameter(RegionMatches.PARAMETER_OTHER_STRING_NAME,Schema.ofString(RegionMatches.PARAMETER_OTHER_STRING_NAME));
+    protected static PARAMETER_OTHER_STRING: Parameter = new Parameter(
+        RegionMatches.PARAMETER_OTHER_STRING_NAME,
+        Schema.ofString(RegionMatches.PARAMETER_OTHER_STRING_NAME),
+    );
 
-    protected static PARAMETER_FIRST_OFFSET: Parameter =new Parameter(RegionMatches.PARAMETER_FIRST_OFFSET_NAME,Schema.ofInteger(RegionMatches.PARAMETER_FIRST_OFFSET_NAME));
+    protected static PARAMETER_FIRST_OFFSET: Parameter = new Parameter(
+        RegionMatches.PARAMETER_FIRST_OFFSET_NAME,
+        Schema.ofInteger(RegionMatches.PARAMETER_FIRST_OFFSET_NAME),
+    );
 
-    protected static PARAMETER_SECOND_OFFSET: Parameter =new Parameter(RegionMatches.PARAMETER_SECOND_OFFSET_NAME,Schema.ofInteger(RegionMatches.PARAMETER_SECOND_OFFSET_NAME));
+    protected static PARAMETER_SECOND_OFFSET: Parameter = new Parameter(
+        RegionMatches.PARAMETER_SECOND_OFFSET_NAME,
+        Schema.ofInteger(RegionMatches.PARAMETER_SECOND_OFFSET_NAME),
+    );
 
-    protected static PARAMETER_INTEGER: Parameter =new Parameter(RegionMatches.PARAMETER_INTEGER_NAME,Schema.ofInteger(RegionMatches.PARAMETER_INTEGER_NAME));
+    protected static PARAMETER_INTEGER: Parameter = new Parameter(
+        RegionMatches.PARAMETER_INTEGER_NAME,
+        Schema.ofInteger(RegionMatches.PARAMETER_INTEGER_NAME),
+    );
 
-    protected static PARAMETER_BOOLEAN: Parameter =new Parameter(RegionMatches.PARAMETER_BOOLEAN_NAME,Schema.ofBoolean(RegionMatches.PARAMETER_BOOLEAN_NAME));
+    protected static PARAMETER_BOOLEAN: Parameter = new Parameter(
+        RegionMatches.PARAMETER_BOOLEAN_NAME,
+        Schema.ofBoolean(RegionMatches.PARAMETER_BOOLEAN_NAME),
+    );
 
-    protected static EVENT_BOOLEAN: Event =new Event(Event.OUTPUT,
-            new Map([
-                [
-                    RegionMatches.EVENT_RESULT_NAME,
-                    Schema.ofBoolean(RegionMatches.EVENT_RESULT_NAME),
-                ],
-            ]),
-        );
+    protected static EVENT_BOOLEAN: Event = new Event(
+        Event.OUTPUT,
+        new Map([
+            [RegionMatches.EVENT_RESULT_NAME, Schema.ofBoolean(RegionMatches.EVENT_RESULT_NAME)],
+        ]),
+    );
 
     private signature: FunctionSignature = new FunctionSignature('RegionMatches')
         .setNamespace(Namespaces.STRING)
@@ -81,10 +97,12 @@ export class RegionMatches extends AbstractFunction {
         super();
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let inputString: string = context.getArguments()?.get(RegionMatches.PARAMETER_STRING_NAME);
         let ignoreCase: boolean = context.getArguments()?.get(RegionMatches.PARAMETER_BOOLEAN_NAME);
-        let toffSet: number = context.getArguments()?.get(RegionMatches.PARAMETER_FIRST_OFFSET_NAME);
+        let toffSet: number = context
+            .getArguments()
+            ?.get(RegionMatches.PARAMETER_FIRST_OFFSET_NAME);
         let otherString: string = context
             ?.getArguments()
             ?.get(RegionMatches.PARAMETER_OTHER_STRING_NAME);

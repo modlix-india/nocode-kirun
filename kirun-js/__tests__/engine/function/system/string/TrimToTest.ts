@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 const trim: TrimTo = new TrimTo();
 
-test('Trim to test1 ', () => {
+test('Trim to test1 ', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map<string, string | number>([
             [TrimTo.PARAMETER_STRING_NAME, ' THIScompatY IS A NOcoDE plATFNORM'],
@@ -11,12 +11,12 @@ test('Trim to test1 ', () => {
         ]),
     );
 
-    expect(trim.execute(fep).allResults()[0].getResult().get(TrimTo.EVENT_RESULT_NAME)).toBe(
-        ' THIScompatY I',
-    );
+    expect(
+        (await trim.execute(fep)).allResults()[0].getResult().get(TrimTo.EVENT_RESULT_NAME),
+    ).toBe(' THIScompatY I');
 });
 
-test('Trim to test2 ', () => {
+test('Trim to test2 ', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map<string, string | number>([
             [TrimTo.PARAMETER_STRING_NAME, ' THIScompatY IS A NOcoDE plATFNORM'],
@@ -24,5 +24,7 @@ test('Trim to test2 ', () => {
         ]),
     );
 
-    expect(trim.execute(fep).allResults()[0].getResult().get(TrimTo.EVENT_RESULT_NAME)).toBe('');
+    expect(
+        (await trim.execute(fep)).allResults()[0].getResult().get(TrimTo.EVENT_RESULT_NAME),
+    ).toBe('');
 });

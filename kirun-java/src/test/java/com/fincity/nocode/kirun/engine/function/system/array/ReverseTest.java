@@ -59,32 +59,22 @@ class ReverseTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(6)))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep);
 
 		JsonArray res = new JsonArray();
-		res.add('a');
-		res.add('b');
-		res.add('c');
-		res.add('b');
-		res.add('a');
-		res.add('d');
-		res.add('c');
-		res.add('d');
+		res.add('a'); //0
+		res.add('b'); //1
+		res.add('d'); //2
+		res.add('c'); //3
+		res.add('b'); //4
+		res.add('a'); //5
+		res.add('d'); //6
+		res.add('c'); //7
 
-//check here
-
-//		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
-//				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-//						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-//						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-//				.setContext(Map.of()).setSteps(Map.of());
-//
-//		rev.execute(fep1);
-//
-//		assertEquals(res, arr);
+		assertEquals(res, arr);
 
 	}
 

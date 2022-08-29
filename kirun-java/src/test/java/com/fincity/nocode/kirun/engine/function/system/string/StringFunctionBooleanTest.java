@@ -18,19 +18,19 @@ public class StringFunctionBooleanTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "Blank")
+				stringFunction.find(Namespaces.STRING, "IsBlank")
 						.execute(new FunctionExecutionParameters().setArguments(
 								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "Blank")
+				stringFunction.find(Namespaces.STRING, "IsBlank")
 						.execute(new FunctionExecutionParameters()
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "Blank")
+				stringFunction.find(Namespaces.STRING, "IsBlank")
 						.execute(new FunctionExecutionParameters().setArguments(Map.of("value", new JsonPrimitive(""))))
 						.allResults().get(0).getResult().get("value"));
 
@@ -42,19 +42,19 @@ public class StringFunctionBooleanTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "Empty")
+				stringFunction.find(Namespaces.STRING, "IsEmpty")
 						.execute(new FunctionExecutionParameters().setArguments(
 								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "Empty")
+				stringFunction.find(Namespaces.STRING, "IsEmpty")
 						.execute(new FunctionExecutionParameters()
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "Empty")
+				stringFunction.find(Namespaces.STRING, "IsEmpty")
 						.execute(new FunctionExecutionParameters().setArguments(Map.of("value", new JsonPrimitive(""))))
 						.allResults().get(0).getResult().get("value"));
 

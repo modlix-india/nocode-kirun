@@ -29,7 +29,7 @@ export class If extends AbstractFunction {
         return If.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         var condition = context.getArguments()?.get(If.CONDITION);
 
         return new FunctionOutput([

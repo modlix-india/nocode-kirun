@@ -37,7 +37,7 @@ public class Reverse extends AbstractArrayFunction {
 
 		int endPoint = st + length - 1;
 
-		while (st <= endPoint) {
+		while (st < endPoint) {
 			JsonElement first = source.get(st);
 			JsonElement last = source.get(endPoint);
 			source.set(st++, last);

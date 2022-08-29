@@ -20,8 +20,9 @@ export class Reverse extends AbstractFunction {
             new Map([
                 [
                     this.VALUE,
-                   new Parameter(this.VALUE,Schema.ofString(this.VALUE))
-                        .setVariableArgument(true),
+                    new Parameter(this.VALUE, Schema.ofString(this.VALUE)).setVariableArgument(
+                        true,
+                    ),
                 ],
             ]),
         )
@@ -48,7 +49,7 @@ export class Reverse extends AbstractFunction {
         return this.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let acutalString: string = context.getArguments()?.get(this.VALUE);
         let stringLength: number = acutalString.length - 1;
         let reversedString: string = '';

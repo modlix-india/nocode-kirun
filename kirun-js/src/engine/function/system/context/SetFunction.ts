@@ -47,7 +47,7 @@ export class SetFunction extends AbstractFunction {
         return SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let key: string = context?.getArguments()?.get(NAME);
 
         if (StringUtil.isNullOrBlank(key)) {
@@ -98,147 +98,134 @@ export class SetFunction extends AbstractFunction {
                     ),
                 );
         }
+        return this.modifyContext(context, key, value, exp);
+    }
 
-        let tokens: LinkedList<ExpressionToken> = exp.getTokens();
+    private modifyContext(
+        context: FunctionExecutionParameters,
+        key: string,
+        value: any,
+        exp: Expression,
+    ): FunctionOutput {
+        const tokens = exp.getTokens();
         tokens.removeLast();
-        let ops: LinkedList<Operation> = exp.getOperations();
+        const ops = exp.getOperations();
         ops.removeLast();
         let ce: ContextElement | undefined = context
             .getContext()
             ?.get(tokens.removeLast().getExpression());
 
-        if (!ce) {
+        if (isNullValue(ce)) {
             throw new KIRuntimeException(
                 StringFormatter.format("Context doesn't have any element with name '$' ", key),
             );
         }
 
         if (ops.isEmpty()) {
-            ce.setElement(value);
+            ce!.setElement(value);
             return new FunctionOutput([EventResult.outputOf(new Map())]);
         }
 
-        let el: any = ce.getElement();
+        let el: any = ce!.getElement();
 
-        while (ops.size() > 1) {
-            if (isNullValue(el)) {
-                throw new KIRuntimeException(
-                    StringFormatter.format('Unable to set the context in the path $', key),
-                );
-            }
+        let op = ops.removeLast();
+        let token = tokens.removeLast();
+        let mem =
+            token instanceof ExpressionTokenValue
+                ? (token as ExpressionTokenValue).getElement()
+                : token.getExpression();
 
-            const op: Operation = ops.removeLast();
-            const token: ExpressionToken = tokens.removeLast();
+        if (isNullValue(el)) {
+            el = op == Operation.OBJECT_OPERATOR ? {} : [];
+            ce!.setElement(el);
+        }
+
+        while (!ops.isEmpty()) {
             if (op == Operation.OBJECT_OPERATOR) {
-                if (typeof el != 'object') {
-                    throw new KIRuntimeException(
-                        StringFormatter.format('$ has no object in the context', key),
-                    );
-                }
-
-                let mem: string | undefined = undefined;
-                if (token instanceof ExpressionTokenValue)
-                    mem = (token as ExpressionTokenValue).getTokenValue().getAsString();
-                else mem = token.getExpression();
-
-                el = el.getAsJsonObject().get(mem);
+                el = this.getDataFromObject(el, mem, ops.peekLast());
             } else {
-                const je: any =
-                    token instanceof ExpressionTokenValue
-                        ? (token as ExpressionTokenValue).getElement()
-                        : token.getExpression();
-
-                if (Array.isArray(je) || typeof je === 'object') {
-                    throw new KIRuntimeException(
-                        StringFormatter.format(
-                            'Cannot extract json with key $ from the object $',
-                            je,
-                            el,
-                        ),
-                    );
-                }
-
-                if (Array.isArray(el)) {
-                    const prim: Tuple2<SchemaType, any> = PrimitiveUtil.findPrimitive(je);
-
-                    if (prim.getT1() != SchemaType.INTEGER || prim.getT1() != SchemaType.LONG) {
-                        throw new KIRuntimeException(
-                            StringFormatter.format('Expecting a numerical index but found $', je),
-                        );
-                    }
-
-                    let index = prim.getT2() as number;
-                    if (index >= el.length)
-                        throw new KIRuntimeException(
-                            StringFormatter.format('Index out of bound while accessing $', key),
-                        );
-                    el = el[index];
-                } else {
-                    const mem: string = je.getAsString();
-                    el = el[mem];
-                }
-            }
-        }
-
-        if (el == null) {
-            throw new KIRuntimeException(
-                StringFormatter.format('Unable to set the context in the path $', key),
-            );
-        }
-
-        const op: Operation = ops.removeLast();
-        const token: ExpressionToken = tokens.removeLast();
-
-        // TODO: Here I need to validate the schema of the value I have to put in the
-        // context.
-
-        if (op == Operation.OBJECT_OPERATOR) {
-            if (typeof el == 'object') {
-                throw new KIRuntimeException(
-                    StringFormatter.format('$ has no object in the context', key),
-                );
+                el = this.getDataFromArray(el, mem, ops.peekLast());
             }
 
-            let mem: string;
-            if (token instanceof ExpressionTokenValue)
-                mem = (token as ExpressionTokenValue).getTokenValue();
-            else mem = token.getExpression();
-
-            el[mem] = value;
-        } else {
-            let je =
+            op = ops.removeLast();
+            token = tokens.removeLast();
+            mem =
                 token instanceof ExpressionTokenValue
                     ? (token as ExpressionTokenValue).getElement()
                     : token.getExpression();
-
-            if (Array.isArray(je) || typeof je === 'object') {
-                throw new KIRuntimeException(
-                    StringFormatter.format(
-                        'Cannot extract json with key $ from the object $',
-                        je,
-                        el,
-                    ),
-                );
-            }
-
-            if (Array.isArray(el)) {
-                const prim: Tuple2<SchemaType, any> = PrimitiveUtil.findPrimitive(je);
-
-                if (prim.getT1() != SchemaType.INTEGER && prim.getT1() != SchemaType.LONG) {
-                    throw new KIRuntimeException(
-                        StringFormatter.format('Expecting a numerical index but found $', je),
-                    );
-                }
-
-                let index = prim.getT2() as number;
-                while (index >= el.length) el.push(undefined);
-                el[index] = value;
-            } else {
-                let mem: string = je;
-                el[mem] = value;
-            }
         }
 
+        if (op == Operation.OBJECT_OPERATOR) this.putDataInObject(el, mem, value);
+        else this.putDataInArray(el, mem, value);
+
         return new FunctionOutput([EventResult.outputOf(new Map())]);
+    }
+
+    private getDataFromArray(el: any, mem: string, nextOp: Operation): any {
+        if (!Array.isArray(el))
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an array but found $', el),
+            );
+
+        const index = parseInt(mem);
+        if (isNaN(index))
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an array index but found $', mem),
+            );
+        if (index < 0)
+            throw new KIRuntimeException(
+                StringFormatter.format('Array index is out of bound - $', mem),
+            );
+
+        let je = el[index];
+
+        if (isNullValue(je)) {
+            je = nextOp == Operation.OBJECT_OPERATOR ? {} : [];
+            el[index] = je;
+        }
+        return je;
+    }
+
+    private getDataFromObject(el: any, mem: string, nextOp: Operation): any {
+        if (Array.isArray(el) || typeof el !== 'object')
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an object but found $', el),
+            );
+
+        let je = el[mem];
+
+        if (isNullValue(je)) {
+            je = nextOp == Operation.OBJECT_OPERATOR ? {} : [];
+            el[mem] = je;
+        }
+        return je;
+    }
+
+    private putDataInArray(el: any, mem: string, value: any): void {
+        if (!Array.isArray(el))
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an array but found $', el),
+            );
+
+        const index = parseInt(mem);
+        if (isNaN(index))
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an array index but found $', mem),
+            );
+        if (index < 0)
+            throw new KIRuntimeException(
+                StringFormatter.format('Array index is out of bound - $', mem),
+            );
+
+        el[index] = value;
+    }
+
+    private putDataInObject(el: any, mem: string, value: any): void {
+        if (Array.isArray(el) || typeof el !== 'object')
+            throw new KIRuntimeException(
+                StringFormatter.format('Expected an object but found $', el),
+            );
+
+        el[mem] = value;
     }
 }

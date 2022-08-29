@@ -40,13 +40,18 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1), "length",
-						new JsonPrimitive(7)));
+
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)))
+		        .setContext(Map.of())
+		        .setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
-		assertEquals(res, sub.execute(fep).allResults().get(0).getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()));
+		assertEquals(res, sub.execute(fep)
+		        .allResults()
+		        .get(0)
+		        .getResult()
+		        .get("result"));
 	}
 
 	@Test
@@ -80,14 +85,18 @@ class SubArrayTest {
 		res.add('d');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1123), "length",
-						new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setSteps(Map.of());
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1123), "length",
+		                new JsonPrimitive(arr.size())))
+		        .setContext(Map.of())
+		        .setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
-		assertThrows(KIRuntimeException.class, () -> sub.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> sub.execute(fep)
+		        .allResults()
+		        .get(0)
+		        .getResult()
+		        .get("output"));
 	}
 
 	@Test
@@ -114,14 +123,17 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4), "length",
-						new JsonPrimitive(4)))
-				.setContext(Map.of()).setSteps(Map.of());
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
+		        .setContext(Map.of())
+		        .setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
-		assertEquals(res, sub.execute(fep).allResults().get(0).getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()));
+		assertEquals(res, sub.execute(fep)
+		        .allResults()
+		        .get(0)
+		        .getResult()
+		        .get("result"));
 	}
 
 	@Test
@@ -147,15 +159,17 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4), "length",
-						new JsonPrimitive(4)))
-				.setContext(Map.of()).setSteps(Map.of());
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
+		        .setContext(Map.of())
+		        .setSteps(Map.of());
 
 		SubArray sub = new SubArray();
 
-		assertEquals(res, sub.execute(fep).allResults().get(0).getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()));
-
+		assertEquals(res, sub.execute(fep)
+		        .allResults()
+		        .get(0)
+		        .getResult()
+		        .get("result"));
 	}
 
 	@Test
@@ -246,14 +260,17 @@ class SubArrayTest {
 		res.add(array1);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
-				.setArguments(Map.of(SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2), "length",
-						new JsonPrimitive(3)))
-				.setContext(Map.of()).setSteps(Map.of());
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(3)))
+		        .setContext(Map.of())
+		        .setSteps(Map.of());
 
-		SubArray sub = new SubArray();
+		SubArray mis = new SubArray();
 
-		assertEquals(res, sub.execute(fep).allResults().get(0).getResult().get(SubArray.EVENT_RESULT_ARRAY.getName()));
+		assertEquals(res, mis.execute(fep)
+		        .allResults()
+		        .get(0)
+		        .getResult()
+		        .get("result"));
 
 	}
 }

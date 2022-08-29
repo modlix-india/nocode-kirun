@@ -13,11 +13,15 @@ export class ToString extends AbstractFunction {
 
     protected readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_INPUT_ANYTYPE: Parameter =new Parameter(this.PARAMETER_INPUT_ANYTYPE_NAME,Schema.ofAny(this.PARAMETER_INPUT_ANYTYPE_NAME));
+    protected readonly PARAMETER_INPUT_ANYTYPE: Parameter = new Parameter(
+        this.PARAMETER_INPUT_ANYTYPE_NAME,
+        Schema.ofAny(this.PARAMETER_INPUT_ANYTYPE_NAME),
+    );
 
-    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
-            new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
-        );
+    protected readonly EVENT_STRING: Event = new Event(
+        Event.OUTPUT,
+        new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
+    );
 
     public getSignature(): FunctionSignature {
         return new FunctionSignature('ToString')
@@ -34,7 +38,7 @@ export class ToString extends AbstractFunction {
         super();
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let input: any = context.getArguments()?.get(this.PARAMETER_INPUT_ANYTYPE_NAME);
         let output: string = input + '';
 

@@ -8,7 +8,7 @@ export class Shuffle extends AbstractArrayFunction {
         super('Shuffle', [Shuffle.PARAMETER_ARRAY_SOURCE], Shuffle.EVENT_RESULT_EMPTY);
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName());

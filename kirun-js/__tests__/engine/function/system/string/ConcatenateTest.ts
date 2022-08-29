@@ -4,7 +4,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const cat: Concatenate = new Concatenate();
 
-test('conatenate test1', () => {
+test('conatenate test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     let array: string[] = [];
@@ -23,12 +23,12 @@ test('conatenate test1', () => {
 
     fep.setArguments(MapUtil.of('value', array));
 
-    expect(cat.execute(fep).allResults()[0].getResult().get('value')).toBe(
+    expect((await cat.execute(fep)).allResults()[0].getResult().get('value')).toBe(
         'I am using eclipse to test the changes with test Driven developement',
     );
 });
 
-test('conatenate test2', () => {
+test('conatenate test2', async () => {
     let list: string[] = [];
     list.push('no code ');
     list.push(' Kirun ');
@@ -40,7 +40,7 @@ test('conatenate test2', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(MapUtil.of('value', list));
-    expect(cat.execute(fep).allResults()[0].getResult().get('value')).toBe(
+    expect((await cat.execute(fep)).allResults()[0].getResult().get('value')).toBe(
         'no code  Kirun  true "\'this is between the strings qith special characters\'" PLATform 2',
     );
 });

@@ -17,20 +17,30 @@ export class DeleteForGivenLength extends AbstractFunction {
 
     public static readonly EVENT_RESULT_NAME: string = 'result';
 
-    protected readonly PARAMETER_STRING: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_STRING_NAME,Schema.ofString(DeleteForGivenLength.PARAMETER_STRING_NAME));
+    protected readonly PARAMETER_STRING: Parameter = new Parameter(
+        DeleteForGivenLength.PARAMETER_STRING_NAME,
+        Schema.ofString(DeleteForGivenLength.PARAMETER_STRING_NAME),
+    );
 
-    protected readonly PARAMETER_AT_START: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_AT_START_NAME,Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_START_NAME));
+    protected readonly PARAMETER_AT_START: Parameter = new Parameter(
+        DeleteForGivenLength.PARAMETER_AT_START_NAME,
+        Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_START_NAME),
+    );
 
-    protected readonly PARAMETER_AT_END: Parameter =new Parameter(DeleteForGivenLength.PARAMETER_AT_END_NAME,Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_END_NAME));
+    protected readonly PARAMETER_AT_END: Parameter = new Parameter(
+        DeleteForGivenLength.PARAMETER_AT_END_NAME,
+        Schema.ofInteger(DeleteForGivenLength.PARAMETER_AT_END_NAME),
+    );
 
-    protected readonly EVENT_STRING: Event =new Event(Event.OUTPUT,
-            new Map([
-                [
-                    DeleteForGivenLength.EVENT_RESULT_NAME,
-                    Schema.ofString(DeleteForGivenLength.EVENT_RESULT_NAME),
-                ],
-            ]),
-        );
+    protected readonly EVENT_STRING: Event = new Event(
+        Event.OUTPUT,
+        new Map([
+            [
+                DeleteForGivenLength.EVENT_RESULT_NAME,
+                Schema.ofString(DeleteForGivenLength.EVENT_RESULT_NAME),
+            ],
+        ]),
+    );
 
     private signature: FunctionSignature = new FunctionSignature('DeleteForGivenLength')
         .setNamespace(Namespaces.STRING)
@@ -51,7 +61,7 @@ export class DeleteForGivenLength extends AbstractFunction {
         return this.signature;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let inputString: string = context
             ?.getArguments()
             ?.get(DeleteForGivenLength.PARAMETER_STRING_NAME);

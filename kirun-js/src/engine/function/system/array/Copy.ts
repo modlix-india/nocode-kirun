@@ -21,7 +21,7 @@ export class Copy extends AbstractArrayFunction {
         );
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         var source = context?.getArguments()?.get(Copy.PARAMETER_ARRAY_SOURCE.getParameterName());
         var srcfrom = context
             ?.getArguments()

@@ -1,9 +1,8 @@
 import { Delete } from '../../../../../src/engine/function/system/array/Delete';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-let delet: Delete = new Delete();
-
-test('Delete Test 1', () => {
+test('Delete Test 1', async () => {
+    let delet: Delete = new Delete();
     let source: any[] = [12, 14, 15, 9];
 
     let secondSource: any[] = [14, 15];
@@ -20,12 +19,13 @@ test('Delete Test 1', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(source).toStrictEqual(temp);
 });
 
-test('Delete Test 2', () => {
+test('Delete Test 2', async () => {
+    let delet: Delete = new Delete();
     let source: any[] = ['nocode', 'platform', 14];
 
     let secondSource: any[] = ['platform'];
@@ -42,12 +42,14 @@ test('Delete Test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(source).toStrictEqual(temp);
 });
 
-test('Delete Test 3', () => {
+
+test('Delete Test 3', async () => {
+    let delet: Delete = new Delete();
     let source = undefined;
 
     let secondSource: any[] = ['platform'];
@@ -62,10 +64,11 @@ test('Delete Test 3', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => delet.execute(fep)).toThrow();
+    await expect(delet.execute(fep)).rejects.toThrow();
 });
 
-test('Delete Test 3', () => {
+test('Delete Test 3', async () => {
+    let delet: Delete = new Delete();
     let source: any[] = ['platform'];
 
     let secondSource = undefined;
@@ -80,10 +83,11 @@ test('Delete Test 3', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => delet.execute(fep)).toThrow();
+    await expect(delet.execute(fep)).rejects.toThrow();
 });
 
-test('Delete Test 4', () => {
+test('Delete Test 4', async () => {
+    let delet: Delete = new Delete();
     let source: any[] = ['platform'];
 
     let secondSource: any[] = [];
@@ -98,7 +102,7 @@ test('Delete Test 4', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    expect(() => delet.execute(fep)).toThrow();
+    await expect(delet.execute(fep)).rejects.toThrow();
 });
 
 test('Delete Test 5', () => {

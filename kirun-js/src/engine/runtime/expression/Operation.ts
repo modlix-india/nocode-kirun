@@ -6,9 +6,9 @@ export class Operation {
     public static readonly ADDITION: Operation = new Operation('+');
     public static readonly SUBTRACTION: Operation = new Operation('-');
 
-    public static readonly NOT: Operation = new Operation('not');
-    public static readonly AND: Operation = new Operation('and');
-    public static readonly OR: Operation = new Operation('or');
+    public static readonly NOT: Operation = new Operation('not', undefined, true);
+    public static readonly AND: Operation = new Operation('and', undefined, true);
+    public static readonly OR: Operation = new Operation('or', undefined, true);
     public static readonly LESS_THAN: Operation = new Operation('<');
     public static readonly LESS_THAN_EQUAL: Operation = new Operation('<=');
     public static readonly GREATER_THAN: Operation = new Operation('>');
@@ -144,6 +144,18 @@ export class Operation {
         ].map((e) => e.getOperator()),
     );
 
+    public static readonly OPERATORS_WITHOUT_SPACE_WRAP: Set<string> = new Set(
+        [
+            ...Array.from(Operation.ARITHMETIC_OPERATORS),
+            ...Array.from(Operation.LOGICAL_OPERATORS),
+            ...Array.from(Operation.BITWISE_OPERATORS),
+            Operation.ARRAY_OPERATOR,
+            Operation.OBJECT_OPERATOR,
+        ]
+            .filter((e) => !e.shouldBeWrappedInSpace())
+            .map((e) => e.getOperator()),
+    );
+
     public static readonly OPERATION_VALUE_OF: Map<string, Operation> = new Map(
         Array.from(Operation.VALUE_OF.entries()).map(([_, o]) => [o.getOperator(), o]),
     );
@@ -167,9 +179,15 @@ export class Operation {
 
     private operator: string;
     private operatorName: string;
-    public constructor(operator: string, operatorName?: string) {
+    private _shouldBeWrappedInSpace: boolean;
+    public constructor(
+        operator: string,
+        operatorName?: string,
+        shouldBeWrappedInSpace: boolean = false,
+    ) {
         this.operator = operator;
         this.operatorName = operatorName ?? operator;
+        this._shouldBeWrappedInSpace = shouldBeWrappedInSpace;
     }
 
     public getOperator(): string {
@@ -178,6 +196,10 @@ export class Operation {
 
     public getOperatorName(): string {
         return this.operatorName;
+    }
+
+    public shouldBeWrappedInSpace(): boolean {
+        return this._shouldBeWrappedInSpace;
     }
 
     public valueOf(str: string): Operation | undefined {

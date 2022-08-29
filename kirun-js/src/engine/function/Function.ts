@@ -9,5 +9,5 @@ export interface Function {
 
     getProbableEventSignature(probableParameters: Map<string, Schema[]>): Map<string, Event>;
 
-    execute(context: FunctionExecutionParameters): FunctionOutput;
+    execute(context: FunctionExecutionParameters): Promise<FunctionOutput>;
 }

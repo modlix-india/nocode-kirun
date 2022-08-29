@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let max: Max = new Max();
 
-test('max test 1 ', () => {
+test('max test 1 ', async () => {
     let arr: any[] = [];
     arr.push(null);
     arr.push(12);
@@ -12,22 +12,22 @@ test('max test 1 ', () => {
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
 
-    expect(max.execute(fep).allResults()[0].getResult().get(Max.EVENT_RESULT_ANY.getName())).toBe(
-        12,
-    );
+    expect(
+        (await max.execute(fep)).allResults()[0].getResult().get(Max.EVENT_RESULT_ANY.getName()),
+    ).toBe(12);
 });
 
-test('max test 2 ', () => {
+test('max test 2 ', async () => {
     let arr: any[] = [];
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
 
-    expect(() => max.execute(fep)).toThrow();
+    await expect(max.execute(fep)).rejects.toThrow();
 });
 
-test('max test 3', () => {
+test('max test 3', async () => {
     let arr: any[] = [];
     arr.push(12);
     arr.push(15);
@@ -38,10 +38,10 @@ test('max test 3', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
-    expect(max.execute(fep).allResults()[0].getResult().get('output')).toBe(98);
+    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe(98);
 });
 
-test('Max test 4', () => {
+test('Max test 4', async () => {
     let arr: any[] = [];
     arr.push('nocode');
     arr.push('NoCode');
@@ -49,17 +49,17 @@ test('Max test 4', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
-    expect(max.execute(fep).allResults()[0].getResult().get('output')).toBe('platform');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('platform');
 });
 
-test('Max test 6', () => {
+test('Max test 6', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), null]]),
     );
-    expect(() => max.execute(fep)).toThrow();
+    await expect(max.execute(fep)).rejects.toThrow();
 });
 
-test('Max test 5', () => {
+test('Max test 5', async () => {
     let arr: any[] = [];
 
     arr.push(456);
@@ -72,10 +72,10 @@ test('Max test 5', () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
-    expect(max.execute(fep).allResults()[0].getResult().get('output')).toBe('platform');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('platform');
 });
 
-test('Max test 7', () => {
+test('Max test 7', async () => {
     let arr1: any[] = [];
     arr1.push('c');
     arr1.push('r');
@@ -85,14 +85,14 @@ test('Max test 7', () => {
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr1]]),
     );
 
-    expect(max.execute(fep).allResults()[0].getResult().get('output')).toBe('s');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('s');
 });
 
-test('Max test 8', () => {
+test('Max test 8', async () => {
     let arr: any[] = ['surendhar'];
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
         new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]),
     );
 
-    expect(max.execute(fep).allResults()[0].getResult().get('output')).toBe('surendhar');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('surendhar');
 });

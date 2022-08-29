@@ -4,7 +4,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 const reve: InsertAtGivenPosition = new InsertAtGivenPosition();
 
-test('InsertATGivenPositions test1', () => {
+test('InsertATGivenPositions test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -17,10 +17,10 @@ test('InsertATGivenPositions test1', () => {
 
     let padded: string = ' THIScsurendharompatY IS A NOcoDE plATFNORM';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(padded);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(padded);
 });
 
-test('InsertATGivenPositions test2', () => {
+test('InsertATGivenPositions test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -33,10 +33,10 @@ test('InsertATGivenPositions test2', () => {
 
     let padded: string = ' THIScsurendharompatY IS A NOcoDE plATFNORM';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(padded);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(padded);
 });
 
-test('InsertATGivenPositions test3', () => {
+test('InsertATGivenPositions test3', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
 
     fep.setArguments(
@@ -49,5 +49,5 @@ test('InsertATGivenPositions test3', () => {
 
     let padded: string = ' THIScompatY IS A NOcoDE plATsurendharFNORM';
 
-    expect(reve.execute(fep).allResults()[0].getResult().get('result')).toBe(padded);
+    expect((await reve.execute(fep)).allResults()[0].getResult().get('result')).toBe(padded);
 });

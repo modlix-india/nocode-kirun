@@ -4,7 +4,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
 const Spli: Split = new Split();
 
-test('split test1', () => {
+test('split test1', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(
         MapUtil.of(
@@ -29,10 +29,12 @@ test('split test1', () => {
     array.push('Driven');
     array.push('developement');
 
-    expect(Spli.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(array);
+    expect((await Spli.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(
+        array,
+    );
 });
 
-test('split test2', () => {
+test('split test2', async () => {
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
     fep.setArguments(
         MapUtil.of(
@@ -57,5 +59,7 @@ test('split test2', () => {
     array.push('m');
     array.push('nt');
 
-    expect(Spli.execute(fep).allResults()[0].getResult().get('output')).toStrictEqual(array);
+    expect((await Spli.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(
+        array,
+    );
 });

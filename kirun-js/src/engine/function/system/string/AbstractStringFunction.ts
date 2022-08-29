@@ -120,7 +120,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -160,7 +162,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -200,7 +204,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s1: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -237,7 +243,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -272,7 +280,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -308,7 +318,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -353,7 +365,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
@@ -401,7 +415,9 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                     super(namespace, functionName, event, ...parameter);
                 }
 
-                protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
                     let s1: string = context
                         ?.getArguments()
                         ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);

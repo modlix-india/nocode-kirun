@@ -1,0 +1,43 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Dependencies
+        working-directory: ./kirun-js
+        run: npm ci
+      - name: Build JS
+        working-directory: ./kirun-js
+        run: npm run build
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Install Dependencies
+        working-directory: ./kirun-js
+        run: npm ci
+      - name: Build JS
+        working-directory: ./kirun-js
+        run: npm run build
+      - name: Publish to NPM
+        working-directory: ./kirun-js
+        run: npm publish --access public    
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

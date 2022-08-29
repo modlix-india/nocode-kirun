@@ -1,7 +1,7 @@
 import { LastIndexOf } from '../../../../../src/engine/function/system/array/LastIndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-test('Last Index of Test 1', () => {
+test('Last Index of Test 1', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let array: string[] = [];
@@ -33,15 +33,14 @@ test('Last Index of Test 1', () => {
         ]),
     );
     expect(
-        lind
-            .execute(fep)
+        (await lind.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(13);
 });
 
-test('Last Index of Test 2', () => {
+test('Last Index of Test 2', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let array: string[] = [];
@@ -72,10 +71,10 @@ test('Last Index of Test 2', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow();
+    await expect(lind.execute(fep)).rejects.toThrow();
 });
 
-test('Last Index of Test 3', () => {
+test('Last Index of Test 3', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let array: string[] = [];
@@ -106,10 +105,10 @@ test('Last Index of Test 3', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow();
+    await expect(lind.execute(fep)).rejects.toThrow();
 });
 
-test('Last Index of Test 4', () => {
+test('Last Index of Test 4', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let array: string[] = [];
@@ -141,8 +140,7 @@ test('Last Index of Test 4', () => {
         ]),
     );
     expect(
-        lind
-            .execute(fep)
+        (await lind.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
@@ -156,15 +154,14 @@ test('Last Index of Test 4', () => {
         ]),
     );
     expect(
-        lind
-            .execute(fep)
+        (await lind.execute(fep))
             .allResults()[0]
             .getResult()
             .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
     ).toBe(-1);
 });
 
-test('Last Index of Test 5', () => {
+test('Last Index of Test 5', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let array: string[] = [];
@@ -195,10 +192,10 @@ test('Last Index of Test 5', () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
-    expect(() => lind.execute(fep)).toThrow();
+    await expect(lind.execute(fep)).rejects.toThrow();
 });
 
-test('Last Index of Test 6', () => {
+test('Last Index of Test 6', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
     let arr: any[] = [];
@@ -248,6 +245,9 @@ test('Last Index of Test 6', () => {
         ]),
     );
     expect(
-        lind.execute(fep).allResults()[0].getResult().get(LastIndexOf.EVENT_RESULT_EMPTY.getName()),
+        (await lind.execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(LastIndexOf.EVENT_RESULT_EMPTY.getName()),
     ).toBe(4);
 });

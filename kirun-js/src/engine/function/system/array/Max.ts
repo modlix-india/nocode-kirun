@@ -10,7 +10,7 @@ export class Max extends AbstractArrayFunction {
         super('Max', [Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE], Max.EVENT_RESULT_ANY);
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let source: any[] = context
             ?.getArguments()
             ?.get(Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName());

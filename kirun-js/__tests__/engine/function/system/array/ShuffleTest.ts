@@ -3,7 +3,7 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 let shuffle: Shuffle = new Shuffle();
 
-test('shuffle test 1', () => {
+test('shuffle test 1', async () => {
     let array: any[] = [];
     array.push('I');
     array.push('am');
@@ -45,14 +45,17 @@ test('shuffle test 1', () => {
 
     let set2: Set<any> = new Set<any>();
 
-    shuffle.execute(fep).allResults()[0].getResult().get(Shuffle.EVENT_RESULT_EMPTY.getName());
+    (await shuffle.execute(fep))
+        .allResults()[0]
+        .getResult()
+        .get(Shuffle.EVENT_RESULT_EMPTY.getName());
 
     array.forEach((element) => set2.add(element));
 
     expect(set2).toStrictEqual(set1);
 });
 
-test('Shuffle test 2', () => {
+test('Shuffle test 2', async () => {
     let array1: any[] = [];
     array1.push('test');
     array1.push('Driven');
@@ -144,7 +147,7 @@ test('Shuffle test 2', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    shuffle.execute(fep);
+    await shuffle.execute(fep);
 
     let Set2: Set<object> = new Set<Object>();
 
