@@ -28,12 +28,12 @@ public class Reverse extends AbstractArrayFunction {
 		int length = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive()
 				.getAsInt();
 
-		if (length > source.size() || length > source.size() - st || st < 0)
-			throw new KIRuntimeException(
-					"Please provide start point between the start and end indexes or provide the length which was less than the source size ");
-
 		if (length == -1)
 			length = source.size() - st;
+
+		if (length >= source.size() || length < 0 || st < 0)
+			throw new KIRuntimeException(
+					"Please provide start point between the start and end indexes or provide the length which was less than the source size ");
 
 		int endPoint = st + length - 1;
 

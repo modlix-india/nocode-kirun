@@ -49,11 +49,11 @@ class ReverseTest {
 		JsonArray arr = new JsonArray();
 		arr.add('a');
 		arr.add('b');
-		arr.add('c');
+		arr.add('c');//
 		arr.add('d');
 		arr.add('a');
 		arr.add('b');
-		arr.add('c');
+		arr.add('c');//
 		arr.add('d');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()

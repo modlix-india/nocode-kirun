@@ -40,6 +40,7 @@ class SubArrayTest {
 		res.add('b');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)))
 		        .setContext(Map.of())
 		        .setSteps(Map.of());
@@ -169,7 +170,6 @@ class SubArrayTest {
 		        .get(0)
 		        .getResult()
 		        .get("result"));
-
 	}
 
 	@Test
