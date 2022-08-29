@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -75,7 +76,7 @@ class FillTest {
         .setSteps(Map.of());
 		
 		
-		assertThrows(IndexOutOfBoundsException.class, () -> fill.execute(fep));
+		assertThrows(SchemaValidationException.class, () -> fill.execute(fep));
 	}
 
 }
