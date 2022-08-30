@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
-
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
@@ -10,7 +11,6 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
 class RandomIntTest {
-
 	@Test
 	void test1() {
 
@@ -32,7 +32,6 @@ class RandomIntTest {
 	void test2() {
 
 		var min = new JsonPrimitive(1009);
-
 		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("minValue", min));
 
@@ -48,7 +47,6 @@ class RandomIntTest {
 		var min = new JsonPrimitive(1);
 
 		var max = new JsonPrimitive(2);
-
 		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("minValue", min, "maxValue", max));

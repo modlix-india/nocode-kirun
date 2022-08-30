@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
-
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
@@ -30,21 +31,16 @@ class RandomFloatTest {
 	@Test
 	void test2() {
 		var min = new JsonPrimitive(1.09e2);
-
 		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("minValue", min));
-
 		float val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsFloat();
 		System.out.println(val);
-
 		assertTrue(val >= min.getAsFloat() && val <= Float.MAX_VALUE);
 	}
 
 	@Test
 	void test3() {
-
 		var max = new JsonPrimitive(1.23e4);
-
 		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("maxValue", max));
 
