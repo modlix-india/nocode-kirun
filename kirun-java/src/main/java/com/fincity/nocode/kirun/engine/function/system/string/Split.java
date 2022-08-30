@@ -52,14 +52,13 @@ public class Split extends AbstractFunction {
 
 		JsonArray stringSplitedJsonArray = new JsonArray();
 		String[] splitedString = str.split(s2.getAsString());
-
-		int start = 0;
-		while (start <= splitedString.length - 1) {
-			stringSplitedJsonArray.add(splitedString[start]);
-			start++;
+		
+		for (String part : splitedString) {
+			stringSplitedJsonArray.add(part);
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_ARRAY.getName(), stringSplitedJsonArray))));
+
+		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, stringSplitedJsonArray))));
 	}
 
 }

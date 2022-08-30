@@ -1,7 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
-
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 
@@ -11,9 +11,6 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
 class RandomIntTest {
-
-	RandomRepository rand = new RandomRepository();
-
 	@Test
 	void test1() {
 
@@ -21,7 +18,7 @@ class RandomIntTest {
 
 		var max = new JsonPrimitive(1000012);
 
-		AbstractRandom ran = rand.find(MATH, "RandomInteger");
+		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
@@ -35,8 +32,7 @@ class RandomIntTest {
 	void test2() {
 
 		var min = new JsonPrimitive(1009);
-
-		AbstractRandom ran = rand.find(MATH, "RandomInteger");
+		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("minValue", min));
 
 		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();
@@ -51,8 +47,7 @@ class RandomIntTest {
 		var min = new JsonPrimitive(1);
 
 		var max = new JsonPrimitive(2);
-
-		AbstractRandom ran = rand.find(MATH, "RandomInteger");
+		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
@@ -64,7 +59,7 @@ class RandomIntTest {
 
 	@Test
 	void test4() {
-		AbstractRandom ran = rand.find(MATH, "RandomInteger");
+		RandomInt ran = new RandomInt();
 		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of());
 
 		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();

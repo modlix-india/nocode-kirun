@@ -26,9 +26,9 @@ class ReverseTest {
 		source.add(7);
 
 		JsonArray res = new JsonArray();
-		res.add(6);
 		res.add(5);
 		res.add(4);
+		res.add(6);
 		res.add(7);
 
 		fep.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
@@ -49,40 +49,30 @@ class ReverseTest {
 		JsonArray arr = new JsonArray();
 		arr.add('a');
 		arr.add('b');
-		arr.add('c');
+		arr.add('c');//
 		arr.add('d');
 		arr.add('a');
 		arr.add('b');
-		arr.add('c');
+		arr.add('c');//
 		arr.add('d');
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(6)))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		rev.execute(fep);
 
 		JsonArray res = new JsonArray();
-		res.add('a');
-		res.add('b');
-		res.add('d');
-		res.add('c');
-		res.add('b');
-		res.add('a');
-		res.add('d');
-		res.add('c');
-
-		assertEquals(res, arr);
-
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
-				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setSteps(Map.of());
-
-		rev.execute(fep1);
+		res.add('a'); //0
+		res.add('b'); //1
+		res.add('d'); //2
+		res.add('c'); //3
+		res.add('b'); //4
+		res.add('a'); //5
+		res.add('d'); //6
+		res.add('c'); //7
 
 		assertEquals(res, arr);
 
@@ -210,25 +200,14 @@ class ReverseTest {
 		JsonArray res = new JsonArray();
 		res.add('a');
 		res.add('b');
+		res.add('d');
 		res.add('c');
 		res.add('b');
 		res.add('a');
 		res.add('d');
 		res.add('c');
 		res.add('a');
-		res.add('d');
 
 		assertEquals(res, arr);
-
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
-				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
-						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())))
-				.setContext(Map.of()).setSteps(Map.of());
-
-		rev.execute(fep1);
-
-		assertEquals(res, arr);
-
 	}
 }

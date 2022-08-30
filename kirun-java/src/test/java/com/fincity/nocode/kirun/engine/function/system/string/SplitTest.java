@@ -38,7 +38,7 @@ class SplitTest {
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive(" ")));
 
-		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("output"));
+		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("result"));
 
 	}
 
@@ -66,7 +66,7 @@ class SplitTest {
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive("e")));
 
-		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("output"));
+		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("result"));
 
 	}
 

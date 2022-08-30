@@ -145,6 +145,11 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         Schema.ofAnyNotNull('elementObject'),
     );
 
+    public static readonly PARAMETER_ANY_VAR_ARGS: Parameter = Parameter.of(
+        'element',
+        Schema.ofAny('element'),
+    ).setVariableArgument(true);
+
     public static readonly PARAMETER_ARRAY_RESULT: Parameter = Parameter.of(
         AbstractArrayFunction.EVENT_RESULT_NAME,
         Schema.ofArray('eachResult', Schema.ofAny('eachResult')),

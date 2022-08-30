@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -7,55 +8,40 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 
 public class Delete extends AbstractArrayFunction {
 
 	public Delete() {
-		super("Delete", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE, PARAMETER_ARRAY_SECOND_SOURCE), EVENT_RESULT_EMPTY);
+		super("Delete", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_VAR_ARGS), EVENT_RESULT_EMPTY);
 	}
 
 	@Override
 	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
-				.getAsJsonArray();
+		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
-		JsonArray deletable = context.getArguments().get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-				.getAsJsonArray();
+		var receivedArgs = context.getArguments().get(PARAMETER_ANY_VAR_ARGS.getParameterName());
 
-		if (source.isEmpty() || deletable.isEmpty() || deletable.size() > source.size())
-			throw new KIRuntimeException(
-					"Expected a source or deletable for an array but not found any or the deletable size of the array is more than the source array");
+		if (receivedArgs == null || receivedArgs.isJsonNull())
+			throw new KIRuntimeException("The deletable var args are empty. So cannot be proceeded further.");
 
-		int deletableSize = deletable.size();
+		JsonArray deletable = receivedArgs.getAsJsonArray();
 
-		int index = -1;
+		if (source.isEmpty() || deletable.isEmpty())
+			throw new KIRuntimeException("Expected a source or deletable for an array but not found any");
 
-		for (int i = 0; i < source.size(); i++) {
-			int j = 0;
-			if (!source.get(i).isJsonNull() && !deletable.get(j).isJsonNull()
-					&& source.get(i).equals(deletable.get(j))) {
-				while (j < deletableSize) {
-					if (source.get(i).isJsonNull() || deletable.get(j).isJsonNull()
-							|| !source.get(i + j).equals(deletable.get(j))) {
-						break;
-					}
-					j++;
-				}
-				if (j == deletableSize) {
-					index = i;
-					break;
-				}
+		List<Integer> indexes = new ArrayList<>();
+		
+		for (int i = source.size() - 1; i >= 0; i--) {
+			for (int j = 0; j < deletable.size(); j++) {
+				if (!indexes.contains(i) && (PrimitiveUtil.compare(source.get(i), deletable.get(j)) == 0))
+					indexes.add(i);
 			}
 		}
 
-		if (index != -1) {
-			for (int i = index; i <= deletableSize; i++) {
-				source.remove(index);
-			}
-		}
+		indexes.stream().forEach(source::remove);
 
 		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
 	}

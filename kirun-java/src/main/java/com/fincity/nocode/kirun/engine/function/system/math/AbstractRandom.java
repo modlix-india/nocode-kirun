@@ -4,12 +4,12 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
 import java.util.List;
 import java.util.Map;
-
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
+
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
@@ -124,5 +124,5 @@ public class AbstractRandom extends AbstractFunction {
 			return new JsonPrimitive(Double.MAX_VALUE);
 
 	}
-
+	
 }
