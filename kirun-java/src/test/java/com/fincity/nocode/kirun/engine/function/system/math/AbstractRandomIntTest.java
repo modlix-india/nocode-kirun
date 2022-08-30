@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -19,7 +19,7 @@ class AbstractRandomIntTest {
 
 		var max = new JsonPrimitive(1000012);
 
-		AbstractRandom absR = new AbstractRandom("RandomInt", Schema.ofInteger("value"));
+		AbstractRandom absR = new AbstractRandom("RandomInt", SchemaType.INTEGER);
 
 		FunctionExecutionParameters fep = new FunctionExecutionParameters()
 				.setArguments(Map.of("minValue", min, "maxValue", max));
