@@ -2,6 +2,7 @@ import { AdditionalPropertiesType } from '../json/schema/object/AdditionalProper
 import { Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
+import { SchemaReferenceException } from '../json/schema/validator/exception/SchemaReferenceException';
 import { Namespaces } from '../namespaces/Namespaces';
 
 export class Event {
@@ -58,5 +59,19 @@ export class Event {
         parameters: Map<string, Schema>,
     ): [string, Event] {
         return [eventName, new Event(eventName, parameters)];
+    }
+
+    public static from(json: any): Event {
+        return new Event(
+            json.name,
+            new Map(
+                Object.entries(json.parameters ?? {}).map((e: any) => {
+                    const eventSchema = Schema.from(e[1]);
+                    if (!eventSchema)
+                        throw new SchemaReferenceException('', 'Event expects a schema');
+                    return [e[0], eventSchema];
+                }),
+            ),
+        );
     }
 }

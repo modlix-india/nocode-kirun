@@ -98,4 +98,20 @@ export class Statement extends AbstractStatement {
     public static ofEntry(statement: Statement): [string, Statement] {
         return [statement.statementName, statement];
     }
+
+    public static from(json: any): Statement {
+        return new Statement(json.statementName, json.namespace, json.name)
+            .setParameterMap(
+                new Map<string, ParameterReference[]>(
+                    Object.entries(json.parameterMap ?? {}).map(([k, v]) => [
+                        k,
+                        ParameterReference.from(v),
+                    ]),
+                ),
+            )
+            .setDependentStatements(json.dependentStatements)
+            .setPosition(Position.from(json.position))
+            .setComment(json.comment)
+            .setDescription(json.description) as Statement;
+    }
 }
