@@ -49,9 +49,9 @@ export class SchemaUtil {
         let parts: string[] = ref.split('/');
         let i: number = 1;
 
-        schema = SchemaUtil.resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
+        if (i === parts.length) return schema;
 
-        return schema;
+        return SchemaUtil.resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
     }
 
     private static resolveInternalSchema(
@@ -61,8 +61,9 @@ export class SchemaUtil {
         iteration: number,
         parts: string[],
         i: number,
-    ): Schema {
+    ): Schema | undefined {
         let schema: Schema | undefined = inSchema;
+        if (i === parts.length) return undefined;
         while (i < parts.length) {
             if (parts[i] === '$defs') {
                 i++;
@@ -117,7 +118,6 @@ export class SchemaUtil {
         sRepository: Repository<Schema> | undefined,
         ref: string,
     ): Tuple2<Schema, string> | undefined {
-
         if (!sRepository) return undefined;
 
         let nms = StringUtil.splitAtFirstOccurance(inSchem?.getRef() ?? '', '/');

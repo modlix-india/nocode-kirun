@@ -26,14 +26,14 @@ test('KIRuntime With Definition 1', async () => {
         name: 'getAppData',
         namespace: 'UIApp',
         parameters: {
-            a: { parameterName: 'a', schema: { name: 'integer', type: 'INTEGER' } },
-            b: { parameterName: 'b', schema: { name: 'integer', type: 'INTEGER' } },
-            c: { parameterName: 'c', schema: { name: 'integer', type: 'INTEGER' } },
+            a: { parameterName: 'a', schema: { name: 'integer', type: 'Integer' } },
+            b: { parameterName: 'b', schema: { name: 'integer', type: 'Integer' } },
+            c: { parameterName: 'c', schema: { name: 'integer', type: 'Integer' } },
         },
         events: {
             output: {
                 name: 'output',
-                parameters: { additionResult: { name: 'additionResult', type: 'INTEGER' } },
+                parameters: { additionResult: { name: 'additionResult', type: 'Integer' } },
             },
         },
         steps: {

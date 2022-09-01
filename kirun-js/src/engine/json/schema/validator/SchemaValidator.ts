@@ -25,7 +25,10 @@ export class SchemaValidator {
         element: any,
     ): any {
         if (!schema) {
-            return element;
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                'No schema found to validate',
+            );
         }
 
         if (!parents) {
