@@ -1,12 +1,16 @@
 import { Reverse } from '../../../../../src/engine/function/system/array/Reverse';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let rev: Reverse = new Reverse();
 
 test('Reverse test 1 ', async () => {
     let src: any[] = [4, 5, 6, 7];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
@@ -38,7 +42,10 @@ test('Reverse test 2 ', async () => {
     src.push('Driven');
     src.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
@@ -62,7 +69,10 @@ test('Reverse test 3', async () => {
     arr.push('c');
     arr.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setContext(new Map([]))
         .setSteps(new Map([]));
 
@@ -146,7 +156,10 @@ test('Rev test 4', async () => {
     arr.push(array4);
     arr.push(array1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -199,7 +212,10 @@ test('rev test 5', async () => {
     arr.push('c');
     arr.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],

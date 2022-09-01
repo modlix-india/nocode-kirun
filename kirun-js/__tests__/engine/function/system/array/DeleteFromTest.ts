@@ -1,5 +1,6 @@
 import { DeleteFrom } from '../../../../../src/engine/function/system/array/DeleteFrom';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let del: DeleteFrom = new DeleteFrom();
 
@@ -18,7 +19,10 @@ test('delete from 1', async () => {
     arr.push('a');
     arr.push('a');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -57,7 +61,10 @@ test('del from 2 ', async () => {
     arr.push('a');
     arr.push('a');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -182,7 +189,10 @@ test('del from 3 ', async () => {
     res.push(array1);
     res.push(array4);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -217,7 +227,10 @@ test('del from 4', async () => {
     res.push('b');
     res.push('c');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [DeleteFrom.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],

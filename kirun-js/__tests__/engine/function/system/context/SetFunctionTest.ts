@@ -2,11 +2,15 @@ import { Schema } from '../../../../../src';
 import { SetFunction } from '../../../../../src/engine/function/system/context/SetFunction';
 import { ContextElement } from '../../../../../src/engine/runtime/ContextElement';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Set function test 1', async () => {
     let setFunction: SetFunction = new SetFunction();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     let contextMap: Map<string, ContextElement> = new Map();
     contextMap.set('a', new ContextElement(Schema.ofAny('test'), {}));
@@ -35,7 +39,10 @@ test('Set function test 1', async () => {
 test('Set function test 2', async () => {
     let setFunction: SetFunction = new SetFunction();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     let contextMap: Map<string, ContextElement> = new Map();
     contextMap.set('a', new ContextElement(Schema.ofAny('test'), []));
@@ -54,7 +61,10 @@ test('Set function test 2', async () => {
 test('Set function test 3', async () => {
     let setFunction: SetFunction = new SetFunction();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     let contextMap: Map<string, ContextElement> = new Map();
     contextMap.set('a', new ContextElement(Schema.ofAny('test'), {}));

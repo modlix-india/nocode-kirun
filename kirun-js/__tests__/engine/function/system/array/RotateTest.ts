@@ -1,5 +1,6 @@
 import { Rotate } from '../../../../../src/engine/function/system/array/Rotate';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let rotate: Rotate = new Rotate();
 
@@ -18,7 +19,10 @@ test('Rotate test1 ', async () => {
     array.push('Driven');
     array.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Rotate.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
@@ -64,7 +68,10 @@ test('rotate  test 2', async () => {
     src.push('Driven');
     src.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Rotate.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
@@ -109,7 +116,10 @@ test('rotate test 3', async () => {
     array.push('Driven');
     array.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([[Rotate.PARAMETER_ARRAY_SOURCE.getParameterName(), array]]),
         )

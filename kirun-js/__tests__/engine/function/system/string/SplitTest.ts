@@ -1,11 +1,15 @@
 import { Split } from '../../../../../src/engine/function/system/string/Split';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 const Spli: Split = new Split();
 
 test('split test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(
         MapUtil.of(
             'string',
@@ -35,7 +39,10 @@ test('split test1', async () => {
 });
 
 test('split test2', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(
         MapUtil.of(
             'string',

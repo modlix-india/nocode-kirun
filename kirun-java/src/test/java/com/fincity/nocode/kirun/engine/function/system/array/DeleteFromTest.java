@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,7 +41,7 @@ class DeleteFromTest {
 		res.add('e');
 		res.add('f');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(6)))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -77,7 +79,7 @@ class DeleteFromTest {
 		res.add('a');
 		res.add('a');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(3)))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -194,7 +196,7 @@ class DeleteFromTest {
 
 		FunctionExecutionParameters fep =
 
-				new FunctionExecutionParameters()
+				new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(
 								Map.of("source", arr, "srcFrom", new JsonPrimitive(5), "length", new JsonPrimitive(3)))
 						.setContext(Map.of()).setSteps(Map.of());
@@ -235,7 +237,7 @@ class DeleteFromTest {
 //		res.add('a');
 //		res.add('a');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(3))).setContext(Map.of())
 				.setSteps(Map.of());
 

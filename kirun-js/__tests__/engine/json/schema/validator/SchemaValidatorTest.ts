@@ -1,3 +1,4 @@
+import { HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -23,4 +24,32 @@ test('Schema Validator Test 1', () => {
     );
 
     // expect(SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));
+});
+
+test('Schema Validator Test 2', () => {
+    const locationSchema = Schema.from({
+        name: 'Location',
+        namespace: 'Test',
+        type: 'Object',
+        properties: {
+            url: { name: 'url', type: 'String' },
+        },
+        required: ['url'],
+    });
+
+    const repo = new HybridRepository<Schema>(
+        {
+            find(namespace, name): Schema | undefined {
+                if (namespace === 'Test' && name === 'Location') {
+                    return locationSchema;
+                }
+                return undefined;
+            },
+        },
+        new KIRunSchemaRepository(),
+    );
+
+    const obj = { url: 'http://xxxx.com' };
+
+    expect(SchemaValidator.validate(undefined, Schema.ofRef('Test.Location'), repo, obj)).toBe(obj);
 });

@@ -53,16 +53,18 @@ public class SchemaUtil {
 
 		String[] parts = ref.split("/");
 		int i = 1;
+		
+		if (i == parts.length) return schema;
 
-		schema = resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
-
-		return schema;
+		return resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
 	}
 
 	private static Schema resolveInternalSchema(Schema schema, Repository<Schema> sRepository, String ref, // NOSONAR
 	        int iteration, String[] parts, int i) {
 
 		// Cannot divide the code further down in the interest of readability.
+		
+		if (i == parts.length) return null;
 
 		while (i < parts.length) {
 

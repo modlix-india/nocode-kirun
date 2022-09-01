@@ -1,14 +1,16 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -33,7 +35,7 @@ class AddFirstTest {
 		arr1.add('i');
 		arr1.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive('a'))).setContext(Map.of())
 				.setSteps(Map.of());
 
@@ -65,7 +67,7 @@ class AddFirstTest {
 //		res.add('e');
 //		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive("surendhar")))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -193,7 +195,7 @@ class AddFirstTest {
 
 		FunctionExecutionParameters fep =
 
-				new FunctionExecutionParameters().setArguments(Map.of("source", arr, "elementObject", obj))
+				new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr, "elementObject", obj))
 						.setContext(Map.of()).setSteps(Map.of());
 
 		AddFirst add = new AddFirst();
@@ -212,7 +214,7 @@ class AddFirstTest {
 
 		AddFirst ad = new AddFirst();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "elementObject", arr)).setContext(Map.of())
 				.setSteps(Map.of());
 
@@ -230,7 +232,7 @@ class AddFirstTest {
 
 		AddFirst ad = new AddFirst();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", JsonNull.INSTANCE)).setContext(Map.of())
 				.setSteps(Map.of());
 

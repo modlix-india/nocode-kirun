@@ -1,11 +1,15 @@
 import { PostPad } from '../../../../../src/engine/function/system/string/PostPad';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapEntry, MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 const reve: PostPad = new PostPad();
 
 test('postpad test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([
@@ -21,7 +25,10 @@ test('postpad test1', async () => {
 });
 
 test('postpad test2', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([
@@ -37,7 +44,10 @@ test('postpad test2', async () => {
 });
 
 test('postpad test3', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([

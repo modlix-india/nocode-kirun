@@ -1,5 +1,6 @@
 import { Insert } from '../../../../../src/engine/function/system/array/Insert';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Insert of Test 1', async () => {
     let ins: Insert = new Insert();
@@ -23,7 +24,10 @@ test('Insert of Test 1', async () => {
     array.push('Driven');
     array.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
@@ -73,7 +77,10 @@ test('Insert of Test 2', async () => {
     arr.push(7);
     arr.push(8);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -114,7 +121,10 @@ test('Insert of Test 3', async () => {
     arr.push(7);
     arr.push(8);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -155,7 +165,10 @@ test('Insert of Test 4', async () => {
     arr.push(7);
     arr.push(8);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -188,7 +201,10 @@ test('Insert of Test 5', async () => {
 
     let arr: any[] = [];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
@@ -210,7 +226,10 @@ test('Insert of Test 5', async () => {
 test('Insert of Test 6', async () => {
     let ins: Insert = new Insert();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [Insert.PARAMETER_ARRAY_SOURCE.getParameterName(), null],

@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -39,7 +42,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -72,7 +75,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -100,7 +103,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -108,7 +111,7 @@ class LastIndexOfArrayTest {
 		assertThrows(SchemaValidationException.class, () -> lia.execute(fep).allResults().get(0).getResult()
 				.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -142,7 +145,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(-1)));
@@ -174,7 +177,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2)));
@@ -208,7 +211,7 @@ class LastIndexOfArrayTest {
 
 		LastIndexOfArray lia = new LastIndexOfArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2)));
@@ -303,7 +306,7 @@ class LastIndexOfArrayTest {
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2)));

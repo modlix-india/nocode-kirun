@@ -1,5 +1,6 @@
 import { LastIndexOfArray } from '../../../../../src/engine/function/system/array/LastIndexOfArray';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let larr: LastIndexOfArray = new LastIndexOfArray();
 
@@ -24,7 +25,10 @@ test('Last Index of array Test 1', async () => {
     res.push('c');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -57,7 +61,10 @@ test('last index of array test 2', async () => {
     res.push('b');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -88,7 +95,10 @@ test('last index of array test 3', async () => {
     arr.push('c');
     arr.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
@@ -98,7 +108,10 @@ test('last index of array test 3', async () => {
 
     await expect(larr.execute(fep)).rejects.toThrow();
 
-    let fep1: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep1: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
             [LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
@@ -193,7 +206,10 @@ test('last index of array test 4', async () => {
     res.push(array1);
     res.push(array4);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],

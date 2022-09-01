@@ -3,6 +3,7 @@ import { Compare } from '../../../../../src/engine/function/system/array/Compare
 import { FunctionOutput } from '../../../../../src/engine/model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Compare Test 1', async () => {
     let compare: Compare = new Compare();
@@ -27,7 +28,10 @@ test('Compare Test 1', async () => {
 test('Compare Test 2', async () => {
     let compare: Compare = new Compare();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     let source: any[] = [4, 5];
 

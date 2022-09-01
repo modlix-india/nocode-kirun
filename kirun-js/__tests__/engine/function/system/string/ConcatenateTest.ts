@@ -1,3 +1,4 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { Concatenate } from '../../../../../src/engine/function/system/string/Concatenate';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
@@ -5,7 +6,10 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 const cat: Concatenate = new Concatenate();
 
 test('conatenate test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     let array: string[] = [];
     array.push('I ');
@@ -37,7 +41,10 @@ test('conatenate test2', async () => {
     list.push(' PLATform ');
     list.push('2');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(MapUtil.of('value', list));
     expect((await cat.execute(fep)).allResults()[0].getResult().get('value')).toBe(

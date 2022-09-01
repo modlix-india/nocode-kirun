@@ -2,11 +2,15 @@ import { Reverse } from '../../../../../src/engine/function/system/string/Revers
 import { SchemaValidationException } from '../../../../../src/engine/json/schema/validator/exception/SchemaValidationException';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 const reve: Reverse = new Reverse();
 
 test('reverse test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(MapUtil.of('value', ' mr"ofta"lp edoc on a si sihT'));
 
@@ -16,7 +20,10 @@ test('reverse test1', async () => {
 });
 
 test('reverse test2', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(MapUtil.of('value', ' '));
 
@@ -26,7 +33,7 @@ test('reverse test2', async () => {
 });
 
 // test('reverse test3', async () => {
-//     let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+//     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 
 //     fep.setArguments(MapUtil.of('value', null));
 

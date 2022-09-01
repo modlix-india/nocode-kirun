@@ -3,12 +3,16 @@ import { StringFunctionRepository } from '../../../../../src/engine/function/sys
 import { Namespaces } from '../../../../../src/engine/namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 const stringRepo = new StringFunctionRepository();
 
 test('StringRepo3 - EqualsIgnoreCase', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     if (!fun) {
         throw new Error('Function not available');
@@ -48,7 +52,10 @@ test('StringRepo3 - EqualsIgnoreCase', async () => {
 
 test('StringRepo3 - EqualsIgnoreCase', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map([
             [AbstractStringFunction.PARAMETER_STRING_NAME, '         no code  Kirun  PLATform   '],
             [

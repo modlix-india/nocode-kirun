@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -23,12 +25,12 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
 
 		assertEquals(new JsonPrimitive(12), max.execute(fep).allResults().get(0).getResult().get("output"));
 
 		var arr1 = new JsonArray();
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(Map.of("source", arr1));
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr1));
 
 		assertThrows(KIRuntimeException.class, () -> max.execute(fep1).allResults().get(0).getResult().get("output"));
 
@@ -44,7 +46,7 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
 
 		assertEquals(new JsonPrimitive(98), max.execute(fep).allResults().get(0).getResult().get("output"));
 
@@ -54,7 +56,7 @@ class MaxTest {
 		arr1.add('r');
 		arr1.add('d');
 		arr1.add('s');
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(Map.of("source", arr1));
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr1));
 
 		assertEquals(new JsonPrimitive('s'), max.execute(fep1).allResults().get(0).getResult().get("output"));
 
@@ -65,7 +67,7 @@ class MaxTest {
 		var arr = new JsonArray();
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
 
 		assertThrows(KIRuntimeException.class, () -> max.execute(fep).allResults().get(0).getResult().get("output"));
 	}
@@ -79,7 +81,7 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
 
 		assertEquals(new JsonPrimitive("platform"), max.execute(fep).allResults().get(0).getResult().get("output"));
 	}
@@ -95,7 +97,7 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
 
 		assertEquals(new JsonPrimitive("platform"), max.execute(fep).allResults().get(0).getResult().get("output"));
 	}
@@ -104,7 +106,7 @@ class MaxTest {
 	void test6() {
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE));
 
 		assertThrows(SchemaValidationException.class,

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -37,7 +39,7 @@ class FrequencyTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of(
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 				Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array, Frequency.PARAMETER_ANY.getParameterName(),
 				new JsonPrimitive("I"), Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 				Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
@@ -68,7 +70,7 @@ class FrequencyTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
 						Frequency.PARAMETER_ANY.getParameterName(), new JsonPrimitive("developement"),
 						Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-2),
@@ -78,7 +80,7 @@ class FrequencyTest {
 
 		assertThrows(SchemaValidationException.class, () -> freq.execute(fep));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", array, "element", new JsonPrimitive("developement"), "findFrom",
 						new JsonPrimitive(2), "length", new JsonPrimitive(20)));
 
@@ -89,7 +91,7 @@ class FrequencyTest {
 	void test3() {
 		var array = new JsonArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
 				"element", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(10)));
 
 		Frequency freq = new Frequency();
@@ -138,7 +140,7 @@ class FrequencyTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr,
 				"element", js1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
@@ -223,7 +225,7 @@ class FrequencyTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr,
 				"element", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
@@ -271,7 +273,7 @@ class FrequencyTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "element", js4, "findFrom", new JsonPrimitive(2)));
 
 		Frequency freq = new Frequency();

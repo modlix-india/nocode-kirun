@@ -1,5 +1,6 @@
 import { IndexOfArray } from '../../../../../src/engine/function/system/array/IndexOfArray';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let ioa: IndexOfArray = new IndexOfArray();
 
@@ -20,7 +21,10 @@ test('index of array 1', async () => {
     res.push('c');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -54,7 +58,10 @@ test('Index of array 2', async () => {
     res.push('e');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -150,7 +157,10 @@ test('index of array 3', async () => {
     res.push(array1);
     res.push(array4);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -183,7 +193,10 @@ test('index of array test 4', async () => {
     res.push('e');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],
@@ -215,7 +228,10 @@ test('index of array 5', async () => {
     as.push('c');
     as.push('e');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as],
@@ -235,7 +251,10 @@ test('index of array 6', async () => {
     arr.push('b');
     arr.push('c');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
@@ -324,7 +343,10 @@ test('index of array 3', async () => {
     res.push(array1);
     res.push(array4);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res],

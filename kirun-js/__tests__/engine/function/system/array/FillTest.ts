@@ -1,11 +1,15 @@
 import { Fill } from '../../../../../src/engine/function/system/array/Fill';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Fill Test', async () => {
     let fill: Fill = new Fill();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     let array = [0, 1];
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 3));

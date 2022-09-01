@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -31,7 +34,7 @@ class DeleteFirstTest {
 		arr1.add('i');
 		arr1.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep);
@@ -45,7 +48,7 @@ class DeleteFirstTest {
 
 		DeleteFirst ad = new DeleteFirst();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
@@ -97,7 +100,7 @@ class DeleteFirstTest {
 		res.add(js4);
 		res.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFirst del = new DeleteFirst();
@@ -189,7 +192,7 @@ class DeleteFirstTest {
 		res.add(array4);
 		res.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr))
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFirst freq = new DeleteFirst();
@@ -205,7 +208,7 @@ class DeleteFirstTest {
 
 		DeleteFirst ad = new DeleteFirst();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setSteps(Map.of());
 
 		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));

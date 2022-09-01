@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
@@ -21,7 +23,7 @@ class SetTest {
 
 		Set setFunction = new Set();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters();
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 
 		Map<String, ContextElement> contextMap = new HashMap<>();
 		contextMap.put("a", new ContextElement(Schema.ofAny("test"), new JsonObject()));
@@ -55,7 +57,7 @@ class SetTest {
 
 		Set setFunction = new Set();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters();
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 
 		Map<String, ContextElement> contextMap = new HashMap<>();
 		contextMap.put("a", new ContextElement(Schema.ofAny("test"), new JsonArray()));

@@ -2,15 +2,15 @@ package com.fincity.nocode.kirun.engine.function.system.math;
 
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
-
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -25,7 +25,7 @@ class AbstractRandomIntTest {
 
 		AbstractRandom absR = new AbstractRandom("RandomInt", SchemaType.INTEGER);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
 		double val = absR.execute(fep).allResults().get(0).getResult().get("value").getAsDouble();
@@ -44,7 +44,7 @@ class AbstractRandomIntTest {
 
 		AbstractRandom absR = rand.find(Namespaces.MATH, "RandomDouble");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("minValue", min));
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("minValue", min));
 
 		double val = absR.execute(fep).allResults().get(0).getResult().get("value").getAsDouble();
 		System.out.println(val);
@@ -64,7 +64,7 @@ class AbstractRandomIntTest {
 
 		AbstractRandom absR = rand.find(Namespaces.MATH, "RandomInteger");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
 		int val = absR.execute(fep).allResults().get(0).getResult().get("value").getAsInt();

@@ -12,12 +12,10 @@ export class TypeUtil {
 
     public static from(types: any): Type | undefined {
         if (typeof types === 'string') {
-            return TypeUtil.of(types as SchemaType);
+            return new SingleType(types as SchemaType);
         } else if (Array.isArray(types)) {
-            return TypeUtil.of(
-                ...Array.of(types)
-                    .map((e) => e as any)
-                    .map((e) => e as SchemaType),
+            return new MultipleType(
+                new Set(types.map((e) => e as any).map((e) => e as SchemaType)),
             );
         }
         return undefined;

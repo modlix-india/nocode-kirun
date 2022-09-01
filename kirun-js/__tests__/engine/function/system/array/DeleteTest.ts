@@ -1,5 +1,6 @@
 import { Delete } from '../../../../../src/engine/function/system/array/Delete';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Delete Test 1', async () => {
     let delet: Delete = new Delete();
@@ -9,7 +10,10 @@ test('Delete Test 1', async () => {
 
     let temp: any[] = [12, 9];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -32,7 +36,10 @@ test('Delete Test 2', async () => {
 
     let temp: any[] = ['nocode', 14];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -53,7 +60,10 @@ test('Delete Test 3', async () => {
 
     let secondSource: any[] = ['platform'];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -72,7 +82,10 @@ test('Delete Test 3', async () => {
 
     let secondSource = undefined;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -91,7 +104,10 @@ test('Delete Test 4', async () => {
 
     let secondSource: any[] = [];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -129,7 +145,10 @@ test('Delete Test 5', async () => {
 
     var res: any[] = [arr1, arr2, arr2];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],

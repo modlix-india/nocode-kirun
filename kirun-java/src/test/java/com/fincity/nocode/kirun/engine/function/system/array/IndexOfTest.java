@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -39,7 +40,7 @@ class IndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", array, "elementObject", new JsonPrimitive("with"), "findFrom", new JsonPrimitive(2)));
 
 		IndexOf ind = new IndexOf();
@@ -71,12 +72,12 @@ class IndexOfTest {
 
 		IndexOf ind = new IndexOf();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
 				"elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(-2)));
 
 		assertThrows(KIRuntimeException.class, () -> ind.execute(fep).allResults().get(0).getResult().get("output"));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(Map.of("source",
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source",
 				new JsonArray(), "elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(2)));
 
 		assertEquals(new JsonPrimitive(-1), ind.execute(fep1).allResults().get(0).getResult().get("output"));
@@ -104,7 +105,7 @@ class IndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
 				"elementObject", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(2)));
 
 		IndexOf ind = new IndexOf();
@@ -188,7 +189,7 @@ class IndexOfTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", arr,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr,
 				"elementObject", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(2)));
 
 		IndexOf ind = new IndexOf();
@@ -236,7 +237,7 @@ class IndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", js4, "findFrom", new JsonPrimitive(0)));
 
 		IndexOf ind = new IndexOf();
@@ -283,7 +284,7 @@ class IndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "element", arr, "findFrom", JsonNull.INSTANCE));
 
 		IndexOf ind = new IndexOf();

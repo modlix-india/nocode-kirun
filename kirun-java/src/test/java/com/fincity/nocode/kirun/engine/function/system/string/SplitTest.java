@@ -1,12 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -33,7 +36,7 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME,
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive(" ")));
@@ -61,7 +64,7 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME,
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive("e")));
@@ -75,7 +78,7 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME, JsonNull.INSTANCE, Split.PARAMETER_SPLIT_STRING_NAME,
 						new JsonPrimitive("e")));
 

@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -34,7 +36,7 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setContext(Map.of()).setSteps(Map.of());
@@ -58,7 +60,7 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -86,7 +88,7 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), JsonNull.INSTANCE))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -107,7 +109,7 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), arr))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -133,7 +135,7 @@ class DeleteTest {
 		ares.add("nocode");
 		ares.add(14);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -180,7 +182,7 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), delArr))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -205,7 +207,7 @@ class DeleteTest {
 		
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), delArr))
 				.setSteps(Map.of()).setContext(Map.of());
