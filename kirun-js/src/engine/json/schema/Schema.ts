@@ -7,6 +7,7 @@ import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
 import { SingleType } from './type/SingleType';
+import { SchemaReferenceException } from './validator/exception/SchemaReferenceException';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';

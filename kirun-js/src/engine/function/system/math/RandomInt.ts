@@ -44,7 +44,7 @@ export class RandomInt extends AbstractFunction {
         return RandomInt.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let min: number = context.getArguments()?.get(RandomInt.MIN_VALUE);
 
         let max: number = context.getArguments()?.get(RandomInt.MAX_VALUE);

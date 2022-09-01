@@ -12,9 +12,9 @@ export class ParameterReference {
         .setType(TypeUtil.of(SchemaType.OBJECT))
         .setProperties(
             new Map([
-                ['references', Schema.ofString('references')],
                 ['value', Schema.ofAny('value')],
                 ['expression', Schema.ofString('expression')],
+                ['type', Schema.ofString('type').setEnums(['EXPRESSION', 'VALUE'])],
             ]),
         );
     private type: ParameterReferenceType;
@@ -53,5 +53,12 @@ export class ParameterReference {
 
     public static ofValue(value: any): ParameterReference {
         return new ParameterReference(ParameterReferenceType.VALUE).setValue(value);
+    }
+
+    public static from(json: any): ParameterReference[] {
+        if (!json) return [];
+        return Array.from(json).map((e: any) =>
+            new ParameterReference(e.type).setValue(e.value).setExpression(e.expression),
+        );
     }
 }

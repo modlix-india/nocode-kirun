@@ -47,7 +47,6 @@ test('Delete Test 2', async () => {
     expect(source).toStrictEqual(temp);
 });
 
-
 test('Delete Test 3', async () => {
     let delet: Delete = new Delete();
     let source = undefined;
@@ -105,7 +104,9 @@ test('Delete Test 4', async () => {
     await expect(delet.execute(fep)).rejects.toThrow();
 });
 
-test('Delete Test 5', () => {
+test('Delete Test 5', async () => {
+    let delet: Delete = new Delete();
+
     var arr1: any[] = ['nocode', 'platform', 14];
     var arr2: any[] = ['nocode', 'platiform', 14];
     var obj: object = {
@@ -138,7 +139,7 @@ test('Delete Test 5', () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    delet.execute(fep);
+    await delet.execute(fep);
 
     expect(arr).toStrictEqual(res);
 });
