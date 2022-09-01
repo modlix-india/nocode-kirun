@@ -1,5 +1,6 @@
 import { SubArray } from '../../../../../src/engine/function/system/array/SubArray';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('SubArray of Test 1', async () => {
     let sub: SubArray = new SubArray();
@@ -35,7 +36,10 @@ test('SubArray of Test 1', async () => {
     res.push('changes');
     res.push('with');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 4],
@@ -54,7 +58,10 @@ test('SubArray of Test 1', async () => {
 test('SubArray of Test 2', async () => {
     let sub: SubArray = new SubArray();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), undefined],
@@ -93,7 +100,10 @@ test('SubArray of Test 5', async () => {
     res.push('a');
     res.push('b');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
@@ -134,7 +144,10 @@ test('SubArray of Test 3', async () => {
     res.push('a');
     res.push('b');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 1123],
@@ -229,7 +242,10 @@ test('SubArray of Test 4', async () => {
     res.push(array4);
     res.push(array1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [SubArray.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             // [SubArray.PARAMETER_INT_FIND_FROM.getParameterName(), 2],

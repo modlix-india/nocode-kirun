@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 

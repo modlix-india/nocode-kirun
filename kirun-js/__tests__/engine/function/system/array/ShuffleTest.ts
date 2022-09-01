@@ -1,5 +1,6 @@
 import { Shuffle } from '../../../../../src/engine/function/system/array/Shuffle';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let shuffle: Shuffle = new Shuffle();
 
@@ -36,7 +37,10 @@ test('shuffle test 1', async () => {
 
     res.forEach((element) => set1.add(element));
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([[Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName(), array]]),
         )
@@ -140,7 +144,10 @@ test('Shuffle test 2', async () => {
         Set1.add(el);
     });
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([[Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]),
         )

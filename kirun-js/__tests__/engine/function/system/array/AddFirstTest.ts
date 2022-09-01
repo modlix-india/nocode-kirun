@@ -1,4 +1,8 @@
-import { SchemaValidationException } from '../../../../../src';
+import {
+    KIRunFunctionRepository,
+    KIRunSchemaRepository,
+    SchemaValidationException,
+} from '../../../../../src';
 import { AddFirst } from '../../../../../src/engine/function/system/array/AddFirst';
 
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
@@ -12,7 +16,10 @@ test('Add Test 1', async () => {
 
     let temp2: any[] = ['a', 'c', 'p', 3, 4, 5];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -36,7 +43,10 @@ test('Add Test 2', async () => {
 
     let temp2: any[] = ['surendhar', 'a', 'b', 'c', 'd', 'a', 'b', 'c', 'e', 'd'];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -83,7 +93,10 @@ test('Add Test 3', async () => {
         'to',
     ];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -180,7 +193,10 @@ test('Add Test 5', async () => {
         source3,
     ];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map<string, any>([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
@@ -202,7 +218,10 @@ test('Add Test 4', async () => {
 
     let temp2: any[] = ['a', 'c', 'p', 3, 4, 5];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
@@ -222,7 +241,10 @@ test('Add Test 5', async () => {
 
     let temp2: any[] = ['a', 'c', 'p', 3, 4, 5];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), temp2],

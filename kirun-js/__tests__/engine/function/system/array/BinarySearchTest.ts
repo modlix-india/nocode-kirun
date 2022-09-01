@@ -1,5 +1,6 @@
 import { BinarySearch } from '../../../../../src/engine/function/system/array/BinarySearch';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let bsearch: BinarySearch = new BinarySearch();
 
@@ -8,7 +9,10 @@ test('Binary Search test 1', async () => {
 
     let search: any = 16;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
             [BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), 1],
@@ -30,7 +34,10 @@ test('Binary Search test 2', async () => {
 
     let search: any = 78;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
             [BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), 1],
@@ -52,7 +59,10 @@ test('Binary Search test 3', async () => {
 
     let search: any = 78;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
             [BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), 1],
@@ -69,7 +79,10 @@ test('Binary Search test 6', async () => {
 
     let search: number = 17;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
             [BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), 0],
@@ -91,7 +104,7 @@ test('Binary Search test 6', async () => {
 
 //     let search: any[] = [10];
 
-//     let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+//     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 //         new Map<string, any>([
 //             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
 //             [BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), 1],
@@ -108,7 +121,10 @@ test('Binary Search test 4', async () => {
 
     let search: any = 'z';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src],
 
@@ -141,7 +157,10 @@ test('Binary Search test 5', async () => {
 
     let search: any = 's';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
 

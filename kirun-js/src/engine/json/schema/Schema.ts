@@ -7,6 +7,7 @@ import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
 import { SingleType } from './type/SingleType';
+import { SchemaReferenceException } from './validator/exception/SchemaReferenceException';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';
@@ -279,14 +280,14 @@ export class Schema {
         if (isNullValue(obj)) return undefined;
 
         let schema: Schema = new Schema();
-        schema.namespace = obj.namespace;
+        schema.namespace = obj.namespace ?? TEMPORARY;
         schema.name = obj.name;
 
-        schema.version = obj.version;
+        schema.version = obj.version ?? 1;
 
         schema.ref = obj.ref;
 
-        if (!isStringSchema) schema.type = TypeUtil.from(schema.type);
+        if (!isStringSchema) schema.type = TypeUtil.from(obj.type);
         else schema.type = new SingleType(SchemaType.STRING);
 
         schema.anyOf = Schema.fromListOfSchemas(obj.anyOf);

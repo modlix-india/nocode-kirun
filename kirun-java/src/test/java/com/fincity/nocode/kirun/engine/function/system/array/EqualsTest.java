@@ -7,6 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -33,7 +35,7 @@ class EqualsTest {
 		findArray.add(33);
 		findArray.add(34);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters();
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
 		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
 
@@ -53,7 +55,7 @@ class EqualsTest {
 		        .getResult()
 		        .get(Equals.EVENT_RESULT_NAME));
 
-		fep = new FunctionExecutionParameters();
+		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
 		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray,
 		        Equals.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
@@ -76,7 +78,7 @@ class EqualsTest {
 		findArray.add(true);
 		findArray.add(false);
 
-		fep = new FunctionExecutionParameters();
+		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
 		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
 

@@ -7,39 +7,38 @@ import { Parameter } from './Parameter';
 import { Statement } from './Statement';
 import { StatementGroup } from './StatementGroup';
 
+const SCHEMA_NAME1: string = 'FunctionDefinition';
+const IN_SCHEMA = new Schema()
+    .setNamespace(Namespaces.SYSTEM)
+    .setName(SCHEMA_NAME1)
+    .setProperties(
+        new Map([
+            ['name', Schema.ofString('name')],
+            ['namespace', Schema.ofString('namespace')],
+            ['parameters', Schema.ofArray('parameters', Parameter.SCHEMA)],
+            [
+                'events',
+                Schema.ofObject('events').setAdditionalProperties(
+                    new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA),
+                ),
+            ],
+            [
+                'steps',
+                Schema.ofObject('steps').setAdditionalProperties(
+                    new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA),
+                ),
+            ],
+        ]),
+    );
+
+IN_SCHEMA.getProperties()?.set('parts', Schema.ofArray('parts', IN_SCHEMA));
+
 export class FunctionDefinition extends FunctionSignature {
-    private static readonly SCHEMA_NAME1: string = 'FunctionDefinition';
-    public static readonly SCHEMA: Schema = new Schema()
-        .setNamespace(Namespaces.SYSTEM)
-        .setName(FunctionDefinition.SCHEMA_NAME1)
-        .setProperties(
-            new Map([
-                ['name', Schema.ofString('name')],
-                ['namespace', Schema.ofString('namespace')],
-                ['parameters', Schema.ofArray('parameters', Parameter.SCHEMA)],
-                [
-                    'events',
-                    Schema.ofObject('events').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA),
-                    ),
-                ],
-                [
-                    'parts',
-                    Schema.ofObject('parts').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(FunctionSignature.SCHEMA),
-                    ),
-                ],
-                [
-                    'steps',
-                    Schema.ofObject('steps').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA),
-                    ),
-                ],
-            ]),
-        );
+    public static readonly SCHEMA: Schema = IN_SCHEMA;
     private version: number = 1;
     private steps?: Map<string, Statement>;
     private stepGroups?: Map<string, StatementGroup>;
+    private parts?: FunctionDefinition[];
 
     constructor(name: string) {
         super(name);
@@ -65,5 +64,53 @@ export class FunctionDefinition extends FunctionSignature {
     public setStepGroups(stepGroups: Map<string, StatementGroup>): FunctionDefinition {
         this.stepGroups = stepGroups;
         return this;
+    }
+
+    public getParts(): FunctionDefinition[] | undefined {
+        return this.parts;
+    }
+
+    public setParts(parts: FunctionDefinition[]): FunctionDefinition {
+        this.parts = parts;
+        return this;
+    }
+
+    public static from(json: any): FunctionDefinition {
+        if (!json) return new FunctionDefinition('unknown');
+        return new FunctionDefinition(json.name)
+            .setSteps(
+                new Map(
+                    Object.values(json.steps ?? {})
+                        .filter((e) => !!e)
+                        .map((e: any) => [e.statementName, Statement.from(e)]),
+                ),
+            )
+            .setStepGroups(
+                new Map(
+                    Object.values(json.stepGroups ?? {})
+                        .filter((e) => !!e)
+                        .map((e: any) => [e.statementGroupName, StatementGroup.from(e)]),
+                ),
+            )
+            .setParts(
+                Array.from(json.parts ?? [])
+                    .filter((e) => !!e)
+                    .map((e: any) => FunctionDefinition.from(e)),
+            )
+            .setVersion(json.version ?? 1)
+            .setEvents(
+                new Map(
+                    Object.values(json.events ?? {})
+                        .filter((e) => !!e)
+                        .map((e: any) => [e.name, Event.from(e)]),
+                ),
+            )
+            .setParameters(
+                new Map(
+                    Object.values(json.parameters ?? {})
+                        .filter((e) => !!e)
+                        .map((e: any) => [e.parameterName, Parameter.from(e)]),
+                ),
+            ) as FunctionDefinition;
     }
 }

@@ -1,12 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -39,7 +42,7 @@ class SubArrayTest {
 		res.add('a');
 		res.add('b');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1), "length", new JsonPrimitive(7)))
 		        .setContext(Map.of())
@@ -84,7 +87,7 @@ class SubArrayTest {
 		res.add('e');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(1123), "length",
 		                new JsonPrimitive(arr.size())))
 		        .setContext(Map.of())
@@ -122,7 +125,7 @@ class SubArrayTest {
 		res.add('a');
 		res.add('b');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
 		        .setContext(Map.of())
 		        .setSteps(Map.of());
@@ -158,7 +161,7 @@ class SubArrayTest {
 		res.add('a');
 		res.add('b');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(4), "length", new JsonPrimitive(4)))
 		        .setContext(Map.of())
 		        .setSteps(Map.of());
@@ -259,7 +262,7 @@ class SubArrayTest {
 		res.add(array1);
 		res.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(3)))
 		        .setContext(Map.of())
 		        .setSteps(Map.of());

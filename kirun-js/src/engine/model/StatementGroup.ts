@@ -34,4 +34,11 @@ export class StatementGroup extends AbstractStatement {
         this.statementGroupName = statementGroupName;
         return this;
     }
+
+    public static from(json: any): StatementGroup {
+        return new StatementGroup(json.statementGroupName)
+            .setPosition(Position.from(json.position))
+            .setComment(json.comment)
+            .setDescription(json.description) as StatementGroup;
+    }
 }

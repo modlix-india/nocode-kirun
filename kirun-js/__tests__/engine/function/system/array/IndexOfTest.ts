@@ -1,5 +1,6 @@
 import { IndexOf } from '../../../../../src/engine/function/system/array/IndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Index of Test 1', async () => {
     let ind: IndexOf = new IndexOf();
@@ -25,7 +26,10 @@ test('Index of Test 1', async () => {
 
     let find: string = 'with';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -64,7 +68,10 @@ test('Index of Test 2', async () => {
 
     let find: string = 'with';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -110,7 +117,10 @@ test('Index of Test 3', async () => {
 
     let find: string = 'witah';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -203,7 +213,10 @@ test('Index of Test 4', async () => {
 
     let find: any = array;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -255,7 +268,10 @@ test('indexof test 5', async () => {
     let arr: any[] = [js1, js2, js1, js3, js3, js4, js1];
     let find: any = js4;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],

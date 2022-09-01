@@ -147,9 +147,12 @@ test('KIRuntime Test 1', async () => {
                 .setParameters(
                     new Map([['Count', new Parameter('Count', Schema.ofInteger('Count'))]]),
                 ) as FunctionDefinition,
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Count', num]])))
+        ).execute(
+            new FunctionExecutionParameters(
+                new KIRunFunctionRepository(),
+                new KIRunSchemaRepository(),
+            ).setArguments(new Map([['Count', num]])),
+        )
     ).allResults();
     console.log('KIRunt Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);
@@ -193,9 +196,12 @@ test('KIRuntime Test 2', async () => {
                     ),
                 ]),
             ),
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', -10]])))
+        ).execute(
+            new FunctionExecutionParameters(
+                new KIRunFunctionRepository(),
+                new KIRunSchemaRepository(),
+            ).setArguments(new Map([['Value', -10]])),
+        )
     ).allResults();
 
     expect(out[0].getResult().get('result')).toBe(10);
@@ -238,9 +244,12 @@ test('KIRuntime Test 3', async () => {
                     ),
                 ]),
             ),
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', 27]])))
+        ).execute(
+            new FunctionExecutionParameters(
+                new KIRunFunctionRepository(),
+                new KIRunSchemaRepository(),
+            ).setArguments(new Map([['Value', 27]])),
+        )
     ).allResults();
 
     expect(out[0].getResult().get('result')).toBe(3);
@@ -335,9 +344,11 @@ test('KIRuntime Test 4', async () => {
                     ),
                 ]),
             ),
-            hybrid,
-            new KIRunSchemaRepository(),
-        ).execute(new FunctionExecutionParameters().setArguments(new Map([['Value', num]])))
+        ).execute(
+            new FunctionExecutionParameters(hybrid, new KIRunSchemaRepository()).setArguments(
+                new Map([['Value', num]]),
+            ),
+        )
     ).allResults();
     console.log('KIRun Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);

@@ -4,13 +4,17 @@ import { Event } from '../model/Event';
 import { FunctionOutput } from '../model/FunctionOutput';
 import { FunctionSignature } from '../model/FunctionSignature';
 import { Parameter } from '../model/Parameter';
+import { Repository } from '../Repository';
 import { FunctionExecutionParameters } from '../runtime/FunctionExecutionParameters';
 import { isNullValue } from '../util/NullCheck';
 import { Tuple2 } from '../util/Tuples';
 import { Function } from './Function';
 
 export abstract class AbstractFunction implements Function {
-    protected validateArguments(args: Map<string, any>): Map<string, any> {
+    protected validateArguments(
+        args: Map<string, any>,
+        schemaRepository: Repository<Schema>,
+    ): Map<string, any> {
         return Array.from(this.getSignature().getParameters().entries())
             .map((e) => {
                 let key: string = e[0];
@@ -23,7 +27,7 @@ export abstract class AbstractFunction implements Function {
                         SchemaValidator.validate(
                             undefined,
                             param.getSchema(),
-                            undefined,
+                            schemaRepository,
                             undefined,
                         ),
                     );
@@ -35,7 +39,7 @@ export abstract class AbstractFunction implements Function {
                         SchemaValidator.validate(
                             undefined,
                             param.getSchema(),
-                            undefined,
+                            schemaRepository,
                             jsonElement,
                         ),
                     );
@@ -49,7 +53,7 @@ export abstract class AbstractFunction implements Function {
                 }
 
                 for (const je of array) {
-                    SchemaValidator.validate(undefined, param.getSchema(), undefined, je);
+                    SchemaValidator.validate(undefined, param.getSchema(), schemaRepository, je);
                 }
 
                 return new Tuple2(key, jsonElement);
@@ -61,7 +65,12 @@ export abstract class AbstractFunction implements Function {
     }
 
     public async execute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        context.setArguments(this.validateArguments(context.getArguments() ?? new Map()));
+        context.setArguments(
+            this.validateArguments(
+                context.getArguments() ?? new Map(),
+                context.getSchemaRepository(),
+            ),
+        );
         return this.internalExecute(context);
     }
 

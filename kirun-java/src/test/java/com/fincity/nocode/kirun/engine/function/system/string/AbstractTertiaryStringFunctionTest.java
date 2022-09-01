@@ -1,12 +1,14 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -19,7 +21,7 @@ class AbstractTertiaryStringFunctionTest {
 
 		assertEquals(new JsonPrimitive(11),
 				stringFunction.find(Namespaces.STRING, "IndexOfWithStartPoint")
-						.execute(new FunctionExecutionParameters().setArguments(Map.of(
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 								AbstractTertiaryStringFunction.PARAMETER_STRING_NAME,
 								new JsonPrimitive(" THIS IS A NOcoDE plATFNORM		"),
 								AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("NO"),
@@ -27,7 +29,7 @@ class AbstractTertiaryStringFunctionTest {
 						.allResults().get(0).getResult().get(AbstractTertiaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(14), stringFunction.find(Namespaces.STRING, "IndexOfWithStartPoint")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(" fincity compatY "),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("t"),
 						AbstractTertiaryStringFunction.PARAMETER_INDEX_NAME, new JsonPrimitive(9))))
@@ -44,14 +46,14 @@ class AbstractTertiaryStringFunctionTest {
 		String s2 = " fincity compatY ";
 
 		assertEquals(new JsonPrimitive(6), stringFunction.find(Namespaces.STRING, "LastIndexOfWithStartPoint")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("IS"),
 						AbstractTertiaryStringFunction.PARAMETER_INDEX_NAME, new JsonPrimitive(s1.length() - 2))))
 				.allResults().get(0).getResult().get(AbstractTertiaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(14), stringFunction.find(Namespaces.STRING, "LastIndexOfWithStartPoint")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s2),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("tY"),
 						AbstractTertiaryStringFunction.PARAMETER_INDEX_NAME, new JsonPrimitive(s2.length() - 1))))
@@ -69,7 +71,7 @@ class AbstractTertiaryStringFunctionTest {
 
 		assertEquals(new JsonPrimitive(" THIS IS A  REPLACED coDE plATFNORM"), stringFunction
 				.find(Namespaces.STRING, "ReplaceFirst")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("NO"),
 						AbstractTertiaryStringFunction.PARAMETER_THIRD_STRING_NAME, new JsonPrimitive(" REPLACED "))))
@@ -77,7 +79,7 @@ class AbstractTertiaryStringFunctionTest {
 
 		assertEquals(new JsonPrimitive(" fincinew char compatY "), stringFunction
 				.find(Namespaces.STRING, "ReplaceFirst")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s2),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("tY"),
 						AbstractTertiaryStringFunction.PARAMETER_THIRD_STRING_NAME, new JsonPrimitive("new char"))))
@@ -95,7 +97,7 @@ class AbstractTertiaryStringFunctionTest {
 
 		assertEquals(new JsonPrimitive(" THIS IS temporary NOcoDE pltemporaryTFNORM"), stringFunction
 				.find(Namespaces.STRING, "Replace")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("A"),
 						AbstractTertiaryStringFunction.PARAMETER_THIRD_STRING_NAME, new JsonPrimitive("temporary"))))
@@ -103,7 +105,7 @@ class AbstractTertiaryStringFunctionTest {
 
 		assertEquals(new JsonPrimitive(" fincithankYou compathankYou "), stringFunction
 				.find(Namespaces.STRING, "Replace")
-				.execute(new FunctionExecutionParameters().setArguments(Map.of(
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 						AbstractTertiaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(s2),
 						AbstractTertiaryStringFunction.PARAMETER_SECOND_STRING_NAME, new JsonPrimitive("tY"),
 						AbstractTertiaryStringFunction.PARAMETER_THIRD_STRING_NAME, new JsonPrimitive("thankYou"))))

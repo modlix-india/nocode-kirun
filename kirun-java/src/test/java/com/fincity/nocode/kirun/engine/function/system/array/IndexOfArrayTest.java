@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -36,7 +39,7 @@ class IndexOfArrayTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -68,7 +71,7 @@ class IndexOfArrayTest {
 		res.add('e');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
@@ -164,7 +167,7 @@ class IndexOfArrayTest {
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
@@ -194,7 +197,7 @@ class IndexOfArrayTest {
 		res.add('e');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
@@ -219,7 +222,7 @@ class IndexOfArrayTest {
 		arr.add('e');
 		arr.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
@@ -248,7 +251,7 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as));
 
@@ -276,7 +279,7 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(-2)));
@@ -303,7 +306,7 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), as,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(0)));

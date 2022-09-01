@@ -2,10 +2,14 @@ import { RegionMatches } from '../../../../../src/engine/function/system/string/
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 const region: RegionMatches = new RegionMatches();
 
 test('toString test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number | boolean>(
@@ -33,7 +37,10 @@ test('toString test1', async () => {
 });
 
 test('toString test2', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(
         MapUtil.of<string, string | number | boolean>(
             RegionMatches.PARAMETER_BOOLEAN_NAME,
@@ -60,7 +67,10 @@ test('toString test2', async () => {
 });
 
 test('toString test3', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(
         MapUtil.of<string, string | number | boolean>(
             RegionMatches.PARAMETER_BOOLEAN_NAME,

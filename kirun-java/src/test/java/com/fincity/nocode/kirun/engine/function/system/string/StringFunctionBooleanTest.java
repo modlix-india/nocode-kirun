@@ -7,6 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -19,19 +21,19 @@ public class StringFunctionBooleanTest {
 
 		assertEquals(new JsonPrimitive(false),
 				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters().setArguments(
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
 				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters()
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
 				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters().setArguments(Map.of("value", new JsonPrimitive(""))))
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(""))))
 						.allResults().get(0).getResult().get("value"));
 
 	}
@@ -43,19 +45,19 @@ public class StringFunctionBooleanTest {
 
 		assertEquals(new JsonPrimitive(false),
 				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters().setArguments(
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(false),
 				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters()
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
 						.allResults().get(0).getResult().get("value"));
 
 		assertEquals(new JsonPrimitive(true),
 				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters().setArguments(Map.of("value", new JsonPrimitive(""))))
+						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(""))))
 						.allResults().get(0).getResult().get("value"));
 
 	}

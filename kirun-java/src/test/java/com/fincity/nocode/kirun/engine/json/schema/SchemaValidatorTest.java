@@ -16,19 +16,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class SchemaValidatorTest {
-
-	@Test
-	void schemaValidatortestForNullSchema() {
-
-		Schema schema = new Schema();
-		schema = null;
-
-		JsonElement element = new JsonObject();
-
-		assertEquals(SchemaValidator.validate(null, schema, null, element), element);
-
-	}
+class SchemaValidatorTest {
 
 	@Test
 	void schemaValidatortestForNullElement() {

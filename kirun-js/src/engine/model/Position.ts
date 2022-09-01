@@ -37,4 +37,9 @@ export class Position {
         this.top = top;
         return this;
     }
+
+    public static from(json: any): Position {
+        if (!json) return new Position(-1, -1);
+        return new Position(json.left, json.top);
+    }
 }

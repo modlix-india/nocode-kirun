@@ -1,11 +1,15 @@
 import { InsertAtGivenPosition } from '../../../../../src/engine/function/system/string/InsertAtGivenPosition';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 const reve: InsertAtGivenPosition = new InsertAtGivenPosition();
 
 test('InsertATGivenPositions test1', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([
@@ -21,7 +25,10 @@ test('InsertATGivenPositions test1', async () => {
 });
 
 test('InsertATGivenPositions test2', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([
@@ -37,7 +44,10 @@ test('InsertATGivenPositions test2', async () => {
 });
 
 test('InsertATGivenPositions test3', async () => {
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, string | number>([

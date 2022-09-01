@@ -1,5 +1,6 @@
 import { LastIndexOf } from '../../../../../src/engine/function/system/array/LastIndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Last Index of Test 1', async () => {
     let lind: LastIndexOf = new LastIndexOf();
@@ -25,7 +26,10 @@ test('Last Index of Test 1', async () => {
 
     let find: string = 'test';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -64,7 +68,10 @@ test('Last Index of Test 2', async () => {
 
     let find;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -98,7 +105,10 @@ test('Last Index of Test 3', async () => {
 
     let find;
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -132,7 +142,10 @@ test('Last Index of Test 4', async () => {
 
     let find: string = 'developement';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -185,7 +198,10 @@ test('Last Index of Test 5', async () => {
 
     let find = 'changes';
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
@@ -237,7 +253,10 @@ test('Last Index of Test 6', async () => {
     arr.push(js1);
     arr.push(js1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), js4],

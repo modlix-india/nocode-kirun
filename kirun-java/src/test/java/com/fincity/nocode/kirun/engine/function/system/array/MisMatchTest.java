@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -35,7 +38,7 @@ class MisMatchTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(7), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(0), "length", new JsonPrimitive(3)));
 
@@ -64,7 +67,7 @@ class MisMatchTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(0), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(2), "length", new JsonPrimitive(5)));
 
@@ -162,7 +165,7 @@ class MisMatchTest {
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
@@ -177,7 +180,7 @@ class MisMatchTest {
 		var res = new JsonArray();
 		res.add(1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
@@ -186,7 +189,7 @@ class MisMatchTest {
 		assertThrows(SchemaValidationException.class,
 				() -> mis.execute(fep).allResults().get(0).getResult().get("output"));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", res, "findFrom", new JsonPrimitive(2), "secondSource", JsonNull.INSTANCE,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 

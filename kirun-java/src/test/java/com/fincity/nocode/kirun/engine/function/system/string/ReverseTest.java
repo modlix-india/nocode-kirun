@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -17,7 +19,7 @@ class ReverseTest {
 		Reverse rev = new Reverse();
 
 		assertEquals(new JsonPrimitive(" mr\"ofta\"lp edoc on a si sihT"),
-				rev.execute(new FunctionExecutionParameters()
+				rev.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of("value", new JsonPrimitive("This is a no code pl\"atfo\"rm ")))).next()
 						.getResult().get("value"));
 	}

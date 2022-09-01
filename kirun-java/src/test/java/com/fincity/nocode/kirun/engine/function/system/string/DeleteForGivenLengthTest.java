@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -18,7 +20,7 @@ class DeleteForGivenLengthTest {
 		DeleteForGivenLength delete = new DeleteForGivenLength();
 
 		assertEquals(new JsonPrimitive(" THIScompaNOcoDE plATFNORM"), delete
-				.execute(new FunctionExecutionParameters()
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of(DeleteForGivenLength.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								DeleteForGivenLength.PARAMETER_AT_START_NAME, new JsonPrimitive(10),
 								DeleteForGivenLength.PARAMETER_AT_END_NAME, new JsonPrimitive(18))))
@@ -33,7 +35,7 @@ class DeleteForGivenLengthTest {
 		DeleteForGivenLength insert = new DeleteForGivenLength();
 
 		assertEquals(new JsonPrimitive(" THItY IS A NOcoDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters()
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of(DeleteForGivenLength.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								DeleteForGivenLength.PARAMETER_AT_START_NAME, new JsonPrimitive(4),
 								DeleteForGivenLength.PARAMETER_AT_END_NAME, new JsonPrimitive(10))))

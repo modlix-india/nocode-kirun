@@ -1,5 +1,6 @@
 import { Frequency } from '../../../../../src/engine/function/system/array/Frequency';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let freq: Frequency = new Frequency();
 
@@ -22,7 +23,10 @@ test('freq test 1', async () => {
     array.push('Driven');
     array.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [Frequency.PARAMETER_ANY.getParameterName(), 'I'],
@@ -55,7 +59,10 @@ test('freq test 2', async () => {
     array.push('Driven');
     array.push('developement');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         new Map<string, any>([
@@ -82,7 +89,10 @@ test('freq test 2', async () => {
 
 test('freq test 3', async () => {
     let array: any[] = [];
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [Frequency.PARAMETER_ANY.getParameterName(), 'I'],

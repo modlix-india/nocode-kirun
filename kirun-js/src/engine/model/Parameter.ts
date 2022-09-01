@@ -1,6 +1,7 @@
 import { Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
+import { SchemaReferenceException } from '../json/schema/validator/exception/SchemaReferenceException';
 import { Namespaces } from '../namespaces/Namespaces';
 import { ParameterType } from './ParameterType';
 
@@ -20,9 +21,11 @@ export class Parameter {
                     'variableArgument',
                     Schema.of('variableArgument', SchemaType.BOOLEAN).setDefaultValue(false),
                 ],
+                ['type', Schema.ofString('type').setEnums(['EXPRESSION', 'CONSTANT'])],
             ]),
         );
 
+    // Place holder for the expression parameter when required to represent an expression in the value.
     public static readonly EXPRESSION: Schema = new Schema()
         .setNamespace(Namespaces.SYSTEM)
         .setName('ParameterExpression')
@@ -93,5 +96,13 @@ export class Parameter {
         type: ParameterType = ParameterType.EXPRESSION,
     ): Parameter {
         return new Parameter(name, schema).setType(type).setVariableArgument(variableArgument);
+    }
+
+    public static from(json: any): Parameter {
+        const paramSchema = Schema.from(json.schema);
+        if (!paramSchema) throw new SchemaReferenceException('', 'Parameter requires Schema');
+        return new Parameter(json.parameterName, paramSchema)
+            .setVariableArgument(!!json.variableArguments)
+            .setType(json.type ?? ParameterType.EXPRESSION);
     }
 }

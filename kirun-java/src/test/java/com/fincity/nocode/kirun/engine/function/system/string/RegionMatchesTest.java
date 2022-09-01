@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -20,7 +22,7 @@ class RegionMatchesTest {
 		RegionMatches reg = new RegionMatches();
 
 		assertEquals(new JsonPrimitive(true),
-				reg.execute(new FunctionExecutionParameters().setArguments(Map.of(RegionMatches.PARAMETER_STRING_NAME,
+				reg.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(RegionMatches.PARAMETER_STRING_NAME,
 						new JsonPrimitive(s1), RegionMatches.PARAMETER_BOOLEAN_NAME, new JsonPrimitive(true),
 						RegionMatches.PARAMETER_FIRST_OFFSET_NAME, new JsonPrimitive(5),
 						RegionMatches.PARAMETER_OTHER_STRING_NAME, new JsonPrimitive(s2),
@@ -38,7 +40,7 @@ class RegionMatchesTest {
 		RegionMatches reg = new RegionMatches();
 
 		assertEquals(new JsonPrimitive(false),
-				reg.execute(new FunctionExecutionParameters().setArguments(Map.of(RegionMatches.PARAMETER_STRING_NAME,
+				reg.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(RegionMatches.PARAMETER_STRING_NAME,
 						new JsonPrimitive(s1), RegionMatches.PARAMETER_BOOLEAN_NAME, new JsonPrimitive(false),
 						RegionMatches.PARAMETER_FIRST_OFFSET_NAME, new JsonPrimitive(5),
 						RegionMatches.PARAMETER_OTHER_STRING_NAME, new JsonPrimitive(s2),
