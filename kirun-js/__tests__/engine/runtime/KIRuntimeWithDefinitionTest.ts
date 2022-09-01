@@ -69,11 +69,6 @@ test('KIRuntime With Definition 1', async () => {
         },
     };
 
-    // function getAppData(a: number, b: number, c: number) {
-    //     const add = (...value: number[]) => value.reduce((a,c) => a+c, 0);
-    //     const genOutput =
-    // }
-
     const fd = FunctionDefinition.from(def);
 
     let result = await new KIRuntime(
@@ -89,8 +84,6 @@ test('KIRuntime With Definition 1', async () => {
             ]),
         ),
     );
-
-    console.log(result.allResults()[0].getResult());
 
     expect(result.allResults()[0].getResult().get('additionResult')).toBe(31);
 });
