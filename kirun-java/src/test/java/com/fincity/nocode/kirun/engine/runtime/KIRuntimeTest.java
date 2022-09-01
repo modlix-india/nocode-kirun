@@ -116,9 +116,8 @@ class KIRuntimeTest {
 						.setEvents(Map.ofEntries(Event.outputEventMapEntry(
 								Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
 						.setParameters(Map.of("Count",
-								new Parameter().setParameterName("Count").setSchema(Schema.ofInteger("count"))))),
-				new KIRunFunctionRepository(), new KIRunSchemaRepository())
-				.execute(new FunctionExecutionParameters().setArguments(Map.of("Count", new JsonPrimitive(num))))
+								new Parameter().setParameterName("Count").setSchema(Schema.ofInteger("count"))))))
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
 				.allResults();
 		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", array))), out);
@@ -152,9 +151,8 @@ class KIRuntimeTest {
 										.setName(genEvent.getName())
 										.setParameterMap(Map.of("eventName",
 												List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
-												List.of(ParameterReference.of(resultObj))))))),
-				new KIRunFunctionRepository(), new KIRunSchemaRepository())
-				.execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(-10))))
+												List.of(ParameterReference.of(resultObj))))))))
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
 				.allResults();
 
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", new JsonPrimitive(10)))),
@@ -190,9 +188,8 @@ class KIRuntimeTest {
 										.setName(genEvent.getName())
 										.setParameterMap(Map.of("eventName",
 												List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
-												List.of(ParameterReference.of(resultObj))))))),
-				new KIRunFunctionRepository(), new KIRunSchemaRepository())
-				.execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(27))))
+												List.of(ParameterReference.of(resultObj))))))))
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(27))))
 				.allResults();
 
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", new JsonPrimitive(3.0d)))),
@@ -274,9 +271,8 @@ class KIRuntimeTest {
 												.setNamespace(genEvent.getNamespace()).setName(genEvent.getName())
 												.setParameterMap(Map.of("eventName",
 														List.of(ParameterReference.of(new JsonPrimitive("output"))),
-														"results", List.of(ParameterReference.of(resultObj))))))),
-				hybrid, new KIRunSchemaRepository())
-				.execute(new FunctionExecutionParameters().setArguments(Map.of("Value", new JsonPrimitive(num))))
+														"results", List.of(ParameterReference.of(resultObj))))))))
+				.execute(new FunctionExecutionParameters(hybrid, new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(num))))
 				.allResults();
 		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output").setResult(Map.of("result", array))), out);

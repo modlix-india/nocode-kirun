@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -40,7 +43,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -95,7 +98,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-12),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -129,7 +132,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(5),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -162,7 +165,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -196,7 +199,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
@@ -228,7 +231,7 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -335,7 +338,7 @@ class DisjointTest {
 
 		FunctionExecutionParameters fep =
 
-				new FunctionExecutionParameters()
+				new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 								Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 								Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,

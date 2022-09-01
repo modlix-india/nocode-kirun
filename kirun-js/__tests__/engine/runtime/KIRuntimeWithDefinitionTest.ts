@@ -71,12 +71,11 @@ test('KIRuntime With Definition 1', async () => {
 
     const fd = FunctionDefinition.from(def);
 
-    let result = await new KIRuntime(
-        fd,
-        new KIRunFunctionRepository(),
-        new KIRunSchemaRepository(),
-    ).execute(
-        new FunctionExecutionParameters().setArguments(
+    let result = await new KIRuntime(fd).execute(
+        new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(
             new Map([
                 ['a', 7],
                 ['b', 11],

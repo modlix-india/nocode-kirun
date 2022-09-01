@@ -1,3 +1,4 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { Disjoint } from '../../../../../src/engine/function/system/array/Disjoint';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
@@ -22,7 +23,10 @@ test('Disjoint Test 1', async () => {
     arr2.push('f');
     arr2.push('e');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), 2],
@@ -74,7 +78,10 @@ test('Disjoint Test 2', async () => {
     arr2.push('e');
     arr2.push('f');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), -12],
@@ -163,7 +170,10 @@ test('Disjoint test 3', async () => {
 
     for (let i: number = 0; i < d.length; i++) set1.add(d[i]);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), 1],

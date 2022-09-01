@@ -3,6 +3,7 @@ import { StringFunctionRepository } from '../../../../../src/engine/function/sys
 import { Namespaces } from '../../../../../src/engine/namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 const repo = new StringFunctionRepository();
 
@@ -11,7 +12,10 @@ test('StringFunctionRepository - Trim', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(MapUtil.of(AbstractStringFunction.PARAMETER_STRING_NAME, ' Kiran '));
     expect(
         (await fun.execute(fep))
@@ -26,7 +30,10 @@ test('StringFunctionRepo -Repeat', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(
@@ -51,7 +58,10 @@ test('StringFunctionRepo -Lowercase', async () => {
         throw new Error('Function not available');
     }
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(
@@ -73,7 +83,10 @@ test('StringFunctionRepo -UpperCase', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(
@@ -95,7 +108,10 @@ test('StringFunctionRepo -Blank1', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(MapUtil.of<string, string>(AbstractStringFunction.PARAMETER_STRING_NAME, ''));
 
@@ -112,7 +128,10 @@ test('StringFunctionRepo -Blank2', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(
@@ -134,7 +153,10 @@ test('StringFunctionRepo -Empty1', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(AbstractStringFunction.PARAMETER_STRING_NAME, ''),
@@ -153,7 +175,10 @@ test('StringFunctionRepo -Empty2', async () => {
     if (!fun) {
         throw new Error('Function not available');
     }
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of<string, string | number>(AbstractStringFunction.PARAMETER_STRING_NAME, ' '),

@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -37,14 +40,14 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", array, "elementObject", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(3)));
 
 		LastIndexOf ind = new LastIndexOf();
 
 		assertEquals(new JsonPrimitive(7), ind.execute(fep).allResults().get(0).getResult().get("output"));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", array, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2)));
 
 		assertThrows(SchemaValidationException.class, () -> ind.execute(fep1));
@@ -71,14 +74,14 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
 				"elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(12)));
 
 		LastIndexOf ind = new LastIndexOf();
 
 		assertEquals(new JsonPrimitive(15), ind.execute(fep).allResults().get(0).getResult().get("output"));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters().setArguments(Map.of("source",
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source",
 				new JsonArray(), "elementObject", new JsonPrimitive("new "), "findFrom", new JsonPrimitive(5)));
 
 		assertEquals(new JsonPrimitive(-1), ind.execute(fep1).allResults().get(0).getResult().get("output"));
@@ -106,7 +109,7 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(Map.of("source", array,
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
 				"elementObject", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(-2)));
 
 		LastIndexOf ind = new LastIndexOf();
@@ -190,7 +193,7 @@ class LastIndexOfTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", array1, "findFrom", new JsonPrimitive(1)));
 
 		LastIndexOf ind = new LastIndexOf();
@@ -238,14 +241,14 @@ class LastIndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", js3, "findFrom", new JsonPrimitive(10)));
 
 		LastIndexOf ind = new LastIndexOf();
 
 		assertThrows(KIRuntimeException.class, () -> ind.execute(fep).allResults().get(0).getResult().get("output"));
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", js1, "findFrom", new JsonPrimitive(3)));
 
 		assertEquals(new JsonPrimitive(4), ind.execute(fep1).allResults().get(0).getResult().get("output"));
@@ -292,7 +295,7 @@ class LastIndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", arr, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(0)));
 
 		LastIndexOf ind = new LastIndexOf();

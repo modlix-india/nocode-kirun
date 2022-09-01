@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -19,7 +21,7 @@ class TrimToTest {
 		TrimTo trimed = new TrimTo();
 
 		assertEquals(new JsonPrimitive(" THIScompatY I"),
-				trimed.execute(new FunctionExecutionParameters().setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
+				trimed.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
 						new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(14)))).allResults()
 						.get(0).getResult().get(TrimTo.EVENT_RESULT_NAME));
 	}
@@ -32,7 +34,7 @@ class TrimToTest {
 		TrimTo trimed = new TrimTo();
 
 		assertEquals(new JsonPrimitive(""),
-				trimed.execute(new FunctionExecutionParameters().setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
+				trimed.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
 						new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(0)))).allResults().get(0)
 						.getResult().get(TrimTo.EVENT_RESULT_NAME));
 	}

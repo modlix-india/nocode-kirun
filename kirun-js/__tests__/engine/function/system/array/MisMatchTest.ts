@@ -1,5 +1,6 @@
 import { MisMatch } from '../../../../../src/engine/function/system/array/MisMatch';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 let mismatch: MisMatch = new MisMatch();
 
@@ -22,7 +23,10 @@ test('mismatch test 1', async () => {
     res.push('c');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [MisMatch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [MisMatch.PARAMETER_INT_FIND_FROM.getParameterName(), 7],
@@ -59,7 +63,10 @@ test('mismatch test 2', async () => {
     res.push('c');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [MisMatch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [MisMatch.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
@@ -156,7 +163,10 @@ test('Mismatch test 3', async () => {
     res.push(array1);
     res.push(array4);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [MisMatch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [MisMatch.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
@@ -193,7 +203,10 @@ test('mismatch test 4', async () => {
     res.push('c');
     res.push('d');
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [MisMatch.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
             [MisMatch.PARAMETER_INT_FIND_FROM.getParameterName(), 1],

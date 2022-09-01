@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,7 +32,7 @@ class CopyTest {
 		source.add(4);
 		source.add(5);
 
-		final FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		final FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
 		                Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 		                Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
@@ -45,7 +47,7 @@ class CopyTest {
 		result.add(5);
 		result.add(6);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
 		                Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 		                Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
@@ -67,7 +69,7 @@ class CopyTest {
 		obj.addProperty("name", "Kumar");
 		source.add(obj);
 
-		fep = new FunctionExecutionParameters().setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
+		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
 		        source, Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 		        Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 
@@ -81,7 +83,7 @@ class CopyTest {
 		obj.addProperty("name", "Kumar");
 		result.add(obj);
 
-		fep = new FunctionExecutionParameters()
+		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source));
 
 		fo = copy.execute(fep);
@@ -93,7 +95,7 @@ class CopyTest {
 
 		assertNotSame(source.get(0), result.get(0));
 
-		fep = new FunctionExecutionParameters().setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
+		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
 		        source, Copy.PARAMETER_BOOLEAN_DEEP_COPY.getParameterName(), new JsonPrimitive(false)));
 
 		fo = copy.execute(fep);

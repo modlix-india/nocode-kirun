@@ -7,6 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.function.system.math.Maximum;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,7 +27,7 @@ class MaxTest {
 		nums.add(10.2);
 
 		assertEquals(new JsonPrimitive(10.2),
-				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				maxFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 
@@ -37,7 +39,7 @@ class MaxTest {
 		Object nullVar = null;
 
 		assertEquals(nullVar,
-				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				maxFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 
@@ -53,7 +55,7 @@ class MaxTest {
 		nums.add(0 / 0.0);
 
 		assertEquals(new JsonPrimitive(Double.POSITIVE_INFINITY - Double.POSITIVE_INFINITY),
-				maxFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				maxFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 

@@ -7,6 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -18,7 +20,7 @@ class StringFunctionRepositorySplitTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "Contains")
-		        .execute(new FunctionExecutionParameters().setArguments(Map.of(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 		                AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                new JsonPrimitive("			no code  Kirun  PLATform		"),
 		                AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("no code"))))
@@ -28,7 +30,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(false), stringFunction.find(Namespaces.STRING, "Contains")
-		        .execute(new FunctionExecutionParameters().setArguments(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 		                Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("			"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("  "))))
 		        .allResults()
@@ -37,7 +39,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "Contains")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive("{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
@@ -54,7 +56,7 @@ class StringFunctionRepositorySplitTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(3), stringFunction.find(Namespaces.STRING, "IndexOf")
-		        .execute(new FunctionExecutionParameters().setArguments(Map.of(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 		                AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                new JsonPrimitive("			no code  Kirun  PLATform		"),
 		                AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("no code"))))
@@ -64,7 +66,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(-1), stringFunction.find(Namespaces.STRING, "IndexOf")
-		        .execute(new FunctionExecutionParameters().setArguments(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 		                Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("			"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("  "))))
 		        .allResults()
@@ -73,7 +75,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(5), stringFunction.find(Namespaces.STRING, "IndexOf")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive("{20934 123 1[[23 245-0 34\" 3434\" 123]]}"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
@@ -90,7 +92,7 @@ class StringFunctionRepositorySplitTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(20), stringFunction.find(Namespaces.STRING, "LastIndexOf")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive("			no code  Kirun  PLATform		"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("LA"))))
@@ -100,7 +102,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(5), stringFunction.find(Namespaces.STRING, "LastIndexOf")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive("this is a no code platform"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("is"))))
@@ -110,7 +112,7 @@ class StringFunctionRepositorySplitTest {
 		        .get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
 
 		assertEquals(new JsonPrimitive(29), stringFunction.find(Namespaces.STRING, "LastIndexOf")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive("{20934 123 1[[23 245-0 34\" 3434  \" 123]]}"),
 		                        AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("34"))))
@@ -126,7 +128,7 @@ class StringFunctionRepositorySplitTest {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
 		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive(" THIS IS A NOcoDE plATFORM		"),
 		                        "value2", new JsonPrimitive(" THIS IS A NOCODE PLATFORM		"))))
 		        .allResults()
@@ -135,7 +137,7 @@ class StringFunctionRepositorySplitTest {
 		        .get("value"));
 
 		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-		        .execute(new FunctionExecutionParameters().setArguments(Map.of("value1",
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value1",
 		                new JsonPrimitive("				"), "value2", new JsonPrimitive("				"))))
 		        .allResults()
 		        .get(0)
@@ -143,7 +145,7 @@ class StringFunctionRepositorySplitTest {
 		        .get("value"));
 
 		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-		        .execute(new FunctionExecutionParameters().setArguments(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 		                Map.of("value1", new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"),
 		                        "value2", new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"))))
 		        .allResults()
@@ -152,7 +154,7 @@ class StringFunctionRepositorySplitTest {
 		        .get("value"));
 
 		assertEquals(new JsonPrimitive(false), stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive("			no code  Kirun  PLATform		"),
 		                        "value2", new JsonPrimitive("			NO CODE  KIRUN  PLATFORM	"))))
 		        .allResults()
@@ -168,7 +170,7 @@ class StringFunctionRepositorySplitTest {
 
 		assertEquals(new JsonPrimitive(" NoCode PlatForm  NoCode PlatForm  NoCode PlatForm "), stringFunction
 		        .find(Namespaces.STRING, "Repeat")
-		        .execute(new FunctionExecutionParameters().setArguments(Map.of(
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
 		                AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive(" NoCode PlatForm "),
 		                AbstractBinaryStringFunction.PARAMETER_INDEX_NAME, new JsonPrimitive(3))))
 		        .allResults()
@@ -179,7 +181,7 @@ class StringFunctionRepositorySplitTest {
 		assertEquals(new JsonPrimitive(
 		        " fincity company  fincity company  fincity company  fincity company  fincity company  fincity company "),
 		        stringFunction.find(Namespaces.STRING, "Repeat")
-		                .execute(new FunctionExecutionParameters()
+		                .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                        .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                                new JsonPrimitive(" fincity company "),
 		                                AbstractBinaryStringFunction.PARAMETER_INDEX_NAME, new JsonPrimitive(6))))
@@ -205,7 +207,7 @@ class StringFunctionRepositorySplitTest {
 		array.add("test");
 		array.add("Driven");
 		array.add("developement");
-		var x = (new Split()).execute(new FunctionExecutionParameters()
+		var x = (new Split()).execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 		                AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(" "))));
@@ -234,7 +236,7 @@ class StringFunctionRepositorySplitTest {
 		array.add("m");
 		array.add("nt");
 		assertEquals(array, (new Split())
-		        .execute(new FunctionExecutionParameters()
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 		                        new JsonPrimitive(
 		                                "I am using eclipse to test the changes with test Driven developement"),

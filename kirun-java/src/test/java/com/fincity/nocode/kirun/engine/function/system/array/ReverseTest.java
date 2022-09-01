@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -17,7 +19,7 @@ class ReverseTest {
 
 		Reverse rev = new Reverse();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters();
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
 
 		JsonArray source = new JsonArray();
 		source.add(4);
@@ -56,7 +58,7 @@ class ReverseTest {
 		arr.add('c');//
 		arr.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(6)))
@@ -154,7 +156,7 @@ class ReverseTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size() - 1)))
@@ -190,7 +192,7 @@ class ReverseTest {
 		arr.add('c');
 		arr.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2)))
 				.setContext(Map.of()).setSteps(Map.of());

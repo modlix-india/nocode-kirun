@@ -1,12 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -23,7 +26,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "secondSource", arr2)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
@@ -42,7 +45,7 @@ class AddTest {
 		res1.add(12);
 		res1.add(14);
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr1, "secondSource", arr)).setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep1);
@@ -62,7 +65,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
@@ -83,7 +86,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setSteps(Map.of());
 
 		ad.execute(fep);
@@ -103,7 +106,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", emp, "secondSource", arr)).setContext(Map.of()).setSteps(Map.of());
 
 		var res = new JsonArray();
@@ -125,7 +128,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "secondSource", arr)).setContext(Map.of())
 				.setSteps(Map.of());
 
@@ -146,7 +149,7 @@ class AddTest {
 
 		Add ad = new Add();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "secondSource", JsonNull.INSTANCE)).setContext(Map.of())
 				.setSteps(Map.of());
 

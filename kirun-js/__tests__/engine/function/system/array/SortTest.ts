@@ -1,3 +1,4 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { Sort } from '../../../../../src/engine/function/system/array/Sort';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
@@ -11,7 +12,10 @@ test('sort test 1', async () => {
     arr.push(98);
     arr.push(1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
@@ -36,7 +40,10 @@ test('sort test 2', async () => {
     arr.push(98);
     arr.push(1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
@@ -70,7 +77,10 @@ test('sort test 3', async () => {
     res.push(98);
     res.push(1);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
@@ -104,7 +114,10 @@ test('sort test 4', async () => {
     res.push(1);
     res.push(null);
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
@@ -118,7 +131,10 @@ test('sort test 4', async () => {
 test('sort test 5', async () => {
     let arr: any[] = ['Banana', 'Orange', 'Apple', 'Mango'];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 1],

@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -20,7 +22,7 @@ class InsertAtGivenPositionTest {
 		InsertAtGivenPosition insert = new InsertAtGivenPosition();
 
 		assertEquals(new JsonPrimitive(" THIScsurendharompatY IS A NOcoDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters()
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of(InsertAtGivenPosition.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME, new JsonPrimitive(s2),
 								InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME, new JsonPrimitive(6))))
@@ -36,7 +38,7 @@ class InsertAtGivenPositionTest {
 		InsertAtGivenPosition insert = new InsertAtGivenPosition();
 
 		assertEquals(new JsonPrimitive(" THIScompatY IS A NOcosurendharDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters()
+				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 						.setArguments(Map.of(InsertAtGivenPosition.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME, new JsonPrimitive(s2),
 								InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME, new JsonPrimitive(22))))

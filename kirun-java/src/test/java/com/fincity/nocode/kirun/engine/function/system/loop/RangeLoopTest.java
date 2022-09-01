@@ -7,6 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -18,7 +20,7 @@ class RangeLoopTest {
 		var loop = new RangeLoop();
 
 //		StepVerifier
-//		        .create(loop.execute(new FunctionExecutionParameters().setArguments(
+//		        .create(loop.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 //		                Map.of(RangeLoop.FROM, new JsonPrimitive(2), RangeLoop.TO, new JsonPrimitive(5)))))
 //		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(2))))
 //		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(3))))
@@ -29,7 +31,7 @@ class RangeLoopTest {
 
 //		StepVerifier
 //		        .create(loop.execute(
-//		                new FunctionExecutionParameters().setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive(201.56),
+//		                new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive(201.56),
 //		                        RangeLoop.TO, new JsonPrimitive(201.88), RangeLoop.STEP, new JsonPrimitive(0.08)))))
 //		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(201.56))))
 //		        .expectNext(EventResult.of(Event.ITERATION, Map.of(RangeLoop.INDEX, new JsonPrimitive(201.56 + 0.08))))
@@ -41,7 +43,7 @@ class RangeLoopTest {
 //		        .expectComplete()
 //		        .verify();
 
-		var params = new FunctionExecutionParameters()
+		var params = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5)));
 		assertThrows(SchemaValidationException.class, () -> loop.execute(params));
 

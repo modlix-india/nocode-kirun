@@ -1,3 +1,4 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../src';
 import { Schema } from '../../../../src/engine/json/schema/Schema';
 import { ContextElement } from '../../../../src/engine/runtime/ContextElement';
 import { ExpressionEvaluator } from '../../../../src/engine/runtime/expression/ExpressionEvaluator';
@@ -34,7 +35,10 @@ test('Expression Test', () => {
         ['loop', new Map([['iteration', new Map([['index', 2]])]])],
     ]);
 
-    let parameters: FunctionExecutionParameters = new FunctionExecutionParameters()
+    let parameters: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
         .setArguments(new Map())
         .setContext(
             new Map([

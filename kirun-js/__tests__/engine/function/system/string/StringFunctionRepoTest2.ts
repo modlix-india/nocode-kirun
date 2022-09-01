@@ -1,3 +1,4 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { AbstractStringFunction } from '../../../../../src/engine/function/system/string/AbstractStringFunction';
 import { StringFunctionRepository } from '../../../../../src/engine/function/system/string/StringFunctionRepository';
 import { Namespaces } from '../../../../../src/engine/namespaces/Namespaces';
@@ -8,7 +9,10 @@ const stringRepo = new StringFunctionRepository();
 
 test('StringRepo - contains', async () => {
     let fun = stringRepo.find(Namespaces.STRING, 'Contains');
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     if (!fun) {
         throw new Error('Function not available');
@@ -84,7 +88,10 @@ test('string function repo 2', async () => {
         throw new Error('Function not available');
     }
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
     fep.setArguments(
         MapUtil.of(
             AbstractStringFunction.PARAMETER_STRING_NAME,
@@ -140,7 +147,10 @@ test('string function repo 3', async () => {
         throw new Error('Function not available');
     }
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters();
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
     fep.setArguments(
         MapUtil.of(

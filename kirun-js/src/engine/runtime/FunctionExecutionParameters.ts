@@ -1,3 +1,6 @@
+import { Function } from '../function/Function';
+import { Schema } from '../json/schema/Schema';
+import { Repository } from '../Repository';
 import { ContextElement } from './ContextElement';
 import { TokenValueExtractor } from './expression/tokenextractor/TokenValueExtractor';
 import { StatementExecution } from './StatementExecution';
@@ -12,8 +15,18 @@ export class FunctionExecutionParameters {
     private statementExecution?: StatementExecution;
     private steps?: Map<string, Map<string, Map<string, any>>>;
     private count: number = 0;
+    private functionRepository: Repository<Function>;
+    private schemaRepository: Repository<Schema>;
 
     private valueExtractors: Map<string, TokenValueExtractor> = new Map();
+
+    public constructor(
+        functionRepository: Repository<Function>,
+        schemaRepository: Repository<Schema>,
+    ) {
+        this.functionRepository = functionRepository;
+        this.schemaRepository = schemaRepository;
+    }
 
     public getContext(): Map<string, ContextElement> | undefined {
         return this.context;
@@ -70,5 +83,22 @@ export class FunctionExecutionParameters {
 
     public getValuesMap(): Map<string, TokenValueExtractor> {
         return this.valueExtractors;
+    }
+
+    public getFunctionRepository(): Repository<Function> {
+        return this.functionRepository;
+    }
+    public setFunctionRepository(
+        functionRepository: Repository<Function>,
+    ): FunctionExecutionParameters {
+        this.functionRepository = functionRepository;
+        return this;
+    }
+    public getSchemaRepository(): Repository<Schema> {
+        return this.schemaRepository;
+    }
+    public setSchemaRepository(schemaRepository: Repository<Schema>): FunctionExecutionParameters {
+        this.schemaRepository = schemaRepository;
+        return this;
     }
 }

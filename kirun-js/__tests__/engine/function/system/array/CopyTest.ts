@@ -5,12 +5,17 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
+
 test('Compy Test', async () => {
     let copy: Copy = new Copy();
 
     let source: any[] = [1, 2, 3, 4, 5];
 
-    let fep1: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep1: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         MapUtil.of(
             AbstractArrayFunction.PARAMETER_ARRAY_SOURCE.getParameterName(),
             source as any,
@@ -27,7 +32,10 @@ test('Compy Test', async () => {
 
     let result: any[] = [3, 4, 5, 6];
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters().setArguments(
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         MapUtil.of(
             Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
             source as any,
@@ -45,7 +53,10 @@ test('Compy Test', async () => {
     source.push({ name: 'Kiran' });
     source.push({ name: 'Kumar' });
 
-    fep = new FunctionExecutionParameters().setArguments(
+    fep = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         MapUtil.of(
             Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
             source as any,
@@ -60,16 +71,20 @@ test('Compy Test', async () => {
     result.push({ name: 'Kiran' });
     result.push({ name: 'Kumar' });
 
-    fep = new FunctionExecutionParameters().setArguments(
-        MapUtil.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source),
-    );
+    fep = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(MapUtil.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source));
 
     fo = await copy.execute(fep);
 
     expect(fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME)).toStrictEqual(result);
     expect(source[0] == result[0]).toBeFalsy();
 
-    fep = new FunctionExecutionParameters().setArguments(
+    fep = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
         MapUtil.of(
             Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
             source as any,

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -15,7 +16,7 @@ import com.google.gson.JsonElement;
 
 public abstract class AbstractFunction implements Function {
 
-	protected Map<String, JsonElement> validateArguments(final Map<String, JsonElement> arguments) {
+	protected Map<String, JsonElement> validateArguments(final Map<String, JsonElement> arguments, Repository<Schema> repository) {
 
 		return this.getSignature()
 		        .getParameters()
@@ -27,12 +28,12 @@ public abstract class AbstractFunction implements Function {
 				        JsonElement jsonElement = arguments.get(e.getKey());
 
 				        if (jsonElement == null || jsonElement.isJsonNull()) {
-					        return Map.entry(e.getKey(), SchemaValidator.validate(null, param.getSchema(), null, null));
+					        return Map.entry(e.getKey(), SchemaValidator.validate(null, param.getSchema(), repository, null));
 				        }
 
 				        if (!param.isVariableArgument())
 					        return Map.entry(e.getKey(),
-					                SchemaValidator.validate(null, param.getSchema(), null, jsonElement));
+					                SchemaValidator.validate(null, param.getSchema(), repository, jsonElement));
 
 				        JsonArray array = null;
 
@@ -44,7 +45,7 @@ public abstract class AbstractFunction implements Function {
 				        }
 
 				        for (JsonElement je : array) {
-					        SchemaValidator.validate(null, param.getSchema(), null, je);
+					        SchemaValidator.validate(null, param.getSchema(), repository, je);
 				        }
 
 				        return Map.entry(e.getKey(), jsonElement);
@@ -55,7 +56,7 @@ public abstract class AbstractFunction implements Function {
 	@Override
 	public FunctionOutput execute(FunctionExecutionParameters context) {
 		
-		context.setArguments(this.validateArguments(context.getArguments()));
+		context.setArguments(this.validateArguments(context.getArguments(), context.getSchemaRepository()));
 
 		return this.internalExecute(context);
 	}

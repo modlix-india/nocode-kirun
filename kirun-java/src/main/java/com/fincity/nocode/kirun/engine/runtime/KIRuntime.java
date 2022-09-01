@@ -63,21 +63,13 @@ public class KIRuntime extends AbstractFunction {
 
 	private final FunctionDefinition fd;
 
-	private final Repository<Function> fRepo;
-
-	private final Repository<Schema> sRepo;
-
-	public KIRuntime(FunctionDefinition fd, Repository<Function> functionRepository,
-	        Repository<Schema> schemaRepository) {
+	public KIRuntime(FunctionDefinition fd) {
 
 		this.fd = fd;
 		if (this.fd.getVersion() > VERSION) {
 			throw new KIRuntimeException("Runtime is at a lower version " + VERSION
 			        + " and trying to run code from version " + this.fd.getVersion() + ".");
 		}
-
-		this.fRepo = functionRepository;
-		this.sRepo = schemaRepository;
 	}
 
 	@Override
@@ -86,12 +78,13 @@ public class KIRuntime extends AbstractFunction {
 		return this.fd;
 	}
 
-	private ExecutionGraph<String, StatementExecution> getExecutionPlan(Map<String, ContextElement> context) {
+	private ExecutionGraph<String, StatementExecution> getExecutionPlan(Map<String, ContextElement> context,
+	        Repository<Function> fRepo, Repository<Schema> sRepo) {
 
 		ExecutionGraph<String, StatementExecution> g = new ExecutionGraph<>();
 		for (Statement s : this.fd.getSteps()
 		        .values())
-			g.addVertex(this.prepareStatementExecution(context, s));
+			g.addVertex(this.prepareStatementExecution(context, s, fRepo, sRepo));
 
 		var unresolvedList = this.makeEdges(g);
 
@@ -116,7 +109,8 @@ public class KIRuntime extends AbstractFunction {
 		if (inContext.getSteps() == null)
 			inContext.setSteps(new ConcurrentHashMap<>());
 
-		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext());
+		ExecutionGraph<String, StatementExecution> eGraph = this.getExecutionPlan(inContext.getContext(),
+		        inContext.getFunctionRepository(), inContext.getSchemaRepository());
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
@@ -239,7 +233,8 @@ public class KIRuntime extends AbstractFunction {
 		Statement s = vertex.getData()
 		        .getStatement();
 
-		Function fun = this.fRepo.find(s.getNamespace(), s.getName());
+		Function fun = inContext.getFunctionRepository()
+		        .find(s.getNamespace(), s.getName());
 
 		Map<String, Parameter> paramSet = fun.getSignature()
 		        .getParameters();
@@ -248,12 +243,14 @@ public class KIRuntime extends AbstractFunction {
 
 		Map<String, ContextElement> context = inContext.getContext();
 
-		FunctionOutput result = fun.execute(new FunctionExecutionParameters().setContext(context)
-		        .setArguments(arguments)
-		        .setEvents(inContext.getEvents())
-		        .setSteps(inContext.getSteps())
-		        .setStatementExecution(vertex.getData())
-		        .setCount(inContext.getCount()));
+		FunctionOutput result = fun.execute(
+		        new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository())
+		                .setContext(context)
+		                .setArguments(arguments)
+		                .setEvents(inContext.getEvents())
+		                .setSteps(inContext.getSteps())
+		                .setStatementExecution(vertex.getData())
+		                .setCount(inContext.getCount()));
 
 		EventResult er = result.next();
 
@@ -418,12 +415,13 @@ public class KIRuntime extends AbstractFunction {
 		return ret;
 	}
 
-	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s) { // NOSONAR
+	private StatementExecution prepareStatementExecution(Map<String, ContextElement> context, Statement s,
+	        Repository<Function> fRepo, Repository<Schema> sRepo) { // NOSONAR
 		// Breaking this execution doesn't make sense.
 
 		StatementExecution se = new StatementExecution(s);
 
-		Function fun = this.fRepo.find(s.getNamespace(), s.getName());
+		Function fun = fRepo.find(s.getNamespace(), s.getName());
 
 		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
 		        .getParameters());
@@ -437,7 +435,7 @@ public class KIRuntime extends AbstractFunction {
 
 			if (refList == null || refList.isEmpty()) {
 
-				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 				continue;
@@ -446,11 +444,11 @@ public class KIRuntime extends AbstractFunction {
 			if (p.isVariableArgument()) {
 
 				for (ParameterReference ref : refList)
-					parameterReferenceValidation(context, se, p, ref);
+					parameterReferenceValidation(context, se, p, ref, sRepo);
 			} else {
 
 				ParameterReference ref = refList.get(0);
-				parameterReferenceValidation(context, se, p, ref);
+				parameterReferenceValidation(context, se, p, ref, sRepo);
 			}
 
 			paramSet.remove(p.getParameterName());
@@ -463,7 +461,7 @@ public class KIRuntime extends AbstractFunction {
 
 		if (!paramSet.isEmpty()) {
 			for (Parameter param : paramSet.values()) {
-				if (SchemaUtil.getDefaultValue(param.getSchema(), this.sRepo) == null)
+				if (SchemaUtil.getDefaultValue(param.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
 			}
@@ -473,15 +471,15 @@ public class KIRuntime extends AbstractFunction {
 	}
 
 	private void parameterReferenceValidation(Map<String, ContextElement> context, StatementExecution se, Parameter p, // NOSONAR
-	        ParameterReference ref) {
+	        ParameterReference ref, Repository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
 
 		if (ref == null) {
-			if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+			if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 		} else if (ref.getType() == ParameterReferenceType.VALUE) {
-			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
@@ -556,7 +554,7 @@ public class KIRuntime extends AbstractFunction {
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
 			if (ref.getExpression() == null || ref.getExpression()
 			        .isBlank()) {
-				if (SchemaUtil.getDefaultValue(p.getSchema(), this.sRepo) == null)
+				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 			} else {

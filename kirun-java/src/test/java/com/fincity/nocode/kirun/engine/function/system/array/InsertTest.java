@@ -1,12 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -39,7 +42,7 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(2), "element", new JsonPrimitive(9)))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -74,7 +77,7 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -93,7 +96,7 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters()
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
@@ -111,7 +114,7 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters().setArguments(
+		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", JsonNull.INSTANCE, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 

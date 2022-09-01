@@ -1,11 +1,13 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -22,7 +24,7 @@ class HypotenuseTest {
 		nums.add(6);
 
 		assertEquals(new JsonPrimitive(8.366600265340756d),
-				hyp.execute(new FunctionExecutionParameters().setArguments(Map.of("value", nums))).next().getResult()
+				hyp.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", nums))).next().getResult()
 						.get("value"));
 	}
 
@@ -33,7 +35,7 @@ class HypotenuseTest {
 		var nums = new JsonArray();
 
 		assertEquals(new JsonPrimitive(0),
-				hyp.execute(new FunctionExecutionParameters().setArguments(Map.of("value", nums))).next().getResult()
+				hyp.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", nums))).next().getResult()
 						.get("value"));
 	}
 

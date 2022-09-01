@@ -1,12 +1,14 @@
 package com.fincity.nocode.kirun.engine.function.math;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.function.system.math.Minimum;
+import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,7 +27,7 @@ class MinTest {
 		nums.add(10.2);
 
 		assertEquals(new JsonPrimitive(3),
-				minFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				minFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 
@@ -37,7 +39,7 @@ class MinTest {
 		Object empty = null;
 
 		assertEquals(empty,
-				minFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				minFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 
@@ -53,7 +55,7 @@ class MinTest {
 		nums.add(0 / 0.0);
 
 		assertEquals(new JsonPrimitive(Double.POSITIVE_INFINITY - Double.POSITIVE_INFINITY),
-				minFunction.execute(new FunctionExecutionParameters().setArguments(Map.of("value", (JsonElement) nums)))
+				minFunction.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums)))
 						.next().getResult().get("value"));
 	}
 

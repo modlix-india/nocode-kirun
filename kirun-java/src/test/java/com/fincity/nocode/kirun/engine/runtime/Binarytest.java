@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.function.system.GenerateEvent;
 import com.fincity.nocode.kirun.engine.function.system.math.Hypotenuse;
 import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
-import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
@@ -53,9 +52,8 @@ public class Binarytest {
 		                        .setName(genEvent.getName())
 		                        .setParameterMap(
 		                                Map.of("eventName", List.of(ParameterReference.of(new JsonPrimitive("output"))),
-		                                        "results", List.of(ParameterReference.of(resultObj))))))),
-		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		        .execute(new FunctionExecutionParameters()
+		                                        "results", List.of(ParameterReference.of(resultObj))))))))
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive(12), "value2", new JsonPrimitive(4))))
 		        .allResults();
 
@@ -91,9 +89,8 @@ public class Binarytest {
 		                        .setName(genEvent.getName())
 		                        .setParameterMap(
 		                                Map.of("eventName", List.of(ParameterReference.of(new JsonPrimitive("output"))),
-		                                        "results", List.of(ParameterReference.of(resultObj))))))),
-		        new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		        .execute(new FunctionExecutionParameters()
+		                                        "results", List.of(ParameterReference.of(resultObj))))))))
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive(4), "value2", new JsonPrimitive(4))))
 		        .allResults();
 
