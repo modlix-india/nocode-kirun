@@ -23,7 +23,7 @@ test('Minimum Test 2', () => {
         new Map([['value', ["3", 2, 3, 5, 3]]]),
     )
 
-    expect(async () => (await min.execute(fep)).allResults()[0].getResult().get('value')).rejects.toThrowError("Value \"-3\" is not of valid type(s)\n3 is not a Integer\n3 is not a Long\n3 is not a Float\n3 is not a Double");
+    expect(async () => (await min.execute(fep)).allResults()[0].getResult().get('value')).rejects.toThrowError("Value \"3\" is not of valid type(s)\n3 is not a Integer\n3 is not a Long\n3 is not a Float\n3 is not a Double");
 })
 
 test('Minimum Test 3', async () => {
