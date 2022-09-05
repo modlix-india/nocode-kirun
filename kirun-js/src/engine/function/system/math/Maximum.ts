@@ -28,7 +28,7 @@ export class Maximum extends AbstractFunction {
         return new FunctionOutput([
             EventResult.outputOf(
                 new Map([
-                    [VALUE, Math.sqrt(nums.reduce((a, c) => ((!a && a !== 0) || c > a ? c : a)))],
+                    [VALUE, nums.reduce((a, c) => ((!a && a !== 0) || c > a ? c : a))],
                 ]),
             ),
         ]);

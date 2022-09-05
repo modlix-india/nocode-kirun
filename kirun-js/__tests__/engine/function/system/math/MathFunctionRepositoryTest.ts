@@ -25,7 +25,7 @@ test("Test Math Functions 2", () => {
         new Map([['value', "-1.2"]]),
     );
 
-    expect(async () => (await (MathFunction.find(Namespaces.MATH, "Absolute")?.execute(fep)))?.allResults()[0]?.getResult()?.get("value")).rejects.toThrow();
+    expect(async () => (await (MathFunction.find(Namespaces.MATH, "Absolute")?.execute(fep)))?.allResults()[0]?.getResult()?.get("value")).rejects.toThrowError("Value \"-1.2\" is not of valid type(s)\n-1.2 is not a Integer\n-1.2 is not a Long\n-1.2 is not a Float\n-1.2 is not a Double");
 })
 
 test("Test Math Functions 3", async () => {
@@ -51,7 +51,7 @@ test("test Math Functions 5", () => {
         new Map([['value', "-1"]]),
     );
 
-    expect(async () => (await MathFunction.find(Namespaces.MATH, "ATangent")?.execute(fep))?.allResults()[0]?.getResult()?.get("value")).rejects.toThrowError("Value \"-1\" is not of valid type(s)\n1 is not a Integer\n1 is not a Long\n1 is not a Float\n1 is not a Double");
+    expect(async () => (await MathFunction.find(Namespaces.MATH, "ATangent")?.execute(fep))?.allResults()[0]?.getResult()?.get("value")).rejects.toThrowError("Value \"-1\" is not of valid type(s)\n-1 is not a Integer\n-1 is not a Long\n-1 is not a Float\n-1 is not a Double");
 })
 
 test("test Math Functions 6", async () => {

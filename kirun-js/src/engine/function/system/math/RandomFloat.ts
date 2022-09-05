@@ -44,12 +44,12 @@ export class RandomFloat extends AbstractFunction {
         return RandomFloat.SIGNATURE;
     }
 
-    protected internalExecute(context: FunctionExecutionParameters): FunctionOutput {
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let min: number = context.getArguments()?.get(RandomFloat.MIN_VALUE);
 
         let max: number = context.getArguments()?.get(RandomFloat.MAX_VALUE);
 
-        let num: number = Math.floor(Math.random() * (max - min) + min);
+        let num: number = Math.random() * (max - min) + min;
 
         return new FunctionOutput([EventResult.outputOf(new Map([[RandomFloat.VALUE, num]]))]);
     }
