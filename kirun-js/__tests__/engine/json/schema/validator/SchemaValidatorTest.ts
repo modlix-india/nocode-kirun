@@ -53,3 +53,41 @@ test('Schema Validator Test 2', () => {
 
     expect(SchemaValidator.validate(undefined, Schema.ofRef('Test.Location'), repo, obj)).toBe(obj);
 });
+
+test('Schema Validator Test 3', () => {
+    const obj = { url: 'http://xxxx.com' };
+
+    const locationSchema = Schema.from({
+        name: 'Location',
+        namespace: 'Test',
+        type: 'Object',
+        properties: {
+            url: { name: 'url', type: 'String' },
+        },
+        required: ['url'],
+        defaultValue: obj,
+    });
+
+    const repo = new HybridRepository<Schema>(
+        {
+            find(namespace, name): Schema | undefined {
+                if (namespace === 'Test' && name === 'Location') {
+                    return locationSchema;
+                }
+                return undefined;
+            },
+        },
+        new KIRunSchemaRepository(),
+    );
+
+    const obj1 = { url: 'http://yyyy.com' };
+
+    expect(
+        SchemaValidator.validate(
+            undefined,
+            Schema.ofRef('Test.Location').setDefaultValue(obj1),
+            repo,
+            undefined,
+        ),
+    ).toMatchObject(obj1);
+});
