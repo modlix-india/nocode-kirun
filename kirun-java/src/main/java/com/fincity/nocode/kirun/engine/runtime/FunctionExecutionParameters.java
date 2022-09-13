@@ -33,6 +33,16 @@ public class FunctionExecutionParameters {
 
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 
+	public FunctionExecutionParameters(Repository<Function> functionRepository, Repository<Schema> schemaRepository,
+	        TokenValueExtractor... extractors) {
+
+		this.functionRepository = functionRepository;
+		this.schemaRepository = schemaRepository;
+
+		for (TokenValueExtractor tve : extractors)
+			this.valueExtractors.put(tve.getPrefix(), tve);
+	}
+
 	public FunctionExecutionParameters setContext(Map<String, ContextElement> context) {
 
 		this.context = context;
@@ -62,5 +72,17 @@ public class FunctionExecutionParameters {
 
 	public Map<String, TokenValueExtractor> getValuesMap() {
 		return this.valueExtractors;
+	}
+
+	public FunctionExecutionParameters addTokenValueExtractor(TokenValueExtractor... extractors) {
+
+		for (TokenValueExtractor tve : extractors)
+			this.valueExtractors.put(tve.getPrefix(), tve);
+		return this;
+	}
+
+	public FunctionExecutionParameters setValuesMap(Map<String, TokenValueExtractor> valuesMap) {
+		this.valueExtractors.putAll(valuesMap);
+		return this;
 	}
 }

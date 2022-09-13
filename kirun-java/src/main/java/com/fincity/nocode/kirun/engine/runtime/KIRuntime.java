@@ -245,6 +245,7 @@ public class KIRuntime extends AbstractFunction {
 
 		FunctionOutput result = fun.execute(
 		        new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository())
+		        		.setValuesMap(inContext.getValuesMap())
 		                .setContext(context)
 		                .setArguments(arguments)
 		                .setEvents(inContext.getEvents())

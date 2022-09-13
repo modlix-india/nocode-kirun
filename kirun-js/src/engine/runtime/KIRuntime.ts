@@ -297,6 +297,7 @@ export class KIRuntime extends AbstractFunction {
                 inContext.getFunctionRepository(),
                 inContext.getSchemaRepository(),
             )
+                .setValuesMap(inContext.getValuesMap())
                 .setContext(context)
                 .setArguments(args)
                 .setEvents(inContext.getEvents()!)
