@@ -23,9 +23,14 @@ export class FunctionExecutionParameters {
     public constructor(
         functionRepository: Repository<Function>,
         schemaRepository: Repository<Schema>,
+        ...extractors: TokenValueExtractor[]
     ) {
         this.functionRepository = functionRepository;
         this.schemaRepository = schemaRepository;
+        if (!extractors) return;
+        for (const ex of extractors) {
+            this.valueExtractors.set(ex.getPrefix(), ex);
+        }
     }
 
     public getContext(): Map<string, ContextElement> | undefined {
@@ -99,6 +104,19 @@ export class FunctionExecutionParameters {
     }
     public setSchemaRepository(schemaRepository: Repository<Schema>): FunctionExecutionParameters {
         this.schemaRepository = schemaRepository;
+        return this;
+    }
+
+    public addTokenValueExtractor(
+        ...extractors: TokenValueExtractor[]
+    ): FunctionExecutionParameters {
+        for (const tve of extractors) this.valueExtractors.set(tve.getPrefix(), tve);
+        return this;
+    }
+
+    public setValuesMap(valuesMap: Map<string, TokenValueExtractor>): FunctionExecutionParameters {
+        for (const [k, v] of valuesMap.entries()) this.valueExtractors.set(k, v);
+
         return this;
     }
 }
