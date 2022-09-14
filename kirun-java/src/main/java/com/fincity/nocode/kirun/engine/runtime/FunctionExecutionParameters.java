@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.runtime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.function.Function;
@@ -30,17 +31,12 @@ public class FunctionExecutionParameters {
 	private int count;
 	private final Repository<Function> functionRepository;
 	private final Repository<Schema> schemaRepository;
+	private final String executionId;
 
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 
-	public FunctionExecutionParameters(Repository<Function> functionRepository, Repository<Schema> schemaRepository,
-	        TokenValueExtractor... extractors) {
-
-		this.functionRepository = functionRepository;
-		this.schemaRepository = schemaRepository;
-
-		for (TokenValueExtractor tve : extractors)
-			this.valueExtractors.put(tve.getPrefix(), tve);
+	public FunctionExecutionParameters(Repository<Function> functionRepository, Repository<Schema> schemaRepository) {
+		this(functionRepository, schemaRepository, UUID.randomUUID().toString());
 	}
 
 	public FunctionExecutionParameters setContext(Map<String, ContextElement> context) {

@@ -1,6 +1,7 @@
 import { Function } from '../function/Function';
 import { Schema } from '../json/schema/Schema';
 import { Repository } from '../Repository';
+import UUID from '../util/UUID';
 import { ContextElement } from './ContextElement';
 import { TokenValueExtractor } from './expression/tokenextractor/TokenValueExtractor';
 import { StatementExecution } from './StatementExecution';
@@ -17,20 +18,22 @@ export class FunctionExecutionParameters {
     private count: number = 0;
     private functionRepository: Repository<Function>;
     private schemaRepository: Repository<Schema>;
+    private executionId: string;
 
     private valueExtractors: Map<string, TokenValueExtractor> = new Map();
 
     public constructor(
         functionRepository: Repository<Function>,
         schemaRepository: Repository<Schema>,
-        ...extractors: TokenValueExtractor[]
+        executionId?: string,
     ) {
         this.functionRepository = functionRepository;
         this.schemaRepository = schemaRepository;
-        if (!extractors) return;
-        for (const ex of extractors) {
-            this.valueExtractors.set(ex.getPrefix(), ex);
-        }
+        this.executionId = executionId ?? UUID();
+    }
+
+    public getExecutionId(): string {
+        return this.executionId;
     }
 
     public getContext(): Map<string, ContextElement> | undefined {
