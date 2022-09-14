@@ -54,6 +54,12 @@ test('Schema Validator Test 2', () => {
     expect(SchemaValidator.validate(undefined, Schema.ofRef('Test.Location'), repo, obj)).toBe(obj);
 });
 
+test('Validate null for ofAny schema', () => {
+    expect(
+        SchemaValidator.validate(undefined, Schema.ofAny('ofanyundefined'), undefined, undefined),
+    ).toBe(undefined);
+});
+
 test('Schema Validator Test 3', () => {
     const obj = { url: 'http://xxxx.com' };
 

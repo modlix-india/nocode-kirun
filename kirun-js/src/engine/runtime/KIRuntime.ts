@@ -61,22 +61,37 @@ export class KIRuntime extends AbstractFunction {
         return this.fd;
     }
 
-    private async getExecutionPlan(
-        context: Map<string, ContextElement>,
+    public async getExecutionPlan(
         fep: FunctionExecutionParameters,
-    ): Promise<ExecutionGraph<string, StatementExecution>> {
+    ): Promise<Tuple2<Tuple2<string, string>[], ExecutionGraph<string, StatementExecution>>> {
         let g: ExecutionGraph<string, StatementExecution> = new ExecutionGraph();
         for (let s of Array.from(this.fd.getSteps().values()))
             g.addVertex(
                 this.prepareStatementExecution(
-                    context,
                     s,
                     fep.getFunctionRepository(),
                     fep.getSchemaRepository(),
                 ),
             );
 
-        let unresolvedList: Tuple2<string, string>[] = this.makeEdges(g);
+        return new Tuple2(this.makeEdges(g), g);
+    }
+
+    protected async internalExecute(
+        inContext: FunctionExecutionParameters,
+    ): Promise<FunctionOutput> {
+        if (!inContext.getContext()) inContext.setContext(new Map());
+
+        if (!inContext.getEvents()) inContext.setEvents(new Map());
+
+        if (!inContext.getSteps()) inContext.setSteps(new Map());
+
+        let eGraph: Tuple2<
+            Tuple2<string, string>[],
+            ExecutionGraph<string, StatementExecution>
+        > = await this.getExecutionPlan(inContext);
+
+        let unresolvedList: Tuple2<string, string>[] = eGraph.getT1();
 
         if (unresolvedList.length) {
             throw new KIRuntimeException(
@@ -89,29 +104,13 @@ export class KIRuntime extends AbstractFunction {
             );
         }
 
-        return g;
-    }
-
-    protected async internalExecute(
-        inContext: FunctionExecutionParameters,
-    ): Promise<FunctionOutput> {
-        if (!inContext.getContext()) inContext.setContext(new Map());
-
-        if (!inContext.getEvents()) inContext.setEvents(new Map());
-
-        if (!inContext.getSteps()) inContext.setSteps(new Map());
-
-        let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
-            inContext.getContext()!,
-            inContext,
-        );
-
         // if (logger.isDebugEnabled()) {
         // 	logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
         // 	logger.debug(eGraph.toString());
         // }
 
         let messages: string[] = eGraph
+            .getT2()
             .getVerticesData()
             .filter((e) => e.getMessages().length)
             .map((e) => e.getStatement().getStatementName() + ': \n' + e.getMessages().join(','));
@@ -123,7 +122,7 @@ export class KIRuntime extends AbstractFunction {
             );
         }
 
-        return await this.executeGraph(eGraph, inContext);
+        return await this.executeGraph(eGraph.getT2(), inContext);
     }
 
     private async executeGraph(
@@ -296,6 +295,7 @@ export class KIRuntime extends AbstractFunction {
             new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
                 inContext.getSchemaRepository(),
+                inContext.getExecutionId(),
             )
                 .setValuesMap(inContext.getValuesMap())
                 .setContext(context)
@@ -463,7 +463,6 @@ export class KIRuntime extends AbstractFunction {
     }
 
     private prepareStatementExecution(
-        context: Map<string, ContextElement>,
         s: Statement,
         fRepo: Repository<Function>,
         sRepo: Repository<Schema>,
@@ -495,15 +494,15 @@ export class KIRuntime extends AbstractFunction {
                             p.getParameterName(),
                         ),
                     );
+                paramSet.delete(p.getParameterName());
                 continue;
             }
 
             if (p.isVariableArgument()) {
-                for (let ref of refList)
-                    this.parameterReferenceValidation(context, se, p, ref, sRepo);
+                for (let ref of refList) this.parameterReferenceValidation(se, p, ref, sRepo);
             } else {
                 let ref: ParameterReference = refList[0];
-                this.parameterReferenceValidation(context, se, p, ref, sRepo);
+                this.parameterReferenceValidation(se, p, ref, sRepo);
             }
 
             paramSet.delete(p.getParameterName());
@@ -531,7 +530,6 @@ export class KIRuntime extends AbstractFunction {
     }
 
     private parameterReferenceValidation(
-        context: Map<string, ContextElement>,
         se: StatementExecution,
         p: Parameter,
         ref: ParameterReference,
