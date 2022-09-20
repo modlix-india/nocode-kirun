@@ -48,7 +48,6 @@ test(' rand int 3', async () => {
     );
     let num: number = (await rand.execute(fep)).allResults()[0].getResult().get('value');
 
-    console.log(num);
     expect(num).toBeLessThanOrEqual(max);
     expect(num).toBeGreaterThanOrEqual(min);
 });

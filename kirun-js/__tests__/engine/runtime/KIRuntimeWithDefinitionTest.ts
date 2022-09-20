@@ -42,11 +42,11 @@ test('KIRuntime With Definition 1', async () => {
                 namespace: Namespaces.MATH,
                 name: 'Add',
                 parameterMap: {
-                    value: [
-                        { type: 'EXPRESSION', expression: 'Arguments.a' },
-                        { type: 'EXPRESSION', expression: '10 + 1' },
-                        { type: 'EXPRESSION', expression: 'Arguments.c' },
-                    ],
+                    value: {
+                        one: { key: 'one', type: 'EXPRESSION', expression: 'Arguments.a' },
+                        two: { key: 'two', type: 'EXPRESSION', expression: '10 + 1' },
+                        three: { key: 'three', type: 'EXPRESSION', expression: 'Arguments.c' },
+                    },
                 },
             },
             genOutput: {
@@ -54,16 +54,17 @@ test('KIRuntime With Definition 1', async () => {
                 namespace: Namespaces.SYSTEM,
                 name: 'GenerateEvent',
                 parameterMap: {
-                    eventName: [{ type: 'VALUE', value: 'output' }],
-                    results: [
-                        {
+                    eventName: { one: { key: 'one', type: 'VALUE', value: 'output' } },
+                    results: {
+                        one: {
+                            key: 'one',
                             type: 'VALUE',
                             value: {
                                 name: 'additionResult',
                                 value: { isExpression: true, value: 'Steps.add.output.value' },
                             },
                         },
-                    ],
+                    },
                 },
             },
         },

@@ -22,7 +22,9 @@ export class Statement extends AbstractStatement {
                 ['name', Schema.ofString('name')],
                 [
                     'dependentStatements',
-                    Schema.ofArray('dependentstatement', Schema.ofString('dependentstatement')),
+                    Schema.ofObject('dependentstatement').setAdditionalProperties(
+                        new AdditionalPropertiesType().setSchemaValue(Schema.ofBoolean('exists')),
+                    ),
                 ],
                 [
                     'parameterMap',
@@ -30,7 +32,11 @@ export class Statement extends AbstractStatement {
                         .setName('parameterMap')
                         .setAdditionalProperties(
                             new AdditionalPropertiesType().setSchemaValue(
-                                Schema.ofArray('parameterReference', ParameterReference.SCHEMA),
+                                Schema.ofObject('parameterReference').setAdditionalProperties(
+                                    new AdditionalPropertiesType().setSchemaValue(
+                                        ParameterReference.SCHEMA,
+                                    ),
+                                ),
                             ),
                         ),
                 ],
@@ -40,8 +46,8 @@ export class Statement extends AbstractStatement {
     private statementName: string;
     private namespace: string;
     private name: string;
-    private parameterMap?: Map<string, ParameterReference[]>;
-    private dependentStatements?: string[];
+    private parameterMap?: Map<string, Map<string, ParameterReference>>;
+    private dependentStatements?: Map<string, boolean>;
 
     public constructor(statementName: string, namespace: string, name: string) {
         super();
@@ -71,20 +77,20 @@ export class Statement extends AbstractStatement {
         this.name = name;
         return this;
     }
-    public getParameterMap(): Map<string, ParameterReference[]> {
+    public getParameterMap(): Map<string, Map<string, ParameterReference>> {
         if (!this.parameterMap) {
             this.parameterMap = new Map();
         }
         return this.parameterMap;
     }
-    public setParameterMap(parameterMap: Map<string, ParameterReference[]>): Statement {
+    public setParameterMap(parameterMap: Map<string, Map<string, ParameterReference>>): Statement {
         this.parameterMap = parameterMap;
         return this;
     }
-    public getDependentStatements(): string[] {
-        return this.dependentStatements ?? [];
+    public getDependentStatements(): Map<string, boolean> {
+        return this.dependentStatements ?? new Map();
     }
-    public setDependentStatements(dependentStatements: string[]): Statement {
+    public setDependentStatements(dependentStatements: Map<string, boolean>): Statement {
         this.dependentStatements = dependentStatements;
         return this;
     }
@@ -102,14 +108,20 @@ export class Statement extends AbstractStatement {
     public static from(json: any): Statement {
         return new Statement(json.statementName, json.namespace, json.name)
             .setParameterMap(
-                new Map<string, ParameterReference[]>(
-                    Object.entries(json.parameterMap ?? {}).map(([k, v]) => [
+                new Map<string, Map<string, ParameterReference>>(
+                    Object.entries(json.parameterMap ?? {}).map(([k, v]: [string, any]) => [
                         k,
-                        ParameterReference.from(v),
+                        new Map<string, ParameterReference>(
+                            Object.entries(v ?? {})
+                                .map(([_, iv]) => ParameterReference.from(iv))
+                                .map((e) => [e.getKey(), e]),
+                        ),
                     ]),
                 ),
             )
-            .setDependentStatements(json.dependentStatements)
+            .setDependentStatements(
+                new Map<string, boolean>(Object.entries(json.dependentStatements ?? {})),
+            )
             .setPosition(Position.from(json.position))
             .setComment(json.comment)
             .setDescription(json.description) as Statement;

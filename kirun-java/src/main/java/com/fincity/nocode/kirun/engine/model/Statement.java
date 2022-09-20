@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine.model;
 
-import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -27,14 +26,21 @@ public class Statement extends AbstractStatement {
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 	        .setName(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
-	        .setProperties(Map.of("statementName", Schema.ofString("statementName"), "comment", Schema.ofString("comment"),
-	                "description", Schema.ofString("description"), "namespace", Schema.ofString("namespace"), "name",
-	                Schema.ofString("name"), "dependentStatements",
-	                Schema.ofArray("dependentstatement", Schema.ofString("dependentstatement")), "parameterMap",
-	                new Schema().setName("parameterMap")
-	                        .setAdditionalProperties(new AdditionalPropertiesType()
-	                                .setSchemaValue(Schema.ofArray("parameterReference", ParameterReference.SCHEMA))),
-	                "position", Position.SCHEMA));
+	        .setProperties(
+	                Map.of("statementName", Schema.ofString("statementName"), "comment", Schema.ofString("comment"),
+	                        "description", Schema.ofString("description"), "namespace", Schema.ofString("namespace"),
+	                        "name", Schema.ofString("name"),
+
+	                        "dependentStatements", Schema.ofObject("dependentstatement")
+	                                .setAdditionalProperties(
+	                                        new AdditionalPropertiesType().setSchemaValue(Schema.ofBoolean("exits"))),
+
+	                        "parameterMap", new Schema().setName("parameterMap")
+	                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                        .setSchemaValue(Schema.ofObject("parameterReference")
+	                                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                                        .setSchemaValue(ParameterReference.SCHEMA)))),
+	                        "position", Position.SCHEMA));
 
 	public Statement(String statementName) {
 		this.statementName = statementName;
@@ -43,10 +49,10 @@ public class Statement extends AbstractStatement {
 	private String statementName;
 	private String namespace;
 	private String name;
-	private Map<String, List<ParameterReference>> parameterMap;
-	private List<String> dependentStatements;
+	private Map<String, Map<String, ParameterReference>> parameterMap;
+	private Map<String, Boolean> dependentStatements;
 
-	public Map<String, List<ParameterReference>> getParameterMap() {
+	public Map<String, Map<String, ParameterReference>> getParameterMap() {
 		if (parameterMap == null) {
 			this.parameterMap = Map.of();
 		}

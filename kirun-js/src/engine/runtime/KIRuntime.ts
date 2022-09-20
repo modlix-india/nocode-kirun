@@ -417,7 +417,7 @@ export class KIRuntime extends AbstractFunction {
     ): Map<string, any> {
         return Array.from(s.getParameterMap().entries())
             .map((e) => {
-                let prList: ParameterReference[] = e[1];
+                let prList: ParameterReference[] = Array.from(e[1]?.values() ?? []);
 
                 let ret: any = undefined;
 
@@ -483,7 +483,7 @@ export class KIRuntime extends AbstractFunction {
             let p: Parameter | undefined = paramSet.get(param[0]);
             if (!p) continue;
 
-            let refList: ParameterReference[] = param[1];
+            let refList: ParameterReference[] = Array.from(param[1]?.values() ?? []);
 
             if (!refList.length) {
                 if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)))
@@ -509,8 +509,8 @@ export class KIRuntime extends AbstractFunction {
         }
 
         if (!isNullValue(se.getStatement().getDependentStatements())) {
-            for (let statement of se.getStatement().getDependentStatements())
-                se.addDependency(statement);
+            for (let statement of se.getStatement().getDependentStatements().entries())
+                if (statement[1]) se.addDependency(statement[0]);
         }
 
         if (paramSet.size) {
