@@ -46,13 +46,13 @@ public class Binarytest {
 		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("first").setNamespace(hypt.getNamespace())
 		                .setName(hypt.getName())
 		                .setParameterMap(Map.of("value",
-		                        List.of(ParameterReference.of("Arguments.value1"),
+		                        Map.ofEntries(ParameterReference.of("Arguments.value1"),
 		                                ParameterReference.of("Arguments.value2"))))),
 		                Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
 		                        .setName(genEvent.getName())
 		                        .setParameterMap(
-		                                Map.of("eventName", List.of(ParameterReference.of(new JsonPrimitive("output"))),
-		                                        "results", List.of(ParameterReference.of(resultObj))))))))
+		                                Map.of("eventName", Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+		                                        "results", Map.ofEntries(ParameterReference.of(resultObj))))))))
 		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive(12), "value2", new JsonPrimitive(4))))
 		        .allResults();
@@ -84,12 +84,12 @@ public class Binarytest {
 		                        .setSchema(Schema.ofNumber("value2")))))
 		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("first").setNamespace(arcTan.getNamespace())
 		                .setName(arcTan.getName())
-		                .setParameterMap(Map.of("value", List.of(ParameterReference.of("Arguments.value1"))))),
+		                .setParameterMap(Map.of("value", Map.ofEntries(ParameterReference.of("Arguments.value1"))))),
 		                Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
 		                        .setName(genEvent.getName())
 		                        .setParameterMap(
-		                                Map.of("eventName", List.of(ParameterReference.of(new JsonPrimitive("output"))),
-		                                        "results", List.of(ParameterReference.of(resultObj))))))))
+		                                Map.of("eventName", Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+		                                        "results", Map.ofEntries(ParameterReference.of(resultObj))))))))
 		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("value1", new JsonPrimitive(4), "value2", new JsonPrimitive(4))))
 		        .allResults();

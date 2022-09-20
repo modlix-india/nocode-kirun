@@ -72,6 +72,16 @@ export class MapUtil {
         return map;
     }
 
+    public static ofEntriesArray<K, V>(...entry: [K, V][]): Map<K, V> {
+        const map: Map<K, V> = new Map();
+
+        for (let i = 0; i < entry.length; i++) {
+            map.set(entry[i][0], entry[i][1]);
+        }
+
+        return map;
+    }
+
     private constructor() {}
 }
 

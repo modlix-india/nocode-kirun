@@ -63,14 +63,14 @@ class KIRuntimeTest {
 		integerSchema.addProperty("type", "INTEGER");
 		arrayOfIntegerSchema.add("items", integerSchema);
 		var createArray = new Statement("createArray").setNamespace(create.getNamespace()).setName(create.getName())
-				.setParameterMap(Map.of("name", List.of(ParameterReference.of(new JsonPrimitive("a"))), "schema",
-						List.of(ParameterReference.of(arrayOfIntegerSchema))));
+				.setParameterMap(Map.of("name", Map.ofEntries(ParameterReference.of(new JsonPrimitive("a"))), "schema",
+						Map.ofEntries(ParameterReference.of(arrayOfIntegerSchema))));
 
 		var rangeLoop = new RangeLoop().getSignature();
 		var loop = new Statement("loop").setNamespace(rangeLoop.getNamespace()).setName(rangeLoop.getName())
-				.setParameterMap(Map.of("from", List.of(ParameterReference.of(new JsonPrimitive(0))), "to",
-						List.of(ParameterReference.of("Arguments.Count"))))
-				.setDependentStatements(List.of("Steps.createArray.output"));
+				.setParameterMap(Map.of("from", Map.ofEntries(ParameterReference.of(new JsonPrimitive(0))), "to",
+						Map.ofEntries(ParameterReference.of("Arguments.Count"))))
+				.setDependentStatements(Map.of("Steps.createArray.output", true));
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
@@ -82,29 +82,29 @@ class KIRuntimeTest {
 		var generate = new GenerateEvent().getSignature();
 		var outputGenerate = new Statement("outputStep").setNamespace(generate.getNamespace())
 				.setName(generate.getName())
-				.setParameterMap(Map.of("eventName", List.of(ParameterReference.of(new JsonPrimitive("output"))),
-						"results", List.of(ParameterReference.of(resultObj))))
-				.setDependentStatements(List.of("Steps.loop.output"));
+				.setParameterMap(Map.of("eventName", Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+						"results", Map.ofEntries(ParameterReference.of(resultObj))))
+				.setDependentStatements(Map.of("Steps.loop.output", true));
 
 		var ifFunction = new If().getSignature();
 		var ifStep = new Statement("if").setNamespace(ifFunction.getNamespace()).setName(ifFunction.getName())
-				.setParameterMap(Map.of("condition", List.of(
+				.setParameterMap(Map.of("condition", Map.ofEntries(
 						ParameterReference.of("Steps.loop.iteration.index = 0 or Steps.loop.iteration.index = 1"))));
 
 		var set = new Set().getSignature();
 		var set1 = new Statement("setOnTrue").setNamespace(set.getNamespace()).setName(set.getName())
 				.setParameterMap(Map.of("name",
-						List.of(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
-						"value", List.of(ParameterReference.of("Steps.loop.iteration.index"))))
-				.setDependentStatements(List.of("Steps.if.true"));
+						Map.ofEntries(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
+						"value", Map.ofEntries(ParameterReference.of("Steps.loop.iteration.index"))))
+				.setDependentStatements(Map.of("Steps.if.true", true));
 
 		var set2 = new Statement("setOnFalse").setNamespace(set.getNamespace()).setName(set.getName())
 				.setParameterMap(Map.of("name",
-						List.of(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
+						Map.ofEntries(ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
 						"value",
-						List.of(ParameterReference.of(
+						Map.ofEntries(ParameterReference.of(
 								"Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
-				.setDependentStatements(List.of("Steps.if.false"));
+				.setDependentStatements(Map.of("Steps.if.false", true));
 
 		start = System.currentTimeMillis();
 		List<EventResult> out = new KIRuntime(
@@ -146,12 +146,12 @@ class KIRuntimeTest {
 								Statement.ofEntry(
 										new Statement("first").setNamespace(Namespaces.MATH).setName("Absolute")
 												.setParameterMap(Map.of("value",
-														List.of(ParameterReference.of("Arguments.Value"))))),
+														Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
 								Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
 										.setName(genEvent.getName())
 										.setParameterMap(Map.of("eventName",
-												List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
-												List.of(ParameterReference.of(resultObj))))))))
+												Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
+												Map.ofEntries(ParameterReference.of(resultObj))))))))
 				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
 				.allResults();
 
@@ -183,12 +183,12 @@ class KIRuntimeTest {
 								Statement.ofEntry(
 										new Statement("first").setNamespace(cbrt.getNamespace()).setName(cbrt.getName())
 												.setParameterMap(Map.of("value",
-														List.of(ParameterReference.of("Arguments.Value"))))),
+														Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
 								Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
 										.setName(genEvent.getName())
 										.setParameterMap(Map.of("eventName",
-												List.of(ParameterReference.of(new JsonPrimitive("output"))), "results",
-												List.of(ParameterReference.of(resultObj))))))))
+												Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
+												Map.ofEntries(ParameterReference.of(resultObj))))))))
 				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(27))))
 				.allResults();
 
@@ -266,12 +266,12 @@ class KIRuntimeTest {
 														.setName("asdf")
 														.setParameterMap(Map.of(
 																"value",
-																List.of(ParameterReference.of("Arguments.Value"))))),
+																Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
 										Statement.ofEntry(new Statement("fiboutput")
 												.setNamespace(genEvent.getNamespace()).setName(genEvent.getName())
 												.setParameterMap(Map.of("eventName",
-														List.of(ParameterReference.of(new JsonPrimitive("output"))),
-														"results", List.of(ParameterReference.of(resultObj))))))))
+														Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+														"results", Map.ofEntries(ParameterReference.of(resultObj))))))))
 				.execute(new FunctionExecutionParameters(hybrid, new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(num))))
 				.allResults();
 		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));

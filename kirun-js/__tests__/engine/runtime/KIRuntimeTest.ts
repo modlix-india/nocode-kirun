@@ -20,6 +20,7 @@ import { AbstractFunction } from '../../../src/engine/function/AbstractFunction'
 import { FunctionOutput } from '../../../src/engine/model/FunctionOutput';
 import { HybridRepository } from '../../../src/engine/HybridRepository';
 import { Function } from '../../../src/engine/function/Function';
+import { MapUtil } from '../../../src';
 
 test('KIRuntime Test 1', async () => {
     let start = new Date().getTime();
@@ -50,8 +51,8 @@ test('KIRuntime Test 1', async () => {
         create.getName(),
     ).setParameterMap(
         new Map([
-            ['name', [ParameterReference.ofValue('a')]],
-            ['schema', [ParameterReference.ofValue(arrayOfIntegerSchema)]],
+            ['name', MapUtil.ofEntriesArray(ParameterReference.ofValue('a'))],
+            ['schema', MapUtil.ofEntriesArray(ParameterReference.ofValue(arrayOfIntegerSchema))],
         ]),
     );
 
@@ -59,11 +60,11 @@ test('KIRuntime Test 1', async () => {
     var loop = new Statement('loop', rangeLoop.getNamespace(), rangeLoop.getName())
         .setParameterMap(
             new Map([
-                ['from', [ParameterReference.ofValue(0)]],
-                ['to', [ParameterReference.ofExpression('Arguments.Count')]],
+                ['from', MapUtil.ofEntriesArray(ParameterReference.ofValue(0))],
+                ['to', MapUtil.ofEntriesArray(ParameterReference.ofExpression('Arguments.Count'))],
             ]),
         )
-        .setDependentStatements(['Steps.createArray.output']);
+        .setDependentStatements(MapUtil.of('Steps.createArray.output', true));
 
     var resultObj = { name: 'result', value: { isExpression: true, value: 'Context.a' } };
 
@@ -71,11 +72,11 @@ test('KIRuntime Test 1', async () => {
     var outputGenerate = new Statement('outputStep', generate.getNamespace(), generate.getName())
         .setParameterMap(
             new Map([
-                ['eventName', [ParameterReference.ofValue('output')]],
-                ['results', [ParameterReference.ofValue(resultObj)]],
+                ['eventName', MapUtil.ofEntriesArray(ParameterReference.ofValue('output'))],
+                ['results', MapUtil.ofEntriesArray(ParameterReference.ofValue(resultObj))],
             ]),
         )
-        .setDependentStatements(['Steps.loop.output']);
+        .setDependentStatements(MapUtil.of('Steps.loop.output', true));
 
     var ifFunction = new If().getSignature();
     var ifStep = new Statement(
@@ -86,11 +87,11 @@ test('KIRuntime Test 1', async () => {
         new Map([
             [
                 'condition',
-                [
+                MapUtil.ofEntriesArray(
                     ParameterReference.ofExpression(
                         'Steps.loop.iteration.index = 0 or Steps.loop.iteration.index = 1',
                     ),
-                ],
+                ),
             ],
         ]),
     );
@@ -99,26 +100,41 @@ test('KIRuntime Test 1', async () => {
     var set1 = new Statement('setOnTrue', set.getNamespace(), set.getName())
         .setParameterMap(
             new Map([
-                ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
-                ['value', [ParameterReference.ofExpression('Steps.loop.iteration.index')]],
-            ]),
-        )
-        .setDependentStatements(['Steps.if.true']);
-    var set2 = new Statement('setOnFalse', set.getNamespace(), set.getName())
-        .setParameterMap(
-            new Map([
-                ['name', [ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]')]],
+                [
+                    'name',
+                    MapUtil.ofEntriesArray(
+                        ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]'),
+                    ),
+                ],
                 [
                     'value',
-                    [
-                        ParameterReference.ofExpression(
-                            'Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]',
-                        ),
-                    ],
+                    MapUtil.ofEntriesArray(
+                        ParameterReference.ofExpression('Steps.loop.iteration.index'),
+                    ),
                 ],
             ]),
         )
-        .setDependentStatements(['Steps.if.false']);
+        .setDependentStatements(MapUtil.of('Steps.if.true', true));
+    var set2 = new Statement('setOnFalse', set.getNamespace(), set.getName())
+        .setParameterMap(
+            new Map([
+                [
+                    'name',
+                    MapUtil.ofEntriesArray(
+                        ParameterReference.ofValue('Context.a[Steps.loop.iteration.index]'),
+                    ),
+                ],
+                [
+                    'value',
+                    MapUtil.ofEntriesArray(
+                        ParameterReference.ofExpression(
+                            'Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]',
+                        ),
+                    ),
+                ],
+            ]),
+        )
+        .setDependentStatements(MapUtil.of('Steps.if.false', true));
 
     start = new Date().getTime();
     let out: EventResult[] = (
@@ -178,7 +194,12 @@ test('KIRuntime Test 2', async () => {
                     Statement.ofEntry(
                         new Statement('first', Namespaces.MATH, 'Absolute').setParameterMap(
                             new Map([
-                                ['value', [ParameterReference.ofExpression('Arguments.Value')]],
+                                [
+                                    'value',
+                                    MapUtil.ofEntriesArray(
+                                        ParameterReference.ofExpression('Arguments.Value'),
+                                    ),
+                                ],
                             ]),
                         ),
                     ),
@@ -189,8 +210,14 @@ test('KIRuntime Test 2', async () => {
                             genEvent.getName(),
                         ).setParameterMap(
                             new Map([
-                                ['eventName', [ParameterReference.ofValue('output')]],
-                                ['results', [ParameterReference.ofValue(resultObj)]],
+                                [
+                                    'eventName',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue('output')),
+                                ],
+                                [
+                                    'results',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue(resultObj)),
+                                ],
                             ]),
                         ),
                     ),
@@ -226,7 +253,12 @@ test('KIRuntime Test 3', async () => {
                     Statement.ofEntry(
                         new Statement('first', Namespaces.MATH, 'CubeRoot').setParameterMap(
                             new Map([
-                                ['value', [ParameterReference.ofExpression('Arguments.Value')]],
+                                [
+                                    'value',
+                                    MapUtil.ofEntriesArray(
+                                        ParameterReference.ofExpression('Arguments.Value'),
+                                    ),
+                                ],
                             ]),
                         ),
                     ),
@@ -237,8 +269,14 @@ test('KIRuntime Test 3', async () => {
                             genEvent.getName(),
                         ).setParameterMap(
                             new Map([
-                                ['eventName', [ParameterReference.ofValue('output')]],
-                                ['results', [ParameterReference.ofValue(resultObj)]],
+                                [
+                                    'eventName',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue('output')),
+                                ],
+                                [
+                                    'results',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue(resultObj)),
+                                ],
                             ]),
                         ),
                     ),
@@ -326,7 +364,12 @@ test('KIRuntime Test 4', async () => {
                             'asdf',
                         ).setParameterMap(
                             new Map([
-                                ['value', [ParameterReference.ofExpression('Arguments.Value')]],
+                                [
+                                    'value',
+                                    MapUtil.ofEntriesArray(
+                                        ParameterReference.ofExpression('Arguments.Value'),
+                                    ),
+                                ],
                             ]),
                         ),
                     ),
@@ -337,8 +380,14 @@ test('KIRuntime Test 4', async () => {
                             genEvent.getName(),
                         ).setParameterMap(
                             new Map([
-                                ['eventName', [ParameterReference.ofValue('output')]],
-                                ['results', [ParameterReference.ofValue(resultObj)]],
+                                [
+                                    'eventName',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue('output')),
+                                ],
+                                [
+                                    'results',
+                                    MapUtil.ofEntriesArray(ParameterReference.ofValue(resultObj)),
+                                ],
                             ]),
                         ),
                     ),

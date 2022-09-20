@@ -2,6 +2,7 @@ import { Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
+import UUID from '../util/UUID';
 import { ParameterReferenceType } from './ParameterReferenceType';
 
 export class ParameterReference {
@@ -12,17 +13,21 @@ export class ParameterReference {
         .setType(TypeUtil.of(SchemaType.OBJECT))
         .setProperties(
             new Map([
+                ['key', Schema.ofString('key')],
                 ['value', Schema.ofAny('value')],
                 ['expression', Schema.ofString('expression')],
                 ['type', Schema.ofString('type').setEnums(['EXPRESSION', 'VALUE'])],
             ]),
         );
+
+    private key: string;
     private type: ParameterReferenceType;
     private value: any;
     private expression?: string;
 
     constructor(type: ParameterReferenceType) {
         this.type = type;
+        this.key = UUID();
     }
 
     public getType(): ParameterReferenceType {
@@ -32,6 +37,15 @@ export class ParameterReference {
         this.type = type;
         return this;
     }
+
+    public getKey(): string {
+        return this.key;
+    }
+    public setKey(key: string): ParameterReference {
+        this.key = key;
+        return this;
+    }
+
     public getValue(): any {
         return this.value;
     }
@@ -47,18 +61,22 @@ export class ParameterReference {
         return this;
     }
 
-    public static ofExpression(value: any): ParameterReference {
-        return new ParameterReference(ParameterReferenceType.EXPRESSION).setExpression(value);
-    }
-
-    public static ofValue(value: any): ParameterReference {
-        return new ParameterReference(ParameterReferenceType.VALUE).setValue(value);
-    }
-
-    public static from(json: any): ParameterReference[] {
-        if (!json) return [];
-        return Array.from(json).map((e: any) =>
-            new ParameterReference(e.type).setValue(e.value).setExpression(e.expression),
+    public static ofExpression(value: any): [string, ParameterReference] {
+        const param = new ParameterReference(ParameterReferenceType.EXPRESSION).setExpression(
+            value,
         );
+        return [param.getKey(), param];
+    }
+
+    public static ofValue(value: any): [string, ParameterReference] {
+        const param = new ParameterReference(ParameterReferenceType.VALUE).setValue(value);
+        return [param.getKey(), param];
+    }
+
+    public static from(e: any): ParameterReference {
+        return new ParameterReference(e.type)
+            .setValue(e.value)
+            .setExpression(e.expression)
+            .setKey(e.key);
     }
 }
