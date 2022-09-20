@@ -18,6 +18,9 @@ public class LogicalNotEqualOperator implements BinaryOperator {
 	@Override
 	public JsonElement apply(JsonElement t, JsonElement u) {
 
+		if (t.isJsonObject() && u.isJsonObject())
+			return new JsonPrimitive(!t.equals(u));
+
 		Tuple2<SchemaType, Object> tType = PrimitiveUtil.findPrimitiveNullAsBoolean(t);
 		Tuple2<SchemaType, Object> uType = PrimitiveUtil.findPrimitiveNullAsBoolean(u);
 
@@ -28,8 +31,8 @@ public class LogicalNotEqualOperator implements BinaryOperator {
 			                .toString()));
 
 		if (tType.getT1() == BOOLEAN || uType.getT1() == BOOLEAN)
-			return new JsonPrimitive(
-			        ((JsonPrimitive) tType.getT2()).getAsBoolean() != ((JsonPrimitive) uType.getT2()).getAsBoolean());
+			return new JsonPrimitive(!tType.getT2()
+			        .equals(uType.getT2()));
 
 		Number tNumber = (Number) tType.getT2();
 		Number uNumber = (Number) uType.getT2();

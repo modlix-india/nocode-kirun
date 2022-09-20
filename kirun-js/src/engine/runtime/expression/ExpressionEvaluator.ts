@@ -161,8 +161,7 @@ export class ExpressionEvaluator {
         const objTokens: LinkedList<ExpressionToken> = new LinkedList();
         const objOperations: LinkedList<Operation> = new LinkedList();
 
-        if (!operator || !token)
-            return;
+        if (!operator || !token) return;
 
         do {
             objOperations.push(operator);
@@ -173,8 +172,7 @@ export class ExpressionEvaluator {
                         this.evaluateExpression(token as Expression, valuesMap),
                     ),
                 );
-            else if (token)
-                objTokens.push(token);
+            else if (token) objTokens.push(token);
             token = tokens.isEmpty() ? undefined : tokens.pop();
             operator = ops.isEmpty() ? undefined : ops.pop();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
@@ -229,7 +227,13 @@ export class ExpressionEvaluator {
         let typv1: string = typeof v1;
         let typv2: string = typeof v2;
 
-        if (typv1 === 'object' || typv2 === 'object' || Array.isArray(v1) || Array.isArray(v2))
+        let op: BinaryOperator | undefined = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
+
+        if (
+            (typv1 === 'object' || typv2 === 'object') &&
+            operator !== Operation.EQUAL &&
+            operator !== Operation.NOT_EQUAL
+        )
             throw new ExpressionEvaluationException(
                 this.expression,
                 StringFormatter.format(
@@ -239,8 +243,6 @@ export class ExpressionEvaluator {
                     v2,
                 ),
             );
-
-        let op: BinaryOperator | undefined = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
 
         if (!op)
             throw new ExpressionEvaluationException(

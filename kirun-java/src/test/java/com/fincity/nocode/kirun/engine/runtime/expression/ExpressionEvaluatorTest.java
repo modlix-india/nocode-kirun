@@ -1,6 +1,8 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 
@@ -9,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -47,7 +51,8 @@ class ExpressionEvaluatorTest {
 		Map<String, Map<String, Map<String, JsonElement>>> output = Map.of("step1",
 		        Map.of("output", Map.of("name", new JsonPrimitive("Kiran"), "obj", obj)));
 
-		FunctionExecutionParameters parameters = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of())
+		FunctionExecutionParameters parameters = new FunctionExecutionParameters(new KIRunFunctionRepository(),
+		        new KIRunSchemaRepository()).setArguments(Map.of())
 		        .setContext(Map.of())
 		        .setSteps(output);
 
@@ -97,6 +102,63 @@ class ExpressionEvaluatorTest {
 
 		assertEquals(new JsonPrimitive(17.3533f),
 		        new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters.getValuesMap()));
+	}
+
+	@Test
+	void deepTest() {
+
+		var cobj = new JsonObject();
+		var dobj = new JsonObject();
+
+		cobj.addProperty("a", 2);
+		dobj.addProperty("a", 2);
+
+		var cbArray = new JsonArray();
+		cbArray.add(true);
+		cbArray.add(false);
+		cobj.add("b", cbArray);
+
+		var dbArray = new JsonArray();
+		dbArray.add(true);
+		dbArray.add(false);
+		dobj.add("b", dbArray);
+
+		var ccObj = new JsonObject();
+		ccObj.addProperty("x", "kiran");
+
+		var dcObj = new JsonObject();
+		dcObj.addProperty("x", "kiran");
+
+		cobj.add("c", ccObj);
+		dobj.add("c", dcObj);
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive("kirun "), "b", new JsonPrimitive(2), "c", cobj, "d", dobj));
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+
+		var ev = new ExpressionEvaluator("Arguments.a = Arugments.b");
+		assertFalse(ev.evaluate(valuesMap)
+		        .getAsBoolean());
+
+		ev = new ExpressionEvaluator("Arguments.c = Arguments.d");
+		assertTrue(ev.evaluate(valuesMap)
+		        .getAsBoolean());
+
+		ev = new ExpressionEvaluator("Arguments.e = null");
+		assertTrue(ev.evaluate(valuesMap)
+		        .getAsBoolean());
+
+		ev = new ExpressionEvaluator("Arguments.e != null");
+		assertFalse(ev.evaluate(valuesMap)
+		        .getAsBoolean());
+		
+		ev = new ExpressionEvaluator("false = false");
+		assertTrue(ev.evaluate(valuesMap)
+		        .getAsBoolean());
+		
+		ev = new ExpressionEvaluator("Arguments.e = false");
+		assertTrue(ev.evaluate(valuesMap)
+		        .getAsBoolean());
 	}
 
 }
