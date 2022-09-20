@@ -39,6 +39,7 @@ import { LogicalNotOperator } from './operators/unary/LogicalNotOperator';
 import { UnaryOperator } from './operators/unary/UnaryOperator';
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
+import { Tuple2 } from '../../util/Tuples';
 
 export class ExpressionEvaluator {
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
@@ -94,8 +95,77 @@ export class ExpressionEvaluator {
     }
 
     public evaluate(valuesMap: Map<string, TokenValueExtractor>): any {
-        if (!this.exp) this.exp = new Expression(this.expression);
+        const tuple: Tuple2<string, Expression> = this.processNestingExpression(
+            this.expression,
+            valuesMap,
+        );
+        this.expression = tuple.getT1();
+        this.exp = tuple.getT2();
+
         return this.evaluateExpression(this.exp, valuesMap);
+    }
+
+    private processNestingExpression(
+        expression: string,
+        valuesMap: Map<string, TokenValueExtractor>,
+    ): Tuple2<string, Expression> {
+        let start = 0;
+        let i = 0;
+
+        const tuples: LinkedList<Tuple2<number, number>> = new LinkedList();
+
+        while (i < expression.length - 1) {
+            if (expression.charAt(i) == '{' && expression.charAt(i + 1) == '{') {
+                if (start == 0) tuples.push(new Tuple2(i + 2, -1));
+
+                start++;
+                i++;
+            } else if (expression.charAt(i) == '}' && expression.charAt(i + 1) == '}') {
+                start--;
+
+                if (start < 0)
+                    throw new ExpressionEvaluationException(
+                        expression,
+                        'Expecting {{ nesting path operator to be started before closing',
+                    );
+
+                if (start == 0) {
+                    tuples.push(tuples.pop().setT2(i));
+                }
+                i++;
+            }
+            i++;
+        }
+
+        let newExpression = this.replaceNestingExpression(expression, valuesMap, tuples);
+
+        return new Tuple2(newExpression, new Expression(newExpression));
+    }
+
+    private replaceNestingExpression(
+        expression: string,
+        valuesMap: Map<string, TokenValueExtractor>,
+        tuples: LinkedList<Tuple2<number, number>>,
+    ): string {
+        let newExpression = expression;
+
+        for (var tuple of tuples.toArray()) {
+            if (tuple.getT2() == -1)
+                throw new ExpressionEvaluationException(
+                    expression,
+                    'Expecting }} nesting path operator to be closed',
+                );
+
+            let expStr: string = new ExpressionEvaluator(
+                newExpression.substring(tuple.getT1(), tuple.getT2()),
+            ).evaluate(valuesMap);
+
+            newExpression =
+                newExpression.substring(0, tuple.getT1() - 2) +
+                expStr +
+                newExpression.substring(tuple.getT2() + 2);
+        }
+        return newExpression;
     }
 
     public getExpression(): Expression {
