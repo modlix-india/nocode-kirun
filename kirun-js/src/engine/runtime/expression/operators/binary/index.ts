@@ -21,3 +21,4 @@ export * from './LogicalNotEqualOperator';
 export * from './LogicalLessThanOperator';
 export * from './LogicalOrOperator';
 export * from './ObjectOperator';
+export * from './LogicalNullishCoalescingOperator';

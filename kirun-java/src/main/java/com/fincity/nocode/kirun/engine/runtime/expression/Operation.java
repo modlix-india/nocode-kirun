@@ -14,7 +14,7 @@ public enum Operation {
 	MULTIPLICATION("*"), DIVISION("/"), MOD("%"), ADDITION("+"), SUBTRACTION("-"),
 
 	NOT("not", true), AND("and", true), OR("or", true), LESS_THAN("<"), LESS_THAN_EQUAL("<="), GREATER_THAN(">"),
-	GREATER_THAN_EQUAL(">="), EQUAL("="), NOT_EQUAL("!="),
+	GREATER_THAN_EQUAL(">="), EQUAL("="), NOT_EQUAL("!="), NULLISH_COALESCING_OPERATOR("??"),
 
 	BITWISE_AND("&"), BITWISE_OR("|"), BITWISE_XOR("^"), BITWISE_COMPLEMENT("~"), BITWISE_LEFT_SHIFT("<<"),
 	BITWISE_RIGHT_SHIFT(">>"), BITWISE_UNSIGNED_RIGHT_SHIFT(">>>"),
@@ -31,7 +31,7 @@ public enum Operation {
 	        SUBTRACTION);
 
 	public static final Set<Operation> LOGICAL_OPERATORS = Set.of(NOT, AND, OR, LESS_THAN, LESS_THAN_EQUAL,
-	        GREATER_THAN, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL);
+	        GREATER_THAN, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL, NULLISH_COALESCING_OPERATOR);
 
 	public static final Set<Operation> BITWISE_OPERATORS = Set.of(BITWISE_AND, BITWISE_COMPLEMENT, BITWISE_LEFT_SHIFT,
 	        BITWISE_OR, BITWISE_RIGHT_SHIFT, BITWISE_UNSIGNED_RIGHT_SHIFT, BITWISE_XOR);
@@ -44,7 +44,7 @@ public enum Operation {
 	                Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, 4), Map.entry(LESS_THAN, 5), Map.entry(LESS_THAN_EQUAL, 5),
 	                Map.entry(GREATER_THAN, 5), Map.entry(GREATER_THAN_EQUAL, 5), Map.entry(EQUAL, 6),
 	                Map.entry(NOT_EQUAL, 6), Map.entry(BITWISE_AND, 7), Map.entry(BITWISE_XOR, 8),
-	                Map.entry(BITWISE_OR, 9), Map.entry(AND, 10), Map.entry(OR, 11))));
+	                Map.entry(BITWISE_OR, 9), Map.entry(AND, 10), Map.entry(OR, 11), Map.entry(NULLISH_COALESCING_OPERATOR, 11))));
 
 	public static final Set<String> OPERATORS = Collections.unmodifiableSet(Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(),
