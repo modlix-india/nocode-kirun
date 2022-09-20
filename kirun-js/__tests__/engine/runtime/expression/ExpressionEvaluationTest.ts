@@ -185,3 +185,29 @@ test('Expression Evaluation nullish coalescing', () => {
     ev = new ExpressionEvaluator('(Arguments.e ?? Arguments.b2 ?? Arguments.b1) + 4');
     expect(ev.evaluate(valuesMap)).toBe(8);
 });
+
+test('Expression Evaluation nesting expression', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['b1', 4],
+            ['b2', 4],
+            ['c', { a: 2, b: [true, false], c: { x: 'Arguments.b2' } }],
+            ['d', 'c'],
+        ]),
+    );
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator(
+        'Arguments.{{Arguments.d}}.a + {{Arguments.{{Arguments.d}}.c.x}}',
+    );
+    expect(ev.evaluate(valuesMap)).toBe(6);
+
+    ev = new ExpressionEvaluator(
+        "'There are {{{{Arguments.{{Arguments.d}}.c.x}}}} boys in the class room...' * Arguments.b",
+    );
+    expect(ev.evaluate(valuesMap)).toBe(
+        'There are 4 boys in the class room...There are 4 boys in the class room...',
+    );
+});

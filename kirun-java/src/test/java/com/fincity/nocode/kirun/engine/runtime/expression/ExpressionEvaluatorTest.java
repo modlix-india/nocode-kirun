@@ -165,20 +165,12 @@ class ExpressionEvaluatorTest {
 	void testNullCoalescing() {
 
 		var cobj = new JsonObject();
-		var dobj = new JsonObject();
-
 		cobj.addProperty("a", 2);
-		dobj.addProperty("a", 2);
 
 		var cbArray = new JsonArray();
 		cbArray.add(true);
 		cbArray.add(false);
 		cobj.add("b", cbArray);
-
-		var dbArray = new JsonArray();
-		dbArray.add(true);
-		dbArray.add(false);
-		dobj.add("b", dbArray);
 
 		var ccObj = new JsonObject();
 		ccObj.addProperty("x", "kiran");
@@ -187,10 +179,9 @@ class ExpressionEvaluatorTest {
 		dcObj.addProperty("x", "kiran");
 
 		cobj.add("c", ccObj);
-		dobj.add("c", dcObj);
 
-		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
-		        Map.of("a", new JsonPrimitive("kirun "), "b", new JsonPrimitive(2), "b2", new JsonPrimitive(4), "c", cobj, "d", dobj));
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(Map.of("a", new JsonPrimitive("kirun "),
+		        "b", new JsonPrimitive(2), "b2", new JsonPrimitive(4), "c", cobj));
 		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
 
 		var ev = new ExpressionEvaluator("(Arguments.e ?? Arguments.b ?? Arguments.b1) + 4");
@@ -202,4 +193,35 @@ class ExpressionEvaluatorTest {
 		        .getAsInt());
 	}
 
+	@Test
+	void testNestedExpression() {
+
+		var cobj = new JsonObject();
+		cobj.addProperty("a", 2);
+
+		var cbArray = new JsonArray();
+		cbArray.add(true);
+		cbArray.add(false);
+		cobj.add("b", cbArray);
+
+		var ccObj = new JsonObject();
+		ccObj.addProperty("x", "Arguments.b2");
+
+		cobj.add("c", ccObj);
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(Map.of("a", new JsonPrimitive("kirun "),
+		        "b", new JsonPrimitive(2), "b2", new JsonPrimitive(4), "c", cobj, "d", new JsonPrimitive("c")));
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+
+		var ev = new ExpressionEvaluator("Arguments.{{Arguments.d}}.a + {{Arguments.{{Arguments.d}}.c.x}}");
+
+		assertEquals(6, ev.evaluate(valuesMap)
+		        .getAsInt());
+
+		ev = new ExpressionEvaluator(
+		        "'There are {{{{Arguments.{{Arguments.d}}.c.x}}}} boys in the class room...' * Arguments.b");
+
+		assertEquals("There are 4 boys in the class room...There are 4 boys in the class room...", ev.evaluate(valuesMap)
+		        .getAsString());
+	}
 }
