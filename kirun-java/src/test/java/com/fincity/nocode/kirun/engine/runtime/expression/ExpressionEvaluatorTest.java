@@ -151,14 +151,55 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("Arguments.e != null");
 		assertFalse(ev.evaluate(valuesMap)
 		        .getAsBoolean());
-		
+
 		ev = new ExpressionEvaluator("false = false");
 		assertTrue(ev.evaluate(valuesMap)
 		        .getAsBoolean());
-		
+
 		ev = new ExpressionEvaluator("Arguments.e = false");
 		assertTrue(ev.evaluate(valuesMap)
 		        .getAsBoolean());
+	}
+
+	@Test
+	void testNullCoalescing() {
+
+		var cobj = new JsonObject();
+		var dobj = new JsonObject();
+
+		cobj.addProperty("a", 2);
+		dobj.addProperty("a", 2);
+
+		var cbArray = new JsonArray();
+		cbArray.add(true);
+		cbArray.add(false);
+		cobj.add("b", cbArray);
+
+		var dbArray = new JsonArray();
+		dbArray.add(true);
+		dbArray.add(false);
+		dobj.add("b", dbArray);
+
+		var ccObj = new JsonObject();
+		ccObj.addProperty("x", "kiran");
+
+		var dcObj = new JsonObject();
+		dcObj.addProperty("x", "kiran");
+
+		cobj.add("c", ccObj);
+		dobj.add("c", dcObj);
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive("kirun "), "b", new JsonPrimitive(2), "b2", new JsonPrimitive(4), "c", cobj, "d", dobj));
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+
+		var ev = new ExpressionEvaluator("(Arguments.e ?? Arguments.b ?? Arguments.b1) + 4");
+		assertEquals(6, ev.evaluate(valuesMap)
+		        .getAsInt());
+
+		ev = new ExpressionEvaluator("(Arguments.e ?? Arguments.b2 ?? Arguments.b1) + 4");
+		assertEquals(8, ev.evaluate(valuesMap)
+		        .getAsInt());
 	}
 
 }

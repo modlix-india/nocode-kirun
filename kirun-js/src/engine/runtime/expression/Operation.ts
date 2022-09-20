@@ -32,6 +32,8 @@ export class Operation {
     public static readonly ARRAY_OPERATOR: Operation = new Operation('[');
     public static readonly OBJECT_OPERATOR: Operation = new Operation('.');
 
+    public static readonly NULLISH_COALESCING_OPERATOR: Operation = new Operation('??');
+
     private static readonly VALUE_OF: Map<string, Operation> = new Map([
         ['MULTIPLICATION', Operation.MULTIPLICATION],
         ['DIVISION', Operation.DIVISION],
@@ -61,6 +63,7 @@ export class Operation {
         ['UNARY_BITWISE_COMPLEMENT', Operation.UNARY_BITWISE_COMPLEMENT],
         ['ARRAY_OPERATOR', Operation.ARRAY_OPERATOR],
         ['OBJECT_OPERATOR', Operation.OBJECT_OPERATOR],
+        ['NULLISH_COALESCING_OPERATOR', Operation.NULLISH_COALESCING_OPERATOR],
     ]);
 
     public static readonly UNARY_OPERATORS: Set<Operation> = new Set([
@@ -93,6 +96,7 @@ export class Operation {
         Operation.GREATER_THAN_EQUAL,
         Operation.EQUAL,
         Operation.NOT_EQUAL,
+        Operation.NULLISH_COALESCING_OPERATOR,
     ]);
 
     public static readonly BITWISE_OPERATORS: Set<Operation> = new Set([
@@ -132,6 +136,7 @@ export class Operation {
         [Operation.BITWISE_OR, 9],
         [Operation.AND, 10],
         [Operation.OR, 11],
+        [Operation.NULLISH_COALESCING_OPERATOR, 11],
     ]);
 
     public static readonly OPERATORS: Set<string> = new Set(

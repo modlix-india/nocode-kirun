@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
-import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ADDITION;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.*;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.AND;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ARRAY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_AND;
@@ -53,6 +53,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Logic
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalLessThanEqualOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalLessThanOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNotEqualOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNullishCoalescingOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalOrOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ObjectOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryMinusOperator;
@@ -92,6 +93,7 @@ public class ExpressionEvaluator {
 	        Map.entry(LESS_THAN, new LogicalLessThanOperator()),
 	        Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
 	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
+	        Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
 
 	        Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
 

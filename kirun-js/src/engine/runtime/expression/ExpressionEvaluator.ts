@@ -8,6 +8,7 @@ import { Expression } from './Expression';
 import { ExpressionToken } from './ExpressionToken';
 import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
+import { LogicalNullishCoalescingOperator } from './operators/binary/LogicalNullishCoalescingOperator';
 import { ArithmeticAdditionOperator } from './operators/binary/ArithmeticAdditionOperator';
 import { ArithmeticDivisionOperator } from './operators/binary/ArithmeticDivisionOperator';
 import { ArithmeticIntegerDivisionOperator } from './operators/binary/ArithmeticInetgerDivisionOperator';
@@ -70,6 +71,7 @@ export class ExpressionEvaluator {
         [Operation.LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()],
         [Operation.OR, new LogicalOrOperator()],
         [Operation.NOT_EQUAL, new LogicalNotEqualOperator()],
+        [Operation.NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()],
 
         [Operation.ARRAY_OPERATOR, new ArrayOperator()],
         [Operation.OBJECT_OPERATOR, new ObjectOperator()],

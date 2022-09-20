@@ -166,3 +166,22 @@ test('ExpressionEvaluation deep tests', () => {
     ev = new ExpressionEvaluator('Arguments.c != null');
     expect(ev.evaluate(valuesMap)).toBeTruthy();
 });
+
+test('Expression Evaluation nullish coalescing', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['b1', 4],
+            ['c', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+            ['d', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+        ]),
+    );
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('(Arguments.e ?? Arguments.b ?? Arguments.b1) + 4');
+    expect(ev.evaluate(valuesMap)).toBe(6);
+
+    ev = new ExpressionEvaluator('(Arguments.e ?? Arguments.b2 ?? Arguments.b1) + 4');
+    expect(ev.evaluate(valuesMap)).toBe(8);
+});
