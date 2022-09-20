@@ -5,6 +5,7 @@ import { StringUtil } from '../../util/string/StringUtil';
 import { Tuple2 } from '../../util/Tuples';
 import { ExpressionEvaluationException } from './exception/ExpressionEvaluationException';
 import { ExpressionToken } from './ExpressionToken';
+import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
 
 export class Expression extends ExpressionToken {
@@ -69,6 +70,13 @@ export class Expression extends ExpressionToken {
                         'Extra closing square bracket found',
                     );
                 }
+                case "'":
+                case '"': {
+                    let result: Tuple2<number, boolean> = this.processStringLiteral(length, chr, i);
+                    i = result.getT1();
+                    isPrevOp = result.getT2();
+                    break;
+                }
                 default:
                     let result: Tuple2<number, boolean> = this.processOthers(
                         chr,
@@ -101,6 +109,31 @@ export class Expression extends ExpressionToken {
                 this.tokens.push(new ExpressionToken(buff));
             }
         }
+    }
+
+    private processStringLiteral(length: number, chr: string, i: number): Tuple2<number, boolean> {
+        let strConstant: string = '';
+
+        let j: number = i + 1;
+        for (; j < length; j++) {
+            let nextChar = this.expression.charAt(j);
+
+            if (nextChar == chr && this.expression.charAt(j - 1) != '\\') break;
+
+            strConstant += nextChar;
+        }
+
+        if (j == length && this.expression.charAt(j - 1) != chr) {
+            throw new ExpressionEvaluationException(
+                this.expression,
+                'Missing string ending marker ' + chr,
+            );
+        }
+
+        let result = new Tuple2(j, false);
+
+        this.tokens.push(new ExpressionTokenValue(strConstant, strConstant));
+        return result;
     }
 
     private process(length: number, sb: StringBuilder, i: number): Tuple2<number, boolean> {

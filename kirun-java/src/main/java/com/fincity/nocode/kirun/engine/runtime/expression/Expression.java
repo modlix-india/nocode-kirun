@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
+import com.google.gson.JsonPrimitive;
 
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
@@ -83,6 +84,13 @@ public class Expression extends ExpressionToken {
 			case ']': {
 				throw new ExpressionEvaluationException(this.expression, "Extra closing square bracket found");
 			}
+			case '\'', '"': {
+
+				Tuple2<Integer, Boolean> result = processStringLiteral(length, chr, i);
+				i = result.getT1();
+				isPrevOp = result.getT2();
+				break;
+			}
 			default:
 
 				Tuple2<Integer, Boolean> result = processOthers(chr, length, sb, buff, i, isPrevOp);
@@ -107,9 +115,33 @@ public class Expression extends ExpressionToken {
 			}
 		}
 	}
-	
+
+	private Tuple2<Integer, Boolean> processStringLiteral(final int length, char chr, int i) {
+		StringBuilder strConstant = new StringBuilder();
+
+		int j = i + 1;
+		for (; j < length; j++) {
+
+			char nextChar = this.expression.charAt(j);
+
+			if (nextChar == chr && this.expression.charAt(j - 1) != '\\')
+				break;
+
+			strConstant.append(nextChar);
+		}
+
+		if (j == length && this.expression.charAt(j - 1) != chr) {
+			throw new ExpressionEvaluationException(this.expression, "Missing string ending marker " + chr);
+		}
+
+		Tuple2<Integer, Boolean> result = Tuples.of(j, false);
+		String str = strConstant.toString();
+		this.tokens.push(new ExpressionTokenValue(str, new JsonPrimitive(str)));
+		return result;
+	}
+
 	private Tuple2<Integer, Boolean> process(final int length, StringBuilder sb, int i) {
-		
+
 		int cnt = 1;
 		++i;
 		while (i < length && cnt != 0) {
@@ -125,10 +157,10 @@ public class Expression extends ExpressionToken {
 		}
 		this.tokens.push(new Expression(sb.toString()));
 		sb.setLength(0);
-		
+
 		return Tuples.of(i, false);
 	}
-	
+
 	private Tuple2<Integer, Boolean> processOthers(char chr, final int length, StringBuilder sb, String buff, int i,
 	        boolean isPrevOp) {
 
