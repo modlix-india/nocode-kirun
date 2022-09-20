@@ -8,6 +8,7 @@ import { Expression } from './Expression';
 import { ExpressionToken } from './ExpressionToken';
 import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
+import { LogicalNullishCoalescingOperator } from './operators/binary/LogicalNullishCoalescingOperator';
 import { ArithmeticAdditionOperator } from './operators/binary/ArithmeticAdditionOperator';
 import { ArithmeticDivisionOperator } from './operators/binary/ArithmeticDivisionOperator';
 import { ArithmeticIntegerDivisionOperator } from './operators/binary/ArithmeticInetgerDivisionOperator';
@@ -38,6 +39,7 @@ import { LogicalNotOperator } from './operators/unary/LogicalNotOperator';
 import { UnaryOperator } from './operators/unary/UnaryOperator';
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
+import { Tuple2 } from '../../util/Tuples';
 
 export class ExpressionEvaluator {
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
@@ -70,6 +72,7 @@ export class ExpressionEvaluator {
         [Operation.LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()],
         [Operation.OR, new LogicalOrOperator()],
         [Operation.NOT_EQUAL, new LogicalNotEqualOperator()],
+        [Operation.NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()],
 
         [Operation.ARRAY_OPERATOR, new ArrayOperator()],
         [Operation.OBJECT_OPERATOR, new ObjectOperator()],
@@ -92,8 +95,77 @@ export class ExpressionEvaluator {
     }
 
     public evaluate(valuesMap: Map<string, TokenValueExtractor>): any {
-        if (!this.exp) this.exp = new Expression(this.expression);
+        const tuple: Tuple2<string, Expression> = this.processNestingExpression(
+            this.expression,
+            valuesMap,
+        );
+        this.expression = tuple.getT1();
+        this.exp = tuple.getT2();
+
         return this.evaluateExpression(this.exp, valuesMap);
+    }
+
+    private processNestingExpression(
+        expression: string,
+        valuesMap: Map<string, TokenValueExtractor>,
+    ): Tuple2<string, Expression> {
+        let start = 0;
+        let i = 0;
+
+        const tuples: LinkedList<Tuple2<number, number>> = new LinkedList();
+
+        while (i < expression.length - 1) {
+            if (expression.charAt(i) == '{' && expression.charAt(i + 1) == '{') {
+                if (start == 0) tuples.push(new Tuple2(i + 2, -1));
+
+                start++;
+                i++;
+            } else if (expression.charAt(i) == '}' && expression.charAt(i + 1) == '}') {
+                start--;
+
+                if (start < 0)
+                    throw new ExpressionEvaluationException(
+                        expression,
+                        'Expecting {{ nesting path operator to be started before closing',
+                    );
+
+                if (start == 0) {
+                    tuples.push(tuples.pop().setT2(i));
+                }
+                i++;
+            }
+            i++;
+        }
+
+        let newExpression = this.replaceNestingExpression(expression, valuesMap, tuples);
+
+        return new Tuple2(newExpression, new Expression(newExpression));
+    }
+
+    private replaceNestingExpression(
+        expression: string,
+        valuesMap: Map<string, TokenValueExtractor>,
+        tuples: LinkedList<Tuple2<number, number>>,
+    ): string {
+        let newExpression = expression;
+
+        for (var tuple of tuples.toArray()) {
+            if (tuple.getT2() == -1)
+                throw new ExpressionEvaluationException(
+                    expression,
+                    'Expecting }} nesting path operator to be closed',
+                );
+
+            let expStr: string = new ExpressionEvaluator(
+                newExpression.substring(tuple.getT1(), tuple.getT2()),
+            ).evaluate(valuesMap);
+
+            newExpression =
+                newExpression.substring(0, tuple.getT1() - 2) +
+                expStr +
+                newExpression.substring(tuple.getT2() + 2);
+        }
+        return newExpression;
     }
 
     public getExpression(): Expression {
@@ -161,8 +233,7 @@ export class ExpressionEvaluator {
         const objTokens: LinkedList<ExpressionToken> = new LinkedList();
         const objOperations: LinkedList<Operation> = new LinkedList();
 
-        if (!operator || !token)
-            return;
+        if (!operator || !token) return;
 
         do {
             objOperations.push(operator);
@@ -173,8 +244,7 @@ export class ExpressionEvaluator {
                         this.evaluateExpression(token as Expression, valuesMap),
                     ),
                 );
-            else if (token)
-                objTokens.push(token);
+            else if (token) objTokens.push(token);
             token = tokens.isEmpty() ? undefined : tokens.pop();
             operator = ops.isEmpty() ? undefined : ops.pop();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
@@ -229,7 +299,13 @@ export class ExpressionEvaluator {
         let typv1: string = typeof v1;
         let typv2: string = typeof v2;
 
-        if (typv1 === 'object' || typv2 === 'object' || Array.isArray(v1) || Array.isArray(v2))
+        let op: BinaryOperator | undefined = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
+
+        if (
+            (typv1 === 'object' || typv2 === 'object') &&
+            operator !== Operation.EQUAL &&
+            operator !== Operation.NOT_EQUAL
+        )
             throw new ExpressionEvaluationException(
                 this.expression,
                 StringFormatter.format(
@@ -239,8 +315,6 @@ export class ExpressionEvaluator {
                     v2,
                 ),
             );
-
-        let op: BinaryOperator | undefined = ExpressionEvaluator.BINARY_OPERATORS_MAP.get(operator);
 
         if (!op)
             throw new ExpressionEvaluationException(

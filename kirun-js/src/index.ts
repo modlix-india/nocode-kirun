@@ -10,6 +10,7 @@ export * from './engine/util/string/StringFormatter';
 export * from './engine/util/string/StringUtil';
 export * from './engine/util/Tuples';
 export * from './engine/util/ArrayUtil';
+export * from './engine/util/deepEqual';
 export * from './engine/runtime/StatementExecution';
 export * from './engine/runtime/StatementMessage';
 export * from './engine/runtime/ContextElement';

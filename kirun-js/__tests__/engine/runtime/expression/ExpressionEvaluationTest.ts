@@ -1,4 +1,10 @@
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../src';
+import {
+    ArgumentsTokenValueExtractor,
+    KIRunFunctionRepository,
+    KIRunSchemaRepository,
+    MapUtil,
+    TokenValueExtractor,
+} from '../../../../src';
 import { Schema } from '../../../../src/engine/json/schema/Schema';
 import { ContextElement } from '../../../../src/engine/runtime/ContextElement';
 import { ExpressionEvaluator } from '../../../../src/engine/runtime/expression/ExpressionEvaluator';
@@ -128,5 +134,80 @@ test('Expression Test', () => {
 
     expect(new ExpressionEvaluator('2.43*4.22+7.0987').evaluate(parameters.getValuesMap())).toBe(
         17.3533,
+    );
+});
+
+test('ExpressionEvaluation deep tests', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['c', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+            ['d', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+        ]),
+    );
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('Arguments.a = Arugments.b');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.c = Arguments.d');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.e = null');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.e != null');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.e = false');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.c != null');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+});
+
+test('Expression Evaluation nullish coalescing', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['b1', 4],
+            ['c', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+            ['d', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+        ]),
+    );
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('(Arguments.e ?? Arguments.b ?? Arguments.b1) + 4');
+    expect(ev.evaluate(valuesMap)).toBe(6);
+
+    ev = new ExpressionEvaluator('(Arguments.e ?? Arguments.b2 ?? Arguments.b1) + 4');
+    expect(ev.evaluate(valuesMap)).toBe(8);
+});
+
+test('Expression Evaluation nesting expression', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['b1', 4],
+            ['b2', 4],
+            ['c', { a: 2, b: [true, false], c: { x: 'Arguments.b2' } }],
+            ['d', 'c'],
+        ]),
+    );
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator(
+        'Arguments.{{Arguments.d}}.a + {{Arguments.{{Arguments.d}}.c.x}}',
+    );
+    expect(ev.evaluate(valuesMap)).toBe(6);
+
+    ev = new ExpressionEvaluator(
+        "'There are {{{{Arguments.{{Arguments.d}}.c.x}}}} boys in the class room...' * Arguments.b",
+    );
+    expect(ev.evaluate(valuesMap)).toBe(
+        'There are 4 boys in the class room...There are 4 boys in the class room...',
     );
 });

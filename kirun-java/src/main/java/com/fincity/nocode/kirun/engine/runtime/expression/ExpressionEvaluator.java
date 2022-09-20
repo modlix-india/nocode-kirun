@@ -18,6 +18,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.LESS_
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.MOD;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.MULTIPLICATION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.NOT_EQUAL;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.NULLISH_COALESCING_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.SUBTRACTION;
@@ -53,6 +54,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Logic
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalLessThanEqualOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalLessThanOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNotEqualOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNullishCoalescingOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalOrOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ObjectOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryMinusOperator;
@@ -66,6 +68,9 @@ import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 public class ExpressionEvaluator {
 
@@ -92,6 +97,7 @@ public class ExpressionEvaluator {
 	        Map.entry(LESS_THAN, new LogicalLessThanOperator()),
 	        Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
 	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
+	        Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
 
 	        Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
 
@@ -111,10 +117,71 @@ public class ExpressionEvaluator {
 
 	public JsonElement evaluate(Map<String, TokenValueExtractor> valuesMap) {
 
-		if (exp == null)
-			exp = new Expression(this.expression);
+		Tuple2<String, Expression> tuple = this.processNestingExpression(this.expression, valuesMap);
+		this.expression = tuple.getT1();
+		this.exp = tuple.getT2();
 
 		return this.evaluateExpression(exp, valuesMap);
+	}
+
+	private Tuple2<String, Expression> processNestingExpression(String expression,
+	        Map<String, TokenValueExtractor> valuesMap) {
+
+		int start = 0;
+		int i = 0;
+
+		LinkedList<Tuple2<Integer, Integer>> tuples = new LinkedList<>();
+
+		while (i < expression.length() - 1) {
+
+			if (expression.charAt(i) == '{' && expression.charAt(i + 1) == '{') {
+
+				if (start == 0)
+					tuples.push(Tuples.of(i + 2, -1));
+
+				start++;
+				i++;
+			} else if (expression.charAt(i) == '}' && expression.charAt(i + 1) == '}') {
+				start--;
+
+				if (start < 0)
+					throw new ExpressionEvaluationException(expression,
+					        "Expecting {{ nesting path operator to be started before closing");
+
+				if (start == 0) {
+
+					final int index = i;
+					tuples.push(tuples.pop()
+					        .mapT2(e -> index));
+				}
+				i++;
+			}
+			i++;
+		}
+
+		String newExpression = replaceNestingExpression(expression, valuesMap, tuples);
+
+		return Tuples.of(newExpression, new Expression(newExpression));
+	}
+
+	private String replaceNestingExpression(String expression, Map<String, TokenValueExtractor> valuesMap,
+	        LinkedList<Tuple2<Integer, Integer>> tuples) {
+		
+		String newExpression = expression;
+		
+		for (var tuple : tuples) {
+
+			if (tuple.getT2() == -1)
+				throw new ExpressionEvaluationException(expression, "Expecting }} nesting path operator to be closed");
+
+			String expStr = (new ExpressionEvaluator(newExpression.substring(tuple.getT1(), tuple.getT2())))
+			        .evaluate(valuesMap)
+			        .getAsString();
+			
+			newExpression = newExpression.substring(0, tuple.getT1() - 2) + expStr
+			        + newExpression.substring(tuple.getT2() + 2);
+		}
+		return newExpression;
 	}
 
 	public Expression getExpression() {
@@ -207,7 +274,7 @@ public class ExpressionEvaluator {
 		}
 
 		String str = sb.toString();
-		String key = str.substring(0, str.indexOf('.')+1);
+		String key = str.substring(0, str.indexOf('.') + 1);
 		if (key.length() > 2 && valuesMap.containsKey(key))
 			tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
 		else {
@@ -223,8 +290,14 @@ public class ExpressionEvaluator {
 
 	private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2) {
 
-		if ((v1 != null && (v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()))
-		        && (v2 != null && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())))
+		if (v1 == null)
+			v1 = JsonNull.INSTANCE;
+		if (v2 == null)
+			v2 = JsonNull.INSTANCE;
+
+		if ((v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()) && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())
+		        && operator != EQUAL && operator != NOT_EQUAL)
+
 			throw new ExpressionEvaluationException(this.expression,
 			        StringFormatter.format("Cannot evaluate expression $ $ $", v1, operator.getOperator(), v2));
 

@@ -18,6 +18,9 @@ public class LogicalEqualOperator implements BinaryOperator {
 	@Override
 	public JsonElement apply(JsonElement t, JsonElement u) {
 
+		if (t.isJsonObject() && u.isJsonObject())
+			return new JsonPrimitive(t.equals(u));
+
 		Tuple2<SchemaType, Object> tType = PrimitiveUtil.findPrimitiveNullAsBoolean(t);
 		Tuple2<SchemaType, Object> uType = PrimitiveUtil.findPrimitiveNullAsBoolean(u);
 
