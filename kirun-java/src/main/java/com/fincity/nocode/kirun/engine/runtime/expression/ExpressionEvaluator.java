@@ -207,7 +207,7 @@ public class ExpressionEvaluator {
 		}
 
 		String str = sb.toString();
-		String key = str.substring(0, str.indexOf('.')+1);
+		String key = str.substring(0, str.indexOf('.') + 1);
 		if (key.length() > 2 && valuesMap.containsKey(key))
 			tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
 		else {
@@ -223,8 +223,14 @@ public class ExpressionEvaluator {
 
 	private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2) {
 
-		if ((v1 != null && (v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()))
-		        && (v2 != null && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())))
+		if (v1 == null)
+			v1 = JsonNull.INSTANCE;
+		if (v2 == null)
+			v2 = JsonNull.INSTANCE;
+
+		if ((v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()) && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())
+		        && operator != EQUAL && operator != NOT_EQUAL)
+
 			throw new ExpressionEvaluationException(this.expression,
 			        StringFormatter.format("Cannot evaluate expression $ $ $", v1, operator.getOperator(), v2));
 

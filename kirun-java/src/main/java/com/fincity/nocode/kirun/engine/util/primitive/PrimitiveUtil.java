@@ -18,7 +18,7 @@ public class PrimitiveUtil {
 	public static Tuple2<SchemaType, Object> findPrimitiveNullAsBoolean(JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			return Tuples.of(SchemaType.BOOLEAN, new JsonPrimitive(false));
+			return Tuples.of(SchemaType.BOOLEAN, false);
 
 		if (!element.isJsonPrimitive())
 			throw new ExecutionException(StringFormatter.format("$ is not a primitive type", element));
