@@ -1,4 +1,4 @@
-import { HybridRepository } from '../../../../../src';
+import { AdditionalPropertiesType, HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -24,6 +24,56 @@ test('Schema Validator Test 1', () => {
     );
 
     // expect(SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));
+});
+
+test('Schema validation when ref of ref', () => {
+    const locationSchema = Schema.from({
+        name: 'Location',
+        namespace: 'Test',
+        type: 'Object',
+        properties: {
+            url: { name: 'url', type: 'String' },
+        },
+        required: ['url'],
+    });
+
+    const urlParamsSchema = Schema.ofObject('UrlParameters')
+        .setNamespace('Test')
+        .setAdditionalProperties(
+            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.Location`)),
+        )
+        .setDefaultValue({});
+
+    const testSchema = Schema.ofObject('TestSchema')
+        .setNamespace('Test')
+        .setAdditionalProperties(
+            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.UrlParameters`)),
+        )
+        .setDefaultValue({});
+
+    const schemaMap = new Map([
+        ['Location', locationSchema],
+        ['UrlParameters', urlParamsSchema],
+        ['TestSchema', testSchema],
+    ]);
+
+    const repo = new HybridRepository<Schema>(
+        {
+            find(namespace: string, name: string): Schema | undefined {
+                if (namespace !== 'Test') return undefined;
+                return schemaMap.get(name);
+            },
+        },
+        new KIRunSchemaRepository(),
+    );
+    const obj = { url: 'http://xxxxxx.com' };
+    const queryParams = {
+        obj: { obj: { url: 'http://xxxxxx.com' } },
+    };
+
+    expect(
+        SchemaValidator.validate(undefined, Schema.ofRef('Test.TestSchema'), repo, queryParams),
+    ).toBe(queryParams);
 });
 
 test('Schema Validator Test 2', () => {

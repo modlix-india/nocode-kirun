@@ -120,7 +120,7 @@ export class SchemaUtil {
     ): Tuple2<Schema, string> | undefined {
         if (!sRepository) return undefined;
 
-        let nms = StringUtil.splitAtFirstOccurance(inSchem?.getRef() ?? '', '/');
+        let nms = StringUtil.splitAtFirstOccurance(ref ?? '', '/');
         if (!nms[0]) return undefined;
 
         let nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
