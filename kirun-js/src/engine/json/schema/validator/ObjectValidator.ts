@@ -100,7 +100,7 @@ export class ObjectValidator {
                     newParents,
                     apt.getSchemaValue(),
                     repository,
-                    jsonObject.get(key),
+                    jsonObject[key],
                 );
                 jsonObject[key] = element;
             }
