@@ -4,6 +4,7 @@ import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
 import { AbstractStatement } from './AbstractStatement';
 import { Position } from './Position';
+import { Statement } from './Statement';
 
 export class StatementGroup extends AbstractStatement {
     private static readonly SCHEMA_NAME: string = 'StatementGroup';
@@ -21,10 +22,12 @@ export class StatementGroup extends AbstractStatement {
         );
 
     private statementGroupName: string;
+    private statements: Map<string, boolean>;
 
-    constructor(statementGroupName: string) {
+    constructor(statementGroupName: string, statements: Map<string, boolean> = new Map()) {
         super();
         this.statementGroupName = statementGroupName;
+        this.statements = statements;
     }
 
     public getStatementGroupName(): string {
@@ -35,8 +38,25 @@ export class StatementGroup extends AbstractStatement {
         return this;
     }
 
+    public getStatements(): Map<string, boolean> {
+        return this.statements;
+    }
+
+    public setStatements(statements: Map<string, boolean>): StatementGroup {
+        this.statements = statements;
+        return this;
+    }
+
     public static from(json: any): StatementGroup {
-        return new StatementGroup(json.statementGroupName)
+        return new StatementGroup(
+            json.statementGroupName,
+            new Map(
+                Object.entries(json.statements || {}).map(([k, v]) => [
+                    k,
+                    ('' + v)?.toLowerCase() == 'true',
+                ]),
+            ),
+        )
             .setPosition(Position.from(json.position))
             .setComment(json.comment)
             .setDescription(json.description) as StatementGroup;

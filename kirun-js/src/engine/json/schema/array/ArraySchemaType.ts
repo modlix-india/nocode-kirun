@@ -5,6 +5,12 @@ export class ArraySchemaType {
     private singleSchema: Schema | undefined;
     private tupleSchema: Schema[] | undefined;
 
+    public constructor(ast?: ArraySchemaType) {
+        if (!ast) return;
+        this.singleSchema = ast.singleSchema ? new Schema(ast.singleSchema) : undefined;
+        this.tupleSchema = ast.tupleSchema ? ast.tupleSchema.map((e) => new Schema(e)) : undefined;
+    }
+
     public setSingleSchema(schema: Schema): ArraySchemaType {
         this.singleSchema = schema;
         return this;

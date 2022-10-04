@@ -1,5 +1,4 @@
-import { AdditionalPropertiesType } from '../json/schema/object/AdditionalPropertiesType';
-import { Schema } from '../json/schema/Schema';
+import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
 import { Namespaces } from '../namespaces/Namespaces';
 import { Event } from './Event';
 import { Parameter } from './Parameter';
@@ -32,8 +31,19 @@ export class FunctionSignature {
     private parameters: Map<string, Parameter> = new Map();
     private events: Map<string, Event> = new Map();
 
-    constructor(name: string) {
-        this.name = name;
+    constructor(value: string | FunctionSignature) {
+        if (value instanceof FunctionSignature) {
+            this.name = value.name;
+            this.namespace = value.namespace;
+            this.parameters = new Map(
+                Array.from(value.parameters.entries()).map((e) => [e[0], new Parameter(e[1])]),
+            );
+            this.events = new Map(
+                Array.from(value.events.entries()).map((e) => [e[0], new Event(e[1])]),
+            );
+        } else {
+            this.name = value;
+        }
     }
 
     public getNamespace(): string {

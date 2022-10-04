@@ -1,6 +1,9 @@
 package com.fincity.nocode.kirun.engine.model;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
@@ -42,15 +45,37 @@ public class Statement extends AbstractStatement {
 	                                                        .setSchemaValue(ParameterReference.SCHEMA)))),
 	                        "position", Position.SCHEMA));
 
-	public Statement(String statementName) {
-		this.statementName = statementName;
-	}
-
 	private String statementName;
 	private String namespace;
 	private String name;
 	private Map<String, Map<String, ParameterReference>> parameterMap;
 	private Map<String, Boolean> dependentStatements;
+
+	public Statement(Statement statement) {
+
+		super(statement);
+
+		this.statementName = statement.statementName;
+		this.name = statement.name;
+		this.namespace = statement.namespace;
+		this.dependentStatements = statement.dependentStatements == null ? null
+		        : statement.dependentStatements.entrySet()
+		                .stream()
+		                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+		this.parameterMap = statement.parameterMap == null ? null
+		        : statement.parameterMap.entrySet()
+		                .stream()
+		                .filter(e -> Objects.nonNull(e.getValue()))
+		                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue()
+		                        .entrySet()
+		                        .stream()
+		                        .collect(Collectors.toMap(Entry::getKey, k -> new ParameterReference(k.getValue())))));
+	}
+
+	public Statement(String statementName) {
+		this.statementName = statementName;
+	}
 
 	public Map<String, Map<String, ParameterReference>> getParameterMap() {
 		if (parameterMap == null) {

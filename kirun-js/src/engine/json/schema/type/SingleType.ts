@@ -4,9 +4,11 @@ import { Type } from './Type';
 export class SingleType extends Type {
     private type: SchemaType;
 
-    constructor(type: SchemaType) {
+    public constructor(type: SchemaType | SingleType) {
         super();
-        this.type = type;
+
+        if (type instanceof SingleType) this.type = (type as SingleType).type;
+        else this.type = type as SchemaType;
     }
 
     public getType(): SchemaType {

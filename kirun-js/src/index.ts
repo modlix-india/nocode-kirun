@@ -53,7 +53,6 @@ export * from './engine/json/schema/type/TypeUtil';
 export * from './engine/json/schema/type/MultipleType';
 export * from './engine/json/schema/type/Type';
 export * from './engine/json/schema/type/SchemaType';
-export * from './engine/json/schema/object/AdditionalPropertiesType';
 export * from './engine/json/schema/SchemaUtil';
 export * from './engine/json/schema/string/StringFormat';
 export * from './engine/HybridRepository';

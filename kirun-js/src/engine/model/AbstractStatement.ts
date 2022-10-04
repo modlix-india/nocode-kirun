@@ -6,6 +6,16 @@ export class AbstractStatement {
     private position?: Position;
     private override: boolean = false;
 
+    public constructor(ast?: AbstractStatement) {
+        if (!ast) return;
+        this.comment = ast.comment;
+        this.description = ast.description;
+        this.position = ast.position
+            ? new Position(ast.position.getLeft(), ast.position.getTop())
+            : undefined;
+        this.override = ast.override;
+    }
+
     public getComment(): string | undefined {
         return this.comment;
     }

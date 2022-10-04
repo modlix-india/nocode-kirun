@@ -1,5 +1,4 @@
-import { AdditionalPropertiesType } from '../json/schema/object/AdditionalPropertiesType';
-import { Schema } from '../json/schema/Schema';
+import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { SchemaReferenceException } from '../json/schema/validator/exception/SchemaReferenceException';
@@ -30,9 +29,17 @@ export class Event {
     private name: string;
     private parameters: Map<string, Schema>;
 
-    constructor(name: string, parameters: Map<string, Schema>) {
-        this.name = name;
-        this.parameters = parameters;
+    constructor(evn: string | Event, parameters?: Map<string, Schema>) {
+        if (evn instanceof Event) {
+            this.name = evn.name;
+            this.parameters = new Map(
+                Array.from(evn.parameters.entries()).map((e) => [e[0], new Schema(e[1])]),
+            );
+        } else {
+            this.name = evn;
+            if (!parameters) throw new Error('Unknown constructor format');
+            this.parameters = parameters;
+        }
     }
 
     public getName(): string {

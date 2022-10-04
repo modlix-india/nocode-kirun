@@ -6,10 +6,12 @@ import java.util.List;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 public class ArraySchemaType implements Serializable {
 
 	private static final long serialVersionUID = -3312223652146445370L;
@@ -27,5 +29,14 @@ public class ArraySchemaType implements Serializable {
 
 	public boolean isSingleType() {
 		return singleSchema != null;
+	}
+
+	public ArraySchemaType(ArraySchemaType ast) {
+
+		this.singleSchema = ast.singleSchema == null ? null : new Schema(ast.singleSchema);
+		this.tupleSchema = ast.tupleSchema == null ? null
+		        : this.tupleSchema.stream()
+		                .map(Schema::new)
+		                .toList();
 	}
 }

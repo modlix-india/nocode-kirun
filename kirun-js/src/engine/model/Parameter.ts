@@ -43,9 +43,19 @@ export class Parameter {
     private variableArgument: boolean = false;
     private type: ParameterType = ParameterType.EXPRESSION;
 
-    constructor(parameterName: string, schema: Schema) {
-        this.schema = schema;
-        this.parameterName = parameterName;
+    constructor(pn: string | Parameter, schema?: Schema) {
+        if (pn instanceof Parameter) {
+            this.schema = new Schema(pn.schema);
+            this.parameterName = pn.parameterName;
+            this.variableArgument = pn.variableArgument;
+            this.type = pn.type;
+        } else {
+            if (!schema) {
+                throw new Error('Unknown constructor signature');
+            }
+            this.schema = schema;
+            this.parameterName = pn;
+        }
     }
 
     public getSchema(): Schema {

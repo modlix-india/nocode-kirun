@@ -9,8 +9,10 @@ import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Position implements Serializable {
 
 	private static final long serialVersionUID = -7667086732611242476L;
@@ -22,6 +24,12 @@ public class Position implements Serializable {
 	        .setType(Type.of(SchemaType.OBJECT))
 	        .setProperties(Map.of("left", Schema.ofFloat("left"), "top", Schema.ofFloat("top")));
 
-	private float left;
-	private float top;
+	private Float left;
+	private Float top;
+	
+	public Position(Position position) {
+
+		this.left = position.left;
+		this.top = position.top;
+	}
 }

@@ -1,7 +1,6 @@
 import { Repository } from '../../../Repository';
 import { isNullValue } from '../../../util/NullCheck';
-import { AdditionalPropertiesType } from '../object/AdditionalPropertiesType';
-import { Schema } from '../Schema';
+import { AdditionalPropertiesType, Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
 

@@ -4,9 +4,12 @@ import { Type } from './Type';
 export class MultipleType extends Type {
     private type: Set<SchemaType>;
 
-    constructor(type: Set<SchemaType>) {
+    public constructor(type: Set<SchemaType> | MultipleType) {
         super();
-        this.type = type;
+
+        if (type instanceof MultipleType)
+            this.type = new Set(Array.from((type as MultipleType).type));
+        else this.type = new Set(Array.from(type));
     }
 
     public getType(): Set<SchemaType> {
