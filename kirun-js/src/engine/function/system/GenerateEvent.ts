@@ -20,7 +20,7 @@ const SIGNATURE: FunctionSignature = new FunctionSignature('GenerateEvent')
     .setNamespace(Namespaces.SYSTEM)
     .setParameters(
         new Map([
-            Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME)),
+            Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME).setDefaultValue('output')),
             Parameter.ofEntry(
                 RESULTS,
                 Schema.ofObject(RESULTS).setProperties(
@@ -49,7 +49,6 @@ export class GenerateEvent extends AbstractFunction {
         const args: Map<string, any> | undefined = context.getArguments();
 
         const eventName: string = args?.get(EVENT_NAME);
-
         const map: Map<string, any> = context
             ?.getArguments()
             ?.get(RESULTS)

@@ -20,6 +20,7 @@ import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
@@ -34,9 +35,11 @@ public class GenerateEvent extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("GenerateEvent")
 	        .setNamespace(SYSTEM)
-	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME)),
-	                Parameter.ofEntry(RESULTS, Schema.ofObject(RESULTS)
-	                        .setProperties(Map.of("name", Schema.ofString("name"), VALUE, Parameter.EXPRESSION)),
+	        .setParameters(Map.ofEntries(Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME)
+	                .setDefaultValue(new JsonPrimitive("output"))), Parameter.ofEntry(RESULTS,
+	                        Schema.ofObject(RESULTS)
+	                                .setProperties(
+	                                        Map.of("name", Schema.ofString("name"), VALUE, Parameter.EXPRESSION)),
 	                        true)))
 	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 

@@ -27,7 +27,7 @@ public abstract class AbstractFunction implements Function {
 				        Parameter param = e.getValue();
 				        JsonElement jsonElement = arguments.get(e.getKey());
 
-				        if (jsonElement == null || jsonElement.isJsonNull()) {
+				        if ((jsonElement == null || jsonElement.isJsonNull()) && !param.isVariableArgument()) {
 					        return Map.entry(e.getKey(), SchemaValidator.validate(null, param.getSchema(), repository, null));
 				        }
 
@@ -41,14 +41,17 @@ public abstract class AbstractFunction implements Function {
 					        array = jsonElement.getAsJsonArray();
 				        else {
 					        array = new JsonArray();
-					        array.add(jsonElement);
+					        if (jsonElement != null && !jsonElement.isJsonNull()) array.add(jsonElement);
+		                    else if (param.getSchema().getDefaultValue() != null)
+		                        array.add(param.getSchema().getDefaultValue());
 				        }
 
-				        for (JsonElement je : array) {
-					        SchemaValidator.validate(null, param.getSchema(), repository, je);
+				        for (int i=0; i<array.size();i++) {
+					        JsonElement je = SchemaValidator.validate(null, param.getSchema(), repository, array.get(i));
+					        array.set(i, je);
 				        }
 
-				        return Map.entry(e.getKey(), jsonElement);
+				        return Map.entry(e.getKey(), array);
 			        })
 		        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
