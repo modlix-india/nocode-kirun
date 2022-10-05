@@ -11,10 +11,12 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 public class Parameter implements Serializable {
 
 	private static final long serialVersionUID = 8040181175269846469L;
@@ -39,6 +41,14 @@ public class Parameter implements Serializable {
 	private String parameterName;
 	private boolean variableArgument = false;
 	private ParameterType type = ParameterType.EXPRESSION;
+
+	public Parameter(Parameter param) {
+
+		this.schema = param.schema == null ? null : new Schema(param.schema);
+		this.parameterName = param.parameterName;
+		this.variableArgument = param.variableArgument;
+		this.type = param.type;
+	}
 
 	public static Entry<String, Parameter> ofEntry(String name, Schema schema) {
 		return Map.entry(name, new Parameter().setParameterName(name)

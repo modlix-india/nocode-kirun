@@ -22,7 +22,7 @@ public class Reverse extends AbstractFunction {
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Reverse").setNamespace(STRING)
 			.setParameters(Map.of(VALUE,
 					new Parameter().setParameterName(VALUE).setSchema(Schema.ofString(VALUE))
-							.setVariableArgument(true)))
+							.setVariableArgument(false)))
 			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
 
 	@Override

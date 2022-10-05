@@ -21,7 +21,7 @@ export abstract class AbstractFunction implements Function {
                 let param: Parameter = e[1];
                 let jsonElement: any = args.get(e[0]);
 
-                if (isNullValue(jsonElement)) {
+                if (isNullValue(jsonElement) && !param.isVariableArgument()) {
                     return new Tuple2(
                         key,
                         SchemaValidator.validate(
@@ -49,14 +49,21 @@ export abstract class AbstractFunction implements Function {
                 if (Array.isArray(jsonElement)) array = jsonElement as any[];
                 else {
                     array = [];
-                    array.push(jsonElement);
+                    if (!isNullValue(jsonElement)) array.push(jsonElement);
+                    else if (!isNullValue(param.getSchema().getDefaultValue()))
+                        array.push(param.getSchema().getDefaultValue());
                 }
 
-                for (const je of array) {
-                    SchemaValidator.validate(undefined, param.getSchema(), schemaRepository, je);
+                for (let i = 0; i < array.length; i++) {
+                    array[i] = SchemaValidator.validate(
+                        undefined,
+                        param.getSchema(),
+                        schemaRepository,
+                        array[i],
+                    );
                 }
 
-                return new Tuple2(key, jsonElement);
+                return new Tuple2(key, array);
             })
             .reduce((a, c) => {
                 a.set(c.getT1(), c.getT2());

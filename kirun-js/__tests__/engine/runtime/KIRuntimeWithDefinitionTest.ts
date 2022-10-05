@@ -87,3 +87,40 @@ test('KIRuntime With Definition 1', async () => {
 
     expect(result.allResults()[0].getResult().get('additionResult')).toBe(31);
 });
+
+test('KIRuntime With Definition 2', async () => {
+    var def = {
+        name: 'checkWithNoParamsOrEvents',
+        namespace: 'UIApp',
+        steps: {
+            add: {
+                statementName: 'add',
+                namespace: Namespaces.MATH,
+                name: 'Add',
+                parameterMap: {
+                    value: {
+                        one: { key: 'one', type: 'VALUE', value: 2 },
+                        two: { key: 'two', type: 'VALUE', value: 5 },
+                    },
+                },
+            },
+            genOutput: {
+                statementName: 'genOutput',
+                namespace: Namespaces.SYSTEM,
+                name: 'GenerateEvent',
+                dependentStatements: { 'Steps.add.output': true },
+            },
+        },
+    };
+
+    const fd = FunctionDefinition.from(def);
+
+    let result = await new KIRuntime(fd).execute(
+        new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map()),
+    );
+
+    expect(result.allResults()[0].getResult()).toMatchObject({});
+});

@@ -77,6 +77,33 @@ export class Expression extends ExpressionToken {
                     isPrevOp = result.getT2();
                     break;
                 }
+                case '?': {
+                    if (
+                        i + 1 < length &&
+                        this.expression.charAt(i + 1) != '?' &&
+                        i != 0 &&
+                        this.expression.charAt(i - 1) != '?'
+                    ) {
+                        i = this.processTernaryOperator(length, sb, buff, i, isPrevOp);
+                    } else {
+                        let result: Tuple2<number, boolean> = this.processOthers(
+                            chr,
+                            length,
+                            sb,
+                            buff,
+                            i,
+                            isPrevOp,
+                        );
+                        i = result.getT1();
+                        isPrevOp = result.getT2();
+                        if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
+                            result = this.process(length, sb, i);
+                            i = result.getT1();
+                            isPrevOp = result.getT2();
+                        }
+                    }
+                    break;
+                }
                 default:
                     let result: Tuple2<number, boolean> = this.processOthers(
                         chr,
@@ -186,6 +213,80 @@ export class Expression extends ExpressionToken {
 
         sb.append(chr);
         return new Tuple2(i, false);
+    }
+
+    private processTernaryOperator(
+        length: number,
+        sb: StringBuilder,
+        buff: string,
+        i: number,
+        isPrevOp: boolean,
+    ): number {
+        if (isPrevOp) {
+            throw new ExpressionEvaluationException(
+                this.expression,
+                'Ternary operator is followed by an operator',
+            );
+        }
+
+        if (buff.trim() != '') {
+            this.tokens.push(new Expression(buff));
+            sb.setLength(0);
+        }
+
+        ++i;
+        let cnt: number = 1;
+        let inChr = '';
+        const start = i;
+        while (i < length && cnt > 0) {
+            inChr = this.expression.charAt(i);
+            if (inChr == '?') ++cnt;
+            else if (inChr == ':') --cnt;
+            ++i;
+        }
+
+        if (inChr != ':') {
+            throw new ExpressionEvaluationException(this.expression, "':' operater is missing");
+        }
+
+        if (i >= length) {
+            throw new ExpressionEvaluationException(
+                this.expression,
+                'Third part of the ternary expression is missing',
+            );
+        }
+
+        while (
+            !this.ops.isEmpty() &&
+            this.hasPrecedence(Operation.CONDITIONAL_TERNARY_OPERATOR, this.ops.peek())
+        ) {
+            let prev: Operation = this.ops.pop();
+
+            if (Operation.UNARY_OPERATORS.has(prev)) {
+                const l: ExpressionToken = this.tokens.pop();
+                this.tokens.push(new Expression('', l, undefined, prev));
+            } else {
+                let r = this.tokens.pop();
+                let l = this.tokens.pop();
+
+                this.tokens.push(new Expression('', l, r, prev));
+            }
+        }
+
+        this.ops.push(Operation.CONDITIONAL_TERNARY_OPERATOR);
+        this.tokens.push(new Expression(this.expression.substring(start, i - 1)));
+
+        const secondExp: string = this.expression.substring(i);
+        if (secondExp.trim() === '') {
+            throw new ExpressionEvaluationException(
+                this.expression,
+                'Third part of the ternary expression is missing',
+            );
+        }
+
+        this.tokens.push(new Expression(secondExp));
+
+        return length - 1;
     }
 
     private processSubExpression(
@@ -329,6 +430,25 @@ export class Expression extends ExpressionToken {
                     )
                     .append(')');
                 ind++;
+            } else if (this.ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+                let temp: ExpressionToken = tokens[ind++];
+                sb.insert(
+                    0,
+                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
+                );
+                sb.insert(0, ':');
+                temp = tokens[ind++];
+                sb.insert(
+                    0,
+                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
+                );
+                sb.insert(0, '?');
+                temp = tokens[ind++];
+                sb.insert(
+                    0,
+                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
+                ).append(')');
+                sb.insert(0, '(');
             } else {
                 if (ind == 0) {
                     const temp: ExpressionToken = tokens[ind++];

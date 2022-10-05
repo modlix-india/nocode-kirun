@@ -22,7 +22,11 @@ public enum Operation {
 	UNARY_PLUS("UN: +", "+"), UNARY_MINUS("UN: -", "-"), UNARY_LOGICAL_NOT("UN: not", "not"),
 	UNARY_BITWISE_COMPLEMENT("UN: ~", "~"),
 
-	ARRAY_OPERATOR("["), OBJECT_OPERATOR("."),;
+	ARRAY_OPERATOR("["), OBJECT_OPERATOR("."),
+
+	CONDITIONAL_TERNARY_OPERATOR("?"),
+
+	;
 
 	public static final Set<Operation> UNARY_OPERATORS = Set.of(ADDITION, SUBTRACTION, NOT, BITWISE_COMPLEMENT,
 	        UNARY_PLUS, UNARY_MINUS, UNARY_LOGICAL_NOT, UNARY_BITWISE_COMPLEMENT);
@@ -32,6 +36,8 @@ public enum Operation {
 
 	public static final Set<Operation> LOGICAL_OPERATORS = Set.of(NOT, AND, OR, LESS_THAN, LESS_THAN_EQUAL,
 	        GREATER_THAN, GREATER_THAN_EQUAL, EQUAL, NOT_EQUAL, NULLISH_COALESCING_OPERATOR);
+
+	public static final Set<Operation> CONDITIONAL_OPERATORS = Set.of(CONDITIONAL_TERNARY_OPERATOR);
 
 	public static final Set<Operation> BITWISE_OPERATORS = Set.of(BITWISE_AND, BITWISE_COMPLEMENT, BITWISE_LEFT_SHIFT,
 	        BITWISE_OR, BITWISE_RIGHT_SHIFT, BITWISE_UNSIGNED_RIGHT_SHIFT, BITWISE_XOR);
@@ -44,18 +50,19 @@ public enum Operation {
 	                Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, 4), Map.entry(LESS_THAN, 5), Map.entry(LESS_THAN_EQUAL, 5),
 	                Map.entry(GREATER_THAN, 5), Map.entry(GREATER_THAN_EQUAL, 5), Map.entry(EQUAL, 6),
 	                Map.entry(NOT_EQUAL, 6), Map.entry(BITWISE_AND, 7), Map.entry(BITWISE_XOR, 8),
-	                Map.entry(BITWISE_OR, 9), Map.entry(AND, 10), Map.entry(OR, 11), Map.entry(NULLISH_COALESCING_OPERATOR, 11))));
+	                Map.entry(BITWISE_OR, 9), Map.entry(AND, 10), Map.entry(OR, 11),
+	                Map.entry(NULLISH_COALESCING_OPERATOR, 11), Map.entry(CONDITIONAL_TERNARY_OPERATOR, 12))));
 
 	public static final Set<String> OPERATORS = Collections.unmodifiableSet(Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(),
-	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR))
+	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR), CONDITIONAL_OPERATORS.stream())
 	        .flatMap(Function.identity())
 	        .map(Operation::getOperator)
 	        .collect(Collectors.toSet()));
 
 	public static final Set<String> OPERATORS_WITHOUT_SPACE_WRAP = Collections.unmodifiableSet(Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(),
-	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR))
+	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR), CONDITIONAL_OPERATORS.stream())
 	        .flatMap(Function.identity())
 	        .filter(Predicate.not(Operation::shouldBeWrappedInSpace))
 	        .map(Operation::getOperator)

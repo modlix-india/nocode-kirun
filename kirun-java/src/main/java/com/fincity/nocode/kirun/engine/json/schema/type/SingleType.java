@@ -19,6 +19,10 @@ public class SingleType extends Type {
 		this.type = type;
 	}
 
+	public SingleType(SingleType stype) {
+		this(stype.type);
+	}
+
 	public Set<SchemaType> getAllowedSchemaTypes() {
 		return Set.of(type);
 	}

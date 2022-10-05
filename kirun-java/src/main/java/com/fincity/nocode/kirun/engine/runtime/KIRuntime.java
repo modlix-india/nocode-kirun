@@ -438,7 +438,7 @@ public class KIRuntime extends AbstractFunction {
 			        : new ArrayList<>(param.getValue()
 			                .values());
 
-			if (refList == null || refList.isEmpty()) {
+			if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
 				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
@@ -450,7 +450,7 @@ public class KIRuntime extends AbstractFunction {
 
 				for (ParameterReference ref : refList)
 					parameterReferenceValidation(se, p, ref, sRepo);
-			} else {
+			} else if (refList != null && !refList.isEmpty()){
 
 				ParameterReference ref = refList.get(0);
 				parameterReferenceValidation(se, p, ref, sRepo);
@@ -469,6 +469,7 @@ public class KIRuntime extends AbstractFunction {
 
 		if (!paramSet.isEmpty()) {
 			for (Parameter param : paramSet.values()) {
+				if (param.isVariableArgument()) continue;
 				if (SchemaUtil.getDefaultValue(param.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));

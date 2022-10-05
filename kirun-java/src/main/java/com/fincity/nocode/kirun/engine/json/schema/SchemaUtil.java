@@ -104,7 +104,7 @@ public class SchemaUtil {
 
 	private static Tuple2<Schema, String> resolveExternalSchema(Schema schema, Repository<Schema> sRepository,
 	        String ref) {
-		String[] nms = StringUtil.splitAtFirstOccurance(schema.getRef(), '/');
+		String[] nms = StringUtil.splitAtFirstOccurance(ref, '/');
 		String[] nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
 
 		schema = sRepository.find(nmspnm[0], nmspnm[1]);

@@ -2,6 +2,7 @@ import { Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
+import { isNullValue } from '../util/NullCheck';
 import UUID from '../util/UUID';
 import { ParameterReferenceType } from './ParameterReferenceType';
 
@@ -25,9 +26,17 @@ export class ParameterReference {
     private value: any;
     private expression?: string;
 
-    constructor(type: ParameterReferenceType) {
-        this.type = type;
-        this.key = UUID();
+    constructor(type: ParameterReferenceType | ParameterReference) {
+        if (type instanceof ParameterReference) {
+            let pv = type as ParameterReference;
+            this.key = pv.key;
+            this.type = pv.type;
+            this.value = isNullValue(pv.value) ? undefined : JSON.parse(JSON.stringify(pv.value));
+            this.expression = pv.expression;
+        } else {
+            this.type = type as ParameterReferenceType;
+            this.key = UUID();
+        }
     }
 
     public getType(): ParameterReferenceType {

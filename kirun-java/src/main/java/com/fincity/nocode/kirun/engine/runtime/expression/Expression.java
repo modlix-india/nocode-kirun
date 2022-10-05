@@ -69,6 +69,7 @@ public class Expression extends ExpressionToken {
 
 			switch (chr) {
 			case ' ': {
+
 				isPrevOp = processTokenSepearator(sb, buff, isPrevOp);
 				break;
 			}
@@ -89,6 +90,23 @@ public class Expression extends ExpressionToken {
 				Tuple2<Integer, Boolean> result = processStringLiteral(length, chr, i);
 				i = result.getT1();
 				isPrevOp = result.getT2();
+				break;
+			}
+			case '?': {
+
+				if (i + 1 < length && this.expression.charAt(i + 1) != '?' && i != 0
+				        && this.expression.charAt(i - 1) != '?') {
+					i = processTernaryOperator(length, sb, buff, i, isPrevOp);
+				} else {
+					Tuple2<Integer, Boolean> result = processOthers(chr, length, sb, buff, i, isPrevOp);
+					i = result.getT1();
+					isPrevOp = result.getT2();
+					if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
+						result = process(length, sb, i);
+						i = result.getT1();
+						isPrevOp = result.getT2();
+					}
+				}
 				break;
 			}
 			default:
@@ -183,6 +201,67 @@ public class Expression extends ExpressionToken {
 
 		sb.append(chr);
 		return Tuples.of(i, false);
+	}
+
+	private int processTernaryOperator(final int length, StringBuilder sb, String buff, int i, boolean isPrevOp) {
+
+		if (isPrevOp) {
+			throw new ExpressionEvaluationException(this.expression, "Ternary operator is followed by an operator");
+		}
+
+		if (!buff.isBlank()) {
+			this.tokens.push(new Expression(buff));
+			sb.setLength(0);
+		}
+
+		++i;
+		int cnt = 1;
+		char inChr = 0;
+		int start = i;
+		while (i < length && cnt > 0) {
+
+			inChr = this.expression.charAt(i);
+			if (inChr == '?')
+				++cnt;
+			else if (inChr == ':')
+				--cnt;
+			++i;
+		}
+
+		if (inChr != ':') {
+			throw new ExpressionEvaluationException(this.expression, "':' operater is missing");
+		}
+
+		if (i >= length) {
+			throw new ExpressionEvaluationException(this.expression, "Third part of the ternary expression is missing");
+		}
+
+		while (!ops.isEmpty() && hasPrecedence(Operation.CONDITIONAL_TERNARY_OPERATOR, ops.peek())) {
+
+			Operation prev = ops.pop();
+
+			if (UNARY_OPERATORS.contains(prev)) {
+				ExpressionToken l = tokens.pop();
+				tokens.push(new Expression(l, prev));
+			} else {
+				ExpressionToken r = tokens.pop();
+				ExpressionToken l = tokens.pop();
+
+				tokens.push(new Expression(l, r, prev));
+			}
+		}
+
+		this.ops.push(Operation.CONDITIONAL_TERNARY_OPERATOR);
+		this.tokens.push(new Expression(this.expression.substring(start, i - 1)));
+
+		String secondExp = this.expression.substring(i);
+		if (secondExp.isBlank()) {
+			throw new ExpressionEvaluationException(this.expression, "Third part of the ternary expression is missing");
+		}
+
+		this.tokens.push(new Expression(secondExp));
+
+		return length - 1;
 	}
 
 	private int processSubExpression(final int length, StringBuilder sb, String buff, int i, boolean isPrevOp) {
@@ -301,15 +380,26 @@ public class Expression extends ExpressionToken {
 				        .append(this.tokens.get(ind))
 				        .append(")");
 				ind++;
+			} else if (this.ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+
+				sb.insert(0, this.tokens.get(ind++));
+				sb.insert(0, ":");
+				sb.insert(0, this.tokens.get(ind++));
+				sb.insert(0, "?");
+				sb.insert(0, this.tokens.get(ind++))
+				        .append(")");
+				sb.insert(0, "(");
+
 			} else {
 
 				if (ind == 0) {
 					sb.insert(0, this.tokens.get(ind++));
 				}
 				sb.insert(0, this.ops.get(i)
-				        .getOperator())
-				        .insert(0, this.tokens.get(ind++))
-				        .insert(0, "(")
+				        .getOperator());
+				if (ind < this.tokens.size())
+					sb.insert(0, this.tokens.get(ind++));
+				sb.insert(0, "(")
 				        .append(")");
 			}
 		}

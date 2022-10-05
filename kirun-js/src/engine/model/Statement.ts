@@ -1,5 +1,4 @@
-import { AdditionalPropertiesType } from '../json/schema/object/AdditionalPropertiesType';
-import { Schema } from '../json/schema/Schema';
+import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
@@ -49,11 +48,38 @@ export class Statement extends AbstractStatement {
     private parameterMap?: Map<string, Map<string, ParameterReference>>;
     private dependentStatements?: Map<string, boolean>;
 
-    public constructor(statementName: string, namespace: string, name: string) {
-        super();
-        this.statementName = statementName;
-        this.namespace = namespace;
-        this.name = name;
+    public constructor(sn: string | Statement, namespace?: string, name?: string) {
+        super(sn instanceof Statement ? (sn as Statement) : undefined);
+
+        if (sn instanceof Statement) {
+            let x = sn as Statement;
+            this.statementName = x.statementName;
+            this.name = x.name;
+            this.namespace = x.namespace;
+            if (x.parameterMap)
+                this.parameterMap = new Map(
+                    Array.from(x.parameterMap.entries()).map((f) => [
+                        f[0],
+                        new Map(
+                            Array.from(f[1].entries()).map((e) => [
+                                e[0],
+                                new ParameterReference(e[1]),
+                            ]),
+                        ),
+                    ]),
+                );
+
+            if (x.dependentStatements) {
+                this.dependentStatements = new Map(Array.from(x.dependentStatements.entries()));
+            }
+        } else {
+            this.statementName = sn;
+            if (!name || !namespace) {
+                throw new Error('Unknown constructor');
+            }
+            this.namespace = namespace;
+            this.name = name;
+        }
     }
 
     public getStatementName(): string {

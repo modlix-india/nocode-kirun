@@ -40,6 +40,8 @@ import { UnaryOperator } from './operators/unary/UnaryOperator';
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
 import { Tuple2 } from '../../util/Tuples';
+import { ConditionalTernaryOperator } from './operators/ternary';
+import { TernaryOperator } from './operators/ternary/TernaryOperator';
 
 export class ExpressionEvaluator {
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
@@ -47,6 +49,10 @@ export class ExpressionEvaluator {
         [Operation.UNARY_LOGICAL_NOT, new LogicalNotOperator()],
         [Operation.UNARY_MINUS, new ArithmeticUnaryMinusOperator()],
         [Operation.UNARY_PLUS, new ArithmeticUnaryPlusOperator()],
+    ]);
+
+    private static readonly TERNARY_OPERATORS_MAP: Map<Operation, TernaryOperator> = new Map([
+        [Operation.CONDITIONAL_TERNARY_OPERATOR, new ConditionalTernaryOperator()],
     ]);
 
     private static readonly BINARY_OPERATORS_MAP: Map<Operation, BinaryOperator> = new Map([
@@ -195,6 +201,13 @@ export class ExpressionEvaluator {
                 operator == Operation.ARRAY_OPERATOR
             ) {
                 this.processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
+            } else if (operator == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+                const token2: ExpressionToken = tokens.pop();
+                const token3: ExpressionToken = tokens.pop();
+                var v1 = this.getValueFromToken(valuesMap, token3);
+                var v2 = this.getValueFromToken(valuesMap, token2);
+                var v3 = this.getValueFromToken(valuesMap, token);
+                tokens.push(this.applyTernaryOperation(operator, v1, v2, v3));
             } else {
                 const token2: ExpressionToken = tokens.pop();
                 var v1 = this.getValueFromToken(valuesMap, token2);
@@ -293,6 +306,19 @@ export class ExpressionEvaluator {
             }
             tokens.push(new ExpressionTokenValue(str, v));
         }
+    }
+
+    private applyTernaryOperation(operator: Operation, v1: any, v2: any, v3: any): ExpressionToken {
+        let op: TernaryOperator | undefined =
+            ExpressionEvaluator.TERNARY_OPERATORS_MAP.get(operator);
+
+        if (!op)
+            throw new ExpressionEvaluationException(
+                this.expression,
+                StringFormatter.format('No operator found to evaluate $', this.getExpression()),
+            );
+
+        return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2, v3));
     }
 
     private applyBinaryOperation(operator: Operation, v1: any, v2: any): ExpressionToken {

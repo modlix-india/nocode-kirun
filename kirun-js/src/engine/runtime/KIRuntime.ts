@@ -485,7 +485,7 @@ export class KIRuntime extends AbstractFunction {
 
             let refList: ParameterReference[] = Array.from(param[1]?.values() ?? []);
 
-            if (!refList.length) {
+            if (!refList.length && !p.isVariableArgument()) {
                 if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
@@ -500,7 +500,7 @@ export class KIRuntime extends AbstractFunction {
 
             if (p.isVariableArgument()) {
                 for (let ref of refList) this.parameterReferenceValidation(se, p, ref, sRepo);
-            } else {
+            } else if (refList.length) {
                 let ref: ParameterReference = refList[0];
                 this.parameterReferenceValidation(se, p, ref, sRepo);
             }
@@ -515,6 +515,7 @@ export class KIRuntime extends AbstractFunction {
 
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
+                if (param.isVariableArgument()) continue;
                 if (isNullValue(SchemaUtil.getDefaultValue(param.getSchema(), sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,

@@ -34,6 +34,8 @@ export class Operation {
 
     public static readonly NULLISH_COALESCING_OPERATOR: Operation = new Operation('??');
 
+    public static readonly CONDITIONAL_TERNARY_OPERATOR: Operation = new Operation('?');
+
     private static readonly VALUE_OF: Map<string, Operation> = new Map([
         ['MULTIPLICATION', Operation.MULTIPLICATION],
         ['DIVISION', Operation.DIVISION],
@@ -64,6 +66,7 @@ export class Operation {
         ['ARRAY_OPERATOR', Operation.ARRAY_OPERATOR],
         ['OBJECT_OPERATOR', Operation.OBJECT_OPERATOR],
         ['NULLISH_COALESCING_OPERATOR', Operation.NULLISH_COALESCING_OPERATOR],
+        ['CONDITIONAL_TERNARY_OPERATOR', Operation.CONDITIONAL_TERNARY_OPERATOR],
     ]);
 
     public static readonly UNARY_OPERATORS: Set<Operation> = new Set([
@@ -109,6 +112,10 @@ export class Operation {
         Operation.BITWISE_XOR,
     ]);
 
+    public static readonly CONDITIONAL_OPERATORS: Set<Operation> = new Set([
+        Operation.CONDITIONAL_TERNARY_OPERATOR,
+    ]);
+
     public static readonly OPERATOR_PRIORITY: Map<Operation, number> = new Map([
         [Operation.UNARY_PLUS, 1],
         [Operation.UNARY_MINUS, 1],
@@ -137,6 +144,7 @@ export class Operation {
         [Operation.AND, 10],
         [Operation.OR, 11],
         [Operation.NULLISH_COALESCING_OPERATOR, 11],
+        [Operation.CONDITIONAL_TERNARY_OPERATOR, 12],
     ]);
 
     public static readonly OPERATORS: Set<string> = new Set(
@@ -146,6 +154,7 @@ export class Operation {
             ...Array.from(Operation.BITWISE_OPERATORS),
             Operation.ARRAY_OPERATOR,
             Operation.OBJECT_OPERATOR,
+            ...Array.from(Operation.CONDITIONAL_OPERATORS),
         ].map((e) => e.getOperator()),
     );
 
@@ -156,6 +165,7 @@ export class Operation {
             ...Array.from(Operation.BITWISE_OPERATORS),
             Operation.ARRAY_OPERATOR,
             Operation.OBJECT_OPERATOR,
+            ...Array.from(Operation.CONDITIONAL_OPERATORS),
         ]
             .filter((e) => !e.shouldBeWrappedInSpace())
             .map((e) => e.getOperator()),

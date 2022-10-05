@@ -1,13 +1,12 @@
 import { Namespaces } from '../../namespaces/Namespaces';
 import { ArraySchemaType } from './array/ArraySchemaType';
-import { AdditionalPropertiesType } from './object/AdditionalPropertiesType';
 import { StringFormat } from './string/StringFormat';
 import { SchemaType } from './type/SchemaType';
 import { TypeUtil } from './type/TypeUtil';
 import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
 import { SingleType } from './type/SingleType';
-import { SchemaReferenceException } from './validator/exception/SchemaReferenceException';
+import { MultipleType } from './type/MultipleType';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ENUMS: string = 'enums';
@@ -17,6 +16,44 @@ const REQUIRED_STRING: string = 'required';
 const VERSION_STRING: string = 'version';
 const NAMESPACE_STRING: string = 'namespace';
 const TEMPORARY: string = '_';
+
+export class AdditionalPropertiesType {
+    private booleanValue?: boolean;
+    private schemaValue?: Schema;
+
+    constructor(apt: AdditionalPropertiesType | undefined = undefined) {
+        if (!apt) return;
+        this.booleanValue = apt.booleanValue;
+        if (!apt.schemaValue) return;
+        this.schemaValue = new Schema(apt.schemaValue);
+    }
+
+    public getBooleanValue(): boolean | undefined {
+        return this.booleanValue;
+    }
+
+    public getSchemaValue(): Schema | undefined {
+        return this.schemaValue;
+    }
+
+    public setBooleanValue(booleanValue: boolean): AdditionalPropertiesType {
+        this.booleanValue = booleanValue;
+        return this;
+    }
+
+    public setSchemaValue(schemaValue: Schema): AdditionalPropertiesType {
+        this.schemaValue = schemaValue;
+        return this;
+    }
+
+    public static from(obj: any): AdditionalPropertiesType | undefined {
+        if (!obj) return undefined;
+        const ad = new AdditionalPropertiesType();
+        ad.booleanValue = obj.booleanValue;
+        ad.schemaValue = obj.schemaValue;
+        return ad;
+    }
+}
 
 export class Schema {
     public static readonly NULL: Schema = new Schema()
@@ -388,6 +425,86 @@ export class Schema {
 
     private $defs?: Map<string, Schema>;
     private permission?: string;
+
+    public constructor(schema?: Schema) {
+        if (!schema) return;
+
+        this.namespace = schema.namespace;
+        this.name = schema.name;
+
+        this.version = schema.version;
+        this.ref = schema.ref;
+
+        this.type =
+            schema.type instanceof SingleType
+                ? new SingleType(schema.type as SingleType)
+                : new MultipleType(schema.type as MultipleType);
+
+        this.anyOf = schema.anyOf?.map((x) => new Schema(x));
+
+        this.allOf = schema.allOf?.map((x) => new Schema(x));
+        this.oneOf = schema.oneOf?.map((x) => new Schema(x));
+
+        this.not = this.not ? new Schema(this.not) : undefined;
+
+        this.description = schema.description;
+        this.examples = schema.examples ? JSON.parse(JSON.stringify(schema.examples)) : undefined;
+
+        this.defaultValue = schema.defaultValue
+            ? JSON.parse(JSON.stringify(schema.defaultValue))
+            : undefined;
+        this.comment = schema.comment;
+        this.enums = schema.enums ? [...schema.enums] : undefined;
+        this.constant = schema.constant ? JSON.parse(JSON.stringify(schema.constant)) : undefined;
+
+        this.pattern = schema.pattern;
+        this.format = schema.format;
+
+        this.minLength = schema.minLength;
+        this.maxLength = schema.maxLength;
+
+        this.multipleOf = schema.multipleOf;
+        this.minimum = schema.minimum;
+        this.maximum = schema.maximum;
+        this.exclusiveMinimum = schema.exclusiveMinimum;
+        this.exclusiveMaximum = schema.exclusiveMaximum;
+
+        this.properties = schema.properties
+            ? new Map(Array.from(schema.properties.entries()).map((e) => [e[0], new Schema(e[1])]))
+            : undefined;
+
+        this.additionalProperties = schema.additionalProperties
+            ? new AdditionalPropertiesType(schema.additionalProperties)
+            : undefined;
+
+        this.required = schema.required ? [...schema.required] : undefined;
+
+        this.propertyNames = schema.propertyNames ? new Schema(schema.propertyNames) : undefined;
+        this.minProperties = schema.minProperties;
+        this.maxProperties = schema.maxProperties;
+
+        this.patternProperties = schema.patternProperties
+            ? new Map(
+                  Array.from(schema.patternProperties.entries()).map((e) => [
+                      e[0],
+                      new Schema(e[1]),
+                  ]),
+              )
+            : undefined;
+
+        this.items = schema.items ? new ArraySchemaType(schema.items) : undefined;
+        this.contains = schema.contains ? new Schema(this.contains) : undefined;
+
+        this.minItems = schema.minItems;
+        this.maxItems = schema.maxItems;
+        this.uniqueItems = schema.uniqueItems;
+
+        this.$defs = schema.$defs
+            ? new Map(Array.from(schema.$defs.entries()).map((e) => [e[0], new Schema(e[1])]))
+            : undefined;
+
+        this.permission = schema.permission;
+    }
 
     public getTitle(): string | undefined {
         return this.getFullName();

@@ -21,7 +21,7 @@ export class Reverse extends AbstractFunction {
                 [
                     this.VALUE,
                     new Parameter(this.VALUE, Schema.ofString(this.VALUE)).setVariableArgument(
-                        true,
+                        false,
                     ),
                 ],
             ]),

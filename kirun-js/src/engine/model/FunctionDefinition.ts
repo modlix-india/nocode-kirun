@@ -1,5 +1,4 @@
-import { AdditionalPropertiesType } from '../json/schema/object/AdditionalPropertiesType';
-import { Schema } from '../json/schema/Schema';
+import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
 import { Namespaces } from '../namespaces/Namespaces';
 import { Event } from './Event';
 import { FunctionSignature } from './FunctionSignature';

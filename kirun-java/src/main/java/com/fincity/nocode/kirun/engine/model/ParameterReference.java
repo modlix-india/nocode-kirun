@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -27,7 +29,8 @@ public class ParameterReference implements Serializable {
 	        .setType(Type.of(SchemaType.OBJECT))
 	        .setProperties(Map.of("key", Schema.ofString("key"),
 
-	                "references", Schema.ofString("references"),
+	                "type", Schema.ofString("references")
+	                        .setEnums(List.of(new JsonPrimitive("EXPRESSION"), new JsonPrimitive("VALUE"))),
 
 	                "value", Schema.ofAny("value"),
 
@@ -37,6 +40,14 @@ public class ParameterReference implements Serializable {
 	private ParameterReferenceType type;
 	private JsonElement value; // NOSONAR - JSON element is not serialised for some reason.
 	private String expression;
+
+	public ParameterReference(ParameterReference param) {
+
+		this.key = param.key;
+		this.type = param.type;
+		this.value = param.value == null ? null : param.value.deepCopy();
+		this.expression = param.expression;
+	}
 
 	public ParameterReference() {
 		this.key = UUID.randomUUID()
