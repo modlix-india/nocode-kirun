@@ -76,3 +76,4 @@ export * from './engine/exception/ExecutionException';
 export * from './engine/exception/KIRuntimeException';
 export * from './engine/runtime/expression/operators/unary';
 export * from './engine/runtime/expression/operators/binary';
+export * from './engine/runtime/expression/operators/ternary';

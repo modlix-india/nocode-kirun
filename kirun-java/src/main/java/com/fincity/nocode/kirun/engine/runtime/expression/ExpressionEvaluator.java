@@ -22,6 +22,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.NULLI
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.SUBTRACTION;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.CONDITIONAL_TERNARY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_BITWISE_COMPLEMENT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_LOGICAL_NOT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;
@@ -57,6 +58,8 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Logic
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalNullishCoalescingOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.LogicalOrOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ObjectOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.ternary.ConditionalTernaryOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.ternary.TernaryOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryMinusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.ArithmeticUnaryPlusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.unary.BitwiseComplementOperator;
@@ -100,6 +103,9 @@ public class ExpressionEvaluator {
 	        Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
 
 	        Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
+
+	private static final Map<Operation, TernaryOperator> TERNARY_OPERATORS_MAP = new EnumMap<>(
+	        Map.ofEntries(Map.entry(CONDITIONAL_TERNARY_OPERATOR, new ConditionalTernaryOperator())));
 
 	private static final Set<Operation> UNARY_OPERATORS_MAP_KEY_SET = UNARY_OPERATORS_MAP.keySet();
 
@@ -166,9 +172,9 @@ public class ExpressionEvaluator {
 
 	private String replaceNestingExpression(String expression, Map<String, TokenValueExtractor> valuesMap,
 	        LinkedList<Tuple2<Integer, Integer>> tuples) {
-		
+
 		String newExpression = expression;
-		
+
 		for (var tuple : tuples) {
 
 			if (tuple.getT2() == -1)
@@ -177,7 +183,7 @@ public class ExpressionEvaluator {
 			String expStr = (new ExpressionEvaluator(newExpression.substring(tuple.getT1(), tuple.getT2())))
 			        .evaluate(valuesMap)
 			        .getAsString();
-			
+
 			newExpression = newExpression.substring(0, tuple.getT1() - 2) + expStr
 			        + newExpression.substring(tuple.getT2() + 2);
 		}
@@ -210,6 +216,15 @@ public class ExpressionEvaluator {
 				tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
 			} else if (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR) {
 				processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
+			} else if (operator == CONDITIONAL_TERNARY_OPERATOR) {
+				ExpressionToken token2 = tokens.pop();
+				ExpressionToken token3 = tokens.pop();
+
+				var v1 = getValueFromToken(valuesMap, token3);
+				var v2 = getValueFromToken(valuesMap, token2);
+				var v3 = getValueFromToken(valuesMap, token);
+				tokens.push(applyOperation(operator, v1, v2, v3));
+
 			} else {
 				ExpressionToken token2 = tokens.pop();
 				var v1 = getValueFromToken(valuesMap, token2);
@@ -286,6 +301,24 @@ public class ExpressionEvaluator {
 			}
 			tokens.push(new ExpressionTokenValue(str, v));
 		}
+	}
+
+	private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2, JsonElement v3) {
+
+		if (v1 == null)
+			v1 = JsonNull.INSTANCE;
+		if (v2 == null)
+			v2 = JsonNull.INSTANCE;
+		if (v3 == null)
+			v3 = JsonNull.INSTANCE;
+
+		TernaryOperator op = TERNARY_OPERATORS_MAP.get(operator);
+
+		if (op == null)
+			throw new ExpressionEvaluationException(this.expression,
+			        StringFormatter.format("No operator found to evaluate $ $ $", v1, operator.getOperator(), v2));
+
+		return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2, v3));
 	}
 
 	private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2) {
