@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -218,7 +219,7 @@ class AddFirstTest {
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "elementObject", arr)).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 
 	}
 
@@ -236,7 +237,7 @@ class AddFirstTest {
 				.setArguments(Map.of("source", arr, "elementObject", JsonNull.INSTANCE)).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 
 //		assertEquals(arr, ad.execute(fep));
 	}

@@ -109,7 +109,7 @@ class MaxTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE));
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> max.execute(fep).allResults().get(0).getResult().get("output"));
 	}
 }

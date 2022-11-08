@@ -105,7 +105,7 @@ class DisjointTest {
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(3)));
 
-		assertThrows(SchemaValidationException.class, () -> dis.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> dis.execute(fep));
 
 	}
 
@@ -206,7 +206,7 @@ class DisjointTest {
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(5),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(3)));
 
-		assertThrows(SchemaValidationException.class, () -> dis.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> dis.execute(fep));
 	}
 
 	@Test

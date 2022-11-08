@@ -186,14 +186,14 @@ class MisMatchTest {
 
 		MisMatch mis = new MisMatch();
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> mis.execute(fep).allResults().get(0).getResult().get("output"));
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", res, "findFrom", new JsonPrimitive(2), "secondSource", JsonNull.INSTANCE,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> mis.execute(fep1).allResults().get(0).getResult().get("output"));
 
 	}

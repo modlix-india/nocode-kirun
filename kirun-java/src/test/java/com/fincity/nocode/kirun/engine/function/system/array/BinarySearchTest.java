@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -57,7 +58,7 @@ class BinarySearchTest {
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(SchemaValidationException.class, () -> bs.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
 	}
 
 	@Test
@@ -116,7 +117,7 @@ class BinarySearchTest {
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(SchemaValidationException.class, () -> bs.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
 	}
 	
 	@Test
@@ -143,6 +144,6 @@ class BinarySearchTest {
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(SchemaValidationException.class, () -> bs.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
 	}
 }
