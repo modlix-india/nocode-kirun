@@ -109,7 +109,7 @@ class MinTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE));
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> min.execute(fep).allResults().get(0).getResult().get("output"));
 
 	}

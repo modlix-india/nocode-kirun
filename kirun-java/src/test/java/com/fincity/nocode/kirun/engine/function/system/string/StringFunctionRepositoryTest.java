@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
@@ -61,7 +62,7 @@ class StringFunctionRepositoryTest {
 						Map.of("value", new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"))))
 				.next().getResult().get("value"));
 
-		assertThrows(SchemaValidationException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
+		assertThrows(KIRuntimeException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
 				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(1231))))
 				.next().getResult().get("value"));
 
@@ -101,7 +102,7 @@ class StringFunctionRepositoryTest {
 
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertThrows(SchemaValidationException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
+		assertThrows(KIRuntimeException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
 				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(1231))))
 				.next().getResult().get("value"));
 

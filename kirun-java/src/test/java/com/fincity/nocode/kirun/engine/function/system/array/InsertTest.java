@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -118,7 +118,7 @@ class InsertTest {
 				Map.of("source", JsonNull.INSTANCE, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> ins.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ins.execute(fep));
 
 	}
 

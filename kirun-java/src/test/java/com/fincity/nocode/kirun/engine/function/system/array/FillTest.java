@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -78,7 +79,7 @@ class FillTest {
         .setSteps(Map.of());
 		
 		
-		assertThrows(SchemaValidationException.class, () -> fill.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> fill.execute(fep));
 	}
 
 }

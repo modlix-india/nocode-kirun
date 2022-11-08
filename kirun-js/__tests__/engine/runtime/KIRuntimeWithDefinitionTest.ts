@@ -124,3 +124,42 @@ test('KIRuntime With Definition 2', async () => {
 
     expect(result.allResults()[0].getResult()).toMatchObject({});
 });
+
+test('KIRuntime With Definition 3', async () => {
+    var def = {
+        name: 'Make an error',
+        namespace: 'UIApp',
+        steps: {
+            add: {
+                statementName: 'add',
+                namespace: Namespaces.MATH,
+                name: 'Add',
+                parameterMap: {
+                    value: {
+                        one: { key: 'one', type: 'VALUE', value: 'X' },
+                        two: { key: 'two', type: 'VALUE', value: 5 },
+                    },
+                },
+            },
+            genOutput: {
+                statementName: 'genOutput',
+                namespace: Namespaces.SYSTEM,
+                name: 'GenerateEvent',
+                dependentStatements: { 'Steps.add.output': true },
+            },
+        },
+    };
+
+    const fd = FunctionDefinition.from(def);
+
+    try {
+        await new KIRuntime(fd).execute(
+            new FunctionExecutionParameters(
+                new KIRunFunctionRepository(),
+                new KIRunSchemaRepository(),
+            ).setArguments(new Map()),
+        );
+    } catch (e: any) {
+        expect(e.message).toMatch('error');
+    }
+});

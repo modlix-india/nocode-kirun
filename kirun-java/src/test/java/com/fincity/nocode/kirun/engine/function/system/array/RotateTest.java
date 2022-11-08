@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -63,7 +64,7 @@ class RotateTest {
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(0))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> rotate.execute(fep1));
+		assertThrows(KIRuntimeException.class, () -> rotate.execute(fep1));
 	}
 
 	@Test
@@ -113,7 +114,7 @@ class RotateTest {
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(-2))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> rotate.execute(fep1));
+		assertThrows(KIRuntimeException.class, () -> rotate.execute(fep1));
 	}
 
 }

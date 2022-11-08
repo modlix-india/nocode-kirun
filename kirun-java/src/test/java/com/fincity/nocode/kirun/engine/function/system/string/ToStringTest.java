@@ -7,6 +7,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
@@ -37,7 +38,7 @@ class ToStringTest {
 		                .getResult()
 		                .get(ToString.EVENT_RESULT_NAME));
 
-		Assertions.assertThrows(NullPointerException.class,
+		Assertions.assertThrows(KIRuntimeException.class,
 		        () -> stringFunction
 		                .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                        .setArguments(Map.of(ToString.PARAMETER_INPUT_ANYTYPE_NAME, JsonNull.INSTANCE)))
