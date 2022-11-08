@@ -211,6 +211,6 @@ class DeleteFirstTest {
 		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE)).setContext(Map.of()).setSteps(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 	}
 }

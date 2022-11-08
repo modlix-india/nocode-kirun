@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -136,7 +137,7 @@ class AddTest {
 		res.add("nocode");
 		res.add("platform");
 
-		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 
 	}
 
@@ -157,7 +158,7 @@ class AddTest {
 		res.add("nocode");
 		res.add("platform");
 
-		assertThrows(SchemaValidationException.class, () -> ad.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> ad.execute(fep));
 
 	}
 }

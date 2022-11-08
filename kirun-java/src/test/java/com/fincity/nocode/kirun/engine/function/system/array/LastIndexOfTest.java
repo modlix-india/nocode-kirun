@@ -50,7 +50,7 @@ class LastIndexOfTest {
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
 				Map.of("source", array, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2)));
 
-		assertThrows(SchemaValidationException.class, () -> ind.execute(fep1));
+		assertThrows(KIRuntimeException.class, () -> ind.execute(fep1));
 	}
 
 	@Test
@@ -300,7 +300,7 @@ class LastIndexOfTest {
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> ind.execute(fep).allResults().get(0).getResult().get("output"));
 
 	}

@@ -78,7 +78,7 @@ class FrequencyTest {
 
 		Frequency freq = new Frequency();
 
-		assertThrows(SchemaValidationException.class, () -> freq.execute(fep));
+		assertThrows(KIRuntimeException.class, () -> freq.execute(fep));
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 				.setArguments(Map.of("source", array, "element", new JsonPrimitive("developement"), "findFrom",

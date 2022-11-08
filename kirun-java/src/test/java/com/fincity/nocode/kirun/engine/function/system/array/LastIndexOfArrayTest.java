@@ -108,7 +108,7 @@ class LastIndexOfArrayTest {
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
-		assertThrows(SchemaValidationException.class, () -> lia.execute(fep).allResults().get(0).getResult()
+		assertThrows(KIRuntimeException.class, () -> lia.execute(fep).allResults().get(0).getResult()
 				.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()));
 
 		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
@@ -116,7 +116,7 @@ class LastIndexOfArrayTest {
 						LastIndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
 						LastIndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
-		assertThrows(SchemaValidationException.class, () -> lia.execute(fep1).allResults().get(0).getResult()
+		assertThrows(KIRuntimeException.class, () -> lia.execute(fep1).allResults().get(0).getResult()
 				.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()));
 
 	}

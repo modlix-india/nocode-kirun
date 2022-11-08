@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
@@ -45,7 +46,7 @@ class RangeLoopTest {
 
 		var params = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		        .setArguments(Map.of(RangeLoop.FROM, new JsonPrimitive("2"), RangeLoop.TO, new JsonPrimitive(5)));
-		assertThrows(SchemaValidationException.class, () -> loop.execute(params));
+		assertThrows(KIRuntimeException.class, () -> loop.execute(params));
 
 	}
 }

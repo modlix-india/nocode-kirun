@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
@@ -57,7 +58,7 @@ class Log10Test {
 				log.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(-0.0))))
 						.next().getResult().get("value"));
 
-		assertThrows(SchemaValidationException.class,
+		assertThrows(KIRuntimeException.class,
 				() -> log
 						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(""))))
 						.next().getResult().get("value"));

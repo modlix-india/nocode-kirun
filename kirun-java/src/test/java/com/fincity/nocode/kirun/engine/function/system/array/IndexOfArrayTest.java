@@ -227,7 +227,7 @@ class IndexOfArrayTest {
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
-		assertThrows(SchemaValidationException.class, () -> ind.execute(fep).allResults().get(0).getResult()
+		assertThrows(KIRuntimeException.class, () -> ind.execute(fep).allResults().get(0).getResult()
 				.get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
 
 	}
