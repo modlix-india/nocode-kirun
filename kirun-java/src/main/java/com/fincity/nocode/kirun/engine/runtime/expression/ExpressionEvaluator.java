@@ -29,6 +29,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_PLUS;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -111,6 +112,7 @@ public class ExpressionEvaluator {
 
 	private String expression;
 	private Expression exp;
+	private ExpressionInternalValueExtractor internalTokenValueExtractor = new ExpressionInternalValueExtractor();
 
 	public ExpressionEvaluator(String expression) {
 		this.expression = expression;
@@ -126,6 +128,8 @@ public class ExpressionEvaluator {
 		Tuple2<String, Expression> tuple = this.processNestingExpression(this.expression, valuesMap);
 		this.expression = tuple.getT1();
 		this.exp = tuple.getT2();
+		valuesMap = new HashMap<>(valuesMap);
+		valuesMap.put(this.internalTokenValueExtractor.getPrefix(), this.internalTokenValueExtractor);
 
 		return this.evaluateExpression(exp, valuesMap);
 	}
@@ -275,6 +279,14 @@ public class ExpressionEvaluator {
 			ops.push(operator);
 
 		ExpressionToken objToken = objTokens.pop();
+		
+		if (objToken instanceof ExpressionTokenValue vtoken && !vtoken.getElement().isJsonPrimitive()) {
+			
+			final String key = System.nanoTime()+ "" + Math.round(Math.random() * 1000);
+			this.internalTokenValueExtractor.addValue(key, vtoken.getElement());
+			objToken = new ExpressionToken(ExpressionInternalValueExtractor.PREFIX + key);
+		}
+		
 		StringBuilder sb = new StringBuilder((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
 		        .getAsString() : objToken.toString()));
 
@@ -329,7 +341,7 @@ public class ExpressionEvaluator {
 			v2 = JsonNull.INSTANCE;
 
 		if ((v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()) && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())
-		        && operator != EQUAL && operator != NOT_EQUAL)
+		        && operator != EQUAL && operator != NOT_EQUAL && operator != NULLISH_COALESCING_OPERATOR)
 
 			throw new ExpressionEvaluationException(this.expression,
 			        StringFormatter.format("Cannot evaluate expression $ $ $", v1, operator.getOperator(), v2));

@@ -28,13 +28,7 @@ export class LiteralTokenValueExtractor extends TokenValueExtractor {
 
     private processNumbers(token: string): any {
         try {
-            let ind: number = token.indexOf('.');
-            let v: number;
-            if (ind == -1) {
-                v = parseInt(token);
-            } else {
-                v = parseFloat(token);
-            }
+            let v = Number(token);
 
             if (isNaN(v)) throw new Error('Parse number error');
 

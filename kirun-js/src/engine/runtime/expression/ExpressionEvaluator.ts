@@ -42,6 +42,7 @@ import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
 import { Tuple2 } from '../../util/Tuples';
 import { ConditionalTernaryOperator } from './operators/ternary';
 import { TernaryOperator } from './operators/ternary/TernaryOperator';
+import { ExpressionInternalValueExtractor } from './tokenextractor/ExpressionInternalValueExtractor';
 
 export class ExpressionEvaluator {
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
@@ -90,6 +91,8 @@ export class ExpressionEvaluator {
 
     private expression: string;
     private exp?: Expression;
+    private internalTokenValueExtractor: ExpressionInternalValueExtractor =
+        new ExpressionInternalValueExtractor();
 
     public constructor(exp: Expression | string) {
         if (exp instanceof Expression) {
@@ -107,6 +110,11 @@ export class ExpressionEvaluator {
         );
         this.expression = tuple.getT1();
         this.exp = tuple.getT2();
+        valuesMap = new Map(valuesMap.entries());
+        valuesMap.set(
+            this.internalTokenValueExtractor.getPrefix(),
+            this.internalTokenValueExtractor,
+        );
 
         return this.evaluateExpression(this.exp, valuesMap);
     }
@@ -276,6 +284,16 @@ export class ExpressionEvaluator {
         if (operator) ops.push(operator);
 
         let objToken: ExpressionToken = objTokens.pop();
+
+        if (
+            objToken instanceof ExpressionTokenValue &&
+            typeof objToken.getTokenValue() === 'object'
+        ) {
+            const key = new Date().getTime() + '' + Math.round(Math.random() * 1000);
+            this.internalTokenValueExtractor.addValue(key, objToken.getTokenValue());
+            objToken = new ExpressionToken(ExpressionInternalValueExtractor.PREFIX + key);
+        }
+
         let sb: StringBuilder = new StringBuilder(
             objToken instanceof ExpressionTokenValue
                 ? (objToken as ExpressionTokenValue).getTokenValue()
@@ -330,7 +348,8 @@ export class ExpressionEvaluator {
         if (
             (typv1 === 'object' || typv2 === 'object') &&
             operator !== Operation.EQUAL &&
-            operator !== Operation.NOT_EQUAL
+            operator !== Operation.NOT_EQUAL &&
+            operator !== Operation.NULLISH_COALESCING_OPERATOR
         )
             throw new ExpressionEvaluationException(
                 this.expression,

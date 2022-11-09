@@ -1,24 +1,23 @@
-package com.fincity.nocode.kirun.engine.runtime.tokenextractors;
+package com.fincity.nocode.kirun.engine.runtime.expression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.google.gson.JsonElement;
 
-public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
+public class ExpressionInternalValueExtractor extends TokenValueExtractor {
 
-	public static final String PREFIX = "Arguments.";
-
-	private final Map<String, JsonElement> arguments;
-
-	public ArgumentsTokenValueExtractor(Map<String, JsonElement> arguments) {
-
-		this.arguments = arguments;
-	}
+	public static final String PREFIX = "_internal.";
+	
+	private Map<String, JsonElement> values = new HashMap<>();
+	
+	public void addValue(String key, JsonElement value) {
+        this.values.put(key, value);
+    }
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
-
 		String[] parts = token.split("\\.");
 
 		String key = parts[1];
@@ -29,12 +28,13 @@ public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 			parts[1] = parts[1].substring(bIndex);
 			fromIndex = 1;
 		}
-
-		return retrieveElementFrom(token, parts, fromIndex, arguments.get(key));
+		
+		return this.retrieveElementFrom(token, parts, fromIndex, this.values.get(key));
 	}
 
 	@Override
 	public String getPrefix() {
 		return PREFIX;
 	}
+	
 }

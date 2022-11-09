@@ -13,7 +13,15 @@ export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
     protected getValueInternal(token: string): any {
         let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
 
-        return this.retrieveElementFrom(token, parts, 2, this.args.get(parts[1]));
+        let key: string = parts[1];
+        let bIndex: number = key.indexOf('[');
+        let fromIndex = 2;
+        if (bIndex != -1) {
+            key = parts[1].substring(0, bIndex);
+            parts[1] = parts[1].substring(bIndex);
+            fromIndex = 1;
+        }
+        return this.retrieveElementFrom(token, parts, fromIndex, this.args.get(key));
     }
 
     public getPrefix(): string {

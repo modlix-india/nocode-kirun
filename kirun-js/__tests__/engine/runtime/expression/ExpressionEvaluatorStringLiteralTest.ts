@@ -74,4 +74,7 @@ test('Expression with String Literal - 2 ', () => {
 
     ev = new ExpressionEvaluator("'asdf' * 0");
     expect(ev.evaluate(valuesMap)).toBe('');
+
+    ev = new ExpressionEvaluator('2.val');
+    expect(ev.evaluate(valuesMap)).toBe('2.val');
 });
