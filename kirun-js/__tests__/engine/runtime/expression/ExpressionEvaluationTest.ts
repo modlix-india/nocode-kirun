@@ -1,5 +1,6 @@
 import {
     ArgumentsTokenValueExtractor,
+    Expression,
     KIRunFunctionRepository,
     KIRunSchemaRepository,
     MapUtil,
@@ -210,4 +211,35 @@ test('Expression Evaluation nesting expression', () => {
     expect(ev.evaluate(valuesMap)).toBe(
         'There are 4 boys in the class room...There are 4 boys in the class room...',
     );
+});
+
+test('Partial path evaluation', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 1],
+            ['b1', 4],
+            ['b2', 4],
+            [
+                'c',
+                { a: 0, b: [true, false], c: { x: 'Arguments.b2' }, keys: ['a', 'e', { val: 5 }] },
+            ],
+            ['d', 'c'],
+            [
+                'e',
+                [
+                    { name: 'Kiran', num: 1 },
+                    { name: 'Good', num: 2 },
+                ],
+            ],
+        ]),
+    );
+
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('Arguments.c.keys[2].val + 3');
+    expect(ev.evaluate(valuesMap)).toBe(8);
+    ev = new ExpressionEvaluator('(Arguments.f ?? Arguments.e)[1+1-1].num');
+    console.log(ev.getExpression().toString());
+    expect(ev.evaluate(valuesMap)).toBe(2);
 });

@@ -75,5 +75,8 @@ class ExpressionEvaluatorStringLiteralTest {
 		
 		ev = new ExpressionEvaluator("'asdf'*0");
 		assertEquals("", ev.evaluate(valuesMap).getAsString());
+		
+		ev = new ExpressionEvaluator("2.val");
+		assertEquals("2.val", ev.evaluate(valuesMap).getAsString());
 	}
 }

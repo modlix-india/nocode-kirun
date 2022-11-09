@@ -35,7 +35,7 @@ test('KIRuntime Test 1', async () => {
         array.push(array[i - 2] + array[i - 1]);
     }
 
-    console.log('Normal Logic : ' + (new Date().getTime() - start));
+    //console.log('Normal Logic : ' + (new Date().getTime() - start));
 
     var create = new Create().getSignature();
     var integerSchema = { name: 'EachElement', type: 'INTEGER' };
@@ -170,7 +170,7 @@ test('KIRuntime Test 1', async () => {
             ).setArguments(new Map([['Count', num]])),
         )
     ).allResults();
-    console.log('KIRunt Logic : ' + (new Date().getTime() - start));
+    //console.log('KIRunt Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });
 
@@ -306,7 +306,7 @@ test('KIRuntime Test 4', async () => {
         array[i] = array[i - 2] + array[i - 1];
     }
 
-    console.log('Normal Logic : ' + (new Date().getTime() - start));
+    //console.log('Normal Logic : ' + (new Date().getTime() - start));
 
     var fibFunctionSignature = new FunctionSignature('FibFunction')
         .setNamespace('FibSpace')
@@ -399,6 +399,6 @@ test('KIRuntime Test 4', async () => {
             ),
         )
     ).allResults();
-    console.log('KIRun Logic : ' + (new Date().getTime() - start));
+    //console.log('KIRun Logic : ' + (new Date().getTime() - start));
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });

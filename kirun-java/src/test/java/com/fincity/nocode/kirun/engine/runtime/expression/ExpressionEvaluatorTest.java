@@ -221,7 +221,58 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator(
 		        "'There are {{{{Arguments.{{Arguments.d}}.c.x}}}} boys in the class room...' * Arguments.b");
 
-		assertEquals("There are 4 boys in the class room...There are 4 boys in the class room...", ev.evaluate(valuesMap)
-		        .getAsString());
+		assertEquals("There are 4 boys in the class room...There are 4 boys in the class room...",
+		        ev.evaluate(valuesMap)
+		                .getAsString());
+	}
+
+	@Test
+	void testPartialPathEvaluation() {
+
+		var cobj = new JsonObject();
+		cobj.addProperty("a", 2);
+
+		var cbArray = new JsonArray();
+		cbArray.add(true);
+		cbArray.add(false);
+		cobj.add("b", cbArray);
+
+		var ccObj = new JsonObject();
+		ccObj.addProperty("x", "Arguments.b2");
+
+		cobj.add("c", ccObj);
+
+		var cKeysArray = new JsonArray();
+		cKeysArray.add(new JsonPrimitive("a"));
+		cKeysArray.add(new JsonPrimitive("e"));
+
+		var keys2Obj = new JsonObject();
+		keys2Obj.add("val", new JsonPrimitive(5));
+		cKeysArray.add(keys2Obj);
+		cobj.add("keys", cKeysArray);
+
+		var eArray = new JsonArray();
+		var e1 = new JsonObject();
+		e1.add("name", new JsonPrimitive("Kiran"));
+		e1.add("num", new JsonPrimitive(1));
+
+		var e2 = new JsonObject();
+		e2.add("name", new JsonPrimitive("Good"));
+		e2.add("num", new JsonPrimitive(2));
+		eArray.add(e1);
+		eArray.add(e2);
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive("kirun "), "b", new JsonPrimitive(2), "b2", new JsonPrimitive(4), "c",
+		                cobj, "d", new JsonPrimitive("c"), "e", eArray));
+
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+
+		var ev = new ExpressionEvaluator("(Arguments.f ?? Arguments.e)[1+1-1].num");
+		assertEquals(new JsonPrimitive(2), ev.evaluate(valuesMap));
+		
+		ev = new ExpressionEvaluator("Arguments.c.keys[2].val + 3");
+		assertEquals(new JsonPrimitive(8), ev.evaluate(valuesMap));
+
 	}
 }

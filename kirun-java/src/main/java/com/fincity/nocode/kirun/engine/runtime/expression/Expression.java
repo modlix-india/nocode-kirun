@@ -380,7 +380,7 @@ public class Expression extends ExpressionToken {
 				        .append(this.tokens.get(ind))
 				        .append(")");
 				ind++;
-			} else if (this.ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+			} else if (ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
 
 				sb.insert(0, this.tokens.get(ind++));
 				sb.insert(0, ":");
