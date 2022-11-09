@@ -430,7 +430,7 @@ export class Expression extends ExpressionToken {
                     )
                     .append(')');
                 ind++;
-            } else if (this.ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+            } else if (ops[i] == Operation.CONDITIONAL_TERNARY_OPERATOR) {
                 let temp: ExpressionToken = tokens[ind++];
                 sb.insert(
                     0,
