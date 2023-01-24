@@ -119,7 +119,7 @@ class KIRuntimeTest {
 		        .setDependentStatements(Map.of("Steps.if.false", true));
 
 		start = System.currentTimeMillis();
-		List<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition()
+		KIRuntime runtime = new KIRuntime(((FunctionDefinition) new FunctionDefinition()
 		        .setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
 		                Statement.ofEntry(outputGenerate), Statement.ofEntry(ifStep), Statement.ofEntry(set1),
 		                Statement.ofEntry(set2)))
@@ -128,14 +128,14 @@ class KIRuntimeTest {
 		        .setEvents(Map.ofEntries(Event
 		                .outputEventMapEntry(Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
 		        .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
-		                .setSchema(Schema.ofInteger("count"))))))
+		                .setSchema(Schema.ofInteger("count"))))),
+		        true);
+		List<EventResult> out = runtime
 		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("Count", new JsonPrimitive(num))))
 		        .allResults();
-		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output")
 		        .setResult(Map.of("result", array))), out);
-
 	}
 
 	@Test
@@ -150,7 +150,7 @@ class KIRuntimeTest {
 		expression.addProperty("value", "Steps.first.output.value");
 		resultObj.add("value", expression);
 
-		List<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
+		var runtime = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
 		        .setName("SingleCall")
 		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
 		                .setSchema(Schema.ofInteger("Value")))))
@@ -161,13 +161,17 @@ class KIRuntimeTest {
 		                        .setName(genEvent.getName())
 		                        .setParameterMap(Map.of("eventName",
 		                                Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
-		                                Map.ofEntries(ParameterReference.of(resultObj))))))))
+		                                Map.ofEntries(ParameterReference.of(resultObj))))))),
+		        true);
+
+		List<EventResult> out = runtime
 		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("Value", new JsonPrimitive(-10))))
 		        .allResults();
 
 		assertEquals(List.of(new EventResult().setName("output")
 		        .setResult(Map.of("result", new JsonPrimitive(10)))), out);
+
 	}
 
 	@Test
@@ -232,13 +236,11 @@ class KIRuntimeTest {
 		                        .setParameterMap(Map.of("eventName",
 		                                Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
 		                                Map.ofEntries(ParameterReference.of(resultObj))))))));
-		
 
-        var context = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-                .setArguments(Map.of("Value", new JsonPrimitive("27")));
-        
-		assertThrows(KIRuntimeException.class,
-		        () -> fun.execute(context));
+		var context = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		        .setArguments(Map.of("Value", new JsonPrimitive("27")));
+
+		assertThrows(KIRuntimeException.class, () -> fun.execute(context));
 
 	}
 

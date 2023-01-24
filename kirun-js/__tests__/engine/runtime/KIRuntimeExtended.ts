@@ -21,14 +21,12 @@ import { FunctionOutput } from '../../../src/engine/model/FunctionOutput';
 import { HybridRepository } from '../../../src/engine/HybridRepository';
 import { Function } from '../../../src/engine/function/Function';
 
-test('KIRuntime With Definition 1', async () => {
+test('KIRuntime Extended Definition', async () => {
     var def = {
-        name: 'getAppData',
-        namespace: 'UIApp',
+        name: 'checkExtendedFunction',
+        namespace: 'Test',
         parameters: {
             a: { parameterName: 'a', schema: { name: 'INTEGER', type: 'INTEGER' } },
-            b: { parameterName: 'b', schema: { name: 'INTEGER', type: 'INTEGER' } },
-            c: { parameterName: 'c', schema: { name: 'INTEGER', type: 'INTEGER' } },
         },
         events: {
             output: {
@@ -37,15 +35,76 @@ test('KIRuntime With Definition 1', async () => {
             },
         },
         steps: {
-            add: {
-                statementName: 'add',
+            add1: {
+                statementName: 'add1',
                 namespace: Namespaces.MATH,
                 name: 'Add',
                 parameterMap: {
                     value: {
                         one: { key: 'one', type: 'EXPRESSION', expression: 'Arguments.a' },
-                        two: { key: 'two', type: 'EXPRESSION', expression: '10 + 1' },
-                        three: { key: 'three', type: 'EXPRESSION', expression: 'Arguments.c' },
+                        two: { key: 'two', type: 'VALUE', value: 1 },
+                    },
+                },
+            },
+            if1: {
+                statementName: 'if1',
+                namespace: Namespaces.SYSTEM,
+                name: 'If',
+                parameterMap: {
+                    condition: {
+                        one: {
+                            key: 'one',
+                            type: 'EXPRESSION',
+                            expression: 'Steps.add1.output.value % 2 = 0',
+                        },
+                    },
+                },
+            },
+            add2: {
+                statementName: 'add2',
+                namespace: Namespaces.MATH,
+                name: 'Add',
+                parameterMap: {
+                    value: {
+                        one: {
+                            key: 'one',
+                            type: 'EXPRESSION',
+                            expression: 'Steps.add1.output.value',
+                        },
+                        two: { key: 'two', type: 'VALUE', value: 2 },
+                    },
+                },
+                dependentStatements: {
+                    'Steps.if1.true': true,
+                },
+            },
+            add3: {
+                statementName: 'add3',
+                namespace: Namespaces.MATH,
+                name: 'Add',
+                parameterMap: {
+                    value: {
+                        one: {
+                            key: 'one',
+                            type: 'EXPRESSION',
+                            expression: 'Steps.add2.output.value',
+                        },
+                        two: { key: 'two', type: 'VALUE', value: 2 },
+                    },
+                },
+            },
+            add4: {
+                statementName: 'add4',
+                namespace: Namespaces.MATH,
+                name: 'Add',
+                parameterMap: {
+                    value: {
+                        one: {
+                            key: 'one',
+                            type: 'EXPRESSION',
+                            expression: 'Steps.add1.output.value',
+                        },
+                        two: { key: 'two', type: 'VALUE', value: 1 },
                     },
                 },
             },
@@ -61,7 +120,7 @@ test('KIRuntime With Definition 1', async () => {
                             type: 'VALUE',
                             value: {
                                 name: 'additionResult',
-                                value: { isExpression: true, value: 'Steps.add.output.value' },
+                                value: { isExpression: true, value: 'Steps.add4.output.value' },
                             },
                         },
                     },
@@ -76,90 +135,8 @@ test('KIRuntime With Definition 1', async () => {
         new FunctionExecutionParameters(
             new KIRunFunctionRepository(),
             new KIRunSchemaRepository(),
-        ).setArguments(
-            new Map([
-                ['a', 7],
-                ['b', 11],
-                ['c', 13],
-            ]),
-        ),
+        ).setArguments(new Map([['a', 7]])),
     );
 
-    expect(result.allResults()[0].getResult().get('additionResult')).toBe(31);
-});
-
-test('KIRuntime With Definition 2', async () => {
-    var def = {
-        name: 'checkWithNoParamsOrEvents',
-        namespace: 'UIApp',
-        steps: {
-            add: {
-                statementName: 'add',
-                namespace: Namespaces.MATH,
-                name: 'Add',
-                parameterMap: {
-                    value: {
-                        one: { key: 'one', type: 'VALUE', value: 2 },
-                        two: { key: 'two', type: 'VALUE', value: 5 },
-                    },
-                },
-            },
-            genOutput: {
-                statementName: 'genOutput',
-                namespace: Namespaces.SYSTEM,
-                name: 'GenerateEvent',
-                dependentStatements: { 'Steps.add.output': true },
-            },
-        },
-    };
-
-    const fd = FunctionDefinition.from(def);
-
-    let result = await new KIRuntime(fd).execute(
-        new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map()),
-    );
-
-    expect(result.allResults()[0].getResult()).toMatchObject({});
-});
-
-test('KIRuntime With Definition 3', async () => {
-    var def = {
-        name: 'Make an error',
-        namespace: 'UIApp',
-        steps: {
-            add: {
-                statementName: 'add',
-                namespace: Namespaces.MATH,
-                name: 'Add',
-                parameterMap: {
-                    value: {
-                        one: { key: 'one', type: 'VALUE', value: 'X' },
-                        two: { key: 'two', type: 'VALUE', value: 5 },
-                    },
-                },
-            },
-            genOutput: {
-                statementName: 'genOutput',
-                namespace: Namespaces.SYSTEM,
-                name: 'GenerateEvent',
-                dependentStatements: { 'Steps.add.output': true },
-            },
-        },
-    };
-
-    const fd = FunctionDefinition.from(def);
-
-    try {
-        await new KIRuntime(fd).execute(
-            new FunctionExecutionParameters(
-                new KIRunFunctionRepository(),
-                new KIRunSchemaRepository(),
-            ).setArguments(new Map()),
-        );
-    } catch (e: any) {
-        expect(e.message).toMatch('error');
-    }
+    expect(result.allResults()[0].getResult().get('additionResult')).toBe(9);
 });

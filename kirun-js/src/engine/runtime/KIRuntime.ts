@@ -43,8 +43,11 @@ export class KIRuntime extends AbstractFunction {
 
     private fd: FunctionDefinition;
 
-    public constructor(fd: FunctionDefinition) {
+    private debugMode: boolean = false;
+
+    public constructor(fd: FunctionDefinition, debugMode: boolean = false) {
         super();
+        this.debugMode = debugMode;
         this.fd = fd;
         if (this.fd.getVersion() > KIRuntime.VERSION) {
             throw new KIRuntimeException(
@@ -86,12 +89,30 @@ export class KIRuntime extends AbstractFunction {
 
         if (!inContext.getSteps()) inContext.setSteps(new Map());
 
+        if (this.debugMode) {
+            console.log(`Executing: ${this.fd.getNamespace()}.${this.fd.getName()}`);
+            console.log('Parameters: ', inContext);
+        }
+
         let eGraph: Tuple2<
             Tuple2<string, string>[],
             ExecutionGraph<string, StatementExecution>
         > = await this.getExecutionPlan(inContext);
 
+        if (this.debugMode) {
+            console.log(eGraph.getT2()?.toString());
+        }
+
         let unresolvedList: Tuple2<string, string>[] = eGraph.getT1();
+
+        if (this.debugMode && unresolvedList.length) {
+            console.log('Unresolved Dependencies: ');
+            console.log(
+                unresolvedList.map((e) =>
+                    StringFormatter.format('Steps.$.$', e.getT1(), e.getT2()),
+                ),
+            );
+        }
 
         if (unresolvedList.length) {
             throw new KIRuntimeException(
@@ -247,13 +268,27 @@ export class KIRuntime extends AbstractFunction {
                     ?.get(vertex.getData().getStatement().getStatementName())
                     ?.set(
                         nextOutput.getName(),
-                        await this.resolveInternalExpressions(nextOutput.getResult(), inContext),
+                        this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
+
+                if (this.debugMode) {
+                    const s = vertex.getData().getStatement();
+                    console.log(
+                        `Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
+                    );
+                    console.log(
+                        `Event : ${nextOutput.getName()} : `,
+                        inContext.getSteps()!.get(s.getStatementName())!.get(nextOutput.getName()),
+                    );
+                }
             }
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
-            (vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []).forEach((e) => executionQue.add(e));
+            (vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []).forEach(async (e) => {
+                if (await this.allDependenciesResolvedVertex(e, inContext.getSteps()!))
+                    executionQue.add(e);
+            });
         }
     }
 
@@ -289,6 +324,11 @@ export class KIRuntime extends AbstractFunction {
             paramSet ?? new Map(),
         );
 
+        if (this.debugMode) {
+            console.log(`Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`);
+            console.log('Arguments : ', args);
+        }
+
         let context: Map<string, ContextElement> = inContext.getContext()!;
 
         let result: FunctionOutput = await fun.execute(
@@ -318,10 +358,19 @@ export class KIRuntime extends AbstractFunction {
         if (!inContext.getSteps()?.has(s.getStatementName())) {
             inContext.getSteps()!.set(s.getStatementName(), new Map());
         }
+
         inContext
             .getSteps()!
             .get(s.getStatementName())!
             .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
+
+        if (this.debugMode) {
+            console.log(`Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`);
+            console.log(
+                `Event : ${er.getName()} : `,
+                inContext.getSteps()!.get(s.getStatementName())!.get(er.getName()),
+            );
+        }
 
         if (!isOutput) {
             let subGraph = vertex.getSubGraphOfType(er.getName());
@@ -331,7 +380,11 @@ export class KIRuntime extends AbstractFunction {
             let out: Set<GraphVertex<string, StatementExecution>> | undefined = vertex
                 .getOutVertices()
                 .get(Event.OUTPUT);
-            if (out) out.forEach((e) => executionQue.add(e));
+            if (out)
+                out.forEach(async (e) => {
+                    if (await this.allDependenciesResolvedVertex(e, inContext.getSteps()!))
+                        executionQue.add(e);
+                });
         }
     }
 

@@ -1,4 +1,5 @@
 import { KIRuntimeException } from '../exception/KIRuntimeException';
+import { deepEqual } from './deepEqual';
 import { StringFormatter } from './string/StringFormatter';
 
 export class LinkedList<T> {
@@ -34,7 +35,7 @@ export class LinkedList<T> {
 
     public pop(): T {
         if (!this.head) {
-            throw Error("List is empty and cannot pop further.");
+            throw Error('List is empty and cannot pop further.');
         }
         const value: T = this.head!.value;
         this.length--;
@@ -121,7 +122,7 @@ export class LinkedList<T> {
 
     public peek(): T {
         if (!this.head) {
-            throw new Error("List is empty so cannot peak");
+            throw new Error('List is empty so cannot peak');
         }
 
         return this.head.value;
@@ -129,14 +130,14 @@ export class LinkedList<T> {
 
     public peekLast(): T {
         if (!this.tail) {
-            throw new Error("List is empty so cannot peak");
+            throw new Error('List is empty so cannot peak');
         }
         return this.tail.value;
     }
 
     public getFirst(): T {
-        if (!this.head){
-            throw new Error("List is empty so cannot get first");
+        if (!this.head) {
+            throw new Error('List is empty so cannot get first');
         }
         return this.head.value;
     }
@@ -147,7 +148,7 @@ export class LinkedList<T> {
 
     public removeLast(): T {
         if (!this.tail) {
-            throw new Error("List is empty so cannot remove");
+            throw new Error('List is empty so cannot remove');
         }
         --this.length;
         const v: T = this.tail.value;
@@ -183,10 +184,7 @@ export class LinkedList<T> {
         return this;
     }
 
-    public map<U>(
-        callbackfn: (value: T, index: number) => U,
-        thisArg?: any,
-    ): LinkedList<U> {
+    public map<U>(callbackfn: (value: T, index: number) => U, thisArg?: any): LinkedList<U> {
         let newList: LinkedList<U> = new LinkedList();
 
         let x = this.head;
@@ -199,6 +197,19 @@ export class LinkedList<T> {
         }
 
         return newList;
+    }
+
+    public indexOf(value: T): number {
+        let x = this.head;
+
+        let index: number = 0;
+        while (x) {
+            if (deepEqual(x.value, value)) return index;
+            x = x.next;
+            ++index;
+        }
+
+        return -1;
     }
 
     public forEach(callbackfn: (value: T, index: number) => void, thisArg?: any): void {

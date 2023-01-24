@@ -16,11 +16,13 @@ import com.google.gson.JsonElement;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 @RequiredArgsConstructor
+@ToString
 public class FunctionExecutionParameters {
 
 	private Map<String, ContextElement> context;
