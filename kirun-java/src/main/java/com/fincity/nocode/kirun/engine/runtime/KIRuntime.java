@@ -51,6 +51,8 @@ import reactor.util.function.Tuples;
 
 public class KIRuntime extends AbstractFunction {
 
+	private static final String DEBUG_STEP = "Step : ";
+
 	private static final String PARAMETER_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
 	private static final Pattern STEP_REGEX_PATTERN = Pattern
@@ -64,9 +66,18 @@ public class KIRuntime extends AbstractFunction {
 
 	private final FunctionDefinition fd;
 
+	private final boolean debugMode;
+
+	private final StringBuilder sb = new StringBuilder();
+
 	public KIRuntime(FunctionDefinition fd) {
+		this(fd, false);
+	}
+
+	public KIRuntime(FunctionDefinition fd, boolean debugMode) {
 
 		this.fd = fd;
+		this.debugMode = debugMode;
 		if (this.fd.getVersion() > VERSION) {
 			throw new KIRuntimeException("Runtime is at a lower version " + VERSION
 			        + " and trying to run code from version " + this.fd.getVersion() + ".");
@@ -102,7 +113,32 @@ public class KIRuntime extends AbstractFunction {
 		if (inContext.getSteps() == null)
 			inContext.setSteps(new ConcurrentHashMap<>());
 
+		if (this.debugMode) {
+
+			this.sb.append("Executing: ")
+			        .append(this.fd.getNamespace())
+			        .append('.')
+			        .append(this.fd.getName())
+			        .append("\n")
+			        .append("Parameters: ")
+			        .append(inContext).append("\n");
+
+		}
+
 		var eGraph = this.getExecutionPlan(inContext.getFunctionRepository(), inContext.getSchemaRepository());
+
+		if (this.debugMode) {
+			this.sb.append(eGraph.getT2()
+			        .toString()).append("\n");
+
+			if (!eGraph.getT1()
+			        .isEmpty()) {
+				this.sb.append("Unresolved Dependencies: ");
+				this.sb.append(eGraph.getT1()
+				        .stream()
+				        .map(e -> StringFormatter.format("Steps.$.$", e.getT1(), e.getT2()))).append("\n");
+			}
+		}
 
 		if (!eGraph.getT1()
 		        .isEmpty()) {
@@ -207,12 +243,32 @@ public class KIRuntime extends AbstractFunction {
 			nextOutput = branch.getT3()
 			        .next();
 
-			if (nextOutput != null)
+			if (nextOutput != null) {
 				inContext.getSteps()
 				        .computeIfAbsent(vertex.getData()
 				                .getStatement()
 				                .getStatementName(), k -> new ConcurrentHashMap<>())
 				        .put(nextOutput.getName(), resolveInternalExpressions(nextOutput.getResult(), inContext));
+
+				if (this.debugMode) {
+					var s = vertex.getData()
+					        .getStatement();
+					this.sb.append(DEBUG_STEP)
+					        .append(s.getStatementName())
+					        .append(" => ")
+					        .append(s.getNamespace())
+					        .append('.')
+					        .append(s.getName())
+					        .append("\n");
+					this.sb.append("Event : ")
+					        .append(nextOutput.getName())
+					        .append("\n")
+					        .append(inContext.getSteps()
+					                .get(s.getStatementName())
+					                .get(nextOutput.getName())).append("\n");
+
+				}
+			}
 		} while (nextOutput != null && !nextOutput.getName()
 		        .equals(Event.OUTPUT));
 
@@ -223,6 +279,7 @@ public class KIRuntime extends AbstractFunction {
 			vertex.getOutVertices()
 			        .get(Event.OUTPUT)
 			        .stream()
+			        .filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
 			        .forEach(executionQue::add);
 		}
 	}
@@ -241,6 +298,19 @@ public class KIRuntime extends AbstractFunction {
 		        .getParameters();
 
 		Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
+
+		if (this.debugMode) {
+
+			this.sb.append(DEBUG_STEP)
+			        .append(s.getStatementName())
+			        .append(" => ")
+			        .append(s.getNamespace())
+			        .append('.')
+			        .append(s.getName())
+			        .append("\n");
+			this.sb.append("Arguments : \n")
+			        .append(arguments).append("\n");
+		}
 
 		Map<String, ContextElement> context = inContext.getContext();
 
@@ -266,6 +336,24 @@ public class KIRuntime extends AbstractFunction {
 		        .computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
 		        .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
 
+		if (this.debugMode) {
+
+			this.sb.append(DEBUG_STEP)
+			        .append(s.getStatementName())
+			        .append(" => ")
+			        .append(s.getNamespace())
+			        .append('.')
+			        .append(s.getName())
+			        .append("\n");
+
+			this.sb.append("Event :")
+			        .append(er.getName())
+			        .append("\n")
+			        .append(inContext.getSteps()
+			                .get(s.getStatementName())
+			                .get(er.getName())).append("\n");
+		}
+
 		if (!isOutput) {
 
 			var subGraph = vertex.getSubGraphOfType(er.getName());
@@ -277,6 +365,7 @@ public class KIRuntime extends AbstractFunction {
 			        .get(Event.OUTPUT);
 			if (out != null)
 				out.stream()
+				        .filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
 				        .forEach(executionQue::add);
 		}
 	}
@@ -450,7 +539,7 @@ public class KIRuntime extends AbstractFunction {
 
 				for (ParameterReference ref : refList)
 					parameterReferenceValidation(se, p, ref, sRepo);
-			} else if (refList != null && !refList.isEmpty()){
+			} else if (refList != null && !refList.isEmpty()) {
 
 				ParameterReference ref = refList.get(0);
 				parameterReferenceValidation(se, p, ref, sRepo);
@@ -469,7 +558,8 @@ public class KIRuntime extends AbstractFunction {
 
 		if (!paramSet.isEmpty()) {
 			for (Parameter param : paramSet.values()) {
-				if (param.isVariableArgument()) continue;
+				if (param.isVariableArgument())
+					continue;
 				if (SchemaUtil.getDefaultValue(param.getSchema(), sRepo) == null)
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
@@ -619,5 +709,9 @@ public class KIRuntime extends AbstractFunction {
 		                .filter(Objects::nonNull))
 		        .toList();
 
+	}
+
+	public String getDebugString() {
+		return this.sb.toString();
 	}
 }

@@ -30,9 +30,9 @@ test('Schema validation when ref of ref', () => {
     const locationSchema = Schema.from({
         name: 'Location',
         namespace: 'Test',
-        type: 'Object',
+        type: 'OBJECT',
         properties: {
-            url: { name: 'url', type: 'String' },
+            url: { name: 'url', type: 'STRING' },
         },
         required: ['url'],
     });
@@ -66,7 +66,7 @@ test('Schema validation when ref of ref', () => {
         },
         new KIRunSchemaRepository(),
     );
-    const obj = { url: 'http://xxxxxx.com' };
+    const obj = { obj: { url: 'http://xxxxxx.com' } };
     const queryParams = {
         obj: { obj: { url: 'http://xxxxxx.com' } },
     };
@@ -80,9 +80,9 @@ test('Schema Validator Test 2', () => {
     const locationSchema = Schema.from({
         name: 'Location',
         namespace: 'Test',
-        type: 'Object',
+        type: 'OBJECT',
         properties: {
-            url: { name: 'url', type: 'String' },
+            url: { name: 'url', type: 'STRING' },
         },
         required: ['url'],
     });
@@ -116,7 +116,7 @@ test('Schema Validator Test 3', () => {
     const locationSchema = Schema.from({
         name: 'Location',
         namespace: 'Test',
-        type: 'Object',
+        type: 'OBJECT',
         properties: {
             url: { name: 'url', type: 'String' },
         },
