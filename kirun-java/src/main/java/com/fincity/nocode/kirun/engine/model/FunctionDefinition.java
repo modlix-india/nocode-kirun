@@ -39,6 +39,7 @@ public class FunctionDefinition extends FunctionSignature {
 	private Map<String, StatementGroup> stepGroups;
 
 	public FunctionDefinition(FunctionDefinition fd) {
+		super(fd);
 
 		this.version = fd.version;
 		
