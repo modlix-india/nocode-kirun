@@ -91,6 +91,32 @@ public class StringValidatorTest {
 		
 	}
 	
-	
+    @Test
+    void StringValidatorTestForValidationIfEmailPatternNotMatched() {
 
+        Schema schema = new Schema();
+        schema.setFormat(StringFormat.EMAIL);
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("value", "testemail fai%6&8ls@gmail.com");
+
+        SchemaValidationException schemaValidationExceptionEx = assertThrows(SchemaValidationException.class,
+                () -> StringValidator.validate(null, schema, jsonObject.get("value")));
+
+        assertEquals(jsonObject.get("value").toString() + " is not matched with the " + "email pattern",
+                schemaValidationExceptionEx.getMessage());
+    }
+
+    @Test
+    void StringValidatorTestForValidationIfEmailPatternMatched() {
+
+        Schema schema = new Schema();
+        schema.setFormat(StringFormat.EMAIL);
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("value", "testemaifai%6&8lworkings@gmagil.com");
+
+        assertEquals(jsonObject.get("value").toString(),
+                StringValidator.validate(null, schema, jsonObject.get("value")).toString());
+    }
 }
