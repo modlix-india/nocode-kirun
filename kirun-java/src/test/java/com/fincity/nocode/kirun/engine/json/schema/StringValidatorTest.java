@@ -40,6 +40,58 @@ public class StringValidatorTest {
 		
 	}
 	
+    @Test
+    void StringValidatorTestForMinLengthIfStringException() {
+
+        Schema schema = new Schema();
+        schema.setMinLength(13);
+        JsonObject stringObj = new JsonObject();
+        stringObj.addProperty("value", "SURENdHar.S");
+
+        SchemaValidationException schemaValidationExceptionOfMinString = assertThrows(SchemaValidationException.class,
+                () -> StringValidator.validate(null, schema, stringObj.get("value")));
+        assertEquals("Expected a minimum of " + schema.getMinLength() + " characters",
+                schemaValidationExceptionOfMinString.getMessage());
+    }
+    
+    @Test
+    void StringValidatorTestForMinLengthIfString() {
+
+        Schema schema = new Schema();
+        schema.setMinLength(7);
+        JsonObject stringObj = new JsonObject();
+        stringObj.addProperty("value", "Fincity");
+
+        assertEquals(stringObj.get("value"),
+                StringValidator.validate(null, schema, stringObj.get("value")));
+    }
+    
+    @Test
+    void StringValidatorTestForMaxLengthIfStringException() {
+
+        Schema schema = new Schema();
+        schema.setMaxLength(10);
+        JsonObject stringObj = new JsonObject();
+        stringObj.addProperty("value", "SURENdHar.S");
+
+        SchemaValidationException schemaValidationExceptionOfMaxString = assertThrows(SchemaValidationException.class,
+                () -> StringValidator.validate(null, schema, stringObj.get("value")));
+        assertEquals("Expected a maximum of " + schema.getMaxLength() + " characters",
+                schemaValidationExceptionOfMaxString.getMessage());
+    }
+	
+    @Test
+    void StringValidatorTestForMaxLengthIfString() {
+
+        Schema schema = new Schema();
+        schema.setMaxLength(9);
+        JsonObject stringObj = new JsonObject();
+        stringObj.addProperty("value", "SURENdHar");
+
+        assertEquals(stringObj.get("value"),
+                 StringValidator.validate(null, schema, stringObj.get("value")));
+    }
+    
 	@Test
 	public void StringValidatorTestForValidationIfTimePatternMatched() {
 		
@@ -114,7 +166,7 @@ public class StringValidatorTest {
         schema.setFormat(StringFormat.EMAIL);
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("value", "testemaifai%6&8lworkings@gmagil.com");
+        jsonObject.addProperty("value", "testemai_fai%6&8lworkings@gmagil.com");
 
         assertEquals(jsonObject.get("value").toString(),
                 StringValidator.validate(null, schema, jsonObject.get("value")).toString());
