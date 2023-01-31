@@ -14,6 +14,9 @@ export class StringValidator {
     private static readonly DATETIME: RegExp =
         /^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$/;
 
+    private static readonly EMAIL: RegExp =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
     public static validate(parents: Schema[], schema: Schema, element: any): any {
         if (isNullValue(element))
             throw new SchemaValidationException(
@@ -51,6 +54,14 @@ export class StringValidator {
                 StringValidator.DATETIME,
                 'date time pattern',
             );
+        } else if (schema.getFormat() == StringFormat.EMAIL) {
+            StringValidator.patternMatcher(
+                parents,
+                schema,
+                element,
+                StringValidator.EMAIL,
+                'email pattern',
+            );
         } else if (schema.getPattern()) {
             StringValidator.patternMatcher(
                 parents,
@@ -67,7 +78,7 @@ export class StringValidator {
                 SchemaValidator.path(parents),
                 'Expected a minimum of ' + schema.getMinLength() + ' characters',
             );
-        } else if (schema.getMaxLength() && length > schema.getMinLength()!) {
+        } else if (schema.getMaxLength() && length > schema.getMaxLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expected a maximum of ' + schema.getMaxLength() + ' characters',
