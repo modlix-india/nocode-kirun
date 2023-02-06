@@ -8,7 +8,7 @@ import { Tuple2 } from '../Tuples';
 
 export class PrimitiveUtil {
     public static findPrimitiveNullAsBoolean(element: any): Tuple2<SchemaType, any> {
-        if (!element) return new Tuple2(SchemaType.BOOLEAN, false);
+        if (isNullValue(element)) return new Tuple2(SchemaType.BOOLEAN, false);
 
         let typof: string = typeof element;
         if (typof === 'object')
