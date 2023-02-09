@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -188,5 +189,26 @@ class SchemaValidatorTest {
 		assertThrows(SchemaValidationException.class, () -> SchemaValidator.validate(null, schema, null, element));
 
 	}
+	
+	@Test
+	void schemaValidatorForObjectWhenTypeMissing() {
+	    
+	    JsonObject defaultValue = new JsonObject();
+        defaultValue.addProperty("value", 123);
+	    
+	    Schema schema = Schema.ofObject("testSchema").setProperties(Map.of("intType" ,new Schema()));
+	    
+	    assertEquals(defaultValue, SchemaValidator.validate(null, schema, null, defaultValue));
+	}
 
+	@Test
+	void schemaValidatorForStringWhenTypeMissing() {
+	    
+	       JsonObject defaultValue = new JsonObject();
+	        defaultValue.addProperty("value", "surendhar.s");
+	        
+	        Schema schema = Schema.ofObject("testSchema").setProperties(Map.of("stringType" ,new Schema()));
+	        
+	        assertEquals(defaultValue, SchemaValidator.validate(null, schema, null, defaultValue));
+	}
 }

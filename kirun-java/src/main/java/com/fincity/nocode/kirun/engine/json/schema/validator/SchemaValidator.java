@@ -38,6 +38,11 @@ public class SchemaValidator {
 			return enumCheck(parents, schema, element);
 		}
 
+        if (schema.getFormat() != null && schema.getType() == null) {
+            throw new SchemaValidationException(path(parents),
+                    "Type is missing in schema for declared " + schema.getFormat().toString() + " format.");
+        }
+		
 		if (schema.getType() != null) {
 			typeValidation(parents, schema, repository, element);
 		}
@@ -115,7 +120,7 @@ public class SchemaValidator {
 		if (!valid) {
 			throw new SchemaValidationException(path(parents), "Value " + element + " is not of valid type(s)", list);
 		}
-	}
+	}	
 
 	public static String path(List<Schema> parents) {
 

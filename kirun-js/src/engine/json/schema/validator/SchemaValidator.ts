@@ -48,6 +48,14 @@ export class SchemaValidator {
             return SchemaValidator.enumCheck(parents, schema, element);
         }
 
+        if (schema.getFormat() && isNullValue(schema.getType()))
+            throw new SchemaValidationException(
+                this.path(parents),
+                'Type is missing in schema for declared ' +
+                    schema.getFormat()?.toString() +
+                    ' format.',
+            );
+
         if (schema.getType()) {
             SchemaValidator.typeValidation(parents, schema, repository, element);
         }
