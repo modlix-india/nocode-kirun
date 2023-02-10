@@ -57,7 +57,7 @@ public abstract class AbstractFunction implements Function {
 		JsonElement jsonElement = arguments.get(e.getKey());
 
 		if ((jsonElement == null || jsonElement.isJsonNull()) && !param.isVariableArgument()) {
-			return Map.entry(e.getKey(), SchemaValidator.validate(null, param.getSchema(), repository, null));
+			return Map.entry(e.getKey(), SchemaValidator.validate(null, param.getSchema(), repository, jsonElement));
 		}
 
 		if (!param.isVariableArgument())
