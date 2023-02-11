@@ -1,8 +1,20 @@
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { Repository } from '../../../Repository';
+import mapEntry from '../../../util/mapEntry';
 import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';
 import { AbstractStringFunction } from './AbstractStringFunction';
+import { Concatenate } from './Concatenate';
+import { DeleteForGivenLength } from './DeleteForGivenLength';
+import { InsertAtGivenPosition } from './InsertAtGivenPosition';
+import { PostPad } from './PostPad';
+import { PrePad } from './PrePad';
+import { RegionMatches } from './RegionMatches';
+import { ReplaceAtGivenPosition } from './ReplaceAtGivenPosition';
+import { Reverse } from './Reverse';
+import { Split } from './Split';
+import { ToString } from './ToString';
+import { TrimTo } from './TrimTo';
 
 export class StringFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
@@ -49,6 +61,17 @@ export class StringFunctionRepository implements Repository<Function> {
         AbstractStringFunction.ofEntryAsStringIntegerIntegerStringOutput('SubString', (a, b, c) =>
             a.substring(b, c),
         ),
+        mapEntry(new Concatenate()),
+        mapEntry(new DeleteForGivenLength()),
+        mapEntry(new InsertAtGivenPosition()),
+        mapEntry(new PostPad()),
+        mapEntry(new PrePad()),
+        mapEntry(new RegionMatches()),
+        mapEntry(new ReplaceAtGivenPosition()),
+        mapEntry(new Reverse()),
+        mapEntry(new Split()),
+        mapEntry(new ToString()),
+        mapEntry(new TrimTo()),
     );
 
     public find(namespace: string, name: string): Function | undefined {

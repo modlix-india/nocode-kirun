@@ -3,10 +3,11 @@ package com.fincity.nocode.kirun.engine.function.system.math;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.Repository;
+import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
-public class RandomRepository implements Repository<AbstractRandom> {
+public class RandomRepository implements Repository<Function> {
 
 	private static final Map<String, AbstractRandom> RANDOM_REPO = Map.ofEntries(
 			Map.entry("RandomInteger", new AbstractRandom("RandomInteger", SchemaType.INTEGER)),

@@ -38,7 +38,20 @@ test('toString test2', async () => {
     fep.setArguments(MapUtil.of('anytype', array));
 
     expect((await toString.execute(fep)).allResults()[0].getResult().get('result')).toBe(
-        '["I","am","using","eclipse","to","test","the","changes","with","test","Driven","developement"]',
+        `[
+  "I",
+  "am",
+  "using",
+  "eclipse",
+  "to",
+  "test",
+  "the",
+  "changes",
+  "with",
+  "test",
+  "Driven",
+  "developement"
+]`,
     );
 });
 
