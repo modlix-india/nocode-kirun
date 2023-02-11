@@ -8,6 +8,8 @@ import { Hypotenuse } from './Hypotenuse';
 import { Maximum } from './Maximum';
 import { Minimum } from './Minimum';
 import { Random } from './Random';
+import { RandomFloat } from './RandomFloat';
+import { RandomInt } from './RandomInt';
 
 const functionObjectsIndex: any = {
     Absolute: new GenericMathFunction(
@@ -52,6 +54,8 @@ const functionObjectsIndex: any = {
     Maximum: new Maximum(),
     Minimum: new Minimum(),
     Random: new Random(),
+    RandomFloat: new RandomFloat(),
+    RandomInt: new RandomInt(),
 };
 
 export class MathFunctionRepository implements Repository<Function> {

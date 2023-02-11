@@ -16,7 +16,7 @@ export class RandomInt extends AbstractFunction {
 
     public static readonly VALUE = 'value';
 
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Random')
+    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('RandomInt')
         .setParameters(
             MapUtil.of(
                 RandomInt.MIN_VALUE,
