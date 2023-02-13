@@ -29,6 +29,8 @@ import { isNullValue } from '../util/NullCheck';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { ArraySchemaType } from '../json/schema/array/ArraySchemaType';
 import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
+import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
+import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -349,7 +351,20 @@ export class KIRuntime extends AbstractFunction {
                 inContext.getFunctionRepository(),
                 inContext.getSchemaRepository(),
                 `${inContext.getExecutionId()}_${s.getStatementName()}`,
-            ).setArguments(args);
+            )
+                .setArguments(args)
+                .setValuesMap(
+                    new Map(
+                        Array.from(inContext.getValuesMap().values())
+                            .filter(
+                                (e) =>
+                                    e.getPrefix() !== ArgumentsTokenValueExtractor.PREFIX &&
+                                    e.getPrefix() !== OutputMapTokenValueExtractor.PREFIX &&
+                                    e.getPrefix() !== ContextTokenValueExtractor.PREFIX,
+                            )
+                            .map((e) => [e.getPrefix(), e]),
+                    ),
+                );
         } else {
             fep = new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
