@@ -40,7 +40,13 @@ export class ToString extends AbstractFunction {
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let input: any = context.getArguments()?.get(this.PARAMETER_INPUT_ANYTYPE_NAME);
-        let output: string = input + '';
+        let output: string = '';
+
+        if (typeof input === 'object') {
+            output = JSON.stringify(input, undefined, 2);
+        } else {
+            output = '' + input;
+        }
 
         return new FunctionOutput([
             EventResult.outputOf(new Map([[this.EVENT_RESULT_NAME, output]])),

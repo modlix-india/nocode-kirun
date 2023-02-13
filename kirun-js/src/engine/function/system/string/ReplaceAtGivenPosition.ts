@@ -1,11 +1,13 @@
-import { AbstractFunction, Namespaces, Schema } from '../../../..';
+import { Schema } from '../../../json/schema/Schema';
 import { Event } from '../../../model/Event';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
+import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { StringBuilder } from '../../../util/string/StringBuilder';
+
+import { AbstractFunction } from '../../AbstractFunction';
 
 export class ReplaceAtGivenPosition extends AbstractFunction {
     protected static readonly PARAMETER_STRING_NAME: string = 'string';
@@ -47,6 +49,10 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
             ],
         ]),
     );
+
+    public constructor() {
+        super();
+    }
 
     private signature: FunctionSignature = new FunctionSignature('ReplaceAtGivenPosition')
         .setNamespace(Namespaces.STRING)

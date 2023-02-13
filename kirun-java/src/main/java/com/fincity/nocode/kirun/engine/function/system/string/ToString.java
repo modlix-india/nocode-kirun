@@ -12,7 +12,8 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -23,15 +24,16 @@ public class ToString extends AbstractFunction {
 	protected static final String EVENT_RESULT_NAME = "result";
 
 	protected static final Parameter PARAMETER_INPUT_ANYTYPE = new Parameter()
-			.setParameterName(PARAMETER_INPUT_ANYTYPE_NAME).setSchema(Schema.ofAny(PARAMETER_INPUT_ANYTYPE_NAME));
+	        .setParameterName(PARAMETER_INPUT_ANYTYPE_NAME)
+	        .setSchema(Schema.ofAny(PARAMETER_INPUT_ANYTYPE_NAME));
 
 	protected static final Event EVENT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
+	        .setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
 
 	private final FunctionSignature signature = new FunctionSignature().setName("ToString")
-			.setNamespace(Namespaces.STRING)
-			.setParameters(Map.of(PARAMETER_INPUT_ANYTYPE.getParameterName(), PARAMETER_INPUT_ANYTYPE))
-			.setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
+	        .setNamespace(Namespaces.STRING)
+	        .setParameters(Map.of(PARAMETER_INPUT_ANYTYPE.getParameterName(), PARAMETER_INPUT_ANYTYPE))
+	        .setEvents(Map.of(EVENT_STRING.getName(), EVENT_STRING));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -41,10 +43,15 @@ public class ToString extends AbstractFunction {
 	@Override
 	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
 
-		JsonElement input = context.getArguments().get(PARAMETER_INPUT_ANYTYPE_NAME);
+		JsonElement input = context.getArguments()
+		        .get(PARAMETER_INPUT_ANYTYPE_NAME);
 
-		return new FunctionOutput(List.of(EventResult
-				.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(input.getAsJsonPrimitive().getAsString())))));
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		Gson gson = gb.create();
+
+		return new FunctionOutput(
+		        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(gson.toJson(input))))));
 
 	}
 

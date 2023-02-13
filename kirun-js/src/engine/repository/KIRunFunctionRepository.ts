@@ -1,4 +1,5 @@
 import { Function } from '../function/Function';
+import { ArrayFunctionRepository } from '../function/system/array/ArrayFunctionRepository';
 import { Create } from '../function/system/context/Create';
 import { Get } from '../function/system/context/Get';
 import { SetFunction } from '../function/system/context/SetFunction';
@@ -7,20 +8,18 @@ import { If } from '../function/system/If';
 import { CountLoop } from '../function/system/loop/CountLoop';
 import { RangeLoop } from '../function/system/loop/RangeLoop';
 import { MathFunctionRepository } from '../function/system/math/MathFunctionRepository';
+import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
-
-function entry(fun: Function): [string, Function] {
-    return [fun.getSignature().getName(), fun];
-}
+import mapEntry from '../util/mapEntry';
 
 const map: Map<string, Map<string, Function>> = new Map([
     [
         Namespaces.SYSTEM_CTX,
-        new Map([entry(new Create()), entry(new Get()), entry(new SetFunction())]),
+        new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
     ],
-    [Namespaces.SYSTEM_LOOP, new Map([entry(new RangeLoop()), entry(new CountLoop())])],
-    [Namespaces.SYSTEM, new Map([entry(new If()), entry(new GenerateEvent())])],
+    [Namespaces.SYSTEM_LOOP, new Map([mapEntry(new RangeLoop()), mapEntry(new CountLoop())])],
+    [Namespaces.SYSTEM, new Map([mapEntry(new If()), mapEntry(new GenerateEvent())])],
 ]);
 
 export class KIRunFunctionRepository extends HybridRepository<Function> {
@@ -32,6 +31,8 @@ export class KIRunFunctionRepository extends HybridRepository<Function> {
                 },
             },
             new MathFunctionRepository(),
+            new StringFunctionRepository(),
+            new ArrayFunctionRepository(),
         );
     }
 }
