@@ -37,9 +37,12 @@ import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
+import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.graph.ExecutionGraph;
 import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertex;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ContextTokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -326,7 +329,18 @@ public class KIRuntime extends AbstractFunction {
 
 		if (fun instanceof KIRuntime) {
 			fep = new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository(),
-			        inContext.getExecutionId() + "_" + s.getStatementName()).setArguments(arguments);
+			        inContext.getExecutionId() + "_" + s.getStatementName()).setArguments(arguments)
+			        .setValuesMap(inContext.getValuesMap()
+			                .values()
+			                .stream()
+			                .filter(e -> !e.getPrefix()
+			                        .equals(ArgumentsTokenValueExtractor.PREFIX) &&
+			                        !e.getPrefix()
+			                        .equals(OutputMapTokenValueExtractor.PREFIX) &&
+			                        !e.getPrefix()
+			                        .equals(ContextTokenValueExtractor.PREFIX))
+			                .collect(Collectors.toMap(TokenValueExtractor::getPrefix,
+			                        java.util.function.Function.identity())));
 		} else {
 			fep = new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository(),
 			        inContext.getExecutionId()).setValuesMap(inContext.getValuesMap())
