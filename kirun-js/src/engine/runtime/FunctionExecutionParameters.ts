@@ -50,10 +50,9 @@ export class FunctionExecutionParameters {
     }
     public setArguments(args: Map<string, any>): FunctionExecutionParameters {
         this.args = args;
-        let x: TokenValueExtractor = new ArgumentsTokenValueExtractor(args);
-        this.valueExtractors.set(x.getPrefix(), x);
         return this;
     }
+
     public getEvents(): Map<string, Map<string, any>[]> | undefined {
         return this.events;
     }
