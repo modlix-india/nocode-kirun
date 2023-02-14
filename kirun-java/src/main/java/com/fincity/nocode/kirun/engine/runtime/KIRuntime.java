@@ -37,13 +37,16 @@ import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.ParameterReferenceType;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
+import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.graph.ExecutionGraph;
 import com.fincity.nocode.kirun.engine.runtime.graph.GraphVertex;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ContextTokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
@@ -113,6 +116,9 @@ public class KIRuntime extends AbstractFunction {
 		if (inContext.getSteps() == null)
 			inContext.setSteps(new ConcurrentHashMap<>());
 
+		inContext.addTokenValueExtractor(new ArgumentsTokenValueExtractor(
+		        inContext.getArguments() == null ? Map.of() : inContext.getArguments()));
+
 		if (this.debugMode) {
 
 			this.sb.append("Executing: ")
@@ -121,7 +127,8 @@ public class KIRuntime extends AbstractFunction {
 			        .append(this.fd.getName())
 			        .append("\n")
 			        .append("Parameters: ")
-			        .append(inContext).append("\n");
+			        .append(inContext)
+			        .append("\n");
 
 		}
 
@@ -129,14 +136,16 @@ public class KIRuntime extends AbstractFunction {
 
 		if (this.debugMode) {
 			this.sb.append(eGraph.getT2()
-			        .toString()).append("\n");
+			        .toString())
+			        .append("\n");
 
 			if (!eGraph.getT1()
 			        .isEmpty()) {
 				this.sb.append("Unresolved Dependencies: ");
 				this.sb.append(eGraph.getT1()
 				        .stream()
-				        .map(e -> StringFormatter.format("Steps.$.$", e.getT1(), e.getT2()))).append("\n");
+				        .map(e -> StringFormatter.format("Steps.$.$", e.getT1(), e.getT2())))
+				        .append("\n");
 			}
 		}
 
@@ -265,7 +274,8 @@ public class KIRuntime extends AbstractFunction {
 					        .append("\n")
 					        .append(inContext.getSteps()
 					                .get(s.getStatementName())
-					                .get(nextOutput.getName())).append("\n");
+					                .get(nextOutput.getName()))
+					        .append("\n");
 
 				}
 			}
@@ -309,19 +319,40 @@ public class KIRuntime extends AbstractFunction {
 			        .append(s.getName())
 			        .append("\n");
 			this.sb.append("Arguments : \n")
-			        .append(arguments).append("\n");
+			        .append(arguments)
+			        .append("\n");
 		}
 
 		Map<String, ContextElement> context = inContext.getContext();
 
-		FunctionOutput result = fun.execute(new FunctionExecutionParameters(inContext.getFunctionRepository(),
-		        inContext.getSchemaRepository(), inContext.getExecutionId()).setValuesMap(inContext.getValuesMap())
-		        .setContext(context)
-		        .setArguments(arguments)
-		        .setEvents(inContext.getEvents())
-		        .setSteps(inContext.getSteps())
-		        .setStatementExecution(vertex.getData())
-		        .setCount(inContext.getCount()));
+		FunctionExecutionParameters fep;
+
+		if (fun instanceof KIRuntime) {
+			fep = new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository(),
+			        inContext.getExecutionId() + "_" + s.getStatementName()).setArguments(arguments)
+			        .setValuesMap(inContext.getValuesMap()
+			                .values()
+			                .stream()
+			                .filter(e -> !e.getPrefix()
+			                        .equals(ArgumentsTokenValueExtractor.PREFIX) &&
+			                        !e.getPrefix()
+			                        .equals(OutputMapTokenValueExtractor.PREFIX) &&
+			                        !e.getPrefix()
+			                        .equals(ContextTokenValueExtractor.PREFIX))
+			                .collect(Collectors.toMap(TokenValueExtractor::getPrefix,
+			                        java.util.function.Function.identity())));
+		} else {
+			fep = new FunctionExecutionParameters(inContext.getFunctionRepository(), inContext.getSchemaRepository(),
+			        inContext.getExecutionId()).setValuesMap(inContext.getValuesMap())
+			        .setContext(context)
+			        .setArguments(arguments)
+			        .setEvents(inContext.getEvents())
+			        .setSteps(inContext.getSteps())
+			        .setStatementExecution(vertex.getData())
+			        .setCount(inContext.getCount());
+		}
+
+		FunctionOutput result = fun.execute(fep);
 
 		EventResult er = result.next();
 
@@ -351,7 +382,8 @@ public class KIRuntime extends AbstractFunction {
 			        .append("\n")
 			        .append(inContext.getSteps()
 			                .get(s.getStatementName())
-			                .get(er.getName())).append("\n");
+			                .get(er.getName()))
+			        .append("\n");
 		}
 
 		if (!isOutput) {

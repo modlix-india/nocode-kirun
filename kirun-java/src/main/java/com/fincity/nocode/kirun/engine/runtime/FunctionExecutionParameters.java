@@ -9,7 +9,6 @@ import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
-import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ContextTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenValueExtractor;
 import com.google.gson.JsonElement;
@@ -38,7 +37,8 @@ public class FunctionExecutionParameters {
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 
 	public FunctionExecutionParameters(Repository<Function> functionRepository, Repository<Schema> schemaRepository) {
-		this(functionRepository, schemaRepository, UUID.randomUUID().toString());
+		this(functionRepository, schemaRepository, UUID.randomUUID()
+		        .toString());
 	}
 
 	public FunctionExecutionParameters setContext(Map<String, ContextElement> context) {
@@ -62,9 +62,6 @@ public class FunctionExecutionParameters {
 	public FunctionExecutionParameters setArguments(Map<String, JsonElement> arguments) {
 
 		this.arguments = arguments;
-		var x = new ArgumentsTokenValueExtractor(arguments);
-		valueExtractors.put(x.getPrefix(), x);
-
 		return this;
 	}
 
@@ -82,5 +79,11 @@ public class FunctionExecutionParameters {
 	public FunctionExecutionParameters setValuesMap(Map<String, TokenValueExtractor> valuesMap) {
 		this.valueExtractors.putAll(valuesMap);
 		return this;
+	}
+
+	public Map<String, JsonElement> getArguments() {
+		if (this.arguments == null)
+			return Map.of();
+		return this.arguments;
 	}
 }

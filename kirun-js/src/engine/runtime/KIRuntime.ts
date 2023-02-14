@@ -28,6 +28,9 @@ import { StatementMessageType } from './StatementMessageType';
 import { isNullValue } from '../util/NullCheck';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { ArraySchemaType } from '../json/schema/array/ArraySchemaType';
+import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
+import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
+import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -89,9 +92,17 @@ export class KIRuntime extends AbstractFunction {
 
         if (!inContext.getSteps()) inContext.setSteps(new Map());
 
+        if (inContext.getArguments()) {
+            inContext.addTokenValueExtractor(
+                new ArgumentsTokenValueExtractor(inContext.getArguments()!),
+            );
+        }
+
         if (this.debugMode) {
-            console.log(`Executing: ${this.fd.getNamespace()}.${this.fd.getName()}`);
-            console.log('Parameters: ', inContext);
+            console.log(
+                `EID: ${inContext.getExecutionId()} Executing: ${this.fd.getNamespace()}.${this.fd.getName()}`,
+            );
+            console.log(`EID: ${inContext.getExecutionId()} Parameters: `, inContext);
         }
 
         let eGraph: Tuple2<
@@ -100,14 +111,15 @@ export class KIRuntime extends AbstractFunction {
         > = await this.getExecutionPlan(inContext);
 
         if (this.debugMode) {
-            console.log(eGraph.getT2()?.toString());
+            console.log(`EID: ${inContext.getExecutionId()} ${eGraph.getT2()?.toString()}`);
         }
 
         let unresolvedList: Tuple2<string, string>[] = eGraph.getT1();
 
         if (this.debugMode && unresolvedList.length) {
-            console.log('Unresolved Dependencies: ');
+            console.log(`EID: ${inContext.getExecutionId()} Unresolved Dependencies: `);
             console.log(
+                `EID: ${inContext.getExecutionId()} `,
                 unresolvedList.map((e) =>
                     StringFormatter.format('Steps.$.$', e.getT1(), e.getT2()),
                 ),
@@ -274,10 +286,10 @@ export class KIRuntime extends AbstractFunction {
                 if (this.debugMode) {
                     const s = vertex.getData().getStatement();
                     console.log(
-                        `Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
+                        `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
                     );
                     console.log(
-                        `Event : ${nextOutput.getName()} : `,
+                        `EID: ${inContext.getExecutionId()} Event : ${nextOutput.getName()} : `,
                         inContext.getSteps()!.get(s.getStatementName())!.get(nextOutput.getName()),
                     );
                 }
@@ -325,14 +337,36 @@ export class KIRuntime extends AbstractFunction {
         );
 
         if (this.debugMode) {
-            console.log(`Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`);
-            console.log('Arguments : ', args);
+            console.log(
+                `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
+            );
+            console.log(`EID: ${inContext.getExecutionId()} Arguments : `, args);
         }
 
         let context: Map<string, ContextElement> = inContext.getContext()!;
+        let fep: FunctionExecutionParameters;
 
-        let result: FunctionOutput = await fun.execute(
-            new FunctionExecutionParameters(
+        if (fun instanceof KIRuntime) {
+            fep = new FunctionExecutionParameters(
+                inContext.getFunctionRepository(),
+                inContext.getSchemaRepository(),
+                `${inContext.getExecutionId()}_${s.getStatementName()}`,
+            )
+                .setArguments(args)
+                .setValuesMap(
+                    new Map(
+                        Array.from(inContext.getValuesMap().values())
+                            .filter(
+                                (e) =>
+                                    e.getPrefix() !== ArgumentsTokenValueExtractor.PREFIX &&
+                                    e.getPrefix() !== OutputMapTokenValueExtractor.PREFIX &&
+                                    e.getPrefix() !== ContextTokenValueExtractor.PREFIX,
+                            )
+                            .map((e) => [e.getPrefix(), e]),
+                    ),
+                );
+        } else {
+            fep = new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
                 inContext.getSchemaRepository(),
                 inContext.getExecutionId(),
@@ -343,8 +377,10 @@ export class KIRuntime extends AbstractFunction {
                 .setEvents(inContext.getEvents()!)
                 .setSteps(inContext.getSteps()!)
                 .setStatementExecution(vertex.getData())
-                .setCount(inContext.getCount()),
-        );
+                .setCount(inContext.getCount());
+        }
+
+        let result: FunctionOutput = await fun.execute(fep);
 
         let er: EventResult | undefined = result.next();
 
@@ -365,9 +401,11 @@ export class KIRuntime extends AbstractFunction {
             .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
 
         if (this.debugMode) {
-            console.log(`Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`);
             console.log(
-                `Event : ${er.getName()} : `,
+                `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
+            );
+            console.log(
+                `EID: ${inContext.getExecutionId()} Event : ${er.getName()} : `,
                 inContext.getSteps()!.get(s.getStatementName())!.get(er.getName()),
             );
         }
