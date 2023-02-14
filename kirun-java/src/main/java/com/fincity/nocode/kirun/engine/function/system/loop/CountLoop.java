@@ -27,12 +27,9 @@ public class CountLoop extends AbstractFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("CountLoop")
 	        .setNamespace(SYSTEM_LOOP)
-	        .setParameters(Map.ofEntries(Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER)
-	                .setDefaultValue(new JsonPrimitive(1)))))
+	        .setParameters(Map.ofEntries(Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER))))
 	        .setEvents(Map.ofEntries(
-	                Event.eventMapEntry(Event.ITERATION,
-	                        Map.of(INDEX,
-	                                Schema.of(INDEX, SchemaType.INTEGER))),
+	                Event.eventMapEntry(Event.ITERATION, Map.of(INDEX, Schema.of(INDEX, SchemaType.INTEGER))),
 	                Event.outputEventMapEntry(Map.of(VALUE, Schema.of(VALUE, SchemaType.INTEGER)))));
 
 	@Override
@@ -56,7 +53,7 @@ public class CountLoop extends AbstractFunction {
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer t) {
-		return Flux.generate(() -> 1, (state, sink) -> {
+		return Flux.generate(() -> 0, (state, sink) -> {
 			int v = state;
 
 			if (v >= t)
