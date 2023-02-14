@@ -15,11 +15,7 @@ const INDEX = 'index';
 
 const SIGNATURE = new FunctionSignature('CountLoop')
     .setNamespace(Namespaces.SYSTEM_LOOP)
-    .setParameters(
-        new Map([
-            Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER).setDefaultValue(1)),
-        ]),
-    )
+    .setParameters(new Map([Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER))]))
     .setEvents(
         new Map([
             Event.eventMapEntry(
@@ -42,7 +38,7 @@ export class CountLoop extends AbstractFunction {
         return new FunctionOutput({
             next(): EventResult {
                 if (current >= count) {
-                    return EventResult.outputOf(new Map([[VALUE, current]]));
+                    return EventResult.outputOf(new Map([[VALUE, count]]));
                 }
 
                 const eve = EventResult.of(Event.ITERATION, new Map([[INDEX, current]]));
