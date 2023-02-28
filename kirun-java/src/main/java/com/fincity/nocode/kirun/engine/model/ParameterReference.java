@@ -40,6 +40,7 @@ public class ParameterReference implements Serializable {
 	private ParameterReferenceType type;
 	private JsonElement value; // NOSONAR - JSON element is not serialised for some reason.
 	private String expression;
+	private int order = 0;
 
 	public ParameterReference(ParameterReference param) {
 
@@ -47,6 +48,7 @@ public class ParameterReference implements Serializable {
 		this.type = param.type;
 		this.value = param.value == null ? null : param.value.deepCopy();
 		this.expression = param.expression;
+		this.order = param.order;
 	}
 
 	public ParameterReference() {
