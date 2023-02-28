@@ -8,6 +8,7 @@ import { If } from '../function/system/If';
 import { CountLoop } from '../function/system/loop/CountLoop';
 import { RangeLoop } from '../function/system/loop/RangeLoop';
 import { MathFunctionRepository } from '../function/system/math/MathFunctionRepository';
+import { Print } from '../function/system/Print';
 import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
@@ -19,7 +20,10 @@ const map: Map<string, Map<string, Function>> = new Map([
         new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
     ],
     [Namespaces.SYSTEM_LOOP, new Map([mapEntry(new RangeLoop()), mapEntry(new CountLoop())])],
-    [Namespaces.SYSTEM, new Map([mapEntry(new If()), mapEntry(new GenerateEvent())])],
+    [
+        Namespaces.SYSTEM,
+        new Map([mapEntry(new If()), mapEntry(new GenerateEvent()), mapEntry(new Print())]),
+    ],
 ]);
 
 export class KIRunFunctionRepository extends HybridRepository<Function> {

@@ -188,7 +188,9 @@ export class KIRuntime extends AbstractFunction {
         }
 
         if (!eGraph.isSubGraph() && !inContext.getEvents()?.size) {
-            throw new KIRuntimeException('No events raised');
+            const eventMap = this.getSignature().getEvents();
+            if (eventMap.size && eventMap.get(Event.OUTPUT)?.getParameters()?.size)
+                throw new KIRuntimeException('No events raised');
         }
 
         return new FunctionOutput(
@@ -520,6 +522,7 @@ export class KIRuntime extends AbstractFunction {
 
                 if (pDef.isVariableArgument()) {
                     ret = prList
+                        .sort((a, b) => (a.getOrder() ?? 0) - (b.getOrder() ?? 0))
                         .map((r) => this.parameterReferenceEvaluation(inContext, r))
                         .flatMap((r) => (Array.isArray(r) ? r : [r]));
                 } else {
@@ -590,6 +593,7 @@ export class KIRuntime extends AbstractFunction {
             }
 
             if (p.isVariableArgument()) {
+                refList.sort((a, b) => (a.getOrder() ?? 0) - (b.getOrder() ?? 0));
                 for (let ref of refList) this.parameterReferenceValidation(se, p, ref, sRepo);
             } else if (refList.length) {
                 let ref: ParameterReference = refList[0];

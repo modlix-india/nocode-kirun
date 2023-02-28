@@ -18,6 +18,7 @@ export class ParameterReference {
                 ['value', Schema.ofAny('value')],
                 ['expression', Schema.ofString('expression')],
                 ['type', Schema.ofString('type').setEnums(['EXPRESSION', 'VALUE'])],
+                ['order', Schema.ofInteger('order')],
             ]),
         );
 
@@ -25,6 +26,7 @@ export class ParameterReference {
     private type: ParameterReferenceType;
     private value: any;
     private expression?: string;
+    private order?: number;
 
     constructor(type: ParameterReferenceType | ParameterReference) {
         if (type instanceof ParameterReference) {
@@ -33,6 +35,7 @@ export class ParameterReference {
             this.type = pv.type;
             this.value = isNullValue(pv.value) ? undefined : JSON.parse(JSON.stringify(pv.value));
             this.expression = pv.expression;
+            this.order = pv.order;
         } else {
             this.type = type as ParameterReferenceType;
             this.key = UUID();
@@ -70,6 +73,14 @@ export class ParameterReference {
         return this;
     }
 
+    public setOrder(order: number): ParameterReference {
+        this.order = order;
+        return this;
+    }
+    public getOrder(): number | undefined {
+        return this.order;
+    }
+
     public static ofExpression(value: any): [string, ParameterReference] {
         const param = new ParameterReference(ParameterReferenceType.EXPRESSION).setExpression(
             value,
@@ -86,6 +97,7 @@ export class ParameterReference {
         return new ParameterReference(e.type)
             .setValue(e.value)
             .setExpression(e.expression)
-            .setKey(e.key);
+            .setKey(e.key)
+            .setOrder(e.order);
     }
 }
