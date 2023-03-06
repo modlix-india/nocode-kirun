@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
@@ -194,24 +195,33 @@ class SchemaAnyofValidatorTest {
         Schema filterOperator = Schema.ofString("filterOperator").setNamespace("test")
                 .setEnums(List.of(new JsonPrimitive("EQUALS"),
                         new JsonPrimitive("LESS_THAN"), new JsonPrimitive("GREATER_THAN"),
-                        new JsonPrimitive("LESS_THAN_EQUAL")));
+                        new JsonPrimitive("LESS_THAN_EQUAL")))
+                .setDefaultValue(new JsonPrimitive("EQUALS"));
 
         Schema FilterCondition = Schema.ofObject("FilterCondition").setNamespace("test").setProperties(Map.of("negate",
-                Schema.ofBoolean("negate"), "filterConditionOperator", Schema.ofRef("test.filterOperator"), "field",
+                Schema.ofBoolean("negate").setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
+                Schema.ofRef("test.filterOperator"), "field",
                 Schema.ofString("field"),
                 "value", Schema.ofAny("value"), "toValue", Schema.ofAny("toValue"), "isValue",
-                Schema.ofBoolean("isValue"), "isToValue", Schema.ofBoolean("isToValue")));
+                Schema.ofBoolean("isValue").setDefaultValue(new JsonPrimitive(false)), "isToValue",
+                Schema.ofBoolean("isToValue").setDefaultValue(new JsonPrimitive(false))))
+                .setRequired(List.of("operator", "field"))
+                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
 
         Schema complexOperator = Schema.ofString("complexOperator").setNamespace("test")
                 .setEnums(List.of(new JsonPrimitive("AND"), new JsonPrimitive("OR")));
 
         Schema arraySchema = Schema.ofArray("conditions",
-                Schema.ofObject("arrayS").setAnyOf(List.of(Schema.ofRef("#"), Schema.ofRef("test.FilterCondition"))));
+                new Schema().setAnyOf(
+                        List.of(Schema.ofRef("#"), Schema.ofRef("test.FilterCondition"))));
 
         Schema ComplexCondition = Schema.ofObject("ComplexCondition")
                 .setNamespace("test")
                 .setProperties(Map.of("conditions", arraySchema, "negate",
-                        Schema.ofBoolean("negate"), "complexConditionOperator", Schema.ofRef("test.complexOperator")));
+                        Schema.ofBoolean("negate").setDefaultValue(new JsonPrimitive(Boolean.FALSE)),
+                        "operator", Schema.ofRef("test.complexOperator")))
+                .setRequired(List.of("conditions", "operator"))
+                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
 
         var schemaMap = new HashMap<String, Schema>();
 
@@ -236,28 +246,28 @@ class SchemaAnyofValidatorTest {
         var tempOb = new JsonObject();
         tempOb.addProperty("field", "a.b.c.d");
         tempOb.addProperty("value", "surendhar");
-        tempOb.addProperty("filterConditionOperator", "LESS_THAN");
+        tempOb.addProperty("operator", "LESS_THAN");
         tempOb.addProperty("negate", true);
         tempOb.addProperty("isValue", false);
 
         var tempOb1 = new JsonObject();
         tempOb1.addProperty("field", "a.b.c.d");
         tempOb1.addProperty("value", "surendhar");
-        tempOb1.addProperty("filterConditionOperator", "GREATER_THAN");
+        tempOb1.addProperty("operator", "GREATER_THAN");
         tempOb1.addProperty("negate", true);
-        tempOb1.addProperty("isValue", false);
+        tempOb1.addProperty("isValue", true);
 
         JsonObject mjob = new JsonObject();
         JsonObject bjob = new JsonObject();
         JsonArray ja = new JsonArray();
         bjob.add("conditions", ja);
         bjob.addProperty("negate", true);
-        bjob.addProperty("complexConditionOperator", "OR");
+        bjob.addProperty("operator", "OR");
         bjob.get("conditions").getAsJsonArray().add(tempOb);
         bjob.get("conditions").getAsJsonArray().add(tempOb1);
         mjob.add("conditions", new JsonArray());
         mjob.addProperty("negate", false);
-        mjob.addProperty("complexConditionOperator", "ANDD");
+        mjob.addProperty("operator", "AND");
         bjob.get("conditions").getAsJsonArray().add(mjob);
 
         System.out.println(bjob);
