@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, HybridRepository } from '../../../../../src';
+import { AdditionalPropertiesType, ArraySchemaType, HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -20,6 +20,12 @@ test('filter condition with ref schema', () => {
                 ['field', Schema.ofString('field')],
                 ['value', Schema.ofAny('value')],
                 ['toValue', Schema.ofAny('toValue')],
+                [
+                    'multiValue',
+                    Schema.ofArray('multiValue').setItems(
+                        new ArraySchemaType().setSingleSchema(Schema.ofAny('singleType')),
+                    ),
+                ],
                 ['isValue', Schema.ofBoolean('isValue')],
                 ['isToValue', Schema.ofBoolean('isToValue')],
             ]),
@@ -113,7 +119,7 @@ test('complex condition with ref schema', () => {
 test('filter complex condition with ref schema', () => {
     let filterOperator: Schema = Schema.ofString('filterOperator')
         .setNamespace('Test')
-        .setEnums(['EQUALS', 'LESS_THAN', 'GREATER_THAN', 'LESS_THAN_EQUAL'])
+        .setEnums(['EQUALS', 'LESS_THAN', 'GREATER_THAN', 'LESS_THAN_EQUAL', 'IN'])
         .setDefaultValue('EQUALS');
 
     let filterCondition: Schema = Schema.ofObject('filterCondition')
@@ -125,6 +131,12 @@ test('filter complex condition with ref schema', () => {
                 ['field', Schema.ofString('field')],
                 ['value', Schema.ofAny('value')],
                 ['toValue', Schema.ofAny('toValue')],
+                [
+                    'multiValue',
+                    Schema.ofArray('multiValue').setItems(
+                        new ArraySchemaType().setSingleSchema(Schema.ofAny('singleType')),
+                    ),
+                ],
                 ['isValue', Schema.ofBoolean('isValue').setDefaultValue(false)],
                 ['isToValue', Schema.ofBoolean('isToValue').setDefaultValue(false)],
             ]),
@@ -184,10 +196,17 @@ test('filter complex condition with ref schema', () => {
         isValue: true,
     };
 
+    var tempOb2 = {
+        field: 'k.lm.mno',
+        operator: 'IN',
+        multiValue: [1, 2, 3, 4, 5, 5, 6, 7],
+        negate: true,
+    };
     var ja: any[] = [];
 
     ja.push(tempOb);
     ja.push(tempOb1);
+    ja.push(tempOb2);
 
     var mjob = {
         conditions: [],

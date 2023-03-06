@@ -195,14 +195,19 @@ class SchemaAnyofValidatorTest {
         Schema filterOperator = Schema.ofString("filterOperator").setNamespace("test")
                 .setEnums(List.of(new JsonPrimitive("EQUALS"),
                         new JsonPrimitive("LESS_THAN"), new JsonPrimitive("GREATER_THAN"),
-                        new JsonPrimitive("LESS_THAN_EQUAL")))
+                        new JsonPrimitive("LESS_THAN_EQUAL"), new JsonPrimitive("BETWEEN"), new JsonPrimitive("IN")))
                 .setDefaultValue(new JsonPrimitive("EQUALS"));
 
         Schema FilterCondition = Schema.ofObject("FilterCondition").setNamespace("test").setProperties(Map.of("negate",
                 Schema.ofBoolean("negate").setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
                 Schema.ofRef("test.filterOperator"), "field",
                 Schema.ofString("field"),
-                "value", Schema.ofAny("value"), "toValue", Schema.ofAny("toValue"), "isValue",
+                "value", Schema.ofAny("value"), "toValue", Schema.ofAny("toValue"),
+
+                "multiValue",
+                Schema.ofArray("multiValue")
+                        .setItems(new ArraySchemaType().setSingleSchema(Schema.ofAny("singleType"))),
+                "isValue",
                 Schema.ofBoolean("isValue").setDefaultValue(new JsonPrimitive(false)), "isToValue",
                 Schema.ofBoolean("isToValue").setDefaultValue(new JsonPrimitive(false))))
                 .setRequired(List.of("operator", "field"))
@@ -257,6 +262,16 @@ class SchemaAnyofValidatorTest {
         tempOb1.addProperty("negate", true);
         tempOb1.addProperty("isValue", true);
 
+        var jsonArrayI = new JsonArray();
+        jsonArrayI.add("a");
+        jsonArrayI.add("b");
+        jsonArrayI.add("c");
+
+        var tempOb2 = new JsonObject();
+        tempOb2.addProperty("field", "a.b.c.d");
+        tempOb2.add("multiValue", jsonArrayI);
+        tempOb2.addProperty("operator", "IN");
+
         JsonObject mjob = new JsonObject();
         JsonObject bjob = new JsonObject();
         JsonArray ja = new JsonArray();
@@ -265,6 +280,7 @@ class SchemaAnyofValidatorTest {
         bjob.addProperty("operator", "OR");
         bjob.get("conditions").getAsJsonArray().add(tempOb);
         bjob.get("conditions").getAsJsonArray().add(tempOb1);
+        bjob.get("conditions").getAsJsonArray().add(tempOb2);
         mjob.add("conditions", new JsonArray());
         mjob.addProperty("negate", false);
         mjob.addProperty("operator", "AND");
