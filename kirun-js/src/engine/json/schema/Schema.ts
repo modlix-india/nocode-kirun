@@ -179,6 +179,8 @@ export class Schema {
                 ],
 
                 ['contains', Schema.ofRef(SCHEMA_ROOT_PATH)],
+                ['minContains', Schema.ofInteger('minContains')],
+                ['maxContains', Schema.ofInteger('maxContains')],
                 ['minItems', Schema.ofInteger('minItems')],
                 ['maxItems', Schema.ofInteger('maxItems')],
                 ['uniqueItems', Schema.ofBoolean('uniqueItems')],
@@ -364,6 +366,8 @@ export class Schema {
         // Array
         schema.items = ArraySchemaType.from(obj.items);
         schema.contains = Schema.from(obj.contains);
+        schema.minContains = obj.minContains;
+        schema.maxContains = obj.maxContains;
         schema.minItems = obj.minItems;
         schema.maxItems = obj.maxItems;
         schema.uniqueItems = obj.uniqueItems;
@@ -419,6 +423,8 @@ export class Schema {
     // Array
     private items?: ArraySchemaType;
     private contains?: Schema;
+    private minContains?: number;
+    private maxContains?: number;
     private minItems?: number;
     private maxItems?: number;
     private uniqueItems?: boolean;
@@ -494,7 +500,8 @@ export class Schema {
 
         this.items = schema.items ? new ArraySchemaType(schema.items) : undefined;
         this.contains = schema.contains ? new Schema(this.contains) : undefined;
-
+        this.minContains = schema.minContains;
+        this.maxContains = schema.maxContains;
         this.minItems = schema.minItems;
         this.maxItems = schema.maxItems;
         this.uniqueItems = schema.uniqueItems;
@@ -757,6 +764,25 @@ export class Schema {
         this.contains = contains;
         return this;
     }
+
+    public getMinContains(): number | undefined {
+        return this.minContains;
+    }
+
+    public setMinContains(minContains: number): Schema {
+        this.minContains = minContains;
+        return this;
+    }
+
+    public getMaxContains(): number | undefined {
+        return this.maxContains;
+    }
+
+    public setMaxContains(maxContains: number): Schema {
+        this.maxContains = maxContains;
+        return this;
+    }
+
     public getMinItems(): number | undefined {
         return this.minItems;
     }

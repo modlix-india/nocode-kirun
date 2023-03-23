@@ -102,7 +102,10 @@ public class Schema implements Serializable {
 	                        .setAnyOf(List.of(Schema.ofRef(SCHEMA_ROOT_PATH)
 	                                .setName("item"), Schema.ofArray("tuple", Schema.ofRef(SCHEMA_ROOT_PATH))))),
 
-	                entry("contains", Schema.ofRef(SCHEMA_ROOT_PATH)), entry("minItems", ofInteger("minItems")),
+	                entry("contains", Schema.ofRef(SCHEMA_ROOT_PATH)),
+	                entry("minContains", Schema.ofInteger("minContains")),
+	                entry("maxContains", Schema.ofInteger("maxContains")),
+	                entry("minItems", ofInteger("minItems")),
 	                entry("maxItems", ofInteger("maxItems")), entry("uniqueItems", ofBoolean("uniqueItems")),
 
 	                entry("$defs", Schema.of("$defs", SchemaType.OBJECT)
@@ -226,6 +229,8 @@ public class Schema implements Serializable {
 	// Array
 	private ArraySchemaType items;
 	private Schema contains;
+	private Integer minContains;
+	private Integer maxContains;
 	private Integer minItems;
 	private Integer maxItems;
 	private Boolean uniqueItems;
@@ -332,7 +337,8 @@ public class Schema implements Serializable {
 
 		this.items = schema.items == null ? null : new ArraySchemaType(schema.items);
 		this.contains = schema.contains == null ? null : new Schema(this.contains);
-
+		this.minContains = schema.minContains;
+		this.maxContains = schema.maxContains;
 		this.minItems = schema.minItems;
 		this.maxItems = schema.maxItems;
 		this.uniqueItems = schema.uniqueItems;

@@ -34,35 +34,41 @@ public class ArrayValidator {
 		
 		checkUniqueItems(parents, schema, array);
 
-		checkContains(parents, schema, repository, array);
+        if (schema.getContains() != null) {
+            checkContains(parents, schema, repository, array);
+
+            if (schema.getMinContains() != null)
+                checkMinContains(parents, schema, repository, array);
+
+            if (schema.getMaxContains() != null)
+                checkMaxContains(parents, schema, repository, array);
+        }
 		
 		return element;
 	}
 
-	public static void checkContains(List<Schema> parents, Schema schema, Repository<Schema> repository,
-	        JsonArray array) {
+    public static void checkContains(List<Schema> parents, Schema schema, Repository<Schema> repository,
+            JsonArray array) {
 
-		if (schema.getContains() == null)
-			return;
+        boolean flag = false;
+        for (int i = 0; i < array.size(); i++) {
+            List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+            try {
+                SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
+                flag = true;
+                break;
+            } catch (Exception ex) {
 
-		boolean flag = false;
-		for (int i = 0; i < array.size(); i++) {
-			List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-			try {
-				SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
-				flag = true;
-				break;
-			} catch (Exception ex) {
-				flag = false;
-			}
-		}
+            }
 
-		if (!flag) {
-			throw new SchemaValidationException(path(parents),
-			        "None of the items are of type contains schema");
-		}
+        }
 
-	}
+        if (!flag) {
+            throw new SchemaValidationException(path(parents),
+                    "None of the items are of type contains schema");
+        }
+
+    }
 
 	public static void checkUniqueItems(List<Schema> parents, Schema schema, JsonArray array) {
 		if (schema.getUniqueItems() != null && schema.getUniqueItems()
@@ -93,6 +99,48 @@ public class ArrayValidator {
 		}
 	}
 
+    public static void checkMinContains(List<Schema> parents, Schema schema, Repository<Schema> repository,
+            JsonArray array) {
+
+        int containsCount = 0;
+
+        for (int i = 0; i < array.size(); i++) {
+            List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+            try {
+                SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
+                containsCount++;
+            } catch (Exception ex) {
+
+            }
+        }
+        if (schema.getMinContains() > containsCount)
+            throw new SchemaValidationException(path(parents),
+                    "The minimum number of the items defined are " + schema.getMinContains()
+                            + " of type contains schema are not present");
+
+    }
+
+    public static void checkMaxContains(List<Schema> parents, Schema schema, Repository<Schema> repository,
+            JsonArray array) {
+
+        int containsCount = 0;
+
+        for (int i = 0; i < array.size(); i++) {
+            List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+            try {
+                SchemaValidator.validate(newParents, schema.getContains(), repository, array.get(i));
+                containsCount++;
+            } catch (Exception ex) {
+
+            }
+        }
+        if (schema.getMaxContains() < containsCount)
+            throw new SchemaValidationException(path(parents),
+                    "The maximum number of the items defined are " + schema.getMaxContains()
+                            + " of type contains schema are not present");
+
+    }
+    
 	public static void checkItems(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonArray array) {
 		ArraySchemaType type = schema.getItems();
