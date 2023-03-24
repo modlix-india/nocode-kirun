@@ -17,11 +17,11 @@ const VERSION_STRING: string = 'version';
 const NAMESPACE_STRING: string = 'namespace';
 const TEMPORARY: string = '_';
 
-export class AdditionalPropertiesType {
+export class AdditionalType {
     private booleanValue?: boolean;
     private schemaValue?: Schema;
 
-    constructor(apt: AdditionalPropertiesType | undefined = undefined) {
+    constructor(apt: AdditionalType | undefined = undefined) {
         if (!apt) return;
         this.booleanValue = apt.booleanValue;
         if (!apt.schemaValue) return;
@@ -36,21 +36,27 @@ export class AdditionalPropertiesType {
         return this.schemaValue;
     }
 
-    public setBooleanValue(booleanValue: boolean): AdditionalPropertiesType {
+    public setBooleanValue(booleanValue: boolean): AdditionalType {
         this.booleanValue = booleanValue;
         return this;
     }
 
-    public setSchemaValue(schemaValue: Schema): AdditionalPropertiesType {
+    public setSchemaValue(schemaValue: Schema): AdditionalType {
         this.schemaValue = schemaValue;
         return this;
     }
 
-    public static from(obj: any): AdditionalPropertiesType | undefined {
-        if (!obj) return undefined;
-        const ad = new AdditionalPropertiesType();
-        ad.booleanValue = obj.booleanValue;
-        ad.schemaValue = obj.schemaValue;
+    public static from(obj: any): AdditionalType | undefined {
+        if (isNullValue(obj)) return undefined;
+        const ad = new AdditionalType();
+        if (typeof obj === 'boolean') ad.booleanValue = obj;
+        else {
+            let keys = Object.keys(obj);
+            if (keys.indexOf('booleanValue') != -1) ad.booleanValue = obj.booleanValue;
+            else if (keys.indexOf('schemaValue') != -1)
+                ad.schemaValue = Schema.from(obj.schemaValue);
+            else ad.schemaValue = Schema.from(obj);
+        }
         return ad;
     }
 }
@@ -133,9 +139,7 @@ export class Schema {
                 [
                     'properties',
                     Schema.of('properties', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
                 [
@@ -162,9 +166,7 @@ export class Schema {
                 [
                     'patternProperties',
                     Schema.of('patternProperties', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
 
@@ -188,9 +190,7 @@ export class Schema {
                 [
                     '$defs',
                     Schema.of('$defs', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
 
@@ -356,7 +356,7 @@ export class Schema {
 
         // Object
         schema.properties = Schema.fromMapOfSchemas(obj.properties);
-        schema.additionalProperties = AdditionalPropertiesType.from(obj.additionalProperties);
+        schema.additionalProperties = AdditionalType.from(obj.additionalProperties);
         schema.required = obj.required;
         schema.propertyNames = Schema.from(obj.propertyNames, true);
         schema.minProperties = obj.minProperties;
@@ -365,6 +365,7 @@ export class Schema {
 
         // Array
         schema.items = ArraySchemaType.from(obj.items);
+        schema.additionalItems = AdditionalType.from(obj.additionalItems);
         schema.contains = Schema.from(obj.contains);
         schema.minContains = obj.minContains;
         schema.maxContains = obj.maxContains;
@@ -413,7 +414,7 @@ export class Schema {
 
     // Object
     private properties?: Map<string, Schema>;
-    private additionalProperties?: AdditionalPropertiesType;
+    private additionalProperties?: AdditionalType;
     private required?: string[];
     private propertyNames?: Schema;
     private minProperties?: number;
@@ -422,6 +423,7 @@ export class Schema {
 
     // Array
     private items?: ArraySchemaType;
+    private additionalItems?: AdditionalType;
     private contains?: Schema;
     private minContains?: number;
     private maxContains?: number;
@@ -480,7 +482,7 @@ export class Schema {
             : undefined;
 
         this.additionalProperties = schema.additionalProperties
-            ? new AdditionalPropertiesType(schema.additionalProperties)
+            ? new AdditionalType(schema.additionalProperties)
             : undefined;
 
         this.required = schema.required ? [...schema.required] : undefined;
@@ -707,13 +709,22 @@ export class Schema {
         this.properties = properties;
         return this;
     }
-    public getAdditionalProperties(): AdditionalPropertiesType | undefined {
+    public getAdditionalProperties(): AdditionalType | undefined {
         return this.additionalProperties;
     }
-    public setAdditionalProperties(additionalProperties: AdditionalPropertiesType): Schema {
+    public setAdditionalProperties(additionalProperties: AdditionalType): Schema {
         this.additionalProperties = additionalProperties;
         return this;
     }
+
+    public getAdditionalItems(): AdditionalType | undefined {
+        return this.additionalItems;
+    }
+    public setAdditionalItems(additionalItems: AdditionalType): Schema {
+        this.additionalItems = additionalItems;
+        return this;
+    }
+
     public getRequired(): string[] | undefined {
         return this.required;
     }

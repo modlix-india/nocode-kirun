@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
+import { AdditionalType, Schema } from '../json/schema/Schema';
 import { Namespaces } from '../namespaces/Namespaces';
 import { Event } from './Event';
 import { FunctionSignature } from './FunctionSignature';
@@ -18,13 +18,13 @@ const IN_SCHEMA = new Schema()
             [
                 'events',
                 Schema.ofObject('events').setAdditionalProperties(
-                    new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA),
+                    new AdditionalType().setSchemaValue(Event.SCHEMA),
                 ),
             ],
             [
                 'steps',
                 Schema.ofObject('steps').setAdditionalProperties(
-                    new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA),
+                    new AdditionalType().setSchemaValue(Statement.SCHEMA),
                 ),
             ],
         ]),

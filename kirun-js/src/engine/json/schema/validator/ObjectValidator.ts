@@ -1,6 +1,6 @@
 import { Repository } from '../../../Repository';
 import { isNullValue } from '../../../util/NullCheck';
-import { AdditionalPropertiesType, Schema } from '../Schema';
+import { AdditionalType, Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
 
@@ -90,7 +90,7 @@ export class ObjectValidator {
         jsonObject: any,
         keys: Set<string>,
     ) {
-        let apt: AdditionalPropertiesType = schema.getAdditionalProperties()!;
+        let apt: AdditionalType = schema.getAdditionalProperties()!;
         if (apt.getSchemaValue()) {
             for (let key of Array.from(keys.values())) {
                 let newParents: Schema[] = !parents ? [] : [...parents];

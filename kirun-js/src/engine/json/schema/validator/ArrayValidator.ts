@@ -32,42 +32,71 @@ export class ArrayValidator {
 
         ArrayValidator.checkUniqueItems(parents, schema, array);
 
-        if (!isNullValue(schema.getContains())) {
-            ArrayValidator.checkContains(parents, schema, repository, array);
-
-            if (!isNullValue(schema.getMinContains()))
-                ArrayValidator.checkMinContains(parents, schema, repository, array);
-
-            if (!isNullValue(schema.getMaxContains()))
-                ArrayValidator.checkMaxContains(parents, schema, repository, array);
-        }
+        ArrayValidator.checkContains(schema, parents, repository, array);
 
         return element;
     }
 
-    public static checkContains(
-        parents: Schema[],
+    private static checkContains(
         schema: Schema,
+        parents: Schema[],
         repository: Repository<Schema> | undefined,
         array: any[],
     ) {
-        let flag: boolean = false;
-        for (let i = 0; i < array.length; i++) {
-            let newParents: Schema[] = !parents ? [] : [...parents];
+        if (isNullValue(schema.getContains())) return;
 
-            try {
-                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
-                flag = true;
-                break;
-            } catch (err) {}
-        }
+        let count = ArrayValidator.countContains(
+            parents,
+            schema,
+            repository,
+            array,
+            !isNullValue(schema.getMinContains()) || !isNullValue(schema.getMaxContains()),
+        );
 
-        if (!flag) {
+        if (count === 0) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'None of the items are of type contains schema',
             );
         }
+
+        if (!isNullValue(schema.getMinContains()) && schema.getMinContains()! > count)
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                'The minimum number of the items of type contains schema should be ' +
+                    schema.getMinContains() +
+                    ' but found ' +
+                    count,
+            );
+
+        if (!isNullValue(schema.getMaxContains()) && schema.getMaxContains()! < count)
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                'The maximum number of the items of type contains schema should be ' +
+                    schema.getMaxContains() +
+                    ' bout found ' +
+                    count,
+            );
+    }
+
+    public static countContains(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        stopOnFirst?: boolean,
+    ): number {
+        let count = 0;
+        for (let i = 0; i < array.length; i++) {
+            let newParents: Schema[] = !parents ? [] : [...parents];
+
+            try {
+                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
+                count++;
+                if (stopOnFirst) break;
+            } catch (err) {}
+        }
+        return count;
     }
 
     public static checkUniqueItems(parents: Schema[], schema: Schema, array: any[]): void {
@@ -80,56 +109,6 @@ export class ArrayValidator {
                     'Items on the array are not unique',
                 );
         }
-    }
-
-    public static checkMinContains(
-        parents: Schema[],
-        schema: Schema,
-        repository: Repository<Schema> | undefined,
-        array: any[],
-    ): void {
-        let containsCount: number = 0;
-
-        for (let i = 0; i < array.length; i++) {
-            let newParents: Schema[] = !parents == null ? [] : [...parents];
-
-            try {
-                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
-                containsCount++;
-            } catch (err) {}
-        }
-        if (schema.getMinContains()! > containsCount)
-            throw new SchemaValidationException(
-                SchemaValidator.path(parents),
-                'The minimum number of the items defined are ' +
-                    schema.getMinContains() +
-                    ' of type contains schema are not present',
-            );
-    }
-
-    public static checkMaxContains(
-        parents: Schema[],
-        schema: Schema,
-        repository: Repository<Schema> | undefined,
-        array: any[],
-    ): void {
-        let containsCount: number = 0;
-
-        for (let i = 0; i < array.length; i++) {
-            let newParents: Schema[] = !parents == null ? [] : [...parents];
-
-            try {
-                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
-                containsCount++;
-            } catch (err) {}
-        }
-        if (schema.getMaxContains()! < containsCount)
-            throw new SchemaValidationException(
-                SchemaValidator.path(parents),
-                'The maximum number of the items defined are ' +
-                    schema.getMaxContains() +
-                    ' of type contains schema are not present',
-            );
     }
 
     public static checkMinMaxItems(parents: Schema[], schema: Schema, array: any[]): void {

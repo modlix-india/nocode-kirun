@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
+import { AdditionalType, Schema } from '../json/schema/Schema';
 import { Namespaces } from '../namespaces/Namespaces';
 import { Event } from './Event';
 import { Parameter } from './Parameter';
@@ -15,13 +15,13 @@ export class FunctionSignature {
                 [
                     'parameters',
                     Schema.ofObject('parameters').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Parameter.SCHEMA),
+                        new AdditionalType().setSchemaValue(Parameter.SCHEMA),
                     ),
                 ],
                 [
                     'events',
                     Schema.ofObject('events').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA),
+                        new AdditionalType().setSchemaValue(Event.SCHEMA),
                     ),
                 ],
             ]),
