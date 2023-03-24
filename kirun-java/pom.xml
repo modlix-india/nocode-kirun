@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.fincity.nocode</groupId>
 	<artifactId>kirun-java</artifactId>
-	<version>1.5.0</version>
+	<version>1.5.1</version>
 	<name>kirun-java</name>
 	<description>Interpreter to execute the visual code on the Java layer</description>
 	<properties>
