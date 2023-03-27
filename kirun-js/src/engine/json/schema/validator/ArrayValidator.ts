@@ -50,7 +50,7 @@ export class ArrayValidator {
             schema,
             repository,
             array,
-            !isNullValue(schema.getMinContains()) || !isNullValue(schema.getMaxContains()),
+            isNullValue(schema.getMinContains()) && isNullValue(schema.getMaxContains()),
         );
 
         if (count === 0) {
@@ -74,7 +74,7 @@ export class ArrayValidator {
                 SchemaValidator.path(parents),
                 'The maximum number of the items of type contains schema should be ' +
                     schema.getMaxContains() +
-                    ' bout found ' +
+                    ' but found ' +
                     count,
             );
     }

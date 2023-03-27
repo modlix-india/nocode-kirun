@@ -31,7 +31,7 @@ test('schema array contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
 test('schema array error contains test  ', () => {
@@ -85,7 +85,7 @@ test('schema array min contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
 test('schema array max contains test  ', () => {
@@ -114,7 +114,7 @@ test('schema array max contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
 test('schema array min contains test  ', () => {
@@ -144,9 +144,9 @@ test('schema array min contains test  ', () => {
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
     expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
-        'The minimum number of the items defined are ' +
+        'The minimum number of the items of type contains schema should be ' +
             schema.getMinContains() +
-            ' of type contains schema are not present',
+            ' but found 2',
     );
 });
 
@@ -177,9 +177,9 @@ test('schema array max contains test  ', () => {
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
     expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
-        'The maximum number of the items defined are ' +
+        'The maximum number of the items of type contains schema should be ' +
             schema.getMaxContains() +
-            ' of type contains schema are not present',
+            ' but found 2',
     );
 });
 
@@ -210,9 +210,9 @@ test('schema array min error contains test  ', () => {
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
     expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
-        'The minimum number of the items defined are ' +
+        'The minimum number of the items of type contains schema should be ' +
             schema.getMinContains() +
-            ' of type contains schema are not present',
+            ' but found 2',
     );
 });
 
@@ -274,9 +274,9 @@ test('schema array min max contains test  ', () => {
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
     expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
-        'The maximum number of the items defined are ' +
+        'The maximum number of the items of type contains schema should be ' +
             schema.getMaxContains() +
-            ' of type contains schema are not present',
+            ' but found 2',
     );
 });
 

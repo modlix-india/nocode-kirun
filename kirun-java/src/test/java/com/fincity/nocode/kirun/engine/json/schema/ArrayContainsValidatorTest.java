@@ -230,8 +230,8 @@ class ArrayContainsValidatorTest {
         SchemaValidationException result = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, element));
 
-        assertEquals("The minimum number of the items defined are " + schema.getMinContains()
-                + " of type contains schema are not present", result.getMessage());
+        assertEquals("The minimum number of the items of type contains schema should be " + schema.getMinContains()
+                + " but found 3", result.getMessage());
     }
 
     @Test
@@ -274,8 +274,8 @@ class ArrayContainsValidatorTest {
         SchemaValidationException result = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, element));
 
-        assertEquals("The maximum number of the items defined are " + schema.getMaxContains()
-                + " of type contains schema are not present", result.getMessage());
+        assertEquals("The maximum number of the items of type contains schema should be " + schema.getMaxContains()
+                + " but found 3", result.getMessage());
     }
 
     @Test
@@ -319,8 +319,8 @@ class ArrayContainsValidatorTest {
         SchemaValidationException result = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, element));
 
-        assertEquals("The minimum number of the items defined are " + schema.getMinContains()
-                + " of type contains schema are not present", result.getMessage());
+        assertEquals("The minimum number of the items of type contains schema should be " + schema.getMinContains()
+                + " but found 3", result.getMessage());
     }
 
     @Test
@@ -336,11 +336,8 @@ class ArrayContainsValidatorTest {
         JsonArray element = new JsonArray();
         element.add("texas");
         element.add("kentucky");
-        element.add(job1);
         element.add(true);
-        element.add(job2);
         element.add("Mcgill");
-        element.add(job3);
 
         Schema schema = new Schema();
         schema.setType(Type.of(SchemaType.ARRAY));
@@ -351,11 +348,8 @@ class ArrayContainsValidatorTest {
         List<Schema> tupleSchema = new ArrayList<>();
         tupleSchema.add(Schema.ofString("item1"));
         tupleSchema.add(Schema.ofString("item2"));
-        tupleSchema.add(Schema.ofObject("item3"));
         tupleSchema.add(Schema.ofBoolean("item4"));
-        tupleSchema.add(Schema.ofObject("item5"));
         tupleSchema.add(Schema.ofString("item6"));
-        tupleSchema.add(Schema.ofObject("item7"));
 
         ArraySchemaType ast = new ArraySchemaType();
         ast.setTupleSchema(tupleSchema);
@@ -364,8 +358,7 @@ class ArrayContainsValidatorTest {
         SchemaValidationException result = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, element));
 
-        assertEquals("The maximum number of the items defined are " + schema.getMaxContains()
-                + " of type contains schema are not present", result.getMessage());
+        assertEquals("None of the items are of type contains schema", result.getMessage());
     }
 
     @Test
@@ -451,8 +444,8 @@ class ArrayContainsValidatorTest {
         SchemaValidationException result = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, element));
 
-        assertEquals("The maximum number of the items defined are " + schema.getMaxContains()
-                + " of type contains schema are not present", result.getMessage());
+        assertEquals("The maximum number of the items of type contains schema should be " + schema.getMaxContains()
+                + " but found 3", result.getMessage());
     }
 
     @Test
