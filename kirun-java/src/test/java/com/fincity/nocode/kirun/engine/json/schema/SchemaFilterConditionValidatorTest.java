@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
@@ -43,7 +43,7 @@ class SchemaFilterConditionValidatorTest {
                 Schema.ofBoolean("isValue").setDefaultValue(new JsonPrimitive(false)), "isToValue",
                 Schema.ofBoolean("isToValue").setDefaultValue(new JsonPrimitive(false))))
                 .setRequired(List.of("operator", "field"))
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         var schemaMap = new HashMap<String, Schema>();
 

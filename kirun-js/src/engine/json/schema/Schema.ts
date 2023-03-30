@@ -9,6 +9,7 @@ import { SingleType } from './type/SingleType';
 import { MultipleType } from './type/MultipleType';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
+const ADDITIONAL_ITEMS: string = 'additionalItems';
 const ENUMS: string = 'enums';
 const ITEMS_STRING: string = 'items';
 const SCHEMA_ROOT_PATH: string = '#/';
@@ -186,7 +187,17 @@ export class Schema {
                 ['minItems', Schema.ofInteger('minItems')],
                 ['maxItems', Schema.ofInteger('maxItems')],
                 ['uniqueItems', Schema.ofBoolean('uniqueItems')],
-
+                [
+                    'additionalItems',
+                    new Schema()
+                        .setName(ADDITIONAL_ITEMS)
+                        .setNamespace(Namespaces.SYSTEM)
+                        .setAnyOf([
+                            Schema.ofBoolean(ADDITIONAL_ITEMS),
+                            Schema.ofObject(ADDITIONAL_ITEMS).setRef(SCHEMA_ROOT_PATH),
+                        ])
+                        .setDefaultValue(true),
+                ],
                 [
                     '$defs',
                     Schema.of('$defs', SchemaType.OBJECT).setAdditionalProperties(

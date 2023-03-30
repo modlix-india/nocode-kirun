@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 import lombok.Data;
@@ -26,9 +26,9 @@ public class FunctionSignature implements Serializable {
 	        .setName(SCHEMA_NAME)
 	        .setProperties(Map.of("name", Schema.ofString("name"), "namespace", Schema.ofString("namespace"),
 	                "parameters", Schema.ofObject("parameters")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Parameter.SCHEMA)),
+	                        .setAdditionalProperties(new AdditionalType().setSchemaValue(Parameter.SCHEMA)),
 	                "events", Schema.ofObject("events")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA))));
+	                        .setAdditionalProperties(new AdditionalType().setSchemaValue(Event.SCHEMA))));
 
 	private String namespace;
 	private String name;

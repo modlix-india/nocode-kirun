@@ -10,6 +10,7 @@ import java.util.Set;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -130,18 +131,55 @@ public class ArrayValidator {
 
         if (type.getTupleSchema() != null) {
             if (type.getTupleSchema()
-                    .size() != array.size()) {
+                    .size() != array.size()
+                    && (schema.getAdditionalItems() == null)) {
                 throw new SchemaValidationException(path(parents),
                         "Expected an array with only " + type.getTupleSchema()
                                 .size() + " but found " + array.size());
             }
 
-            for (int i = 0; i < array.size(); i++) {
-                List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-                JsonElement element = SchemaValidator.validate(newParents, type.getTupleSchema()
-                        .get(i), repository, array.get(i));
-                array.set(i, element);
+            checkItemInTupleSchema(parents, repository, array, type);
+
+            checkAdditionalItems(parents, schema, repository, array, type);
+        }
+    }
+
+    private static void checkItemInTupleSchema(List<Schema> parents, Repository<Schema> repository, JsonArray array,
+            ArraySchemaType type) {
+        for (int i = 0; i < type.getTupleSchema().size(); i++) {
+            List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+            JsonElement element = SchemaValidator.validate(newParents, type.getTupleSchema()
+                    .get(i), repository, array.get(i));
+            array.set(i, element);
+        }
+    }
+
+    private static void checkAdditionalItems(List<Schema> parents, Schema schema, Repository<Schema> repository,
+            JsonArray array, ArraySchemaType type) {
+        AdditionalType schemaAdditionalType = schema.getAdditionalItems();
+        if (schemaAdditionalType != null) {
+            Schema anySchemaType = Schema.ofAny("anySchemaType");
+            if (schemaAdditionalType.getBooleanValue() != null) {
+                if (Boolean.FALSE.equals(schemaAdditionalType.getBooleanValue())
+                        && array.size() > type.getTupleSchema().size())
+                    throw new SchemaValidationException(path(parents), "No Additional Items are defined");
+                
+                checkEachItemInAdditionalItems(parents, repository, array, type, anySchemaType);
+
+            } else if (schemaAdditionalType.getSchemaValue() != null) {
+                Schema additionalSchemaType = schemaAdditionalType.getSchemaValue();
+                checkEachItemInAdditionalItems(parents, repository, array, type, additionalSchemaType);
             }
+        }
+    }
+
+    private static void checkEachItemInAdditionalItems(List<Schema> parents, Repository<Schema> repository,
+            JsonArray array, ArraySchemaType type, Schema schemaType) {
+        for (int i = type.getTupleSchema().size(); i < array.size(); i++) {
+            List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+            JsonElement element = SchemaValidator.validate(newParents, schemaType, repository,
+                    array.get(i));
+            array.set(i, element);
         }
     }
 

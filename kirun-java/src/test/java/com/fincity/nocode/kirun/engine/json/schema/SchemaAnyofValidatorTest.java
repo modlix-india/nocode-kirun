@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonArray;
@@ -208,7 +208,7 @@ class SchemaAnyofValidatorTest {
                 Schema.ofBoolean("isValue").setDefaultValue(new JsonPrimitive(false)), "isToValue",
                 Schema.ofBoolean("isToValue").setDefaultValue(new JsonPrimitive(false))))
                 .setRequired(List.of("operator", "field"))
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         Schema complexOperator = Schema.ofString("complexOperator").setNamespace("test")
                 .setEnums(List.of(new JsonPrimitive("AND"), new JsonPrimitive("OR")));
@@ -223,7 +223,7 @@ class SchemaAnyofValidatorTest {
                         Schema.ofBoolean("negate").setDefaultValue(new JsonPrimitive(Boolean.FALSE)),
                         "operator", Schema.ofRef("test.complexOperator")))
                 .setRequired(List.of("conditions", "operator"))
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         var schemaMap = new HashMap<String, Schema>();
 
@@ -283,7 +283,6 @@ class SchemaAnyofValidatorTest {
         mjob.addProperty("operator", "AND");
         bjob.get("conditions").getAsJsonArray().add(mjob);
 
-        System.out.println(bjob);
         var res = SchemaValidator.validate(null, ComplexCondition, repo, bjob);
 
         assertEquals(bjob, res);
@@ -312,7 +311,7 @@ class SchemaAnyofValidatorTest {
                 Schema.ofBoolean("isValue").setDefaultValue(new JsonPrimitive(false)), "isToValue",
                 Schema.ofBoolean("isToValue").setDefaultValue(new JsonPrimitive(false))))
                 .setRequired(List.of("operator", "field"))
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         Schema complexOperator = Schema.ofString("complexOperator").setNamespace("test")
                 .setEnums(List.of(new JsonPrimitive("AND"), new JsonPrimitive("OR")));
@@ -327,7 +326,7 @@ class SchemaAnyofValidatorTest {
                         Schema.ofBoolean("negate").setDefaultValue(new JsonPrimitive(Boolean.FALSE)),
                         "operator", Schema.ofRef("test.complexOperator")))
                 .setRequired(List.of("conditions", "operator"))
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         Schema conditions = Schema.ofObject("conditions").setNamespace("test")
                 .setProperties(Map.of("completeConditions", Schema.ofArray("completeConditions",
@@ -394,7 +393,6 @@ class SchemaAnyofValidatorTest {
         mjob.addProperty("operator", "AND");
         bjob.get("conditions").getAsJsonArray().add(mjob);
 
-        System.out.println(bjob);
         var res = SchemaValidator.validate(null, conditions, repo, bjob);
 
         assertEquals(bjob, res);

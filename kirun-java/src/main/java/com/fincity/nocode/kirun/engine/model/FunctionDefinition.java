@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 import lombok.Data;
@@ -27,12 +27,12 @@ public class FunctionDefinition extends FunctionSignature {
 	        .setName(SCHEMA_NAME)
 	        .setProperties(Map.of("name", Schema.ofString("name"), "namespace", Schema.ofString("namespace"),
 	                "parameters", Schema.ofArray("parameters", Parameter.SCHEMA), "events", Schema.ofObject("events")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Event.SCHEMA)),
+	                        .setAdditionalProperties(new AdditionalType().setSchemaValue(Event.SCHEMA)),
 	                "parts", Schema.ofObject("parts")
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(FunctionSignature.SCHEMA)),
+	                                new AdditionalType().setSchemaValue(FunctionSignature.SCHEMA)),
 	                "steps", Schema.ofObject("steps")
-	                        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Statement.SCHEMA))));
+	                        .setAdditionalProperties(new AdditionalType().setSchemaValue(Statement.SCHEMA))));
 
 	private int version = 1;
 	private Map<String, Statement> steps;

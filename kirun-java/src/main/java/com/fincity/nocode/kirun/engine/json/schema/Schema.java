@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringSchema;
 import com.fincity.nocode.kirun.engine.json.schema.type.MultipleType;
@@ -32,6 +32,7 @@ import lombok.experimental.Accessors;
 public class Schema implements Serializable {
 
 	private static final String ADDITIONAL_PROPERTY = "additionalProperty";
+	private static final String ADDITIONAL_ITEM = "additionalItem";
 	private static final String ENUMS = "enums";
 	private static final String ITEMS_STRING = "items";
 	private static final String SCHEMA_ROOT_PATH = "#/";
@@ -83,7 +84,7 @@ public class Schema implements Serializable {
 
 	                entry("properties", Schema.of("properties", SchemaType.OBJECT)
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
+	                                new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 	                entry("additionalProperties", new Schema().setName(ADDITIONAL_PROPERTY)
 	                        .setNamespace(Namespaces.SYSTEM)
 	                        .setAnyOf(List.of(ofBoolean(ADDITIONAL_PROPERTY), Schema.ofObject(ADDITIONAL_PROPERTY)
@@ -95,7 +96,7 @@ public class Schema implements Serializable {
 	                entry("minProperties", ofInteger("minProperties")),
 	                entry("maxProperties", ofInteger("maxProperties")), entry("patternProperties",
 	                        Schema.of("patternProperties", SchemaType.OBJECT)
-	                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                .setAdditionalProperties(new AdditionalType()
 	                                        .setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
 	                entry(ITEMS_STRING, new Schema().setName(ITEMS_STRING)
@@ -107,10 +108,13 @@ public class Schema implements Serializable {
 	                entry("maxContains", Schema.ofInteger("maxContains")),
 	                entry("minItems", ofInteger("minItems")),
 	                entry("maxItems", ofInteger("maxItems")), entry("uniqueItems", ofBoolean("uniqueItems")),
-
+                    entry("additionalItems", new Schema().setName(ADDITIONAL_ITEM)
+                            .setNamespace(Namespaces.SYSTEM)
+                            .setAnyOf(List.of(ofBoolean(ADDITIONAL_ITEM),
+                                    Schema.ofObject(ADDITIONAL_ITEM).setRef(SCHEMA_ROOT_PATH)))),
 	                entry("$defs", Schema.of("$defs", SchemaType.OBJECT)
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
+	                                new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
 	                entry("permission", ofString("permission"))))
 	        .setRequired(List.of());
@@ -219,7 +223,7 @@ public class Schema implements Serializable {
 
 	// Object
 	private Map<String, Schema> properties;
-	private AdditionalPropertiesType additionalProperties;
+	private AdditionalType additionalProperties;
 	private List<String> required;
 	private StringSchema propertyNames;
 	private Integer minProperties;
@@ -234,6 +238,7 @@ public class Schema implements Serializable {
 	private Integer minItems;
 	private Integer maxItems;
 	private Boolean uniqueItems;
+	private AdditionalType additionalItems;
 
 	private Map<String, Schema> $defs; // NOSONAR - needed as per json schema
 	private String permission;
@@ -320,7 +325,7 @@ public class Schema implements Serializable {
 		                .collect(Collectors.toMap(Entry::getKey, e -> new Schema(e.getValue())));
 
 		this.additionalProperties = schema.additionalProperties == null ? null
-		        : new AdditionalPropertiesType(schema.additionalProperties);
+		        : new AdditionalType(schema.additionalProperties);
 
 		this.required = schema.required == null ? null
 		        : schema.required.stream()
@@ -341,6 +346,7 @@ public class Schema implements Serializable {
 		this.maxContains = schema.maxContains;
 		this.minItems = schema.minItems;
 		this.maxItems = schema.maxItems;
+        this.additionalItems = schema.additionalItems == null ? null : new AdditionalType(schema.additionalItems);
 		this.uniqueItems = schema.uniqueItems;
 
 		this.$defs = schema.$defs == null ? null

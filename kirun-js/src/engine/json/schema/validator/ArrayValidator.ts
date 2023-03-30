@@ -151,7 +151,10 @@ export class ArrayValidator {
         }
 
         if (type.getTupleSchema()) {
-            if (type.getTupleSchema()!.length !== array.length) {
+            if (
+                type.getTupleSchema()!.length !== array.length &&
+                isNullValue(schema.getAdditionalItems())
+            ) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
                     'Expected an array with only ' +
@@ -161,7 +164,8 @@ export class ArrayValidator {
                 );
             }
 
-            for (let i = 0; i < array.length; i++) {
+            //get tuple length and check against length of the tuple and ignore remaining
+            for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
                 let element: any = SchemaValidator.validate(
                     newParents,
@@ -171,7 +175,73 @@ export class ArrayValidator {
                 );
                 array[i] = element;
             }
+
+            this.checkAdditionalItems(parents, schema, repository, array, type);
         }
+    }
+
+    private static checkAdditionalItems(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+    ) {
+        if (!isNullValue(schema.getAdditionalItems())) {
+            let additionalSchemaType = schema.getAdditionalItems();
+            if (additionalSchemaType?.getBooleanValue()) {
+                //validate the additional items whether schema is valid or not
+                let anySchemaType = Schema.ofAny('item'); // as additional items is true it should validate against any valid schema defined in the system
+                if (
+                    additionalSchemaType?.getBooleanValue() === false &&
+                    array.length > type.getTupleSchema()?.length!
+                )
+                    throw new SchemaValidationException(
+                        SchemaValidator.path(parents),
+                        'No Additional Items are defined',
+                    );
+
+                this.checkEachItemInAdditionalItems(
+                    parents,
+                    schema,
+                    repository,
+                    array,
+                    type,
+                    anySchemaType,
+                );
+            } else if (additionalSchemaType?.getSchemaValue()) {
+                let schemaType = additionalSchemaType.getSchemaValue();
+                this.checkEachItemInAdditionalItems(
+                    parents,
+                    schema,
+                    repository,
+                    array,
+                    type,
+                    schemaType,
+                );
+            }
+        }
+    }
+
+    private static checkEachItemInAdditionalItems(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+        schemaType: Schema | undefined,
+    ) {
+        for (let i = type.getTupleSchema()?.length!; i < array.length; i++) {
+            let newParents: Schema[] = !parents ? [] : [...parents];
+            let element: any = SchemaValidator.validate(
+                newParents,
+                schemaType!,
+                repository,
+                array[i],
+            );
+            array[i] = element;
+        }
+        return;
     }
 
     private constructor() {}

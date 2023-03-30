@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
@@ -36,12 +36,12 @@ public class Statement extends AbstractStatement {
 
 	                        "dependentStatements", Schema.ofObject("dependentstatement")
 	                                .setAdditionalProperties(
-	                                        new AdditionalPropertiesType().setSchemaValue(Schema.ofBoolean("exits"))),
+	                                        new AdditionalType().setSchemaValue(Schema.ofBoolean("exits"))),
 
 	                        "parameterMap", new Schema().setName("parameterMap")
-	                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                .setAdditionalProperties(new AdditionalType()
 	                                        .setSchemaValue(Schema.ofObject("parameterReference")
-	                                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                                .setAdditionalProperties(new AdditionalType()
 	                                                        .setSchemaValue(ParameterReference.SCHEMA)))),
 	                        "position", Position.SCHEMA));
 

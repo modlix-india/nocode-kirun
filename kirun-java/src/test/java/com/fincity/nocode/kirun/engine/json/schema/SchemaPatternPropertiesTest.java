@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.google.gson.JsonObject;
 
@@ -26,7 +26,7 @@ class SchemaPatternPropertiesTest {
         patProps.put("^c([a-z]|[A-Z]|[\\d])*$", Schema.ofString("pat2"));
 
         Schema objSchema = Schema.ofObject("checkingPattern").setProperties(props).setPatternProperties(patProps)
-                .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+                .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
         JsonObject job = new JsonObject();
         job.addProperty("name", "xyz");
