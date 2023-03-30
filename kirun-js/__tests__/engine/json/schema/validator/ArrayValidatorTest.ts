@@ -104,10 +104,14 @@ test('schema array validator test for additional items with boolean true', () =>
 test('schema array validator test for additional items with boolean true different datatype', () => {
     let schema = Schema.from({
         type: 'ARRAY',
-        items: 'INTEGER',
+        items: {
+            singleSchema: {
+                name: 'singleS',
+                type: 'INTEGER',
+            },
+        },
         additionalItems: {
             schemaValue: {
-                name: 'addType',
                 type: 'STRING',
             },
         },

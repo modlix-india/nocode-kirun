@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
+import com.fincity.nocode.kirun.engine.json.schema.type.Type;
+import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.Gson;
@@ -210,30 +212,41 @@ class ObjectValidatorTest {
     @Test
     void schemaObjectOldSchemaTypePassTest() {
 
-        Gson gson = new GsonBuilder().registerTypeAdapter(AdditionalType.class,
-                new AdditionalTypeAdapter()).create();
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class,
+                        addType)
+                .create();
+
+        addType.setGson(gson);
 
         Map<String, Schema> props = new HashMap<>();
         props.put("name", Schema.ofString("name"));
         props.put("phone", Schema.ofLong("phone"));
 
-        Schema addSchema = Schema.ofBoolean("addSchema");
-
-        Schema schema = Schema.ofObject("schema").setProperties(props)
-                .setAdditionalProperties(new AdditionalType().setSchemaValue(addSchema));
+        Schema schema = gson.fromJson("""
+                {"type": "OBJECT",
+                "properties": {"name": { "type": "STRING" }},
+                "additionalProperties": {"type" : "STRING" }
+                }
+                """, Schema.class);
 
         JsonObject job = new JsonObject();
         job.addProperty("name", "surendhar");
         job.addProperty("phone", 13423524);
         job.addProperty("married", false);
 
-        var gsonOut = gson.fromJson(schema.getAdditionalProperties().toString(),
-                AdditionalType.class);
-        System.out.println(gsonOut);
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> SchemaValidator.validate(null, schema, null, job));
 
-        assertEquals(job, SchemaValidator.validate(null, schema, null, job));
+        assertEquals(
+                "null - Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
+                        + "null.null - Value 13423524 is not of valid type(s)\n"
+                        + "null.null - 13423524 is not String",
+                sve.getMessage());
 
     }
 
-  
 }

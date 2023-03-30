@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.type.Type;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -37,14 +37,21 @@ public class AdditionalType implements Serializable {
 
     public static class AdditionalTypeAdapter extends TypeAdapter<AdditionalType> {
 
+        private Gson gson;
+
         @Override
         public void write(JsonWriter out, AdditionalType value) throws IOException {
-            if (value == null)
+            if (value == null) {
+                out.nullValue();
                 return;
+            }
+
             if (value.getBooleanValue() != null) {
                 out.value(value.getBooleanValue());
             } else if (value.getSchemaValue() != null) {
-                out.value(value.getSchemaValue().toString());
+
+                TypeAdapter<Schema> typeAdapter = gson.getAdapter(Schema.class);
+                typeAdapter.write(out, value.schemaValue);
             }
         }
 
@@ -57,20 +64,23 @@ public class AdditionalType implements Serializable {
                 additionalType.booleanValue = in.nextBoolean();
 
             else if (token == JsonToken.BEGIN_OBJECT) {
-                in.beginObject();
-                String content = in.nextString();
-                if (content.indexOf("booleanValue") != -1) {
-                    String[] boolString = content.split(":");
-                    additionalType.booleanValue = Boolean.valueOf(boolString[1].trim());
-                } else if (content.indexOf("schemaValue") != -1) {
-                    String[] schemaString = content.split(":");
-                    additionalType.schemaValue = new Schema()
-                            .setType(Type.of(SchemaType.valueOf(schemaString[1].trim())));
+                JsonObject jsonObj = gson.fromJson(in, JsonObject.class);
+
+                if (jsonObj.has("booleanValue")) {
+                    additionalType.booleanValue = jsonObj.get("booleanValue").getAsBoolean();
+                } else if (jsonObj.has("schemaValue")) {
+                    additionalType.schemaValue = gson.fromJson(jsonObj.get("schemaValue").getAsJsonObject(),
+                            Schema.class);
+                } else {
+                    additionalType.schemaValue = gson.fromJson(jsonObj.getAsJsonObject(), Schema.class);
                 }
-                in.endObject();
             }
 
             return additionalType;
+        }
+
+        public void setGson(Gson gson) {
+            this.gson = gson;
         }
 
     }
