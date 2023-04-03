@@ -195,8 +195,7 @@ export class Schema {
                         .setAnyOf([
                             Schema.ofBoolean(ADDITIONAL_ITEMS),
                             Schema.ofObject(ADDITIONAL_ITEMS).setRef(SCHEMA_ROOT_PATH),
-                        ])
-                        .setDefaultValue(true),
+                        ]),
                 ],
                 [
                     '$defs',
@@ -518,6 +517,9 @@ export class Schema {
         this.minItems = schema.minItems;
         this.maxItems = schema.maxItems;
         this.uniqueItems = schema.uniqueItems;
+        this.additionalItems = schema.additionalItems
+            ? new AdditionalType(schema.additionalItems)
+            : undefined;
 
         this.$defs = schema.$defs
             ? new Map(Array.from(schema.$defs.entries()).map((e) => [e[0], new Schema(e[1])]))

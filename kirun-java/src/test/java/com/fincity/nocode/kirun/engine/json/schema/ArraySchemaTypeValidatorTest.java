@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.Additio
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.validator.ArrayValidator;
+import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,7 +24,7 @@ class ArraySchemaTypeValidatorTest {
 
     private static String ERROR_MSG = "No Additional Items are defined";
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -37,7 +38,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -52,7 +53,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeWithAdditionalFalseNewTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -66,7 +67,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeWithAdditionalTrueNewTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -86,7 +87,7 @@ class ArraySchemaTypeValidatorTest {
                 + "item - \"surendhar\" is not a Integer", sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeWithAdditionalFalseOldTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -101,7 +102,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeWithAdditionalTrueOldTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -122,7 +123,7 @@ class ArraySchemaTypeValidatorTest {
                 + "item - \"surendhar\" is not a Integer", sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalFalseNewTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -138,7 +139,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalFalseOldTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -158,7 +159,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(ERROR_MSG, sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalFalseOldFailTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -178,7 +179,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(ERROR_MSG, sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalTrueNewTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -200,7 +201,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalTrueOldTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -221,7 +222,7 @@ class ArraySchemaTypeValidatorTest {
         assertEquals(arr, ArrayValidator.validate(null, schema, null, arr));
     }
 
-   @Test
+    @Test
     void schemaArrayWithSingleTypeWithAdditionalSchemaNewTest() {
 
         ArraySchemaType ast = new ArraySchemaType().setSingleSchema(Schema.ofInteger("item"));
@@ -244,7 +245,7 @@ class ArraySchemaTypeValidatorTest {
                 + "item - \"additional\" is not a Integer", sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalSchemaStringFailTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -269,7 +270,7 @@ class ArraySchemaTypeValidatorTest {
                 + "stringSchema - true is not String", sve.getMessage());
     }
 
-   @Test
+    @Test
     void schemaArrayWithTupleTypeWithAdditionalSchemaPassTest() {
 
         List<Schema> schemas = List.of(Schema.ofInteger("item1"), Schema.ofString("item2"), Schema.ofBoolean("item3"));
@@ -333,7 +334,7 @@ class ArraySchemaTypeValidatorTest {
     }
 
     @Test
-    void arrayGsonSchemaTypeAdditionalFalseTest() {
+    void arrayGsonSchemaTypeAdditionalSingleFalseTest() {
 
         AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
 
@@ -360,7 +361,38 @@ class ArraySchemaTypeValidatorTest {
     }
 
     @Test
-    void arrayGsonSchemaTypeAdditionalTrueTest() {
+    void arrayGsonSchemaTypeAdditionalSingleFalseFailTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, new AdditionalTypeAdapter())
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"singleSchema" : { "type" :"INTEGER"}},
+                   "additionalItems" : false
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add(1);
+        job.add(2);
+        job.add("name");
+
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> ArrayValidator.validate(null, schema, null, job));
+        assertEquals("null - Value \"name\" is not of valid type(s)\n"
+                + "null - \"name\" is not a Integer", sve.getMessage());
+    }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalSingleTrueTest() {
 
         AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
 
@@ -389,4 +421,183 @@ class ArraySchemaTypeValidatorTest {
         assertEquals("null - Value true is not of valid type(s)\n"
                 + "null - true is not a Integer", sve.getMessage());
     }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalTupleSchemaTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"tupleSchema" : [ { "type" :"INTEGER"} ,{ "type" :"STRING"}, { "type" :"BOOLEAN"} ] },
+                   "additionalItems" : {
+                       "type": "OBJECT"
+                   }
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add("asd");
+        job.add(false);
+        job.add(2.34);
+
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> ArrayValidator.validate(null, schema, null, job));
+        assertEquals("null - Value 2.34 is not of valid type(s)\n"
+                + "null - 2.34 is not an Object", sve.getMessage());
+    }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalTupleFalseTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"tupleSchema" : [ { "type" :"INTEGER"} ,{ "type" :"STRING"}, { "type" :"BOOLEAN"} ] },
+                   "additionalItems" : {
+
+                   "booleanValue" : false
+                   }
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add("asd");
+        job.add(false);
+        job.add(2.34);
+
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> ArrayValidator.validate(null, schema, null, job));
+        assertEquals(ERROR_MSG, sve.getMessage());
+    }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalTupleSchemaPassTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"tupleSchema" : [ { "type" :"INTEGER"} ,{ "type" :"STRING"}, { "type" :"BOOLEAN"} ] },
+                   "additionalItems" : {
+
+                   "schemaValue" : {
+                       "type" : "OBJECT"
+                   }
+                   }
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add("asd");
+        job.add(false);
+        JsonObject jo = new JsonObject();
+        jo.addProperty("name", "thinking");
+        jo.addProperty("age", 1);
+        job.add(jo);
+
+        assertEquals(job, SchemaValidator.validate(null, schema, null, job));
+    }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalTupleSchemaPaTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"tupleSchema" : [ { "type" :"INTEGER"} ,{ "type" :"STRING"}, { "type" :"BOOLEAN"} ] },
+                   "additionalItems" : {
+
+                   "schemaValue" : {
+                       "type" : "OBJECT"
+                   }
+                   }
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add("asd");
+        JsonObject jo = new JsonObject();
+        jo.addProperty("name", "thinking");
+        jo.addProperty("age", 1);
+        job.add(jo);
+
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> SchemaValidator.validate(null, schema, null, job));
+        assertEquals("null - Value [1,\"asd\",{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
+                + "null.null - Value {\"name\":\"thinking\",\"age\":1} is not of valid type(s)\n"
+                + "null.null - {\"name\":\"thinking\",\"age\":1} is not a boolean", sve.getMessage());
+    }
+
+    @Test
+    void arrayGsonSchemaTypeAdditionalFalseTupleSchemaPaTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class, addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                { "type" : "ARRAY",
+                   "items": {"tupleSchema" : [ { "type" :"INTEGER"} ,{ "type" :"STRING"}, { "type" :"BOOLEAN"} ] },
+                   "additionalItems" : {
+
+                   "booleanValue" :  false
+                   }
+                }
+                   """, Schema.class);
+
+        JsonArray job = new JsonArray();
+
+        job.add(1);
+        job.add("asd");
+        job.add(false);
+        JsonObject jo = new JsonObject();
+        jo.addProperty("name", "thinking");
+        jo.addProperty("age", 1);
+        job.add(jo);
+
+        SchemaValidationException sve = assertThrows(SchemaValidationException.class,
+                () -> SchemaValidator.validate(null, schema, null, job));
+        assertEquals("null - Value [1,\"asd\",false,{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
+                + "null - " + ERROR_MSG, sve.getMessage());
+    }
+
 }

@@ -43,6 +43,12 @@ export class ArraySchemaType {
         if (!obj) return undefined;
         if (Array.isArray(obj)) ArraySchemaType.of(...Schema.fromListOfSchemas(obj));
 
+        let keys = Object.keys(obj);
+        if (keys.indexOf('singleSchema') != -1) {
+            return ArraySchemaType.of(obj['singleSchema']);
+        } else if (keys.indexOf('tupleSchema') != -1) {
+            return ArraySchemaType.of(...obj['tupleSchema']);
+        }
         let x = Schema.from(obj);
         if (!x) return undefined;
         return ArraySchemaType.of(x);

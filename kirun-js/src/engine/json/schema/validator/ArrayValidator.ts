@@ -153,7 +153,7 @@ export class ArrayValidator {
         if (type.getTupleSchema()) {
             if (
                 type.getTupleSchema()!.length !== array.length &&
-                isNullValue(schema.getAdditionalItems())
+                isNullValue(schema?.getAdditionalItems())
             ) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
@@ -164,7 +164,6 @@ export class ArrayValidator {
                 );
             }
 
-            //get tuple length and check against length of the tuple and ignore remaining
             for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
                 let element: any = SchemaValidator.validate(

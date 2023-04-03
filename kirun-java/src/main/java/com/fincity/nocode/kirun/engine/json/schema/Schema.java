@@ -111,7 +111,8 @@ public class Schema implements Serializable {
                     entry("additionalItems", new Schema().setName(ADDITIONAL_ITEM)
                             .setNamespace(Namespaces.SYSTEM)
                             .setAnyOf(List.of(ofBoolean(ADDITIONAL_ITEM),
-                                    Schema.ofObject(ADDITIONAL_ITEM).setRef(SCHEMA_ROOT_PATH)))),
+                                    Schema.ofObject(ADDITIONAL_ITEM).setRef(
+                                            SCHEMA_ROOT_PATH)))),
 	                entry("$defs", Schema.of("$defs", SchemaType.OBJECT)
 	                        .setAdditionalProperties(
 	                                new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),

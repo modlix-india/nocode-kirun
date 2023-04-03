@@ -249,4 +249,36 @@ class ObjectValidatorTest {
 
     }
 
+    @Test
+    void schemaObjectOldSchemaValueTypePassTest() {
+
+        AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+                .registerTypeAdapter(AdditionalType.class,
+                        addType)
+                .create();
+
+        addType.setGson(gson);
+
+        Schema schema = gson.fromJson("""
+                {"type": "OBJECT",
+                "properties": {"name": { "type": "STRING" }, "phone" : {"type" :"INTEGER" }},
+                "additionalProperties": {
+
+                "schemaValue" : {"type" : "LONG" }
+                }
+                }
+                """, Schema.class);
+
+        JsonObject job = new JsonObject();
+        job.addProperty("name", "surendhar");
+        job.addProperty("phone", 1344);
+        job.addProperty("age", 12);
+
+        assertEquals(job, SchemaValidator.validate(null, schema, null, job));
+
+    }
+
 }
