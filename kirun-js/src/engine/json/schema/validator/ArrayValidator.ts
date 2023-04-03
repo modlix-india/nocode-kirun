@@ -164,18 +164,28 @@ export class ArrayValidator {
                 );
             }
 
-            for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
-                let newParents: Schema[] = !parents ? [] : [...parents];
-                let element: any = SchemaValidator.validate(
-                    newParents,
-                    type.getTupleSchema()![i],
-                    repository,
-                    array[i],
-                );
-                array[i] = element;
-            }
+            this.checkItemsInTupleSchema(parents, repository, array, type);
 
             this.checkAdditionalItems(parents, schema, repository, array, type);
+        }
+    }
+
+    private static checkItemsInTupleSchema(
+        parents: Schema[],
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+    ) {
+        for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
+            console.log(type.getTupleSchema()![i] + ' from tuple method');
+            let newParents: Schema[] = !parents ? [] : [...parents];
+            let element: any = SchemaValidator.validate(
+                newParents,
+                type.getTupleSchema()![i],
+                repository,
+                array[i],
+            );
+            array[i] = element;
         }
     }
 
