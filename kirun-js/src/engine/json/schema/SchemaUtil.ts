@@ -1,4 +1,5 @@
 import { Repository } from '../../Repository';
+import { isNullValue } from '../../util/NullCheck';
 import { StringUtil } from '../../util/string/StringUtil';
 import { Tuple2 } from '../../util/Tuples';
 import { Schema } from './Schema';
@@ -17,7 +18,7 @@ export class SchemaUtil {
 
         if (s.getConstant()) return s.getConstant();
 
-        if (s.getDefaultValue()) return s.getDefaultValue();
+        if (!isNullValue(s.getDefaultValue())) return s.getDefaultValue();
 
         return SchemaUtil.getDefaultValue(
             SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
