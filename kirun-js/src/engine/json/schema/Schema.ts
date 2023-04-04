@@ -529,12 +529,12 @@ export class Schema {
     }
 
     public getTitle(): string | undefined {
-        return this.getFullName();
-    }
-
-    private getFullName(): string | undefined {
         if (!this.namespace || this.namespace == TEMPORARY) return this.name;
 
+        return this.namespace + '.' + this.name;
+    }
+
+    public getFullName(): string {
         return this.namespace + '.' + this.name;
     }
 

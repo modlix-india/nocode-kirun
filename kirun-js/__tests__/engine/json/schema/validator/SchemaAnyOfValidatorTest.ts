@@ -42,6 +42,12 @@ test('filter condition with ref schema', () => {
                 if (namespace !== 'Test') return undefined;
                 return schemaMap.get(name);
             },
+
+            filter(name: string): string[] {
+                return Array.from(schemaMap.values())
+                    .filter((e) => e.getFullName().toLowerCase().indexOf(name.toLowerCase()) !== -1)
+                    .map((e) => e.getFullName());
+            },
         },
         new KIRunSchemaRepository(),
     );
@@ -85,6 +91,11 @@ test('complex condition with ref schema', () => {
             find(namespace: string, name: string): Schema | undefined {
                 if (namespace !== 'Test') return undefined;
                 return schemaMap.get(name);
+            },
+            filter(name: string): string[] {
+                return Array.from(schemaMap.values())
+                    .filter((e) => e.getFullName().toLowerCase().indexOf(name.toLowerCase()) !== -1)
+                    .map((e) => e.getFullName());
             },
         },
         new KIRunSchemaRepository(),
@@ -177,6 +188,12 @@ test('filter complex condition with ref schema', () => {
             find(namespace: string, name: string): Schema | undefined {
                 if (namespace !== 'Test') return undefined;
                 return schemaMap.get(name);
+            },
+
+            filter(name: string): string[] {
+                return Array.from(schemaMap.values())
+                    .filter((e) => e.getFullName().toLowerCase().indexOf(name.toLowerCase()) !== -1)
+                    .map((e) => e.getFullName());
             },
         },
         new KIRunSchemaRepository(),

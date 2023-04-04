@@ -25,7 +25,7 @@ export class Print extends AbstractFunction {
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         var values = context.getArguments()?.get(Print.VALUES);
 
-        console.log(...values);
+        console?.log(...values);
 
         return new FunctionOutput([EventResult.outputOf(new Map())]);
     }
