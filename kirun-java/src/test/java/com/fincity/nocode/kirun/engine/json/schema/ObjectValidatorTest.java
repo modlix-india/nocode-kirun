@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -9,14 +8,12 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;

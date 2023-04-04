@@ -45,7 +45,7 @@ class SchemaFilterConditionValidatorTest {
 						"isToValue", Schema.ofBoolean("isToValue")
 								.setDefaultValue(new JsonPrimitive(false))))
 				.setRequired(List.of("operator", "field"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		var schemaMap = new HashMap<String, Schema>();
 

@@ -262,7 +262,7 @@ class SchemaAnyofValidatorTest {
 						.setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
 						Schema.ofRef("test.complexOperator")))
 				.setRequired(List.of("conditions", "operator"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		var schemaMap = new HashMap<String, Schema>();
 
@@ -371,7 +371,7 @@ class SchemaAnyofValidatorTest {
 						"isToValue", Schema.ofBoolean("isToValue")
 								.setDefaultValue(new JsonPrimitive(false))))
 				.setRequired(List.of("operator", "field"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema complexOperator = Schema.ofString("complexOperator")
 				.setNamespace("test")
@@ -386,7 +386,7 @@ class SchemaAnyofValidatorTest {
 						.setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
 						Schema.ofRef("test.complexOperator")))
 				.setRequired(List.of("conditions", "operator"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema conditions = Schema.ofObject("conditions")
 				.setNamespace("test")

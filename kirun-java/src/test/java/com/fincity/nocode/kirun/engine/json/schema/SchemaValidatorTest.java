@@ -88,11 +88,11 @@ class SchemaValidatorTest {
 				.setProperties(locationMap);
 		var urlParamsSchema = Schema.ofObject("UrlParameters")
 				.setNamespace("Test")
-				.setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef("Test.Location")));
+				.setAdditionalProperties(new AdditionalType().setSchemaValue(Schema.ofRef("Test.Location")));
 		var testSchema = Schema.ofObject("TestSchema")
 				.setNamespace("Test")
 				.setAdditionalProperties(
-						new AdditionalPropertiesType().setSchemaValue(Schema.ofRef("Test.UrlParameters")));
+						new AdditionalType().setSchemaValue(Schema.ofRef("Test.UrlParameters")));
 		schemaMap.put("Location", locationSchema);
 		schemaMap.put("UrlParameters", urlParamsSchema);
 		schemaMap.put("TestSchema", testSchema);

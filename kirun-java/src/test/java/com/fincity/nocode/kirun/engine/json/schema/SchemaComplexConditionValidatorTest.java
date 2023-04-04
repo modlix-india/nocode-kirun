@@ -44,7 +44,7 @@ class SchemaComplexConditionValidatorTest {
 						"isToValue", Schema.ofBoolean("isToValue")
 								.setDefaultValue(new JsonPrimitive(false))))
 				.setRequired(List.of("operator", "field"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema complexOperator = Schema.ofString("complexOperator")
 				.setNamespace("test")
@@ -59,7 +59,7 @@ class SchemaComplexConditionValidatorTest {
 						.setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
 						Schema.ofRef("test.complexOperator")))
 				.setRequired(List.of("conditions", "operator"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema onlyFilterSchema = Schema.ofArray("conditions",
 				new Schema().setAnyOf(List.of(Schema.ofRef("test.FilterCondition"))));
@@ -152,7 +152,7 @@ class SchemaComplexConditionValidatorTest {
 						"isToValue", Schema.ofBoolean("isToValue")
 								.setDefaultValue(new JsonPrimitive(false))))
 				.setRequired(List.of("operator", "field"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema complexOperator = Schema.ofString("complexOperator")
 				.setNamespace("test")
@@ -167,7 +167,7 @@ class SchemaComplexConditionValidatorTest {
 						.setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
 						Schema.ofRef("test.complexOperator")))
 				.setRequired(List.of("conditions", "operator"))
-				.setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		Schema onlyComplexSchema = Schema.ofArray("conditions",
 				new Schema().setAnyOf(List.of(Schema.ofRef("test.ComplexCondition"))));
