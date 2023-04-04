@@ -8,6 +8,10 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -37,7 +41,13 @@ public class Create extends AbstractFunction {
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Type.class, new Type.SchemaTypeAdapter());
+		AdditionalTypeAdapter ata = new AdditionalTypeAdapter();
+		builder.registerTypeAdapter(AdditionalType.class, ata);
+		ArraySchemaTypeAdapter asta = new ArraySchemaTypeAdapter();
+		builder.registerTypeAdapter(ArraySchemaType.class, asta);
 		gson = builder.create();
+		ata.setGson(gson);
+		asta.setGson(gson);
 	}
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Create")

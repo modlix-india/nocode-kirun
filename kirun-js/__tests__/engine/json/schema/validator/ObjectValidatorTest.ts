@@ -1,6 +1,8 @@
 import {
+    HybridRepository,
     KIRunSchemaRepository,
     ObjectValidator,
+    Repository,
     Schema,
     SchemaType,
     SchemaValidator,
@@ -143,4 +145,136 @@ test('schema Object validator test schema based old Object style', () => {
     };
 
     expect(() => SchemaValidator.validate([], schema!, repo, objwithMoreAdditional)).toThrow();
+});
+
+test('Schema test with object value as null for any', () => {
+    let filterOperator = Schema.from({
+        namespace: 'test',
+        name: 'filterOperator',
+        version: 1,
+        type: 'STRING',
+        defaultValue: 'EQUALS',
+        enums: ['EQUALS', 'LESS_THAN', 'GREATER_THAN', 'LESS_THAN_EQUAL', 'BETWEEN', 'IN'],
+    });
+
+    let filterCondition = Schema.from({
+        namespace: 'test',
+        name: 'FilterCondition',
+        version: 1,
+        type: 'OBJECT',
+        properties: {
+            field: {
+                namespace: '_',
+                name: 'field',
+                version: 1,
+                type: 'STRING',
+            },
+            multiValue: {
+                namespace: '_',
+                name: 'multiValue',
+                version: 1,
+                type: 'ARRAY',
+                items: {
+                    namespace: '_',
+                    name: 'singleType',
+                    version: 1,
+                    type: [
+                        'FLOAT',
+                        'BOOLEAN',
+                        'STRING',
+                        'DOUBLE',
+                        'INTEGER',
+                        'LONG',
+                        'NULL',
+                        'ARRAY',
+                        'OBJECT',
+                    ],
+                },
+            },
+            isValue: {
+                namespace: '_',
+                name: 'isValue',
+                version: 1,
+                type: 'BOOLEAN',
+                defaultValue: false,
+            },
+            toValue: {
+                namespace: '_',
+                name: 'toValue',
+                version: 1,
+                type: [
+                    'FLOAT',
+                    'BOOLEAN',
+                    'STRING',
+                    'DOUBLE',
+                    'INTEGER',
+                    'LONG',
+                    'NULL',
+                    'ARRAY',
+                    'OBJECT',
+                ],
+            },
+            operator: {
+                namespace: '_',
+                version: 1,
+                ref: 'test.filterOperator',
+            },
+            negate: {
+                namespace: '_',
+                name: 'negate',
+                version: 1,
+                type: 'BOOLEAN',
+                defaultValue: false,
+            },
+            value: {
+                namespace: '_',
+                name: 'value',
+                version: 1,
+                type: [
+                    'FLOAT',
+                    'BOOLEAN',
+                    'STRING',
+                    'DOUBLE',
+                    'INTEGER',
+                    'LONG',
+                    'NULL',
+                    'ARRAY',
+                    'OBJECT',
+                ],
+            },
+            isToValue: {
+                namespace: '_',
+                name: 'isToValue',
+                version: 1,
+                type: 'BOOLEAN',
+                defaultValue: false,
+            },
+        },
+        additionalProperties: false,
+        required: ['operator', 'field'],
+    });
+
+    var schemaMap = new Map<string, Schema>();
+
+    schemaMap.set('filterOperator', filterOperator!);
+    schemaMap.set('FilterCondition', filterCondition!);
+
+    class TestRepository implements Repository<Schema> {
+        public find(namespace: string, name: string): Schema | undefined {
+            if (!namespace) {
+                return undefined;
+            }
+            return schemaMap.get(name);
+        }
+
+        public filter(name: string): string[] {
+            return [];
+        }
+    }
+    var repo = new HybridRepository(new TestRepository(), new KIRunSchemaRepository());
+
+    var tempOb2 = { field: 'nullcheck', operator: 'LESS_THAN', value: null, isValue: true };
+
+    var res3 = SchemaValidator.validate(undefined, filterCondition, repo, tempOb2);
+    expect(res3).toStrictEqual(tempOb2);
 });

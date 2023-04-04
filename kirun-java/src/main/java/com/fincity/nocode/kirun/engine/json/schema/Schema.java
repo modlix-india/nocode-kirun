@@ -35,7 +35,7 @@ public class Schema implements Serializable {
 	private static final String ADDITIONAL_ITEM = "additionalItem";
 	private static final String ENUMS = "enums";
 	private static final String ITEMS_STRING = "items";
-	private static final String SCHEMA_ROOT_PATH = "#/";
+	private static final String SCHEMA_ROOT_PATH = "System.Schema";
 	private static final String REQUIRED_STRING = "required";
 	private static final String VERSION_STRING = "version";
 	private static final String NAMESPACE_STRING = "namespace";

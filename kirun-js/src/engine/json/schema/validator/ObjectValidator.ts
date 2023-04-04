@@ -108,7 +108,7 @@ export class ObjectValidator {
             if (apt.getBooleanValue() === false && keys.size) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
-                    keys.toString() + ' are additional properties which are not allowed.',
+                    Array.from(keys) + ' is/are additional properties which are not allowed.',
                 );
             }
         }
@@ -155,8 +155,11 @@ export class ObjectValidator {
     ) {
         for (const each of Array.from(schema.getProperties()!)) {
             let value: any = jsonObject[each[0]];
-            const defValue = SchemaUtil.getDefaultValue(each[1], repository);
-            if (isNullValue(value) && isNullValue(defValue)) continue;
+
+            if (!jsonObject.hasOwnProperty(each[0]) && isNullValue(value)) {
+                const defValue = SchemaUtil.getDefaultValue(each[1], repository);
+                if (isNullValue(defValue)) continue;
+            }
 
             let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(newParents, each[1], repository, value);

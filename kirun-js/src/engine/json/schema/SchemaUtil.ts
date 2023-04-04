@@ -36,7 +36,6 @@ export class SchemaUtil {
         iteration: number = 0,
     ): Schema | undefined {
         iteration++;
-
         if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
             throw new SchemaValidationException(ref ?? '', 'Schema has a cyclic reference');
 

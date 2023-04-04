@@ -12,7 +12,7 @@ const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ADDITIONAL_ITEMS: string = 'additionalItems';
 const ENUMS: string = 'enums';
 const ITEMS_STRING: string = 'items';
-const SCHEMA_ROOT_PATH: string = '#/';
+const SCHEMA_ROOT_PATH: string = 'System.Schema';
 const REQUIRED_STRING: string = 'required';
 const VERSION_STRING: string = 'version';
 const NAMESPACE_STRING: string = 'namespace';
@@ -300,8 +300,8 @@ export class Schema {
             .setItems(ArraySchemaType.of(...itemSchemas));
     }
 
-    public static fromListOfSchemas(list: any): Schema[] {
-        if (isNullValue(list) && !Array.isArray(list)) return [];
+    public static fromListOfSchemas(list: any): Schema[] | undefined {
+        if (isNullValue(list) && !Array.isArray(list)) return undefined;
         let x: Schema[] = [];
         for (let e of Array.from(list)) {
             let v = Schema.from(e);

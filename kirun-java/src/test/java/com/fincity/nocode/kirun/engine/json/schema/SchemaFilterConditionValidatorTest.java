@@ -31,7 +31,7 @@ class SchemaFilterConditionValidatorTest {
 						new JsonPrimitive("BETWEEN"), new JsonPrimitive("IN")))
 				.setDefaultValue(new JsonPrimitive("EQUALS"));
 
-		Schema FilterCondition = Schema.ofObject("FilterCondition")
+		Schema filterCondition = Schema.ofObject("FilterCondition")
 				.setNamespace("test")
 				.setProperties(Map.of("negate", Schema.ofBoolean("negate")
 						.setDefaultValue(new JsonPrimitive(Boolean.FALSE)), "operator",
@@ -50,8 +50,8 @@ class SchemaFilterConditionValidatorTest {
 		var schemaMap = new HashMap<String, Schema>();
 
 		schemaMap.put("filterOperator", filterOperator);
-		schemaMap.put("FilterCondition", FilterCondition);
-
+		schemaMap.put("FilterCondition", filterCondition);
+	
 		class TestRepository implements Repository<Schema> {
 
 			@Override
@@ -94,7 +94,6 @@ class SchemaFilterConditionValidatorTest {
 		tempOb1.add("multiValue", ja1); // adding an array in place of value as it is any schema type
 		tempOb1.addProperty("operator", "IN");
 		tempOb1.addProperty("negate", true);
-		System.out.println(tempOb1);
 
 		var tempOb2 = new JsonObject();
 		tempOb2.addProperty("field", "nullcheck");
@@ -102,15 +101,13 @@ class SchemaFilterConditionValidatorTest {
 		tempOb2.add("value", JsonNull.INSTANCE); // adding null object in place of value as it is any schema type
 		tempOb2.addProperty("isValue", true);
 
-		System.out.println(tempOb2);
-
-		var res1 = SchemaValidator.validate(null, FilterCondition, repo, tempOb);
+		var res1 = SchemaValidator.validate(null, filterCondition, repo, tempOb);
 		assertEquals(tempOb, res1); // value passed as object
 
-		var res2 = SchemaValidator.validate(null, FilterCondition, repo, tempOb1);
+		var res2 = SchemaValidator.validate(null, filterCondition, repo, tempOb1);
 		assertEquals(tempOb1, res2); // multivalue passed as array
 
-		var res3 = SchemaValidator.validate(null, FilterCondition, repo, tempOb2);
+		var res3 = SchemaValidator.validate(null, filterCondition, repo, tempOb2);
 		assertEquals(tempOb2, res3); // value passed as null object
 	}
 
