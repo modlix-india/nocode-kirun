@@ -344,6 +344,12 @@ test('KIRuntime Test 4', async () => {
         find(namespace, name): Function {
             return fibFunction;
         },
+
+        filter(name: string): string[] {
+            return [fibFunction.getSignature().getFullName()].filter((e) =>
+                e.toLowerCase().includes(name.toLowerCase()),
+            );
+        },
     });
 
     start = new Date().getTime();

@@ -235,13 +235,13 @@ public class Schema implements Serializable {
 
 	public String getTitle() {
 
-		return this.getFullName();
-	}
-
-	private String getFullName() {
-
 		if (this.namespace == null || this.namespace.equals(TEMPORARY))
 			return this.name;
+
+		return this.namespace + "." + this.name;
+	}
+
+	public String getFullName() {
 
 		return this.namespace + "." + this.name;
 	}

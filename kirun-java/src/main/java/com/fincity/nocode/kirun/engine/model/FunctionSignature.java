@@ -50,4 +50,8 @@ public class FunctionSignature implements Serializable {
 		                .stream()
 		                .collect(Collectors.toMap(Entry::getKey, e -> new Event(e.getValue())));
 	}
+	
+	public String getFullName() {
+		return this.namespace + "." + this.name;
+	}
 }

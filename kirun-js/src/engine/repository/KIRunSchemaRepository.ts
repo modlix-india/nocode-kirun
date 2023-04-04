@@ -13,12 +13,20 @@ const map: Map<string, Schema> = new Map([
     ['number', Schema.ofNumber('number').setNamespace(Namespaces.SYSTEM)],
     ['string', Schema.ofString('string').setNamespace(Namespaces.SYSTEM)],
     [Parameter.EXPRESSION.getName()!, Parameter.EXPRESSION],
+    [Schema.NULL.getName()!, Schema.NULL],
+    [Schema.SCHEMA.getName()!, Schema.SCHEMA],
 ]);
+
+const filterableNames = Array.from(map.values()).map((e) => e.getFullName());
 
 export class KIRunSchemaRepository implements Repository<Schema> {
     public find(namespace: string, name: string): Schema | undefined {
         if (Namespaces.SYSTEM != namespace) return undefined;
 
         return map.get(name);
+    }
+
+    public filter(name: string): string[] {
+        return filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
     }
 }

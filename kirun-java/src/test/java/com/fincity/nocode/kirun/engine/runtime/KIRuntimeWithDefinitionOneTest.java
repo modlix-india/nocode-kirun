@@ -2,6 +2,8 @@ package com.fincity.nocode.kirun.engine.runtime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.HybridRepository;
@@ -19,9 +21,9 @@ class KIRuntimeWithDefinitionOneTest {
 
 	@Test
 	void test() {
-		
-        Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
-                .create();
+
+		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+		        .create();
 
 		var first = new KIRuntime(gson.fromJson(
 		        """
@@ -166,6 +168,11 @@ class KIRuntimeWithDefinitionOneTest {
 					return second;
 
 				return null;
+			}
+
+			@Override
+			public List<String> filter(String name) {
+				return List.of();
 			}
 		}
 

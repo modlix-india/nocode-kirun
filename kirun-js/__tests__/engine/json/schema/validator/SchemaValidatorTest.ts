@@ -63,6 +63,12 @@ test('Schema validation when ref of ref', () => {
                 if (namespace !== 'Test') return undefined;
                 return schemaMap.get(name);
             },
+
+            filter(name: string): string[] {
+                return Array.from(schemaMap.values())
+                    .map((e) => e!.getFullName())
+                    .filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
+            },
         },
         new KIRunSchemaRepository(),
     );
@@ -94,6 +100,11 @@ test('Schema Validator Test 2', () => {
                     return locationSchema;
                 }
                 return undefined;
+            },
+            filter(name): string[] {
+                return [locationSchema!.getFullName()].filter((n) =>
+                    n.toLowerCase().includes(name.toLowerCase()),
+                );
             },
         },
         new KIRunSchemaRepository(),
@@ -132,7 +143,14 @@ test('Schema Validator Test 3', () => {
                 }
                 return undefined;
             },
+
+            filter(name): string[] {
+                return [locationSchema!.getFullName()].filter((n) =>
+                    n.toLowerCase().includes(name.toLowerCase()),
+                );
+            },
         },
+
         new KIRunSchemaRepository(),
     );
 

@@ -74,4 +74,7 @@ export class FunctionSignature {
         this.events = events;
         return this;
     }
+    public getFullName(): string {
+        return this.namespace + '.' + this.name;
+    }
 }

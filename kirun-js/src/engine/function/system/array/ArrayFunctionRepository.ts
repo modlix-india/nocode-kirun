@@ -58,11 +58,21 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new SubArray()),
     );
 
+    private static readonly filterableNames = Array.from(
+        ArrayFunctionRepository.repoMap.values(),
+    ).map((e) => e.getSignature().getFullName());
+
     public find(namespace: string, name: string): Function | undefined {
         if (namespace != Namespaces.SYSTEM_ARRAY) {
             return undefined;
         }
 
         return ArrayFunctionRepository.repoMap.get(name);
+    }
+
+    public filter(name: string): string[] {
+        return ArrayFunctionRepository.filterableNames.filter(
+            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+        );
     }
 }

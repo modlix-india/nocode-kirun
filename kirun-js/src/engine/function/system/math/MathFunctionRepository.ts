@@ -1,6 +1,7 @@
 import { SchemaType } from '../../../json/schema/type/SchemaType';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { Repository } from '../../../Repository';
+import { AbstractFunction } from '../../AbstractFunction';
 import { Function } from '../../Function';
 import { Add } from './Add';
 import { GenericMathFunction } from './GenericMathFunction';
@@ -11,7 +12,7 @@ import { Random } from './Random';
 import { RandomFloat } from './RandomFloat';
 import { RandomInt } from './RandomInt';
 
-const functionObjectsIndex: any = {
+const functionObjectsIndex: { [key: string]: AbstractFunction } = {
     Absolute: new GenericMathFunction(
         'Absolute',
         (v) => Math.abs(v),
@@ -58,10 +59,18 @@ const functionObjectsIndex: any = {
     RandomInt: new RandomInt(),
 };
 
+const filterableNames = Object.values(functionObjectsIndex).map((e) =>
+    e.getSignature().getFullName(),
+);
+
 export class MathFunctionRepository implements Repository<Function> {
     find(namespace: string, name: string): Function | undefined {
         if (namespace != Namespaces.MATH) return undefined;
 
         return functionObjectsIndex[name];
+    }
+
+    public filter(name: string): string[] {
+        return filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
     }
 }

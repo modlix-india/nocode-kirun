@@ -26,12 +26,21 @@ const map: Map<string, Map<string, Function>> = new Map([
     ],
 ]);
 
+const filterableNames = Array.from(map.values())
+    .flatMap((e) => Array.from(e.values()))
+    .map((e) => e.getSignature().getFullName());
+
 export class KIRunFunctionRepository extends HybridRepository<Function> {
     public constructor() {
         super(
             {
                 find(namespace: string, name: string): Function | undefined {
                     return map.get(namespace)?.get(name);
+                },
+                filter(name: string): string[] {
+                    return Array.from(filterableNames).filter(
+                        (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+                    );
                 },
             },
             new MathFunctionRepository(),

@@ -9,8 +9,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.HybridRepository;
+import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.function.system.GenerateEvent;
 import com.fincity.nocode.kirun.engine.function.system.If;
 import com.fincity.nocode.kirun.engine.function.system.context.Create;
@@ -307,7 +309,18 @@ class KIRuntimeTest {
 		expression.addProperty("value", "Steps.fib.output.value");
 		resultObj.add("value", expression);
 
-		var hybrid = new HybridRepository<>(new KIRunFunctionRepository(), (r, k) -> fibFunction);
+		var hybrid = new HybridRepository<>(new KIRunFunctionRepository(), new Repository<Function>() {
+
+			@Override
+			public List<String> filter(String name) {
+				return List.of();
+			}
+
+			@Override
+			public Function find(String namespace, String name) {
+				return fibFunction;
+			}
+		});
 
 		start = System.currentTimeMillis();
 		List<EventResult> out = new KIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")

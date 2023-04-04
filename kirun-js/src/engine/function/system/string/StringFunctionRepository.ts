@@ -74,10 +74,20 @@ export class StringFunctionRepository implements Repository<Function> {
         mapEntry(new TrimTo()),
     );
 
+    private static readonly filterableNames = Array.from(
+        StringFunctionRepository.repoMap.values(),
+    ).map((e) => e.getSignature().getFullName());
+
     public find(namespace: string, name: string): Function | undefined {
         if (namespace != Namespaces.STRING) {
             return undefined;
         }
         return StringFunctionRepository.repoMap.get(name);
+    }
+
+    public filter(name: string): string[] {
+        return StringFunctionRepository.filterableNames.filter(
+            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+        );
     }
 }
