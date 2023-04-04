@@ -1,6 +1,7 @@
 import { Repository } from '../../../Repository';
 import { isNullValue } from '../../../util/NullCheck';
 import { AdditionalType, Schema } from '../Schema';
+import { SchemaUtil } from '../SchemaUtil';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
 
@@ -154,7 +155,8 @@ export class ObjectValidator {
     ) {
         for (const each of Array.from(schema.getProperties()!)) {
             let value: any = jsonObject[each[0]];
-            if (isNullValue(value)) continue;
+            const defValue = SchemaUtil.getDefaultValue(each[1], repository);
+            if (isNullValue(value) && isNullValue(defValue)) continue;
 
             let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(newParents, each[1], repository, value);

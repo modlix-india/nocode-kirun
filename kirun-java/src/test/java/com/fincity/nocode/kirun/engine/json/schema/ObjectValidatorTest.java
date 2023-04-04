@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.json.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -8,19 +9,21 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
+import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 class ObjectValidatorTest {
 
-    @Test
+   @Test
     void schemaObjectNewFalseBooleanPassTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -36,7 +39,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectNewFalseBooleanFailTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -57,7 +60,7 @@ class ObjectValidatorTest {
                 + "schema - [age] are additional properties which are not allowed.", sve.getMessage());
     }
 
-    @Test
+   @Test
     void schemaObjectWithNewTrueBooleanPassTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -73,7 +76,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectWithNewTrueBooleanTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -90,7 +93,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectOldFalseBooleanPassTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -106,7 +109,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectOldFalseBooleanFailTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -127,7 +130,7 @@ class ObjectValidatorTest {
                 + "schema - [age] are additional properties which are not allowed.", sve.getMessage());
     }
 
-    @Test
+   @Test
     void schemaObjectWithOldTrueBooleanPassTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -143,7 +146,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectWithOldTrueBooleanTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -160,7 +163,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectOldSchemaPassTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -180,7 +183,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
     }
 
-    @Test
+   @Test
     void schemaObjectOldSchemaFailTest() {
 
         Map<String, Schema> props = new HashMap<>();
@@ -209,7 +212,7 @@ class ObjectValidatorTest {
                 "schema.addSchema - \"" + city + "\" is not a boolean", sve.getMessage());
     }
 
-    @Test
+   @Test
     void schemaObjectOldSchemaTypePassTest() {
 
         AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
@@ -249,7 +252,7 @@ class ObjectValidatorTest {
 
     }
 
-    @Test
+   @Test
     void schemaObjectOldSchemaValueTypePassTest() {
 
         AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
@@ -280,5 +283,7 @@ class ObjectValidatorTest {
         assertEquals(job, SchemaValidator.validate(null, schema, null, job));
 
     }
+
+
 
 }

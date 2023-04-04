@@ -115,3 +115,42 @@ test('schema array validator tuple schema test for additional items with boolean
 
     expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
 });
+
+test('multi level validation inner object pollution test', () => {
+    let schema = Schema.from({
+        type: 'ARRAY',
+        items: [
+            {
+                type: 'OBJECT',
+                properties: {
+                    x: { type: 'INTEGER' },
+                },
+            },
+        ],
+        defaultValue: [{ x: 20 }, { x: 30 }],
+    });
+
+    let xschema = Schema.from({
+        type: 'ARRAY',
+        items: [
+            {
+                type: 'OBJECT',
+                properties: {
+                    x: { type: 'INTEGER' },
+                    y: { type: 'STRING', defaultValue: 'Kiran' },
+                },
+                required: ['x'],
+            },
+        ],
+    });
+
+    let value = SchemaValidator.validate(
+        undefined,
+        xschema,
+        repo,
+        SchemaValidator.validate(undefined, schema, repo, undefined),
+    );
+
+    expect(schema?.getDefaultValue()[0].y).toBeUndefined();
+    expect(value[0].y).toBe('Kiran');
+});

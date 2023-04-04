@@ -177,7 +177,6 @@ export class ArrayValidator {
         type: ArraySchemaType,
     ) {
         for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
-            console.log(type.getTupleSchema()![i] + ' from tuple method');
             let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(
                 newParents,

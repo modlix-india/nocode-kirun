@@ -13,7 +13,10 @@ export class SchemaUtil {
 
     private static readonly CYCLIC_REFERENCE_LIMIT_COUNTER: number = 20;
 
-    public static getDefaultValue(s: Schema | undefined, sRepository: Repository<Schema>): any {
+    public static getDefaultValue(
+        s: Schema | undefined,
+        sRepository: Repository<Schema> | undefined,
+    ): any {
         if (!s) return undefined;
 
         if (s.getConstant()) return s.getConstant();
