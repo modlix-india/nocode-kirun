@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
@@ -38,7 +38,7 @@ public class Event implements Serializable {
 	        .setName(SCHEMA_NAME)
 	        .setType(Type.of(SchemaType.OBJECT))
 	        .setProperties(Map.of("name", Schema.ofString("name"), "parameters", Schema.ofObject("parameter")
-	                .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.SCHEMA))));
+	                .setAdditionalProperties(new AdditionalType().setSchemaValue(Schema.SCHEMA))));
 
 	private String name;
 	private Map<String, Schema> parameters;

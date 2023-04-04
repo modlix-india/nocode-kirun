@@ -32,38 +32,71 @@ export class ArrayValidator {
 
         ArrayValidator.checkUniqueItems(parents, schema, array);
 
-        ArrayValidator.checkContains(parents, schema, repository, array);
+        ArrayValidator.checkContains(schema, parents, repository, array);
 
         return element;
     }
 
-    public static checkContains(
-        parents: Schema[],
+    private static checkContains(
         schema: Schema,
+        parents: Schema[],
         repository: Repository<Schema> | undefined,
         array: any[],
     ) {
-        if (!schema.getContains()) return;
+        if (isNullValue(schema.getContains())) return;
 
-        let flag: boolean = false;
-        for (let i = 0; i < array.length; i++) {
-            let newParents: Schema[] = !parents ? [] : [...parents];
+        let count = ArrayValidator.countContains(
+            parents,
+            schema,
+            repository,
+            array,
+            isNullValue(schema.getMinContains()) && isNullValue(schema.getMaxContains()),
+        );
 
-            try {
-                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
-                flag = true;
-                break;
-            } catch (err) {
-                flag = false;
-            }
-        }
-
-        if (!flag) {
+        if (count === 0) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'None of the items are of type contains schema',
             );
         }
+
+        if (!isNullValue(schema.getMinContains()) && schema.getMinContains()! > count)
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                'The minimum number of the items of type contains schema should be ' +
+                    schema.getMinContains() +
+                    ' but found ' +
+                    count,
+            );
+
+        if (!isNullValue(schema.getMaxContains()) && schema.getMaxContains()! < count)
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                'The maximum number of the items of type contains schema should be ' +
+                    schema.getMaxContains() +
+                    ' but found ' +
+                    count,
+            );
+    }
+
+    public static countContains(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        stopOnFirst?: boolean,
+    ): number {
+        let count = 0;
+        for (let i = 0; i < array.length; i++) {
+            let newParents: Schema[] = !parents ? [] : [...parents];
+
+            try {
+                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
+                count++;
+                if (stopOnFirst) break;
+            } catch (err) {}
+        }
+        return count;
     }
 
     public static checkUniqueItems(parents: Schema[], schema: Schema, array: any[]): void {
@@ -118,7 +151,10 @@ export class ArrayValidator {
         }
 
         if (type.getTupleSchema()) {
-            if (type.getTupleSchema()!.length !== array.length) {
+            if (
+                type.getTupleSchema()!.length !== array.length &&
+                isNullValue(schema?.getAdditionalItems())
+            ) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
                     'Expected an array with only ' +
@@ -128,17 +164,92 @@ export class ArrayValidator {
                 );
             }
 
-            for (let i = 0; i < array.length; i++) {
-                let newParents: Schema[] = !parents ? [] : [...parents];
-                let element: any = SchemaValidator.validate(
-                    newParents,
-                    type.getTupleSchema()![i],
+            this.checkItemsInTupleSchema(parents, repository, array, type);
+
+            this.checkAdditionalItems(parents, schema, repository, array, type);
+        }
+    }
+
+    private static checkItemsInTupleSchema(
+        parents: Schema[],
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+    ) {
+        for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
+            let newParents: Schema[] = !parents ? [] : [...parents];
+            let element: any = SchemaValidator.validate(
+                newParents,
+                type.getTupleSchema()![i],
+                repository,
+                array[i],
+            );
+            array[i] = element;
+        }
+    }
+
+    private static checkAdditionalItems(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+    ) {
+        if (!isNullValue(schema.getAdditionalItems())) {
+            let additionalSchemaType = schema.getAdditionalItems();
+            if (additionalSchemaType?.getBooleanValue()) {
+                //validate the additional items whether schema is valid or not
+                let anySchemaType = Schema.ofAny('item'); // as additional items is true it should validate against any valid schema defined in the system
+                if (
+                    additionalSchemaType?.getBooleanValue() === false &&
+                    array.length > type.getTupleSchema()?.length!
+                )
+                    throw new SchemaValidationException(
+                        SchemaValidator.path(parents),
+                        'No Additional Items are defined',
+                    );
+
+                this.checkEachItemInAdditionalItems(
+                    parents,
+                    schema,
                     repository,
-                    array[i],
+                    array,
+                    type,
+                    anySchemaType,
                 );
-                array[i] = element;
+            } else if (additionalSchemaType?.getSchemaValue()) {
+                let schemaType = additionalSchemaType.getSchemaValue();
+                this.checkEachItemInAdditionalItems(
+                    parents,
+                    schema,
+                    repository,
+                    array,
+                    type,
+                    schemaType,
+                );
             }
         }
+    }
+
+    private static checkEachItemInAdditionalItems(
+        parents: Schema[],
+        schema: Schema,
+        repository: Repository<Schema> | undefined,
+        array: any[],
+        type: ArraySchemaType,
+        schemaType: Schema | undefined,
+    ) {
+        for (let i = type.getTupleSchema()?.length!; i < array.length; i++) {
+            let newParents: Schema[] = !parents ? [] : [...parents];
+            let element: any = SchemaValidator.validate(
+                newParents,
+                schemaType!,
+                repository,
+                array[i],
+            );
+            array[i] = element;
+        }
+        return;
     }
 
     private constructor() {}

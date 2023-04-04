@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringSchema;
 import com.fincity.nocode.kirun.engine.json.schema.type.MultipleType;
@@ -32,9 +32,10 @@ import lombok.experimental.Accessors;
 public class Schema implements Serializable {
 
 	private static final String ADDITIONAL_PROPERTY = "additionalProperty";
+	private static final String ADDITIONAL_ITEM = "additionalItem";
 	private static final String ENUMS = "enums";
 	private static final String ITEMS_STRING = "items";
-	private static final String SCHEMA_ROOT_PATH = "#/";
+	private static final String SCHEMA_ROOT_PATH = "System.Schema";
 	private static final String REQUIRED_STRING = "required";
 	private static final String VERSION_STRING = "version";
 	private static final String NAMESPACE_STRING = "namespace";
@@ -83,7 +84,7 @@ public class Schema implements Serializable {
 
 	                entry("properties", Schema.of("properties", SchemaType.OBJECT)
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
+	                                new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 	                entry("additionalProperties", new Schema().setName(ADDITIONAL_PROPERTY)
 	                        .setNamespace(Namespaces.SYSTEM)
 	                        .setAnyOf(List.of(ofBoolean(ADDITIONAL_PROPERTY), Schema.ofObject(ADDITIONAL_PROPERTY)
@@ -95,19 +96,26 @@ public class Schema implements Serializable {
 	                entry("minProperties", ofInteger("minProperties")),
 	                entry("maxProperties", ofInteger("maxProperties")), entry("patternProperties",
 	                        Schema.of("patternProperties", SchemaType.OBJECT)
-	                                .setAdditionalProperties(new AdditionalPropertiesType()
+	                                .setAdditionalProperties(new AdditionalType()
 	                                        .setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
 	                entry(ITEMS_STRING, new Schema().setName(ITEMS_STRING)
 	                        .setAnyOf(List.of(Schema.ofRef(SCHEMA_ROOT_PATH)
 	                                .setName("item"), Schema.ofArray("tuple", Schema.ofRef(SCHEMA_ROOT_PATH))))),
 
-	                entry("contains", Schema.ofRef(SCHEMA_ROOT_PATH)), entry("minItems", ofInteger("minItems")),
+	                entry("contains", Schema.ofRef(SCHEMA_ROOT_PATH)),
+	                entry("minContains", Schema.ofInteger("minContains")),
+	                entry("maxContains", Schema.ofInteger("maxContains")),
+	                entry("minItems", ofInteger("minItems")),
 	                entry("maxItems", ofInteger("maxItems")), entry("uniqueItems", ofBoolean("uniqueItems")),
-
+                    entry("additionalItems", new Schema().setName(ADDITIONAL_ITEM)
+                            .setNamespace(Namespaces.SYSTEM)
+                            .setAnyOf(List.of(ofBoolean(ADDITIONAL_ITEM),
+                                    Schema.ofObject(ADDITIONAL_ITEM).setRef(
+                                            SCHEMA_ROOT_PATH)))),
 	                entry("$defs", Schema.of("$defs", SchemaType.OBJECT)
 	                        .setAdditionalProperties(
-	                                new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
+	                                new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
 	                entry("permission", ofString("permission"))))
 	        .setRequired(List.of());
@@ -216,7 +224,7 @@ public class Schema implements Serializable {
 
 	// Object
 	private Map<String, Schema> properties;
-	private AdditionalPropertiesType additionalProperties;
+	private AdditionalType additionalProperties;
 	private List<String> required;
 	private StringSchema propertyNames;
 	private Integer minProperties;
@@ -226,22 +234,25 @@ public class Schema implements Serializable {
 	// Array
 	private ArraySchemaType items;
 	private Schema contains;
+	private Integer minContains;
+	private Integer maxContains;
 	private Integer minItems;
 	private Integer maxItems;
 	private Boolean uniqueItems;
+	private AdditionalType additionalItems;
 
 	private Map<String, Schema> $defs; // NOSONAR - needed as per json schema
 	private String permission;
 
 	public String getTitle() {
 
-		return this.getFullName();
-	}
-
-	private String getFullName() {
-
 		if (this.namespace == null || this.namespace.equals(TEMPORARY))
 			return this.name;
+
+		return this.namespace + "." + this.name;
+	}
+
+	public String getFullName() {
 
 		return this.namespace + "." + this.name;
 	}
@@ -315,7 +326,7 @@ public class Schema implements Serializable {
 		                .collect(Collectors.toMap(Entry::getKey, e -> new Schema(e.getValue())));
 
 		this.additionalProperties = schema.additionalProperties == null ? null
-		        : new AdditionalPropertiesType(schema.additionalProperties);
+		        : new AdditionalType(schema.additionalProperties);
 
 		this.required = schema.required == null ? null
 		        : schema.required.stream()
@@ -332,9 +343,11 @@ public class Schema implements Serializable {
 
 		this.items = schema.items == null ? null : new ArraySchemaType(schema.items);
 		this.contains = schema.contains == null ? null : new Schema(this.contains);
-
+		this.minContains = schema.minContains;
+		this.maxContains = schema.maxContains;
 		this.minItems = schema.minItems;
 		this.maxItems = schema.maxItems;
+        this.additionalItems = schema.additionalItems == null ? null : new AdditionalType(schema.additionalItems);
 		this.uniqueItems = schema.uniqueItems;
 
 		this.$defs = schema.$defs == null ? null

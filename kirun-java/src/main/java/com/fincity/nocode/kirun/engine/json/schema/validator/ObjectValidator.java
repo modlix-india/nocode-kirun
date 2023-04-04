@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -79,7 +80,7 @@ public class ObjectValidator {
 
 	private static void checkAddtionalProperties(List<Schema> parents, Schema schema, Repository<Schema> repository,
 	        JsonObject jsonObject, Set<String> keys) {
-		AdditionalPropertiesType apt = schema.getAdditionalProperties();
+		AdditionalType apt = schema.getAdditionalProperties();
 
 		if (apt.getBooleanValue() != null) {
 
@@ -135,8 +136,13 @@ public class ObjectValidator {
 		        .entrySet()) {
 
 			JsonElement value = jsonObject.get(each.getKey());
-			if (value == null)
-				continue;
+
+			if (!jsonObject.has(each.getKey()) && (value == null || value.isJsonNull())) {
+
+				JsonElement defValue = SchemaUtil.getDefaultValue(each.getValue(), repository);
+				if (defValue == null || defValue.isJsonNull())
+					continue;
+			}
 
 			List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 			JsonElement element = SchemaValidator.validate(newParents, each.getValue(), repository, value);

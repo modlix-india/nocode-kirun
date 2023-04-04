@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, HybridRepository } from '../../../../../src';
+import { AdditionalType, HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -39,15 +39,13 @@ test('Schema validation when ref of ref', () => {
 
     const urlParamsSchema = Schema.ofObject('UrlParameters')
         .setNamespace('Test')
-        .setAdditionalProperties(
-            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.Location`)),
-        )
+        .setAdditionalProperties(new AdditionalType().setSchemaValue(Schema.ofRef(`Test.Location`)))
         .setDefaultValue({});
 
     const testSchema = Schema.ofObject('TestSchema')
         .setNamespace('Test')
         .setAdditionalProperties(
-            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.UrlParameters`)),
+            new AdditionalType().setSchemaValue(Schema.ofRef(`Test.UrlParameters`)),
         )
         .setDefaultValue({});
 
@@ -62,6 +60,12 @@ test('Schema validation when ref of ref', () => {
             find(namespace: string, name: string): Schema | undefined {
                 if (namespace !== 'Test') return undefined;
                 return schemaMap.get(name);
+            },
+
+            filter(name: string): string[] {
+                return Array.from(schemaMap.values())
+                    .map((e) => e!.getFullName())
+                    .filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
             },
         },
         new KIRunSchemaRepository(),
@@ -94,6 +98,11 @@ test('Schema Validator Test 2', () => {
                     return locationSchema;
                 }
                 return undefined;
+            },
+            filter(name): string[] {
+                return [locationSchema!.getFullName()].filter((n) =>
+                    n.toLowerCase().includes(name.toLowerCase()),
+                );
             },
         },
         new KIRunSchemaRepository(),
@@ -132,7 +141,14 @@ test('Schema Validator Test 3', () => {
                 }
                 return undefined;
             },
+
+            filter(name): string[] {
+                return [locationSchema!.getFullName()].filter((n) =>
+                    n.toLowerCase().includes(name.toLowerCase()),
+                );
+            },
         },
+
         new KIRunSchemaRepository(),
     );
 

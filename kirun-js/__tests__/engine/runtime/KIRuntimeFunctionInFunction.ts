@@ -149,6 +149,12 @@ test('KIRuntime Function in Function', async () => {
             if (name === 'Third') return third;
             if (name === 'Second') return second;
         }
+
+        filter(name: string): string[] {
+            return [third.getSignature().getFullName(), second.getSignature().getFullName()].filter(
+                (e) => e.toLowerCase().includes(name.toLowerCase()),
+            );
+        }
     }
 
     const repo = new HybridRepository(new KIRunFunctionRepository(), new InternalRepository());

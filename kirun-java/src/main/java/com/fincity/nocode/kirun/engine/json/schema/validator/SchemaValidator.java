@@ -26,7 +26,7 @@ public class SchemaValidator {
 		parents.add(schema);
 
 		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null) {
-			return schema.getDefaultValue();
+			return schema.getDefaultValue().deepCopy();
 		}
 
 		if (schema.getConstant() != null) {

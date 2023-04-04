@@ -7,6 +7,7 @@ const KEYWORDS: Map<string, any> = new Map([
     ['true', true],
     ['false', false],
     ['null', undefined],
+    ['undefined', undefined],
 ]);
 
 export class LiteralTokenValueExtractor extends TokenValueExtractor {

@@ -35,7 +35,7 @@ public class AnyOfAllOfOneOfValidator {
 		boolean flag = false;
 		for (Schema s : schema.getAnyOf()) {
 			try {
-				validate(parents, s, repository, element);
+			    SchemaValidator.validate(parents, s, repository, element);
 				flag = true;
 				break;
 			} catch (SchemaValidationException ex) {
@@ -54,7 +54,7 @@ public class AnyOfAllOfOneOfValidator {
 		int flag = 0;
 		for (Schema s : schema.getAllOf()) {
 			try {
-				validate(parents, s, repository, element);
+			    SchemaValidator.validate(parents, s, repository, element);
 				flag++;
 			} catch (SchemaValidationException ex) {
 				list.add(ex);
@@ -72,7 +72,7 @@ public class AnyOfAllOfOneOfValidator {
 		int flag = 0;
 		for (Schema s : schema.getOneOf()) {
 			try {
-				validate(parents, s, repository, element);
+			    SchemaValidator.validate(parents, s, repository, element);
 				flag++;
 			} catch (SchemaValidationException ex) {
 				list.add(ex);

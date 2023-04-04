@@ -15,4 +15,12 @@ export class HybridRepository<T> implements Repository<T> {
 
         return undefined;
     }
+
+    public filter(name: string): string[] {
+        let result= new Set<string>;
+        for (let repo of this.repos) {
+            repo.filter(name).forEach(e => result.add(e));
+        }
+        return Array.from(result);
+    }
 }

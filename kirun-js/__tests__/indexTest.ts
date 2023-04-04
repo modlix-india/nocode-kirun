@@ -9,6 +9,12 @@ class TestRepository {
     find(namespace: string, name: string): string | undefined {
         return TestRepository.TEST_INDEX.get(name);
     }
+
+    filter(name: string): string[] {
+        return Array.from(TestRepository.TEST_INDEX.keys()).filter(
+            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+        );
+    }
 }
 
 class TestRepository2 {
@@ -19,6 +25,12 @@ class TestRepository2 {
 
     find(namespace: string, name: string): string | undefined {
         return TestRepository2.TEST_INDEX.get(name);
+    }
+
+    filter(name: string): string[] {
+        return Array.from(TestRepository.TEST_INDEX.keys()).filter(
+            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+        );
     }
 }
 

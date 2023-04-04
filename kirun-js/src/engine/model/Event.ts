@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
+import { AdditionalType, Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { SchemaReferenceException } from '../json/schema/validator/exception/SchemaReferenceException';
@@ -21,7 +21,7 @@ export class Event {
                 [
                     'parameters',
                     Schema.ofObject('parameter').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Schema.SCHEMA),
+                        new AdditionalType().setSchemaValue(Schema.SCHEMA),
                     ),
                 ],
             ]),

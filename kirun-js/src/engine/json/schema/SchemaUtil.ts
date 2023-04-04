@@ -1,4 +1,5 @@
 import { Repository } from '../../Repository';
+import { isNullValue } from '../../util/NullCheck';
 import { StringUtil } from '../../util/string/StringUtil';
 import { Tuple2 } from '../../util/Tuples';
 import { Schema } from './Schema';
@@ -12,12 +13,15 @@ export class SchemaUtil {
 
     private static readonly CYCLIC_REFERENCE_LIMIT_COUNTER: number = 20;
 
-    public static getDefaultValue(s: Schema | undefined, sRepository: Repository<Schema>): any {
+    public static getDefaultValue(
+        s: Schema | undefined,
+        sRepository: Repository<Schema> | undefined,
+    ): any {
         if (!s) return undefined;
 
         if (s.getConstant()) return s.getConstant();
 
-        if (s.getDefaultValue()) return s.getDefaultValue();
+        if (!isNullValue(s.getDefaultValue())) return s.getDefaultValue();
 
         return SchemaUtil.getDefaultValue(
             SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
@@ -32,7 +36,6 @@ export class SchemaUtil {
         iteration: number = 0,
     ): Schema | undefined {
         iteration++;
-
         if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
             throw new SchemaValidationException(ref ?? '', 'Schema has a cyclic reference');
 

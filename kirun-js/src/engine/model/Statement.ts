@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, Schema } from '../json/schema/Schema';
+import { AdditionalType, Schema } from '../json/schema/Schema';
 import { SchemaType } from '../json/schema/type/SchemaType';
 import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
@@ -22,7 +22,7 @@ export class Statement extends AbstractStatement {
                 [
                     'dependentStatements',
                     Schema.ofObject('dependentstatement').setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(Schema.ofBoolean('exists')),
+                        new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
                     ),
                 ],
                 [
@@ -30,11 +30,9 @@ export class Statement extends AbstractStatement {
                     new Schema()
                         .setName('parameterMap')
                         .setAdditionalProperties(
-                            new AdditionalPropertiesType().setSchemaValue(
+                            new AdditionalType().setSchemaValue(
                                 Schema.ofObject('parameterReference').setAdditionalProperties(
-                                    new AdditionalPropertiesType().setSchemaValue(
-                                        ParameterReference.SCHEMA,
-                                    ),
+                                    new AdditionalType().setSchemaValue(ParameterReference.SCHEMA),
                                 ),
                             ),
                         ),
