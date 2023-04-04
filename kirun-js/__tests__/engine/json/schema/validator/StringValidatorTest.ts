@@ -129,7 +129,5 @@ test('String email valid case', () => {
 
     let schema: Schema = new Schema().setFormat(StringFormat.EMAIL);
 
-    console.log(StringValidator.validate([], schema, value));
-
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });

@@ -9,19 +9,20 @@ import { SingleType } from './type/SingleType';
 import { MultipleType } from './type/MultipleType';
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
+const ADDITIONAL_ITEMS: string = 'additionalItems';
 const ENUMS: string = 'enums';
 const ITEMS_STRING: string = 'items';
-const SCHEMA_ROOT_PATH: string = '#/';
+const SCHEMA_ROOT_PATH: string = 'System.Schema';
 const REQUIRED_STRING: string = 'required';
 const VERSION_STRING: string = 'version';
 const NAMESPACE_STRING: string = 'namespace';
 const TEMPORARY: string = '_';
 
-export class AdditionalPropertiesType {
+export class AdditionalType {
     private booleanValue?: boolean;
     private schemaValue?: Schema;
 
-    constructor(apt: AdditionalPropertiesType | undefined = undefined) {
+    constructor(apt: AdditionalType | undefined = undefined) {
         if (!apt) return;
         this.booleanValue = apt.booleanValue;
         if (!apt.schemaValue) return;
@@ -36,21 +37,27 @@ export class AdditionalPropertiesType {
         return this.schemaValue;
     }
 
-    public setBooleanValue(booleanValue: boolean): AdditionalPropertiesType {
+    public setBooleanValue(booleanValue: boolean): AdditionalType {
         this.booleanValue = booleanValue;
         return this;
     }
 
-    public setSchemaValue(schemaValue: Schema): AdditionalPropertiesType {
+    public setSchemaValue(schemaValue: Schema): AdditionalType {
         this.schemaValue = schemaValue;
         return this;
     }
 
-    public static from(obj: any): AdditionalPropertiesType | undefined {
-        if (!obj) return undefined;
-        const ad = new AdditionalPropertiesType();
-        ad.booleanValue = obj.booleanValue;
-        ad.schemaValue = obj.schemaValue;
+    public static from(obj: any): AdditionalType | undefined {
+        if (isNullValue(obj)) return undefined;
+        const ad = new AdditionalType();
+        if (typeof obj === 'boolean') ad.booleanValue = obj;
+        else {
+            let keys = Object.keys(obj);
+            if (keys.indexOf('booleanValue') != -1) ad.booleanValue = obj.booleanValue;
+            else if (keys.indexOf('schemaValue') != -1)
+                ad.schemaValue = Schema.from(obj.schemaValue);
+            else ad.schemaValue = Schema.from(obj);
+        }
         return ad;
     }
 }
@@ -133,9 +140,7 @@ export class Schema {
                 [
                     'properties',
                     Schema.of('properties', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
                 [
@@ -162,9 +167,7 @@ export class Schema {
                 [
                     'patternProperties',
                     Schema.of('patternProperties', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
 
@@ -179,16 +182,25 @@ export class Schema {
                 ],
 
                 ['contains', Schema.ofRef(SCHEMA_ROOT_PATH)],
+                ['minContains', Schema.ofInteger('minContains')],
+                ['maxContains', Schema.ofInteger('maxContains')],
                 ['minItems', Schema.ofInteger('minItems')],
                 ['maxItems', Schema.ofInteger('maxItems')],
                 ['uniqueItems', Schema.ofBoolean('uniqueItems')],
-
+                [
+                    'additionalItems',
+                    new Schema()
+                        .setName(ADDITIONAL_ITEMS)
+                        .setNamespace(Namespaces.SYSTEM)
+                        .setAnyOf([
+                            Schema.ofBoolean(ADDITIONAL_ITEMS),
+                            Schema.ofObject(ADDITIONAL_ITEMS).setRef(SCHEMA_ROOT_PATH),
+                        ]),
+                ],
                 [
                     '$defs',
                     Schema.of('$defs', SchemaType.OBJECT).setAdditionalProperties(
-                        new AdditionalPropertiesType().setSchemaValue(
-                            Schema.ofRef(SCHEMA_ROOT_PATH),
-                        ),
+                        new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
 
@@ -288,8 +300,8 @@ export class Schema {
             .setItems(ArraySchemaType.of(...itemSchemas));
     }
 
-    public static fromListOfSchemas(list: any): Schema[] {
-        if (isNullValue(list) && !Array.isArray(list)) return [];
+    public static fromListOfSchemas(list: any): Schema[] | undefined {
+        if (isNullValue(list) && !Array.isArray(list)) return undefined;
         let x: Schema[] = [];
         for (let e of Array.from(list)) {
             let v = Schema.from(e);
@@ -354,7 +366,7 @@ export class Schema {
 
         // Object
         schema.properties = Schema.fromMapOfSchemas(obj.properties);
-        schema.additionalProperties = AdditionalPropertiesType.from(obj.additionalProperties);
+        schema.additionalProperties = AdditionalType.from(obj.additionalProperties);
         schema.required = obj.required;
         schema.propertyNames = Schema.from(obj.propertyNames, true);
         schema.minProperties = obj.minProperties;
@@ -363,7 +375,10 @@ export class Schema {
 
         // Array
         schema.items = ArraySchemaType.from(obj.items);
+        schema.additionalItems = AdditionalType.from(obj.additionalItems);
         schema.contains = Schema.from(obj.contains);
+        schema.minContains = obj.minContains;
+        schema.maxContains = obj.maxContains;
         schema.minItems = obj.minItems;
         schema.maxItems = obj.maxItems;
         schema.uniqueItems = obj.uniqueItems;
@@ -409,7 +424,7 @@ export class Schema {
 
     // Object
     private properties?: Map<string, Schema>;
-    private additionalProperties?: AdditionalPropertiesType;
+    private additionalProperties?: AdditionalType;
     private required?: string[];
     private propertyNames?: Schema;
     private minProperties?: number;
@@ -418,7 +433,10 @@ export class Schema {
 
     // Array
     private items?: ArraySchemaType;
+    private additionalItems?: AdditionalType;
     private contains?: Schema;
+    private minContains?: number;
+    private maxContains?: number;
     private minItems?: number;
     private maxItems?: number;
     private uniqueItems?: boolean;
@@ -474,7 +492,7 @@ export class Schema {
             : undefined;
 
         this.additionalProperties = schema.additionalProperties
-            ? new AdditionalPropertiesType(schema.additionalProperties)
+            ? new AdditionalType(schema.additionalProperties)
             : undefined;
 
         this.required = schema.required ? [...schema.required] : undefined;
@@ -494,10 +512,14 @@ export class Schema {
 
         this.items = schema.items ? new ArraySchemaType(schema.items) : undefined;
         this.contains = schema.contains ? new Schema(this.contains) : undefined;
-
+        this.minContains = schema.minContains;
+        this.maxContains = schema.maxContains;
         this.minItems = schema.minItems;
         this.maxItems = schema.maxItems;
         this.uniqueItems = schema.uniqueItems;
+        this.additionalItems = schema.additionalItems
+            ? new AdditionalType(schema.additionalItems)
+            : undefined;
 
         this.$defs = schema.$defs
             ? new Map(Array.from(schema.$defs.entries()).map((e) => [e[0], new Schema(e[1])]))
@@ -700,13 +722,22 @@ export class Schema {
         this.properties = properties;
         return this;
     }
-    public getAdditionalProperties(): AdditionalPropertiesType | undefined {
+    public getAdditionalProperties(): AdditionalType | undefined {
         return this.additionalProperties;
     }
-    public setAdditionalProperties(additionalProperties: AdditionalPropertiesType): Schema {
+    public setAdditionalProperties(additionalProperties: AdditionalType): Schema {
         this.additionalProperties = additionalProperties;
         return this;
     }
+
+    public getAdditionalItems(): AdditionalType | undefined {
+        return this.additionalItems;
+    }
+    public setAdditionalItems(additionalItems: AdditionalType): Schema {
+        this.additionalItems = additionalItems;
+        return this;
+    }
+
     public getRequired(): string[] | undefined {
         return this.required;
     }
@@ -757,6 +788,25 @@ export class Schema {
         this.contains = contains;
         return this;
     }
+
+    public getMinContains(): number | undefined {
+        return this.minContains;
+    }
+
+    public setMinContains(minContains: number): Schema {
+        this.minContains = minContains;
+        return this;
+    }
+
+    public getMaxContains(): number | undefined {
+        return this.maxContains;
+    }
+
+    public setMaxContains(maxContains: number): Schema {
+        this.maxContains = maxContains;
+        return this;
+    }
+
     public getMinItems(): number | undefined {
         return this.minItems;
     }

@@ -38,6 +38,11 @@ public abstract class Type implements Serializable {
 
 		@Override
 		public void write(JsonWriter out, Type value) throws IOException {
+			
+			if (value == null) {
+				out.nullValue();
+				return;
+			}
 
 			if (value instanceof MultipleType multipleType) {
 				out.beginArray();

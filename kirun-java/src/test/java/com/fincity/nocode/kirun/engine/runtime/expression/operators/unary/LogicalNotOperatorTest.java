@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime.expression.operators.unary;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 

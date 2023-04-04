@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, ArraySchemaType, HybridRepository } from '../../../../../src';
+import { AdditionalType, ArraySchemaType, HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -153,7 +153,7 @@ test('filter complex condition with ref schema', () => {
             ]),
         )
         .setRequired(['operator', 'field'])
-        .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+        .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
     let complexOperator: Schema = Schema.ofString('complexOperator')
         .setNamespace('Test')
@@ -174,7 +174,7 @@ test('filter complex condition with ref schema', () => {
             ]),
         )
         .setRequired(['conditions', 'operator'])
-        .setAdditionalProperties(new AdditionalPropertiesType().setBooleanValue(false));
+        .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
     var schemaMap = new Map<string, Schema>([
         ['filterOperator', filterOperator],

@@ -1,4 +1,4 @@
-import { AdditionalPropertiesType, HybridRepository } from '../../../../../src';
+import { AdditionalType, HybridRepository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -39,15 +39,13 @@ test('Schema validation when ref of ref', () => {
 
     const urlParamsSchema = Schema.ofObject('UrlParameters')
         .setNamespace('Test')
-        .setAdditionalProperties(
-            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.Location`)),
-        )
+        .setAdditionalProperties(new AdditionalType().setSchemaValue(Schema.ofRef(`Test.Location`)))
         .setDefaultValue({});
 
     const testSchema = Schema.ofObject('TestSchema')
         .setNamespace('Test')
         .setAdditionalProperties(
-            new AdditionalPropertiesType().setSchemaValue(Schema.ofRef(`Test.UrlParameters`)),
+            new AdditionalType().setSchemaValue(Schema.ofRef(`Test.UrlParameters`)),
         )
         .setDefaultValue({});
 

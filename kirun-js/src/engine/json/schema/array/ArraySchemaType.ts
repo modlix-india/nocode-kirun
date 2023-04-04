@@ -41,10 +41,11 @@ export class ArraySchemaType {
 
     public static from(obj: any): ArraySchemaType | undefined {
         if (!obj) return undefined;
-        if (Array.isArray(obj)) ArraySchemaType.of(...Schema.fromListOfSchemas(obj));
+        if (Array.isArray(obj))
+            return new ArraySchemaType().setTupleSchema(Schema.fromListOfSchemas(obj)!);
 
         let x = Schema.from(obj);
         if (!x) return undefined;
-        return ArraySchemaType.of(x);
+        return new ArraySchemaType().setSingleSchema(x);
     }
 }

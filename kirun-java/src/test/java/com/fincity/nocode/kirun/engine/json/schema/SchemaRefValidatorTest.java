@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalPropertiesType;
+import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.JsonObject;
@@ -24,9 +24,9 @@ class SchemaRefValidatorTest {
 		detailsMap.put("firstName", Schema.ofString("firstName"));
 		detailsMap.put("lastName", Schema.ofString("lastName"));
 		Schema basic = Schema.ofObject("basicDetails")
-		        .setNamespace("Model")
-		        .setName("BasicDetails")
-		        .setProperties(detailsMap);
+				.setNamespace("Model")
+				.setName("BasicDetails")
+				.setProperties(detailsMap);
 
 		JsonObject realDetails = new JsonObject();
 		realDetails.addProperty("firstName", "sruendhar");
@@ -41,15 +41,15 @@ class SchemaRefValidatorTest {
 		var schemaMap = new HashMap<String, Schema>();
 		locationMap.put("url", Schema.ofString("url"));
 		var locationSchema = Schema.ofObject("Location")
-		        .setNamespace("Test")
-		        .setProperties(locationMap);
+				.setNamespace("Test")
+				.setProperties(locationMap);
 		var urlParamsSchema = Schema.ofObject("UrlParameters")
-		        .setNamespace("Test")
-		        .setAdditionalProperties(new AdditionalPropertiesType().setSchemaValue(Schema.ofRef("Test.Location")));
+				.setNamespace("Test")
+				.setAdditionalProperties(new AdditionalType().setSchemaValue(Schema.ofRef("Test.Location")));
 		var testSchema = Schema.ofObject("TestSchema")
-		        .setNamespace("Test")
-		        .setAdditionalProperties(
-		                new AdditionalPropertiesType().setSchemaValue(Schema.ofRef("Test.UrlParameters")));
+				.setNamespace("Test")
+				.setAdditionalProperties(
+						new AdditionalType().setSchemaValue(Schema.ofRef("Test.UrlParameters")));
 		schemaMap.put("Location", locationSchema);
 		schemaMap.put("UrlParameters", urlParamsSchema);
 		schemaMap.put("TestSchema", testSchema);
@@ -67,11 +67,11 @@ class SchemaRefValidatorTest {
 			public List<String> filter(String name) {
 
 				return schemaMap.values()
-				        .stream()
-				        .map(Schema::getFullName)
-				        .filter(e -> e.toLowerCase()
-				                .contains(name.toLowerCase()))
-				        .toList();
+						.stream()
+						.map(Schema::getFullName)
+						.filter(e -> e.toLowerCase()
+								.contains(name.toLowerCase()))
+						.toList();
 			}
 		}
 		var repo = new HybridRepository<Schema>(new TestRepository(), new KIRunSchemaRepository());

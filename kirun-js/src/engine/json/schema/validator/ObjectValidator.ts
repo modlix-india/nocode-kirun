@@ -1,6 +1,7 @@
 import { Repository } from '../../../Repository';
 import { isNullValue } from '../../../util/NullCheck';
-import { AdditionalPropertiesType, Schema } from '../Schema';
+import { AdditionalType, Schema } from '../Schema';
+import { SchemaUtil } from '../SchemaUtil';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
 
@@ -90,7 +91,7 @@ export class ObjectValidator {
         jsonObject: any,
         keys: Set<string>,
     ) {
-        let apt: AdditionalPropertiesType = schema.getAdditionalProperties()!;
+        let apt: AdditionalType = schema.getAdditionalProperties()!;
         if (apt.getSchemaValue()) {
             for (let key of Array.from(keys.values())) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
@@ -107,7 +108,7 @@ export class ObjectValidator {
             if (apt.getBooleanValue() === false && keys.size) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
-                    keys.toString() + ' are additional properties which are not allowed.',
+                    Array.from(keys) + ' is/are additional properties which are not allowed.',
                 );
             }
         }
@@ -154,7 +155,11 @@ export class ObjectValidator {
     ) {
         for (const each of Array.from(schema.getProperties()!)) {
             let value: any = jsonObject[each[0]];
-            if (isNullValue(value)) continue;
+
+            if (!jsonObject.hasOwnProperty(each[0]) && isNullValue(value)) {
+                const defValue = SchemaUtil.getDefaultValue(each[1], repository);
+                if (isNullValue(defValue)) continue;
+            }
 
             let newParents: Schema[] = !parents ? [] : [...parents];
             let element: any = SchemaValidator.validate(newParents, each[1], repository, value);
