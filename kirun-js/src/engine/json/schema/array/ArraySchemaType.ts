@@ -44,6 +44,16 @@ export class ArraySchemaType {
         if (Array.isArray(obj))
             return new ArraySchemaType().setTupleSchema(Schema.fromListOfSchemas(obj)!);
 
+        let keys: any[] = Object.keys(obj);
+
+        if (keys.indexOf('singleSchema') != -1) {
+            return new ArraySchemaType().setSingleSchema(Schema.from(obj['singleSchema'])!);
+        } else if (keys.indexOf('tupleSchema') != -1) {
+            return new ArraySchemaType().setTupleSchema(
+                Schema.fromListOfSchemas(obj['tupleSchema'])!,
+            );
+        }
+
         let x = Schema.from(obj);
         if (!x) return undefined;
         return new ArraySchemaType().setSingleSchema(x);
