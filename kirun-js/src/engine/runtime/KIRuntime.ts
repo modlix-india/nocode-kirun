@@ -68,19 +68,22 @@ export class KIRuntime extends AbstractFunction {
     }
 
     public async getExecutionPlan(
-        fep: FunctionExecutionParameters,
-    ): Promise<Tuple2<Tuple2<string, string>[], ExecutionGraph<string, StatementExecution>>> {
+        fRepo: Repository<Function>,
+        sRepo: Repository<Schema>,
+    ): Promise<ExecutionGraph<string, StatementExecution>> {
         let g: ExecutionGraph<string, StatementExecution> = new ExecutionGraph();
         for (let s of Array.from(this.fd.getSteps().values()))
-            g.addVertex(
-                this.prepareStatementExecution(
-                    s,
-                    fep.getFunctionRepository(),
-                    fep.getSchemaRepository(),
-                ),
-            );
+            g.addVertex(this.prepareStatementExecution(s, fRepo, sRepo));
 
-        return new Tuple2(this.makeEdges(g), g);
+        let unresolved = this.makeEdges(g);
+
+        Array.from(unresolved.getT2().entries()).forEach((e) => {
+            let ex = g.getNodeMap().get(e[0])?.getData();
+            if (!ex) return;
+            ex.addMessage(StatementMessageType.ERROR, e[1]);
+        });
+
+        return g;
     }
 
     protected async internalExecute(
@@ -105,36 +108,13 @@ export class KIRuntime extends AbstractFunction {
             console.log(`EID: ${inContext.getExecutionId()} Parameters: `, inContext);
         }
 
-        let eGraph: Tuple2<
-            Tuple2<string, string>[],
-            ExecutionGraph<string, StatementExecution>
-        > = await this.getExecutionPlan(inContext);
+        let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
+            inContext.getFunctionRepository(),
+            inContext.getSchemaRepository(),
+        );
 
         if (this.debugMode) {
-            console.log(`EID: ${inContext.getExecutionId()} ${eGraph.getT2()?.toString()}`);
-        }
-
-        let unresolvedList: Tuple2<string, string>[] = eGraph.getT1();
-
-        if (this.debugMode && unresolvedList.length) {
-            console.log(`EID: ${inContext.getExecutionId()} Unresolved Dependencies: `);
-            console.log(
-                `EID: ${inContext.getExecutionId()} `,
-                unresolvedList.map((e) =>
-                    StringFormatter.format('Steps.$.$', e.getT1(), e.getT2()),
-                ),
-            );
-        }
-
-        if (unresolvedList.length) {
-            throw new KIRuntimeException(
-                StringFormatter.format(
-                    'Found these unresolved dependencies : $ ',
-                    unresolvedList.map((e) =>
-                        StringFormatter.format('Steps.$.$', e.getT1(), e.getT2()),
-                    ),
-                ),
-            );
+            console.log(`EID: ${inContext.getExecutionId()} ${eGraph?.toString()}`);
         }
 
         // if (logger.isDebugEnabled()) {
@@ -143,7 +123,6 @@ export class KIRuntime extends AbstractFunction {
         // }
 
         let messages: string[] = eGraph
-            .getT2()
             .getVerticesData()
             .filter((e) => e.getMessages().length)
             .map((e) => e.getStatement().getStatementName() + ': \n' + e.getMessages().join(','));
@@ -155,7 +134,7 @@ export class KIRuntime extends AbstractFunction {
             );
         }
 
-        return await this.executeGraph(eGraph.getT2(), inContext);
+        return await this.executeGraph(eGraph, inContext);
     }
 
     private async executeGraph(
@@ -414,7 +393,7 @@ export class KIRuntime extends AbstractFunction {
 
         if (!isOutput) {
             let subGraph = vertex.getSubGraphOfType(er.getName());
-            let unResolvedDependencies: Tuple2<string, string>[] = this.makeEdges(subGraph);
+            let unResolvedDependencies: Tuple2<string, string>[] = this.makeEdges(subGraph).getT1();
             branchQue.push(new Tuple4(subGraph, unResolvedDependencies, result, vertex));
         } else {
             let out: Set<GraphVertex<string, StatementExecution>> | undefined = vertex
@@ -566,9 +545,11 @@ export class KIRuntime extends AbstractFunction {
         let fun: Function | undefined = fRepo.find(s.getNamespace(), s.getName());
 
         if (!fun) {
-            throw new KIRuntimeException(
-                StringFormatter.format('$.$ was not available', s.getNamespace(), s.getName()),
+            se.addMessage(
+                StatementMessageType.ERROR,
+                StringFormatter.format('$.$ is not available', s.getNamespace(), s.getName()),
             );
+            return se;
         }
 
         let paramSet: Map<string, Parameter> = new Map(fun.getSignature().getParameters());
@@ -736,10 +717,13 @@ export class KIRuntime extends AbstractFunction {
         );
     }
 
-    public makeEdges(graph: ExecutionGraph<string, StatementExecution>): Tuple2<string, string>[] {
+    public makeEdges(
+        graph: ExecutionGraph<string, StatementExecution>,
+    ): Tuple2<Tuple2<string, string>[], Map<string, string>> {
         let values = graph.getNodeMap().values();
 
         let retValue: Tuple2<string, string>[] = [];
+        let retMap: Map<string, string> = new Map();
 
         for (let e of Array.from(values)) {
             for (let d of e.getData().getDependencies()) {
@@ -751,13 +735,17 @@ export class KIRuntime extends AbstractFunction {
                         ? d.substring(secondDot + 1)
                         : d.substring(secondDot + 1, eventDot);
 
-                if (!graph.getNodeMap().has(step)) retValue.push(new Tuple2(step, event));
+                if (!graph.getNodeMap().has(step)) {
+                    retValue.push(new Tuple2(step, event));
+                    retMap.set(
+                        e.getData().getStatement().getStatementName(),
 
-                let st = graph.getNodeMap()!.get(step);
-                if (st) e.addInEdgeTo(st, event);
+                        StringFormatter.format('Unable to find the step with name $', step),
+                    );
+                } else e.addInEdgeTo(graph.getNodeMap().get(step)!, event);
             }
         }
 
-        return retValue;
+        return new Tuple2(retValue, retMap);
     }
 }
