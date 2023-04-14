@@ -191,3 +191,22 @@ test(' entry duplicate entry test ', async () => {
         parentRes,
     );
 });
+
+test('entry primitive String test ', async () => {
+    let obj = 'ab cd';
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
+
+    fep.setArguments(MapUtil.of('source', obj));
+
+    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual([
+        ['0', 'a'],
+        ['1', 'b'],
+        ['2', ' '],
+        ['3', 'c'],
+        ['4', 'd'],
+    ]);
+});
