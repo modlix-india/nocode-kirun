@@ -38,8 +38,8 @@ export class Position {
         return this;
     }
 
-    public static from(json: any): Position {
-        if (!json) return new Position(-1, -1);
+    public static from(json: any): Position | undefined {
+        if (!json) return undefined;
         return new Position(json.left, json.top);
     }
 }

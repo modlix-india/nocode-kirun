@@ -42,7 +42,7 @@ export class AbstractStatement {
     public getPosition(): Position | undefined {
         return this.position;
     }
-    public setPosition(position: Position): AbstractStatement {
+    public setPosition(position: Position | undefined): AbstractStatement {
         this.position = position;
         return this;
     }
