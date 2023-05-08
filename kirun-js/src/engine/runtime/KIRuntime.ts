@@ -553,7 +553,7 @@ export class KIRuntime extends AbstractFunction {
         }
 
         let paramSet: Map<string, Parameter> = new Map(fun.getSignature().getParameters());
-
+        if (!s.getParameterMap()) return se;
         for (let param of Array.from(s.getParameterMap().entries())) {
             let p: Parameter | undefined = paramSet.get(param[0]);
             if (!p) continue;
@@ -561,7 +561,10 @@ export class KIRuntime extends AbstractFunction {
             let refList: ParameterReference[] = Array.from(param[1]?.values() ?? []);
 
             if (!refList.length && !p.isVariableArgument()) {
-                if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)))
+                if (
+                    isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)) &&
+                    isNullValue(param[1]?.values())
+                )
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -623,7 +626,8 @@ export class KIRuntime extends AbstractFunction {
         } else if (ref.getType() == ParameterReferenceType.VALUE) {
             if (
                 isNullValue(ref.getValue()) &&
-                isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo))
+                isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)) &&
+                !p.getSchema().getType()?.getAllowedSchemaTypes()?.has(SchemaType.NULL)
             )
                 se.addMessage(
                     StatementMessageType.ERROR,

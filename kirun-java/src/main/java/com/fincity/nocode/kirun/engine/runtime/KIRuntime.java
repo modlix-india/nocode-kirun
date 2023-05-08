@@ -557,6 +557,9 @@ public class KIRuntime extends AbstractFunction {
 
 		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
 		        .getParameters());
+		
+		if(s.getParameterMap() == null || s.getParameterMap().isEmpty()) 
+		    return se;
 
 		for (Entry<String, Map<String, ParameterReference>> param : s.getParameterMap()
 		        .entrySet()) {
@@ -569,10 +572,12 @@ public class KIRuntime extends AbstractFunction {
 
 			if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
-				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
-					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-				continue;
+                if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null
+                        && (param.getValue() == null || param.getValue().values() == null
+                                || param.getValue().size() == 0))
+                    se.addMessage(StatementMessageType.ERROR,
+                            StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+                continue;
 			}
 
 			if (p.isVariableArgument()) {
@@ -615,15 +620,17 @@ public class KIRuntime extends AbstractFunction {
 	private void parameterReferenceValidation(StatementExecution se, Parameter p, // NOSONAR
 	        ParameterReference ref, Repository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
-
 		if (ref == null) {
 			if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-		} else if (ref.getType() == ParameterReferenceType.VALUE) {
-			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
-				se.addMessage(StatementMessageType.ERROR,
+        } else if (ref.getType() == ParameterReferenceType.VALUE) {
+            if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null
+                    && !p.getSchema().getType().getAllowedSchemaTypes().contains(SchemaType.NULL)) {
+        		se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+            }
+            
 			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
 			paramElements.push(Tuples.of(p.getSchema(), ref.getValue()));
 
