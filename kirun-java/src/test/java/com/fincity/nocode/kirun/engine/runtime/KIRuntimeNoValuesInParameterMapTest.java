@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 
-class KIRuntimeundefinedValueTest {
+class KIRuntimeNoValuesInParameterMapTest {
 
     @Test
     void test() {
@@ -41,22 +41,6 @@ class KIRuntimeundefinedValueTest {
                         "namespace": "function",
                         "name": "test",
                         "parameterMap": {
-                        "values": {
-                          "one": {
-                            "key": "one",
-                            "type": "VALUE",
-                            "value": null
-                          },
-                          "two":{
-                              "key":"two",
-                              "type":"VALUE"
-                          },
-                            "three":{
-                              "key":"three",
-                              "type":"VALUE",
-                              "value":undefined
-                          }
-                        }
                         }
                         }
                         }
@@ -68,7 +52,6 @@ class KIRuntimeundefinedValueTest {
 
             @Override
             public Function find(String namespace, String name) {
-
                 if ("function".equals(namespace))
                     return printMethod;
                 return null;
@@ -85,8 +68,9 @@ class KIRuntimeundefinedValueTest {
         var results = first
                 .execute(new FunctionExecutionParameters(repo, new KIRunSchemaRepository()).setArguments(Map.of()));
 
-        var emptyArray = new ArrayList<>();
-        assertEquals(emptyArray, results.allResults());
+        var res = new ArrayList<>();
+        assertEquals(res, results.allResults());
+
     }
 
 }

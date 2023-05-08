@@ -22,7 +22,7 @@ test('KIRuntime With Definition 3', async () => {
                 namespace: 'function',
                 name: 'test',
                 parameterMap: {
-                    value: {
+                    values: {
                         one: { key: 'one', type: 'VALUE', value: null },
                         two: { key: 'two', type: 'VALUE', value: undefined },
                         three: { key: 'three', type: 'VALUE' },

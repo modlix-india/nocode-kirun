@@ -72,7 +72,6 @@ test('KIRuntime With Definition 1', async () => {
 
     const fd = FunctionDefinition.from(def);
 
-    console.log(fd);
     let result = await new KIRuntime(fd, true).execute(
         new FunctionExecutionParameters(
             new KIRunFunctionRepository(),
@@ -80,7 +79,7 @@ test('KIRuntime With Definition 1', async () => {
         ).setArguments(
             new Map([
                 ['a', 7],
-                ['b', 10],
+                ['b', 11],
                 ['c', 13],
             ]),
         ),

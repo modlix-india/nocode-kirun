@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.runtime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,15 +42,6 @@ class KIRuntimeNoValuesTest {
                         "name": "test",
                         "parameterMap": {
                         "values": {
-                          "one": {
-                            "key": "one",
-                            "type": "VALUE",
-                            "value": null
-                          },
-                           "two": {
-                            "key": "two",
-                            "type": "VALUE"
-                          }
                         }
                         }
                         }
@@ -62,7 +54,9 @@ class KIRuntimeNoValuesTest {
 
             @Override
             public Function find(String namespace, String name) {
-                return first;
+                if ("function".equals(namespace))
+                    return printMethod;
+                return null;
             }
 
             @Override
@@ -73,16 +67,12 @@ class KIRuntimeNoValuesTest {
 
         var repo = new HybridRepository<>(new KIRunFunctionRepository(), new InternalRepository());
 
-        try {
+        var results = first
+                .execute(new FunctionExecutionParameters(repo, new KIRunSchemaRepository()).setArguments(Map.of()));
 
-            var results = first
-                    .execute(new FunctionExecutionParameters(repo, new KIRunSchemaRepository()).setArguments(Map.of()));
+        var res = new ArrayList<>();
+        assertEquals(res, results.allResults());
 
-            assertEquals(new JsonArray(), results.allResults());
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 
 }
