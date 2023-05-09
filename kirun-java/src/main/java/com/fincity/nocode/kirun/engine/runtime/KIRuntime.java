@@ -560,7 +560,7 @@ public class KIRuntime extends AbstractFunction {
 		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
 		        .getParameters());
 		
-		if(s.getParameterMap() == null || s.getParameterMap().isEmpty()) 
+		if(s.getParameterMap() == null ) 
 		    return se;
 
 		for (Entry<String, Map<String, ParameterReference>> param : s.getParameterMap()
@@ -622,6 +622,7 @@ public class KIRuntime extends AbstractFunction {
 	private void parameterReferenceValidation(StatementExecution se, Parameter p, // NOSONAR
 	        ParameterReference ref, Repository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
+	    
 		if (ref == null) {
 			if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
 				se.addMessage(StatementMessageType.ERROR,
