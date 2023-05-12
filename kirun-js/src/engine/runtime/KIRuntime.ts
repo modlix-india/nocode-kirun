@@ -562,10 +562,7 @@ export class KIRuntime extends AbstractFunction {
             let refList: ParameterReference[] = Array.from(param[1]?.values() ?? []);
 
             if (!refList.length && !p.isVariableArgument()) {
-                if (
-                    isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)) &&
-                    isNullValue(param[1]?.values())
-                )
+                if (!SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -592,11 +589,10 @@ export class KIRuntime extends AbstractFunction {
             for (let statement of se.getStatement().getDependentStatements().entries())
                 if (statement[1]) se.addDependency(statement[0]);
         }
-
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
                 if (param.isVariableArgument()) continue;
-                if (isNullValue(SchemaUtil.getDefaultValue(param.getSchema(), sRepo)))
+                if (!SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -627,8 +623,7 @@ export class KIRuntime extends AbstractFunction {
         } else if (ref.getType() == ParameterReferenceType.VALUE) {
             if (
                 isNullValue(ref.getValue()) &&
-                isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)) &&
-                !p.getSchema().getType()?.getAllowedSchemaTypes()?.has(SchemaType.NULL)
+                !SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
             )
                 se.addMessage(
                     StatementMessageType.ERROR,

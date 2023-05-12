@@ -38,7 +38,7 @@ class KIRuntimeWithoutGenEventTest {
 				    "events": {
 						"output": {
 						            "name": "output",
-						            "parameters": { "additionResult": { "name": "additionResult", type: "INTEGER" } }
+						            "parameters": { "additionResult": { "name": "additionResult", "type": "INTEGER" } }
 						        }
 				    },
 				    "steps": {
