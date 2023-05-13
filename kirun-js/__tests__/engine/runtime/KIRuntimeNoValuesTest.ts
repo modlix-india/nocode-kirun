@@ -12,7 +12,7 @@ import {
 } from '../../../src';
 import { Print } from '../../../src/engine/function/system/Print';
 
-test('KIRuntime With Definition 3', async () => {
+test('KIRuntime With Definition without values object inside parameter Map', async () => {
     var def = {
         name: 'Make an error',
         namespace: 'UIApp',

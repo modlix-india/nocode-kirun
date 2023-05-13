@@ -11,7 +11,7 @@ import {
 } from '../../../src';
 import { Print } from '../../../src/engine/function/system/Print';
 
-test('KIRuntime With Definition 3', async () => {
+test('KIRuntime Without any parameter map passed in definition', async () => {
     var def = {
         name: 'Make an error',
         namespace: 'UIApp',
