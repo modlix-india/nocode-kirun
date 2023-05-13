@@ -136,6 +136,7 @@ class KIRuntimeTest {
 		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
 		                .setArguments(Map.of("Count", new JsonPrimitive(num))))
 		        .allResults();
+		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
 		assertEquals(List.of(new EventResult().setName("output")
 		        .setResult(Map.of("result", array))), out);
 	}

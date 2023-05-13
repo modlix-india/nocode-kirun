@@ -4,12 +4,12 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 
 import java.util.List;
 import java.util.Map;
+
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.AbstractFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
-
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
@@ -61,9 +61,6 @@ public class AbstractRandom extends AbstractFunction {
 
 		Tuple2<SchemaType, Number> primitiveTypeTupleOfMin = PrimitiveUtil
 				.findPrimitiveNumberType(minvalue.getAsJsonPrimitive());
-
-		Tuple2<SchemaType, Number> primitiveTypeTupleOfMax = PrimitiveUtil
-				.findPrimitiveNumberType(maxValue.getAsJsonPrimitive());
 
 		if (minvalue.getAsDouble() > maxValue.getAsDouble())
 			throw new KIRuntimeException("Given minimum value is more than the maximum value.");
