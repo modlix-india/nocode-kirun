@@ -628,6 +628,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 			HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
 			        .getParameters());
+
 			if (s.getParameterMap() == null)
 				return Mono.just(se);
 
@@ -642,12 +643,10 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 				if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
-					if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null
-					        && (param.getValue() == null || param.getValue()
-					                .values() == null || param.getValue()
-					                        .size() == 0))
+					if (!SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
 						se.addMessage(StatementMessageType.ERROR,
 						        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+					paramSet.remove(param.getKey());
 					continue;
 				}
 
@@ -679,7 +678,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				for (Parameter param : paramSet.values()) {
 					if (param.isVariableArgument())
 						continue;
-					if (SchemaUtil.getDefaultValue(param.getSchema(), sRepo) == null)
+					if (!SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo))
 						se.addMessage(StatementMessageType.ERROR,
 						        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
 				}
@@ -702,10 +701,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 		} else if (ref.getType() == ParameterReferenceType.VALUE) {
 			if ((ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue()))
-			        && SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null && !p.getSchema()
-			                .getType()
-			                .getAllowedSchemaTypes()
-			                .contains(SchemaType.NULL)) {
+			        && !SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)) {
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 			}
