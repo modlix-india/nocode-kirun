@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.runtime;
 
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
