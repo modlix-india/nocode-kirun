@@ -45,6 +45,7 @@ import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenVal
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import reactor.core.publisher.Flux;
@@ -495,7 +496,7 @@ public class KIRuntime extends AbstractFunction {
 			                : new ArrayList<>(e.getValue()
 			                        .values());
 
-			        JsonElement ret = null;
+			        JsonElement ret = JsonNull.INSTANCE;
 
 			        if (prList == null || prList.isEmpty())
 				        return Tuples.of(e.getKey(), ret);
@@ -509,6 +510,7 @@ public class KIRuntime extends AbstractFunction {
 				        prList.stream()
 				                .sorted((a, b) -> a.getOrder() - b.getOrder())
 				                .map(r -> this.parameterReferenceEvaluation(inContext, r))
+				                .filter(r -> r != null && !r.isJsonNull())
 				                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
 				                        .spliterator(), false) : Stream.of(r))
 				                .forEachOrdered(((JsonArray) ret)::add);
@@ -558,6 +560,9 @@ public class KIRuntime extends AbstractFunction {
 		HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
 		        .getParameters());
 
+		if (s.getParameterMap() == null)
+			return se;
+
 		for (Entry<String, Map<String, ParameterReference>> param : s.getParameterMap()
 		        .entrySet()) {
 
@@ -569,9 +574,11 @@ public class KIRuntime extends AbstractFunction {
 
 			if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
-				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
+				if (!SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+
+				paramSet.remove(param.getKey());
 				continue;
 			}
 
@@ -603,7 +610,7 @@ public class KIRuntime extends AbstractFunction {
 			for (Parameter param : paramSet.values()) {
 				if (param.isVariableArgument())
 					continue;
-				if (SchemaUtil.getDefaultValue(param.getSchema(), sRepo) == null)
+				if (!SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo))
 					se.addMessage(StatementMessageType.ERROR,
 					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
 			}
@@ -621,9 +628,15 @@ public class KIRuntime extends AbstractFunction {
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
 		} else if (ref.getType() == ParameterReferenceType.VALUE) {
-			if (ref.getValue() == null && SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
+			if ((ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue()))
+			        && !SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)) {
 				se.addMessage(StatementMessageType.ERROR,
 				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+			}
+
+			if (ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue()))
+				return;
+
 			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
 			paramElements.push(Tuples.of(p.getSchema(), ref.getValue()));
 

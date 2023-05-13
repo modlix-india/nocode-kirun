@@ -33,12 +33,14 @@ public class StatementExecution implements GraphVertexType<String> {
 		return statement.getStatementName();
 	}
 
-	public void addMessage(StatementMessageType type, String message) {
+	public StatementExecution addMessage(StatementMessageType type, String message) {
 		this.messages.add(new StatementMessage(type, message));
+		return this;
 	}
 
-	public void addDependency(String dependency) {
+	public StatementExecution addDependency(String dependency) {
 		this.dependencies.add(dependency);
+		return this;
 	}
 
 	@Override

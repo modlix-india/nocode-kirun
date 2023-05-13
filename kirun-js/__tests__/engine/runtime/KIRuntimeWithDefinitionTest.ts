@@ -84,7 +84,6 @@ test('KIRuntime With Definition 1', async () => {
             ]),
         ),
     );
-
     expect(result.allResults()[0].getResult().get('additionResult')).toBe(31);
 });
 

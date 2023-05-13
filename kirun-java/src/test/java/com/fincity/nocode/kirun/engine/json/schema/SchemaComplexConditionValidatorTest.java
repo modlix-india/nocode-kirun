@@ -259,7 +259,6 @@ class SchemaComplexConditionValidatorTest {
 		JsonArray ja2 = new JsonArray();
 		ja2.add(bjob);
 		outerObj.add("conditions", ja2);
-		System.out.println(outerObj);
 		var res = SchemaValidator.validate(null, compConditions, repo, outerObj);
 
 		assertEquals(outerObj, res);

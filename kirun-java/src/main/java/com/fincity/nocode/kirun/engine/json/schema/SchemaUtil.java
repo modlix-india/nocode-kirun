@@ -29,6 +29,22 @@ public class SchemaUtil {
 
 		return getDefaultValue(getSchemaFromRef(s, sRepository, s.getRef(), 0), sRepository);
 	}
+	
+    public static boolean hasDefaultValueOrNullSchemaType(Schema s, Repository<Schema> repo) {
+        if (s == null)
+            return false;
+
+        if (s.getConstant() != null)
+            return true;
+        
+        if(s.getDefaultValue() != null)
+            return true;
+
+        if (s.getRef() == null) {
+            return s.getType().getAllowedSchemaTypes().contains(SchemaType.NULL);
+        }
+        return hasDefaultValueOrNullSchemaType(SchemaUtil.getSchemaFromRef(s, repo, s.getRef()), repo);
+    }
 
 	public static Schema getSchemaFromRef(Schema schema, Repository<Schema> sRepository, String ref) {
 		return getSchemaFromRef(schema, sRepository, ref, 0);

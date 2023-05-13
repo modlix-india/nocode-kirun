@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.function;
+package com.fincity.nocode.kirun.engine.function.reactive;
 
 import java.util.List;
 import java.util.Map;
@@ -8,13 +8,14 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.arguments.Arguments;
 
-public abstract class AbstractFunction implements Function {
+import reactor.core.publisher.Mono;
 
-	
+public abstract class AbstractReactiveFunction implements ReactiveFunction {
+
 	@Override
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
 		return this.getSignature()
@@ -22,7 +23,7 @@ public abstract class AbstractFunction implements Function {
 	}
 	
 	@Override
-	public FunctionOutput execute(FunctionExecutionParameters context) {
+	public Mono<FunctionOutput> execute(ReactiveFunctionExecutionParameters context) {
 
 		context.setArguments(Arguments.validateArguments(this.getSignature(), context.getArguments(), context.getSchemaRepository(),
 		        context.getStatementExecution()));
@@ -44,5 +45,5 @@ public abstract class AbstractFunction implements Function {
 		}
 	}
 
-	protected abstract FunctionOutput internalExecute(FunctionExecutionParameters context);
+	protected abstract Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context);
 }
