@@ -9,10 +9,42 @@ import {
     Function,
     HybridRepository,
     FunctionOutput,
+    Parameter,
+    Schema,
+    FunctionSignature,
+    EventResult,
+    AbstractFunction,
 } from '../../../src';
-import { Print } from '../../../src/engine/function/system/Print';
 
-test('KIRuntime With Definition 3', async () => {
+class Print extends AbstractFunction {
+    private static readonly VALUES: string = 'values';
+    private static readonly VALUE: string = 'value';
+
+    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Print')
+        .setNamespace(Namespaces.SYSTEM)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(Print.VALUES, Schema.ofAny(Print.VALUES), true),
+                Parameter.ofEntry(Print.VALUE, Schema.ofAny(Print.VALUE)),
+            ]),
+        );
+
+    public getSignature(): FunctionSignature {
+        return Print.SIGNATURE;
+    }
+
+    protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
+        let values = context.getArguments()?.get(Print.VALUES);
+        let value = context.getArguments()?.get(Print.VALUE);
+
+        console?.log('Values', ...values);
+        console?.log('Value', value);
+
+        return new FunctionOutput([EventResult.outputOf(new Map())]);
+    }
+}
+
+test('KIRuntime Undefined and null param type with varargs', async () => {
     var def = {
         name: 'Make an error',
         namespace: 'UIApp',
@@ -25,8 +57,53 @@ test('KIRuntime With Definition 3', async () => {
                     values: {
                         one: { key: 'one', type: 'VALUE', value: null },
                         two: { key: 'two', type: 'VALUE', value: undefined },
-                        three: { key: 'three', type: 'VALUE' },
+                        three: { key: 'three', type: 'EXPRESSION', expression: 'null' },
                         four: { key: 'four', type: 'VALUE', value: 12 },
+                    },
+                    value: {},
+                },
+            },
+        },
+    };
+
+    const fd = FunctionDefinition.from(def);
+
+    const tstPrint = new Print();
+
+    class TestRepository implements Repository<Function> {
+        public find(namespace: string, name: string): Function | undefined {
+            return tstPrint;
+        }
+        filter(name: string): string[] {
+            throw new Error('Method not implemented.');
+        }
+    }
+
+    try {
+        var fo: FunctionOutput = await new KIRuntime(fd).execute(
+            new FunctionExecutionParameters(
+                new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
+                new KIRunSchemaRepository(),
+            ).setArguments(new Map()),
+        );
+        expect(fo.allResults()).toStrictEqual([]);
+    } catch (e: any) {
+        console.error(e);
+    }
+});
+
+test('KIRuntime Undefined and null param type without varargs', async () => {
+    var def = {
+        name: 'Make an error',
+        namespace: 'UIApp',
+        steps: {
+            print: {
+                statementName: 'print',
+                namespace: 'function',
+                name: 'test',
+                parameterMap: {
+                    value: {
+                        two: { key: 'two', type: 'VALUE', value: undefined },
                     },
                 },
             },

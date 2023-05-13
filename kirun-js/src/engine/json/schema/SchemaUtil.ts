@@ -29,6 +29,26 @@ export class SchemaUtil {
         );
     }
 
+    public static hasDefaultValueOrNullSchemaType(
+        s: Schema | undefined,
+        sRepository: Repository<Schema> | undefined,
+    ): boolean {
+        if (!s) return false;
+        if (s.getConstant()) return true;
+
+        if (s.getDefaultValue()) return true;
+
+        if (isNullValue(s.getRef())) {
+            if (s.getType()?.getAllowedSchemaTypes().has(SchemaType.NULL)) return true;
+            return false;
+        }
+
+        return this.hasDefaultValueOrNullSchemaType(
+            SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
+            sRepository,
+        );
+    }
+
     public static getSchemaFromRef(
         schema: Schema,
         sRepository: Repository<Schema> | undefined,
