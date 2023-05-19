@@ -16,7 +16,7 @@ export class FunctionOutput {
             this.fo = arg as EventResult[];
         } else {
             this.fo = [];
-            this.generator = arg as FunctionOutputGenerator;
+            if (!Array.isArray(arg)) this.generator = arg as FunctionOutputGenerator;
         }
     }
 
