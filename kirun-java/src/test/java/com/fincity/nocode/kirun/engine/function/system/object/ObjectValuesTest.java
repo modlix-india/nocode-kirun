@@ -47,8 +47,8 @@ class ObjectValuesTest {
 
         JsonArray res = new JsonArray();
         res.add(1);
-        res.add(2);
         res.add(arr);
+        res.add(2);
 
         FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
                 new KIRunSchemaRepository())
@@ -170,10 +170,8 @@ class ObjectValuesTest {
 
         JsonArray res = new JsonArray();
         res.add(1);
-
-        res.add(2);
         res.add(arr);
-
+        res.add(2);
         res.add(tempObj1);
 
         FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
