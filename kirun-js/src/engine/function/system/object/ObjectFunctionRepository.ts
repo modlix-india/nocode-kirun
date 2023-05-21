@@ -21,7 +21,7 @@ const filterableNames = Object.values(functionObjectsIndex).map((e) =>
 
 export class ObjectFunctionRepository implements Repository<Function> {
     find(namespace: string, name: string): Function | undefined {
-        if (namespace != Namespaces.MATH) return undefined;
+        if (namespace != Namespaces.SYSTEM_OBJECT) return undefined;
 
         return functionObjectsIndex[name];
     }
