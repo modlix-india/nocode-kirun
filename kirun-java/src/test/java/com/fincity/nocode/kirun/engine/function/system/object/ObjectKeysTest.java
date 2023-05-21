@@ -48,8 +48,9 @@ class ObjectKeysTest {
         JsonArray res = new JsonArray();
 
         res.add("a");
-        res.add("b");
+        
         res.add("arr");
+        res.add("b");
 
         FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
                 new KIRunSchemaRepository())
@@ -175,8 +176,8 @@ class ObjectKeysTest {
         JsonArray res = new JsonArray();
 
         res.add("a");
-        res.add("b");
         res.add("arr");
+        res.add("b");
         res.add("prop2");
 
         FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),

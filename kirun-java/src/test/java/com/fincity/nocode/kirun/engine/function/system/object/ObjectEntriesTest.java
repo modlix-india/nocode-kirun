@@ -48,21 +48,19 @@ class ObjectEntriesTest {
         JsonArray res = new JsonArray();
 
         JsonArray arr1 = new JsonArray();
-
         arr1.add("a");
         arr1.add(1);
         res.add(arr1);
-
-        JsonArray arr2 = new JsonArray();
-
-        arr2.add("b");
-        arr2.add(2);
-        res.add(arr2);
+        
         JsonArray arr3 = new JsonArray();
         arr3.add("arr");
         arr3.add(arr);
-
         res.add(arr3);
+        
+        JsonArray arr2 = new JsonArray();
+        arr2.add("b");
+        arr2.add(2);
+        res.add(arr2);
 
         FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
                 new KIRunSchemaRepository())
@@ -183,6 +181,7 @@ class ObjectEntriesTest {
         JsonArray arr = new JsonArray();
         arr.add(false);
         arr.add(true);
+        
         JsonObject tempObj1 = new JsonObject();
         tempObj1.add("prop1", new JsonPrimitive(false));
         tempObj1.add("a", new JsonPrimitive("1"));
@@ -210,16 +209,18 @@ class ObjectEntriesTest {
         arr1.add(1);
         res.add(arr1);
 
-        JsonArray arr2 = new JsonArray();
-
-        arr2.add("b");
-        arr2.add(2);
-        res.add(arr2);
         JsonArray arr3 = new JsonArray();
         arr3.add("arr");
         arr3.add(arr);
 
         res.add(arr3);
+        
+        JsonArray arr2 = new JsonArray();
+
+        arr2.add("b");
+        arr2.add(2);
+        res.add(arr2);
+        
         JsonArray arr4 = new JsonArray();
 
         arr4.add("prop2");

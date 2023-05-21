@@ -8,6 +8,7 @@ import { If } from '../function/system/If';
 import { CountLoop } from '../function/system/loop/CountLoop';
 import { RangeLoop } from '../function/system/loop/RangeLoop';
 import { MathFunctionRepository } from '../function/system/math/MathFunctionRepository';
+import { ObjectFunctionRepository } from '../function/system/object/ObjectFunctionRepository';
 import { Print } from '../function/system/Print';
 import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
 import { HybridRepository } from '../HybridRepository';
@@ -46,6 +47,7 @@ export class KIRunFunctionRepository extends HybridRepository<Function> {
             new MathFunctionRepository(),
             new StringFunctionRepository(),
             new ArrayFunctionRepository(),
+            new ObjectFunctionRepository(),
         );
     }
 }

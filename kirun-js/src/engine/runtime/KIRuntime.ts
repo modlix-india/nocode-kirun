@@ -172,11 +172,12 @@ export class KIRuntime extends AbstractFunction {
                 throw new KIRuntimeException('No events raised');
         }
 
-        return new FunctionOutput(
-            Array.from(inContext.getEvents()?.entries() ?? []).flatMap((e) =>
-                e[1].map((v) => EventResult.of(e[0], v)),
-            ),
+        const er: EventResult[] = Array.from(inContext.getEvents()?.entries() ?? []).flatMap((e) =>
+            e[1].map((v) => EventResult.of(e[0], v)),
         );
+
+        if (er.length || eGraph.isSubGraph()) return new FunctionOutput(er);
+        else return new FunctionOutput([EventResult.of(Event.OUTPUT, new Map<string, any>())]);
     }
 
     private async processExecutionQue(

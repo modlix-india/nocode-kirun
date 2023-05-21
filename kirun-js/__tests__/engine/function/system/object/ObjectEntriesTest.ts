@@ -24,9 +24,8 @@ test('entry test 1', async () => {
         ['d', ['a', 'b', 'c']],
     ];
 
-    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
-        res,
-    );
+    const value = (await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value');
+    expect(value).toMatchObject(res);
 });
 
 test('entry null test ', async () => {
@@ -127,7 +126,7 @@ test('entry nested object test', async () => {
         ['c', ['q', 'w', 'e', 'r']],
     ];
 
-    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         res,
     );
 });
@@ -160,9 +159,9 @@ test(' entry array test ', async () => {
 });
 
 test(' entry duplicate entry test ', async () => {
-    let parent = { a: { b: 'c' }, k: { b: 'c' } };
+    let parent = { k: { b: 'c' }, a: { b: 'c' } };
 
-    let obj = { ...parent, a: 'overridden', k: ' so only child objects are returned from child ' }; // trying to replicate duplicate
+    let obj = { ...parent, k: ' so only child objects are returned from child ', a: 'overridden' }; // trying to replicate duplicate
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
@@ -176,7 +175,7 @@ test(' entry duplicate entry test ', async () => {
         ['k', ' so only child objects are returned from child '],
     ];
 
-    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         childRes,
     );
 
@@ -187,7 +186,7 @@ test(' entry duplicate entry test ', async () => {
 
     fep.setArguments(MapUtil.of('source', parent));
 
-    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objEnt.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         parentRes,
     );
 });

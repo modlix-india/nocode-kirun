@@ -11,25 +11,23 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
 public abstract class AbstractObjectFunction extends AbstractFunction {
 
-    private static final String SOURCE = "source";
+	private static final String SOURCE = "source";
 
-    private static final String EVENT_RESULT = "value";
+	private static final String VALUE = "value";
 
-    private FunctionSignature signature;
+	private FunctionSignature signature;
 
-    protected AbstractObjectFunction(String functionName) {
+	protected AbstractObjectFunction(String functionName, Schema schema) {
 
-        Event event = new Event().setName(Event.OUTPUT)
-                .setParameters(Map.of(EVENT_RESULT, Schema.ofAny(EVENT_RESULT)));
+		signature = new FunctionSignature().setName(functionName)
+		        .setNamespace(Namespaces.SYSTEM_OBJECT)
+		        .setParameters(Map.of(SOURCE, new Parameter().setParameterName(SOURCE)
+		                .setSchema(Schema.ofAny(SOURCE))))
+		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, schema))));
+	}
 
-        signature = new FunctionSignature().setName(functionName).setNamespace(Namespaces.SYSTEM)
-                .setParameters(
-                        Map.of(SOURCE, new Parameter().setParameterName(SOURCE).setSchema(Schema.ofAny(SOURCE))))
-                .setEvents(Map.of(event.getName(), event));
-    }
-
-    @Override
-    public FunctionSignature getSignature() {
-        return signature;
-    }
+	@Override
+	public FunctionSignature getSignature() {
+		return signature;
+	}
 }

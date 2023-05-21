@@ -4,12 +4,14 @@ import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionP
 import { isNullValue } from '../../../util/NullCheck';
 import { EventResult } from '../../../model/EventResult';
 import { AbstractObjectFunction } from './AbstractObjectFunction';
+import { Schema } from '../../../json/schema/Schema';
+import { duplicate } from '../../../util/duplicate';
 
 const VALUE = 'value';
 
 export class ObjectValues extends AbstractObjectFunction {
     public constructor() {
-        super('ObjectValues');
+        super('ObjectValues', Schema.ofArray(VALUE, Schema.ofAny(VALUE)));
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
@@ -18,7 +20,9 @@ export class ObjectValues extends AbstractObjectFunction {
         if (isNullValue(source))
             return new FunctionOutput([EventResult.outputOf(new Map([[VALUE, []]]))]);
 
-        let objectValues: String[] = Object.values(source);
+        let objectValues: any[] = Object.entries(duplicate(source))
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map((e) => e[1]);
 
         return new FunctionOutput([EventResult.outputOf(new Map([[VALUE, objectValues]]))]);
     }
