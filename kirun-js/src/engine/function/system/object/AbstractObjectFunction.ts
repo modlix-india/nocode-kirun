@@ -19,7 +19,7 @@ export abstract class AbstractObjectFunction extends AbstractFunction {
         super();
         this.signature = new FunctionSignature(functionName)
             .setNamespace(Namespaces.SYSTEM_OBJECT)
-            .setParameters(new Map([[SOURCE, new Parameter(SOURCE, Schema.ofAny(SOURCE))]]))
+            .setParameters(new Map([Parameter.ofEntry(SOURCE, Schema.ofAny(SOURCE))]))
             .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, valueSchema]]))]));
     }
 
