@@ -13,19 +13,17 @@ const VALUE = 'value';
 const SOURCE = 'source';
 
 export abstract class AbstractObjectFunction extends AbstractFunction {
-    private SIGNATURE: FunctionSignature;
+    private signature: FunctionSignature;
 
-    protected constructor(functionName: string) {
+    protected constructor(functionName: string, valueSchema: Schema) {
         super();
-        this.SIGNATURE = new FunctionSignature(functionName)
-            .setNamespace(Namespaces.SYSTEM)
+        this.signature = new FunctionSignature(functionName)
+            .setNamespace(Namespaces.SYSTEM_OBJECT)
             .setParameters(new Map([[SOURCE, new Parameter(SOURCE, Schema.ofAny(SOURCE))]]))
-            .setEvents(
-                new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofArray(VALUE)]]))]),
-            );
+            .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, valueSchema]]))]));
     }
 
     public getSignature(): FunctionSignature {
-        return this.SIGNATURE;
+        return this.signature;
     }
 }

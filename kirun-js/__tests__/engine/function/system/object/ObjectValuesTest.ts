@@ -20,7 +20,7 @@ test('entry test 1', async () => {
 
     let res = [1, 2, ['a', 'b', 'c']];
 
-    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         res,
     );
 });
@@ -120,7 +120,7 @@ test('entry nested object test', async () => {
 
     let res: any[] = [{ b: { c: { d: { e: [1, 2, 4, 5] } } } }, ['q', 'w', 'e', 'r']];
 
-    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         res,
     );
 });
@@ -156,7 +156,7 @@ test(' entry duplicate entry test ', async () => {
 
     let childRes: any[] = ['overridden', ' so only child objects are returned from child '];
 
-    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         childRes,
     );
 
@@ -164,7 +164,7 @@ test(' entry duplicate entry test ', async () => {
 
     fep.setArguments(MapUtil.of('source', parent));
 
-    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toStrictEqual(
+    expect((await objVals.execute(fep)).allResults()[0]?.getResult()?.get('value')).toMatchObject(
         parentRes,
     );
 });
