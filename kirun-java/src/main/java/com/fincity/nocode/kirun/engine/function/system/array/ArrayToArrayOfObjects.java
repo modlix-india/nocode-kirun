@@ -14,6 +14,8 @@ import com.google.gson.JsonObject;
 
 public class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
+    private static final String VALUE = "value";
+
     public static final String KEY_NAME = "keyName";
 
     public static final String ARRAY_TO_OBJECTS = "ArrayToObjects";
@@ -46,7 +48,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
             if (source.get(i).isJsonArray()) {
                 extractForNestedArray(source, keys, i, obj);
             } else {
-                obj.add(keys.size() > 0 ? keys.get(0).getAsString() : "value", source.get(i));
+                obj.add(keys.size() > 0 ? keys.get(0).getAsString() : VALUE, source.get(i));
             }
             arr.add(obj);
         }
@@ -62,7 +64,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
             }
         } else {
             for (int j = 0; j < innerArr.size(); j++) {
-                obj.add("value" + (j + 1), innerArr.get(j));
+                obj.add(VALUE + (j + 1), innerArr.get(j));
             }
         }
     }
