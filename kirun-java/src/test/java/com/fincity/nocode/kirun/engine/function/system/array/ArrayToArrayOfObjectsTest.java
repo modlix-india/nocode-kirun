@@ -29,7 +29,7 @@ class ArrayToArrayOfObjectsTest {
                 new KIRunSchemaRepository());
 
         var result = func.execute(fep.setArguments(Map.of("source", arr))).allResults().get(0).getResult()
-                .get("output");
+                .get("result");
 
         JsonArray resArr = new JsonArray();
         for (int i = 0; i < arr.size(); i++) {
@@ -59,7 +59,7 @@ class ArrayToArrayOfObjectsTest {
 
         var result = func.execute(fep.setArguments(Map.of("source", arr, "keyName", keyArr.get(0)))).allResults().get(0)
                 .getResult()
-                .get("output");
+                .get("result");
 
         JsonArray resArr = new JsonArray();
         for (int i = 0; i < arr.size(); i++) {
@@ -96,7 +96,7 @@ class ArrayToArrayOfObjectsTest {
 
         var result = func.execute(fep.setArguments(Map.of("source", arr, "keyName", keyArr.get(0)))).allResults().get(0)
                 .getResult()
-                .get("output");
+                .get("result");
 
         JsonArray resArr = new JsonArray();
         for (int i = 0; i < arr.size(); i++) {
@@ -129,7 +129,7 @@ class ArrayToArrayOfObjectsTest {
 
         var result = func.execute(fep.setArguments(Map.of("source", arr))).allResults().get(0)
                 .getResult()
-                .get("output");
+                .get("result");
 
         JsonArray resArr = new JsonArray();
         for (int i = 0; i < arr.size(); i++) {
@@ -172,7 +172,7 @@ class ArrayToArrayOfObjectsTest {
         }
 
         var result = func.execute(fep.setArguments(Map.of("source", arr))).allResults().get(0).getResult()
-                .get("output");
+                .get("result");
 
         assertEquals(resArr, result);
     }
@@ -229,7 +229,7 @@ class ArrayToArrayOfObjectsTest {
         var result = func.execute(fep.setArguments(Map.of("source", arr, ArrayToArrayOfObjects.KEY_NAME, keys)))
                 .allResults().get(0)
                 .getResult()
-                .get("output");
+                .get("result");
         
 
         assertEquals(finArr, result);

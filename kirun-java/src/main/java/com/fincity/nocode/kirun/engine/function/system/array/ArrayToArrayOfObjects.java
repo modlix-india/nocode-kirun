@@ -41,7 +41,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
         if (source.size() == 0)
 
             return new FunctionOutput(
-                    List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ARRAY.getName(), new JsonArray()))));
+                    List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonArray()))));
 
         for (int i = 0; i < source.size(); i++) {
             JsonObject obj = new JsonObject();
@@ -53,7 +53,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
             arr.add(obj);
         }
 
-        return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ARRAY.getName(), arr))));
+        return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, arr))));
     }
 
     private void extractForNestedArray(JsonArray source, JsonArray keys, int i, JsonObject obj) {
