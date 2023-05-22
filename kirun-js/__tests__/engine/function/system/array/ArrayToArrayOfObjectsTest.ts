@@ -18,7 +18,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([{ value: 1 }, { value: 2 }, { value: 3 }]);
 
@@ -37,7 +37,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([{ number: 1 }, { number: 2 }, { number: 3 }]);
 
@@ -51,7 +51,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([
         { value: { number: 1 } },
@@ -80,7 +80,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([
         { value1: 'a', value2: 1 },
@@ -110,7 +110,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([
         { key: 'a', value: 1 },
@@ -140,7 +140,7 @@ test('Array to Array of objects', async () => {
     )
         .allResults()[0]
         .getResult()
-        .get('output');
+        .get('result');
 
     expect(result).toMatchObject([{ maKey: 'a' }, { maKey: 'b' }, { maKey: 'c' }]);
 });
