@@ -28,9 +28,7 @@ export class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
         if (!source?.length) {
             return new FunctionOutput([
-                EventResult.outputOf(
-                    new Map([[AbstractArrayFunction.EVENT_RESULT_ARRAY.getName(), []]]),
-                ),
+                EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, []]])),
             ]);
         }
 
@@ -54,9 +52,7 @@ export class ArrayToArrayOfObjects extends AbstractArrayFunction {
         });
 
         return new FunctionOutput([
-            EventResult.outputOf(
-                new Map([[AbstractArrayFunction.EVENT_RESULT_ARRAY.getName(), result]]),
-            ),
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, result]])),
         ]);
     }
 }
