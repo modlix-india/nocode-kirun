@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.runtime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonPrimitive;
 
 class KIRuntimeWithDefinitionOneTest {
 
@@ -185,5 +187,148 @@ class KIRuntimeWithDefinitionOneTest {
 		        .get("aresult");
 
 		assertEquals(4, value.getAsInt());
+	}
+
+	@Test
+	void test2() {
+		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+		        .create();
+
+		var first = new KIRuntime(gson.fromJson("""
+		        		                {
+		          "name": "test",
+		          "namespace": "testNamespace",
+		          "steps": {
+		            "if": {
+		              "statementName": "if",
+		              "name": "If",
+		              "namespace": "System",
+		              "position": {
+		                "left": 148,
+		                "top": 135
+		              },
+		              "parameterMap": {
+		                "condition": {
+		                  "3jzKlCvmE7dmTj1wIpGw8c": {
+		                    "key": "3jzKlCvmE7dmTj1wIpGw8c",
+		                    "type": "EXPRESSION",
+		                    "expression": "Arguments.a % 2 = 1",
+		                    "order": 1
+		                  }
+		                }
+		              }
+		            },
+		            "generateEvent": {
+		              "statementName": "generateEvent",
+		              "name": "GenerateEvent",
+		              "namespace": "System",
+		              "position": {
+		                "left": 507,
+		                "top": 55.5
+		              },
+		              "parameterMap": {
+		                "eventName": {
+		                  "5OdGxruBiEyysESbAubdX2": {
+		                    "key": "5OdGxruBiEyysESbAubdX2",
+		                    "type": "VALUE",
+		                    "expression": "",
+		                    "value": "output"
+		                  }
+		                },
+		                "results": {
+		                  "4o0c0kvVtWiGjgb37hMTBX": {
+		                    "key": "4o0c0kvVtWiGjgb37hMTBX",
+		                    "type": "VALUE",
+		                    "order": 1,
+		                    "value": {
+		                      "name": "returnValue",
+		                      "value": {
+		                        "isExpression": true,
+		                        "value": "Arguments.a + 1"
+		                      }
+		                    }
+		                  }
+		                }
+		              },
+		              "dependentStatements": {
+		                "Steps.if.true": true
+		              }
+		            },
+		            "generateEvent1": {
+		              "statementName": "generateEvent1",
+		              "name": "GenerateEvent",
+		              "namespace": "System",
+		              "position": {
+		                "left": 585,
+		                "top": 345.5
+		              },
+		              "parameterMap": {
+		                "results": {
+		                  "1QE9kyJacs1FemevUUjIOz": {
+		                    "key": "1QE9kyJacs1FemevUUjIOz",
+		                    "type": "VALUE",
+		                    "expression": "",
+		                    "order": 1,
+		                    "value": {
+		                      "name": "returnValue",
+		                      "value": {
+		                        "isExpression": true,
+		                        "value": "Arguments.a + 2"
+		                      }
+		                    }
+		                  }
+		                },
+		                "eventName": {
+		                  "J4uLUy3FSRuIWDVZzK85n": {
+		                    "key": "J4uLUy3FSRuIWDVZzK85n",
+		                    "type": "VALUE",
+		                    "expression": "",
+		                    "value": "output"
+		                  }
+		                }
+		              },
+		              "dependentStatements": {
+		                "Steps.if.false": true
+		              }
+		            }
+		          },
+		          "parameters": {
+		            "a": {
+		              "parameterName": "a",
+		              "schema": {
+		                "version": 1,
+		                "type": [
+		                  "INTEGER"
+		                ]
+		              }
+		            }
+		          },
+		          "events": {
+		            "output": {
+		              "name": "output",
+		              "parameters": {
+		                "returnValue": {
+		                  "schema": {
+		                    "type": [
+		                      "INTEGER"
+		                    ],
+		                    "version": 1
+		                  }
+		                }
+		              }
+		            }
+		          }
+		        }
+		        		                """, FunctionDefinition.class), true);
+
+		var results = first
+		        .execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository(),
+		                "Testing").setArguments(Map.of("a", new JsonPrimitive(10))))
+		        .next();
+
+		var value = results.getResult()
+		        .get("returnValue");
+
+		assertEquals(12, value.getAsInt());
 	}
 }
