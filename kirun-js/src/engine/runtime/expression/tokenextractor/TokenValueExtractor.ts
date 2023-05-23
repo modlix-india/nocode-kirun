@@ -5,7 +5,7 @@ import { StringUtil } from '../../../util/string/StringUtil';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
 
 export abstract class TokenValueExtractor {
-    private static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
+    public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /\./;
 
     public getValue(token: string): any {

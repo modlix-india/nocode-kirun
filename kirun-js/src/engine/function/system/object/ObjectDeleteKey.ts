@@ -24,8 +24,8 @@ export class ObjectDeleteKey extends AbstractFunction {
             .setNamespace(Namespaces.SYSTEM_OBJECT)
             .setParameters(
                 new Map([
-                    [SOURCE, new Parameter(SOURCE, Schema.ofAny(SOURCE))],
-                    [KEY, new Parameter(KEY, Schema.ofString(KEY))],
+                    Parameter.ofEntry(SOURCE, Schema.ofAny(SOURCE)),
+                    Parameter.ofEntry(KEY, Schema.ofString(KEY)),
                 ]),
             )
             .setEvents(

@@ -14,7 +14,7 @@ import com.google.gson.JsonPrimitive;
 
 public abstract class TokenValueExtractor {
 
-	private static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
+	public static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
 
 	public JsonElement getValue(String token) {
 

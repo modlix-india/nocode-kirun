@@ -5,6 +5,7 @@ import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';
 import { Add } from './Add';
 import { AddFirst } from './AddFirst';
+import { ArrayToArrayOfObjects } from './ArrayToArrayOfObjects';
 import { BinarySearch } from './BinarySearch';
 import { Compare } from './Compare';
 import { Copy } from './Copy';
@@ -56,6 +57,7 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new Shuffle()),
         mapEntry(new Sort()),
         mapEntry(new SubArray()),
+        mapEntry(new ArrayToArrayOfObjects()),
     );
 
     private static readonly filterableNames = Array.from(

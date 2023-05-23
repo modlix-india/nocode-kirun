@@ -70,6 +70,7 @@ public abstract class Type implements Serializable {
 				while (in.hasNext()) {
 					types.add(SchemaType.valueOf(in.nextString()));
 				}
+				in.endArray();
 				t = new MultipleType().setType(types);
 			}
 
