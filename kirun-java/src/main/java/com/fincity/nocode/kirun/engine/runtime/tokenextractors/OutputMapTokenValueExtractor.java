@@ -5,6 +5,7 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 public class OutputMapTokenValueExtractor extends TokenValueExtractor {
 	
@@ -28,10 +29,21 @@ public class OutputMapTokenValueExtractor extends TokenValueExtractor {
 		
 		Map<String, JsonElement> eachEvent = events.get(parts[ind++]);
 		if (eachEvent == null || ind >= parts.length) return JsonNull.INSTANCE;
-		
-		JsonElement element = eachEvent.get(parts[ind++]);
 
-		return retrieveElementFrom(token, parts, ind, element);
+        int bracket = parts[ind].indexOf('[');
+
+        if (bracket == -1) {
+            JsonElement element = eachEvent.get(parts[ind++]);
+            return this.retrieveElementFrom(token, parts, ind, element);
+        }
+
+        String evParamName = parts[ind].substring(0, bracket);
+        JsonElement element = eachEvent.get(evParamName);
+
+        JsonObject object = new JsonObject();
+        object.add(evParamName, element);
+        return retrieveElementFrom(token, parts, ind, object);
+
 	}
 
 	@Override
