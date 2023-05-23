@@ -42,3 +42,13 @@ test('OutputMapTokenValueExtractor Test', () => {
     expect(omtv.getValue('Steps.step1.output.zero')).toBe(0);
     expect(omtv.getValue('Steps.step1.output.obj.address.phone.phone2')).toBe('5678');
 });
+
+test('OutputMapTokenValueExtractor Test 2', () => {
+    let output: Map<string, Map<string, Map<string, any>>> = new Map([
+        ['step1', new Map([['output', new Map([['arr', ['a', 'b', 'c']]])]])],
+    ]);
+
+    var omtv = new OutputMapTokenValueExtractor(output);
+    expect(omtv.getValue('Steps.step1.output.arr[1]')).toBe('b');
+    expect(omtv.getValue('Steps.step1.output.arr1[1]')).toBeUndefined();
+});

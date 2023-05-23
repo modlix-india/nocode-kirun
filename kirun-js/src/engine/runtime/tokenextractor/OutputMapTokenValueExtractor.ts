@@ -1,3 +1,4 @@
+import { StringUtil } from '../../util/string/StringUtil';
 import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class OutputMapTokenValueExtractor extends TokenValueExtractor {
@@ -21,9 +22,16 @@ export class OutputMapTokenValueExtractor extends TokenValueExtractor {
         let eachEvent: Map<string, any> | undefined = events.get(parts[ind++]);
         if (!eachEvent || ind >= parts.length) return undefined;
 
-        let element: any = eachEvent.get(parts[ind++]);
+        const bracket = parts[ind].indexOf('[');
 
-        return this.retrieveElementFrom(token, parts, ind, element);
+        if (bracket === -1) {
+            let element: any = eachEvent.get(parts[ind++]);
+            return this.retrieveElementFrom(token, parts, ind, element);
+        }
+
+        const evParamName = parts[ind].substring(0, bracket);
+        let element: any = eachEvent.get(evParamName);
+        return this.retrieveElementFrom(token, parts, ind, { [evParamName]: element });
     }
 
     public getPrefix(): string {

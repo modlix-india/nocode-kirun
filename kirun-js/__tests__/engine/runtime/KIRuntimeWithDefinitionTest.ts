@@ -1,25 +1,9 @@
-import { KIRuntime } from '../../../src/engine/runtime/KIRuntime';
-import { EventResult } from '../../../src/engine/model/EventResult';
-import { Event } from '../../../src/engine/model/Event';
 import { FunctionDefinition } from '../../../src/engine/model/FunctionDefinition';
-import { Parameter } from '../../../src/engine/model/Parameter';
-import { FunctionExecutionParameters } from '../../../src/engine/runtime/FunctionExecutionParameters';
-import { Create } from '../../../src/engine/function/system/context/Create';
-import { SetFunction } from '../../../src/engine/function/system/context/SetFunction';
-import { GenerateEvent } from '../../../src/engine/function/system/GenerateEvent';
-import { If } from '../../../src/engine/function/system/If';
-import { RangeLoop } from '../../../src/engine/function/system/loop/RangeLoop';
-import { Statement } from '../../../src/engine/model/Statement';
-import { ParameterReference } from '../../../src/engine/model/ParameterReference';
-import { Schema } from '../../../src/engine/json/schema/Schema';
+import { Namespaces } from '../../../src/engine/namespaces/Namespaces';
 import { KIRunFunctionRepository } from '../../../src/engine/repository/KIRunFunctionRepository';
 import { KIRunSchemaRepository } from '../../../src/engine/repository/KIRunSchemaRepository';
-import { Namespaces } from '../../../src/engine/namespaces/Namespaces';
-import { FunctionSignature } from '../../../src/engine/model/FunctionSignature';
-import { AbstractFunction } from '../../../src/engine/function/AbstractFunction';
-import { FunctionOutput } from '../../../src/engine/model/FunctionOutput';
-import { HybridRepository } from '../../../src/engine/HybridRepository';
-import { Function } from '../../../src/engine/function/Function';
+import { FunctionExecutionParameters } from '../../../src/engine/runtime/FunctionExecutionParameters';
+import { KIRuntime } from '../../../src/engine/runtime/KIRuntime';
 
 test('KIRuntime With Definition 1', async () => {
     var def = {
