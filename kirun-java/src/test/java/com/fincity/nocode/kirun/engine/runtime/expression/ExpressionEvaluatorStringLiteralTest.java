@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 class ExpressionEvaluatorStringLiteralTest {
@@ -79,4 +80,36 @@ class ExpressionEvaluatorStringLiteralTest {
 		ev = new ExpressionEvaluator("2.val");
 		assertEquals("2.val", ev.evaluate(valuesMap).getAsString());
 	}
+	
+    @Test
+    void testForStringLengthCase() {
+
+        JsonObject jsonObj = new JsonObject();
+        jsonObj.add("greeting", new JsonPrimitive("hello"));
+        jsonObj.add("name", new JsonPrimitive("surendhar"));
+
+        ArgumentsTokenValueExtractor atve = new ArgumentsTokenValueExtractor(
+                Map.of("a", new JsonPrimitive("surendhar "),
+                        "b", new JsonPrimitive(2), "c", new JsonPrimitive(true), "d", new JsonPrimitive(1.5), "obj",
+                        jsonObj));
+
+        Map<String, TokenValueExtractor> valuesMap = Map.of(atve.getPrefix(), atve);
+        ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.a.length");
+
+        assertEquals(new JsonPrimitive(10), ev.evaluate(valuesMap));
+
+        ev = new ExpressionEvaluator("Arguments.a.length");
+
+        ExpressionEvaluator nm = new ExpressionEvaluator("Arguments.b.length");
+        assertThrows(ExpressionEvaluationException.class, () -> nm.evaluate(valuesMap));
+
+        ev = new ExpressionEvaluator("Arguments.obj.greeting.length*'S'");
+        assertEquals(new JsonPrimitive("SSSSS"), ev.evaluate(valuesMap));
+        ev = new ExpressionEvaluator("Arguments.obj.greeting.length*'SP'");
+        assertEquals(new JsonPrimitive("SPSPSPSPSP"), ev.evaluate(valuesMap));
+
+        ev = new ExpressionEvaluator("Arguments.obj.name.length ? 'fun':'not Fun'");
+        assertEquals(new JsonPrimitive("fun"), ev.evaluate(valuesMap));
+
+    }
 }
