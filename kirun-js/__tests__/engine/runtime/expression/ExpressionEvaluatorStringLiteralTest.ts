@@ -48,6 +48,26 @@ test('Expression with String Literal - 1 ', () => {
     expect(ev.evaluate(valuesMap)).toBe('kirun kiran2');
 });
 
+test('Testing for length expression in string', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['c', { a: 'hello', b: '' }],
+            ['d', 1.5],
+        ]),
+    );
+    const valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+    let ev: ExpressionEvaluator = new ExpressionEvaluator('Arguments.a.length');
+    expect(ev.evaluate(valuesMap)).toBe(6);
+    ev = new ExpressionEvaluator('Arguments.b.length');
+    expect(() => ev.evaluate(valuesMap)).toThrowError();
+    ev = new ExpressionEvaluator('Arguments.c.a.length * "f"');
+    expect(ev.evaluate(valuesMap)).toBe('fffff');
+    ev = new ExpressionEvaluator('Arguments.c.b.length ? "f" : "t"');
+    expect(ev.evaluate(valuesMap)).toBe('t');
+});
+
 test('Expression with String Literal - 2 ', () => {
     let ev: ExpressionEvaluator = new ExpressionEvaluator("'a' * 10");
 
