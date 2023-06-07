@@ -7,9 +7,11 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
+
+import reactor.core.publisher.Mono;
 
 public class Delete extends AbstractArrayFunction {
 
@@ -18,11 +20,14 @@ public class Delete extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		var receivedArgs = context.getArguments().get(PARAMETER_ANY_VAR_ARGS.getParameterName());
+		var receivedArgs = context.getArguments()
+		        .get(PARAMETER_ANY_VAR_ARGS.getParameterName());
 
 		if (receivedArgs == null || receivedArgs.isJsonNull())
 			throw new KIRuntimeException("The deletable var args are empty. So cannot be proceeded further.");
@@ -33,7 +38,7 @@ public class Delete extends AbstractArrayFunction {
 			throw new KIRuntimeException("Expected a source or deletable for an array but not found any");
 
 		List<Integer> indexes = new ArrayList<>();
-		
+
 		for (int i = source.size() - 1; i >= 0; i--) {
 			for (int j = 0; j < deletable.size(); j++) {
 				if (!indexes.contains(i) && (PrimitiveUtil.compare(source.get(i), deletable.get(j)) == 0))
@@ -41,9 +46,10 @@ public class Delete extends AbstractArrayFunction {
 			}
 		}
 
-		indexes.stream().forEach(source::remove);
+		indexes.stream()
+		        .forEach(source::remove);
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 }

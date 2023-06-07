@@ -6,10 +6,11 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class SubArray extends AbstractArrayFunction {
 
@@ -19,7 +20,7 @@ public class SubArray extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
 		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
@@ -41,7 +42,7 @@ public class SubArray extends AbstractArrayFunction {
 			len = source.size() - start;
 
 		if (len <= 0)
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 
 		if (!(start >= 0 && start < source.size()) || start + len > source.size())
 
@@ -54,7 +55,7 @@ public class SubArray extends AbstractArrayFunction {
 			subArr.add(source.get(i + start));
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, subArr))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, subArr)))));
 	}
 
 }

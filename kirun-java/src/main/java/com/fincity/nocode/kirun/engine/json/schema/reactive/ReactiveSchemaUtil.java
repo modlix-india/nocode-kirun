@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.json.schema.reactive;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaReferenceException;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
@@ -15,6 +14,10 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 public class ReactiveSchemaUtil {
+
+	public static final String UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH = "Unable to retrive schema from referenced path";
+
+	public static final int CYCLIC_REFERENCE_LIMIT_COUNTER = 20;
 
 	public static Mono<JsonElement> getDefaultValue(Schema s, ReactiveRepository<Schema> sRepository) {
 
@@ -63,7 +66,7 @@ public class ReactiveSchemaUtil {
 	public static Mono<Schema> getSchemaFromRef(Schema schema, ReactiveRepository<Schema> sRepository, final String ref,
 	        int iteration) {
 
-		if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
+		if (iteration == CYCLIC_REFERENCE_LIMIT_COUNTER)
 			return Mono.error(() -> new SchemaValidationException(ref, "Schema has a cyclic reference"));
 
 		if (schema == null || ref == null || ref.isBlank())
@@ -117,7 +120,7 @@ public class ReactiveSchemaUtil {
 				        if (i >= parts.length || schema.get$defs() == null || schema.get$defs()
 				                .isEmpty())
 					        return Mono.error(() -> new SchemaReferenceException(ref,
-					                SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+					                UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
 
 				        schema = schema.get$defs()
 				                .get(parts[i]);
@@ -138,14 +141,14 @@ public class ReactiveSchemaUtil {
 			        final int incrementedIndex = i;
 
 			        if (schema == null)
-				        return Mono.error(() -> new SchemaReferenceException(ref,
-				                SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+				        return Mono.error(
+				                () -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
 
 			        if (!StringUtil.isNullOrBlank(schema.getRef())) {
 				        return getSchemaFromRef(schema, sRepository, schema.getRef(), iteration)
 				                .map(e -> Tuples.of(e, incrementedIndex))
 				                .switchIfEmpty(Mono.defer(() -> Mono.error(new SchemaReferenceException(ref,
-				                        SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH))));
+				                        UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH))));
 			        }
 
 			        return Mono.just(Tuples.of(schema, incrementedIndex));
@@ -167,8 +170,8 @@ public class ReactiveSchemaUtil {
 
 			        return Mono.just(Tuples.of(sch, "#/" + nms[1]));
 		        })
-		        .switchIfEmpty(Mono.error(() -> new SchemaReferenceException(ref,
-		                SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH)));
+		        .switchIfEmpty(Mono
+		                .error(() -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH)));
 	}
 
 	private ReactiveSchemaUtil() {

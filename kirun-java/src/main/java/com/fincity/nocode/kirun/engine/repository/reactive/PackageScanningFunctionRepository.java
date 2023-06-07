@@ -1,4 +1,4 @@
-package com.fincity.nocode.kirun.engine.repository;
+package com.fincity.nocode.kirun.engine.repository.reactive;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,23 +9,25 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
-import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
-import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-public class PackageScanningFunctionRepository implements Repository<Function> {
+public class PackageScanningFunctionRepository implements ReactiveRepository<ReactiveFunction> {
 
-	private final Map<String, Map<String, Function>> map;
+	private final Map<String, Map<String, ReactiveFunction>> map;
 	private final List<String> filterable;
 
 	public PackageScanningFunctionRepository(String packageName) {
 
 		Reflections reflections = new Reflections(packageName, Scanners.SubTypes);
-		map = reflections.getSubTypesOf(AbstractFunction.class)
+		map = reflections.getSubTypesOf(AbstractReactiveFunction.class)
 		        .stream()
 		        .map(e ->
 				{
@@ -37,7 +39,7 @@ public class PackageScanningFunctionRepository implements Repository<Function> {
 			        }
 		        })
 		        .filter(Objects::nonNull)
-		        .map(Function.class::cast)
+		        .map(ReactiveFunction.class::cast)
 		        .collect(Collectors.groupingBy(e -> e.getSignature()
 		                .getNamespace()))
 		        .entrySet()
@@ -52,29 +54,28 @@ public class PackageScanningFunctionRepository implements Repository<Function> {
 		        .stream()
 		        .map(Map::values)
 		        .flatMap(Collection::stream)
-		        .map(Function::getSignature)
+		        .map(ReactiveFunction::getSignature)
 		        .map(FunctionSignature::getFullName)
 		        .toList();
 	}
 
 	@Override
-	public Function find(String namespace, String name) {
+	public Mono<ReactiveFunction> find(String namespace, String name) {
 
 		if (!map.containsKey(namespace))
-			return null;
+			return Mono.empty();
 
-		return map.get(namespace)
-		        .get(name);
+		return Mono.justOrEmpty(map.get(namespace)
+		        .get(name));
 	}
 
 	@Override
-	public List<String> filter(String name) {
+	public Flux<String> filter(String name) {
 
 		String lowerCaseName = name.toLowerCase();
 
-		return this.filterable.stream()
+		return Flux.fromIterable(this.filterable)
 		        .filter(e -> e.toLowerCase()
-		                .contains(lowerCaseName))
-		        .toList();
+		                .contains(lowerCaseName));
 	}
 }

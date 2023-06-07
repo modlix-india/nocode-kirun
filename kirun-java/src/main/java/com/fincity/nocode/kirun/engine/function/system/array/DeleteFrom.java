@@ -6,27 +6,33 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class DeleteFrom extends AbstractArrayFunction {
 
 	public DeleteFrom() {
 		super("DeleteFrom", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH),
-				EVENT_RESULT_EMPTY);
+		        EVENT_RESULT_EMPTY);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		JsonPrimitive from = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-				.getAsJsonPrimitive();
+		JsonPrimitive from = context.getArguments()
+		        .get(PARAMETER_INT_SOURCE_FROM.getParameterName())
+		        .getAsJsonPrimitive();
 
-		JsonPrimitive length = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive();
+		JsonPrimitive length = context.getArguments()
+		        .get(PARAMETER_INT_LENGTH.getParameterName())
+		        .getAsJsonPrimitive();
 
 		if (source.size() == 0)
 			throw new KIRuntimeException("There are no elements to be deleted");
@@ -35,7 +41,7 @@ public class DeleteFrom extends AbstractArrayFunction {
 
 		if (start >= source.size() || start < 0)
 			throw new KIRuntimeException(
-					"The int source for the array should be in between 0 and length of the array ");
+			        "The int source for the array should be in between 0 and length of the array ");
 
 		int len = length.getAsInt();
 
@@ -50,7 +56,7 @@ public class DeleteFrom extends AbstractArrayFunction {
 			len--;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 }

@@ -9,6 +9,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWI
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_RIGHT_SHIFT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_UNSIGNED_RIGHT_SHIFT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_XOR;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.CONDITIONAL_TERNARY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.DIVISION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.EQUAL;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.GREATER_THAN;
@@ -22,7 +23,6 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.NULLI
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OBJECT_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.OR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.SUBTRACTION;
-import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.CONDITIONAL_TERNARY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_BITWISE_COMPLEMENT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_LOGICAL_NOT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
@@ -17,10 +17,12 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 
-public class Get extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Get extends AbstractReactiveFunction {
 
 	static final String NAME = "name";
 
@@ -41,16 +43,19 @@ public class Get extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		String name = context.getArguments().get(NAME)
+		String name = context.getArguments()
+		        .get(NAME)
 		        .getAsString();
 
-		if (!context.getContext().containsKey(name))
+		if (!context.getContext()
+		        .containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context don't have an element for '$' ", name));
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, context.getContext().get(name)
-		        .getElement()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, context.getContext()
+		        .get(name)
+		        .getElement())))));
 	}
 
 }

@@ -3,7 +3,7 @@ package com.fincity.nocode.kirun.engine.function.system.string;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -11,10 +11,12 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
-public class InsertAtGivenPosition extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class InsertAtGivenPosition extends AbstractReactiveFunction {
 
 	protected static final String PARAMETER_STRING_NAME = "string";
 
@@ -50,7 +52,7 @@ public class InsertAtGivenPosition extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		String inputString = context.getArguments().get(PARAMETER_STRING_NAME).getAsJsonPrimitive().getAsString();
 		Integer at = context.getArguments().get(PARAMETER_AT_POSITION_NAME).getAsJsonPrimitive().getAsInt();
@@ -63,8 +65,8 @@ public class InsertAtGivenPosition extends AbstractFunction {
 		outputString.append(insertString);
 		outputString.append(inputString.substring(at));
 
-		return new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
-				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString())))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.of(EVENT_RESULT_NAME,
+				Map.of(EVENT_RESULT_NAME, new JsonPrimitive(outputString.toString()))))));
 	}
 
 }

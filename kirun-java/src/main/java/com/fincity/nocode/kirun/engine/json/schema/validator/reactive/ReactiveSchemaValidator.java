@@ -1,14 +1,13 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
-import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.reactive.ReactiveSchemaUtil;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.google.gson.JsonElement;
@@ -37,12 +36,12 @@ public class ReactiveSchemaValidator {
 		}
 
 		if (schema.getConstant() != null) {
-			return Mono.fromCallable(() -> SchemaValidator.constantValidation(parents, schema, element));
+			return Mono.fromCallable(() -> constantValidation(parents, schema, element));
 		}
 
 		if (schema.getEnums() != null && !schema.getEnums()
 		        .isEmpty()) {
-			return Mono.fromCallable(() -> SchemaValidator.enumCheck(parents, schema, element));
+			return Mono.fromCallable(() -> enumCheck(parents, schema, element));
 		}
 
 		if (schema.getFormat() != null && schema.getType() == null) {
@@ -128,6 +127,41 @@ public class ReactiveSchemaValidator {
 			                                : new SchemaValidationException(parentPath, e))
 			                        .toList()));
 		        });
+	}
+
+	public static JsonElement constantValidation(List<Schema> parents, Schema schema, JsonElement element) {
+		if (!schema.getConstant()
+		        .equals(element)) {
+			throw new SchemaValidationException(path(parents), "Expecting a constant value : " + element);
+		}
+		return element;
+	}
+
+	public static JsonElement enumCheck(List<Schema> parents, Schema schema, JsonElement element) {
+
+		boolean x = false;
+		for (JsonElement e : schema.getEnums()) {
+
+			if (e.equals(element)) {
+				x = true;
+				break;
+			}
+		}
+
+		if (x)
+			return element;
+		else {
+			throw new SchemaValidationException(path(parents), "Value is not one of " + schema.getEnums());
+		}
+	}
+
+	public static String path(List<Schema> parents) {
+
+		return parents == null || parents.isEmpty() ? ""
+		        : parents.stream()
+		                .map(Schema::getTitle)
+		                .filter(Objects::nonNull)
+		                .collect(Collectors.joining("."));
 	}
 
 	private ReactiveSchemaValidator() {

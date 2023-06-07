@@ -6,22 +6,24 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.stream.ArrayUtil;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import reactor.core.publisher.Mono;
+
 public class Compare extends AbstractArrayFunction {
 
 	public Compare() {
 		super("Compare", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_ARRAY_FIND,
-		        PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH), EVENT_RESULT_INTEGER);
+				PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH), EVENT_RESULT_INTEGER);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 		var source = ArrayUtil.jsonArrayToArray(context.getArguments()
 		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
 		        .getAsJsonArray());
@@ -57,8 +59,8 @@ public class Compare extends AbstractArrayFunction {
 			throw new KIRuntimeException(StringFormatter.format("Find array size $ is less than comparing size $",
 			        find.length, findfrom + length));
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME,
-		        new JsonPrimitive(compare(source, srcfrom, srcfrom + length, find, findfrom, findfrom + length))))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME,
+		        new JsonPrimitive(compare(source, srcfrom, srcfrom + length, find, findfrom, findfrom + length)))))));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -78,8 +80,8 @@ public class Compare extends AbstractArrayFunction {
 
 		if ((srcto - srcfrom) != (findto - findfrom)) {
 			throw new KIRuntimeException(StringFormatter.format(
-			        "Cannot compare uneven arrays from $ to $ in source array with $ to $ in find array", srcto,
-			        srcfrom, findto, findfrom));
+					"Cannot compare uneven arrays from $ to $ in source array with $ to $ in find array", srcto,
+					srcfrom, findto, findfrom));
 		}
 
 		for (int i = srcfrom, j = findfrom; i < srcto; i++, j++) {
@@ -87,7 +89,7 @@ public class Compare extends AbstractArrayFunction {
 			int x = 1;
 
 			if (source[i] == null || find[j] == null || source[i] == JsonNull.INSTANCE
-			        || find[j] == JsonNull.INSTANCE) {
+					|| find[j] == JsonNull.INSTANCE) {
 
 				boolean s = source[i] == null || source[i] == JsonNull.INSTANCE;
 				boolean f = find[j] == null || find[j] == JsonNull.INSTANCE;
@@ -107,7 +109,7 @@ public class Compare extends AbstractArrayFunction {
 					x = -1;
 				} else if (s.isString() || f.isString()) {
 					x = s.getAsString()
-					        .compareTo(f.getAsString());
+							.compareTo(f.getAsString());
 				} else if (s.isNumber() && f.isNumber()) {
 					x = compareTo(s.getAsNumber(), f.getAsNumber());
 				} else if (s.isBoolean() && f.isBoolean()) {

@@ -5,11 +5,12 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class Rotate extends AbstractArrayFunction {
 
@@ -18,15 +19,18 @@ public class Rotate extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		JsonPrimitive distance = context.getArguments().get(PARAMETER_ROTATE_LENGTH.getParameterName())
-				.getAsJsonPrimitive();
+		JsonPrimitive distance = context.getArguments()
+		        .get(PARAMETER_ROTATE_LENGTH.getParameterName())
+		        .getAsJsonPrimitive();
 
 		if (source.size() == 0)
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 
 		int rotLen = distance.getAsInt();
 		int size = source.size();
@@ -36,7 +40,7 @@ public class Rotate extends AbstractArrayFunction {
 		rotate(source, rotLen, size - 1);
 		rotate(source, 0, size - 1);
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 	private void rotate(JsonArray elements, int start, int end) {

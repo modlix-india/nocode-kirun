@@ -5,8 +5,10 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
+
+import reactor.core.publisher.Mono;
 
 public class Add extends AbstractArrayFunction {
 
@@ -15,18 +17,21 @@ public class Add extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		JsonArray secondSource = context.getArguments().get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-				.getAsJsonArray();
+		JsonArray secondSource = context.getArguments()
+		        .get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
 		if (secondSource.isJsonNull() || secondSource.isEmpty())
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 
 		source.addAll(secondSource);
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 }

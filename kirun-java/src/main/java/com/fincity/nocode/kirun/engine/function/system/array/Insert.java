@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+
+import reactor.core.publisher.Mono;
 
 public class Insert extends AbstractArrayFunction {
 
@@ -17,19 +18,24 @@ public class Insert extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		int offset = context.getArguments().get(PARAMETER_INT_OFFSET.getParameterName()).getAsJsonPrimitive()
-				.getAsInt();
+		int offset = context.getArguments()
+		        .get(PARAMETER_INT_OFFSET.getParameterName())
+		        .getAsJsonPrimitive()
+		        .getAsInt();
 
-		var output = context.getArguments().get(PARAMETER_ANY.getParameterName());
+		var output = context.getArguments()
+		        .get(PARAMETER_ANY.getParameterName());
 
 		if (source.size() == 0) {
 			if (offset == 0)
 				source.add(output);
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 		}
 
 		source.add(output);
@@ -43,7 +49,7 @@ public class Insert extends AbstractArrayFunction {
 			len--;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 
 	}
 

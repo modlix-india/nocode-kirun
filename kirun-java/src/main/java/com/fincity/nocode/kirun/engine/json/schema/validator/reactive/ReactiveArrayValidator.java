@@ -1,15 +1,16 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
-import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
+import static com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator.path;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
-import com.fincity.nocode.kirun.engine.json.schema.validator.ArrayValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.google.gson.JsonArray;
@@ -38,7 +39,7 @@ public class ReactiveArrayValidator {
 		        .flatMap(array ->
 				{
 			        try {
-				        ArrayValidator.checkMinMaxItems(parents, schema, array);
+				        checkMinMaxItems(parents, schema, array);
 			        } catch (SchemaValidationException sve) {
 				        return Mono.error(sve);
 			        }
@@ -51,7 +52,7 @@ public class ReactiveArrayValidator {
 		        .flatMap(array ->
 				{
 			        try {
-				        ArrayValidator.checkUniqueItems(parents, schema, array);
+				        checkUniqueItems(parents, schema, array);
 			        } catch (SchemaValidationException sve) {
 				        return Mono.error(sve);
 			        }
@@ -194,6 +195,35 @@ public class ReactiveArrayValidator {
 			        return ja;
 		        });
 	}
+	
+	public static void checkUniqueItems(List<Schema> parents, Schema schema, JsonArray array) {
+        if (schema.getUniqueItems() != null && schema.getUniqueItems()
+                .booleanValue()) {
+
+            Set<JsonElement> set = new HashSet<>();
+            for (int i = 0; i < array.size(); i++) {
+                set.add(array.get(i));
+            }
+
+            if (set.size() != array.size())
+                throw new SchemaValidationException(path(parents),
+                        "Items on the array are not unique");
+        }
+    }
+
+    public static void checkMinMaxItems(List<Schema> parents, Schema schema, JsonArray array) {
+        if (schema.getMinItems() != null && schema.getMinItems()
+                .intValue() > array.size()) {
+            throw new SchemaValidationException(path(parents),
+                    "Array should have minimum of " + schema.getMinItems() + " elements");
+        }
+
+        if (schema.getMaxItems() != null && schema.getMaxItems()
+                .intValue() < array.size()) {
+            throw new SchemaValidationException(path(parents),
+                    "Array can have  maximum of " + schema.getMaxItems() + " elements");
+        }
+    }
 
 	private ReactiveArrayValidator() {
 	}

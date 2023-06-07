@@ -163,14 +163,14 @@ class ReactiveKIRuntimeWithDefinitionOneTest {
 			public Mono<ReactiveFunction> find(String namespace, String name) {
 
 				if (!"Internal".equals(namespace))
-					return null;
+					return Mono.empty();
 
 				if ("Third".equals(name))
 					return Mono.just(third);
 				if ("Second".equals(name))
 					return Mono.just(second);
 
-				return null;
+				return Mono.empty();
 			}
 
 			@Override

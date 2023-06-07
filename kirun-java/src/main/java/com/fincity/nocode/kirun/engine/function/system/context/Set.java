@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -19,19 +19,21 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.expression.Expression;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionToken;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionTokenValue;
 import com.fincity.nocode.kirun.engine.runtime.expression.Operation;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-public class Set extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Set extends AbstractReactiveFunction {
 
 	static final String NAME = "name";
 
@@ -50,7 +52,7 @@ public class Set extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		String key = context.getArguments()
 		        .get(NAME)
@@ -104,8 +106,8 @@ public class Set extends AbstractFunction {
 		return modifyContext(context, key, value, exp);
 	}
 
-	private FunctionOutput modifyContext(FunctionExecutionParameters context, String key, JsonElement value,
-	        Expression exp) {
+	private Mono<FunctionOutput> modifyContext(ReactiveFunctionExecutionParameters context, String key,
+	        JsonElement value, Expression exp) {
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
 		tokens.removeLast();
 		LinkedList<Operation> ops = exp.getOperations();
@@ -121,7 +123,7 @@ public class Set extends AbstractFunction {
 
 		if (ops.isEmpty()) {
 			ce.setElement(value);
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 		}
 
 		JsonElement el = ce.getElement();
@@ -135,63 +137,63 @@ public class Set extends AbstractFunction {
 			el = op == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
 			ce.setElement(el);
 		}
-		
+
 		while (!ops.isEmpty()) {
-		
+
 			if (op == Operation.OBJECT_OPERATOR) {
 				el = this.getDataFromObject(el, mem, ops.peekLast());
-			}else {
+			} else {
 				el = this.getDataFromArray(el, mem, ops.peekLast());
 			}
-			
+
 			op = ops.removeLast();
 			token = tokens.removeLast();
 			mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
 			        .getAsString() : token.getExpression();
 		}
-		
+
 		if (op == Operation.OBJECT_OPERATOR)
 			this.putDataInObject(el, mem, value);
 		else
 			this.putDataInArray(el, mem, value);
-		
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 	private JsonElement getDataFromArray(JsonElement el, String mem, Operation nextOp) {
-		
+
 		if (!el.isJsonArray())
 			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", el));
-		
+
 		try {
 			int index = Integer.parseInt(mem);
-			
+
 			if (index < 0)
 				throw new KIRuntimeException(StringFormatter.format("Array index is out of bound - $", mem));
-			
+
 			JsonArray ja = el.getAsJsonArray();
 			while (index >= ja.size())
 				ja.add(JsonNull.INSTANCE);
-			
+
 			JsonElement je = ja.get(index);
 			if (je == null || je.isJsonNull()) {
 				je = nextOp == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
 				ja.set(index, je);
 			}
 			return je;
-		}catch (Exception ex) {
-			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));	
+		} catch (Exception ex) {
+			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));
 		}
 	}
 
 	private JsonElement getDataFromObject(JsonElement el, String mem, Operation nextOp) {
-		
+
 		if (!el.isJsonObject())
 			throw new KIRuntimeException(StringFormatter.format("Expected an object but found $", el));
-		
+
 		JsonObject jo = el.getAsJsonObject();
 		JsonElement je = jo.get(mem);
-		
+
 		if (je == null || je.isJsonNull()) {
 			je = nextOp == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
 			jo.add(mem, je);
@@ -200,31 +202,32 @@ public class Set extends AbstractFunction {
 	}
 
 	private void putDataInArray(JsonElement el, String mem, JsonElement value) {
-		
+
 		if (!el.isJsonArray())
 			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", el));
-		
+
 		try {
 			int index = Integer.parseInt(mem);
-			
+
 			if (index < 0)
 				throw new KIRuntimeException(StringFormatter.format("Array index is out of bound - $", mem));
-			
+
 			JsonArray ja = el.getAsJsonArray();
 			while (index >= ja.size())
 				ja.add(JsonNull.INSTANCE);
-			
+
 			ja.set(index, value);
-		}catch (Exception ex) {
-			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));	
+		} catch (Exception ex) {
+			throw new KIRuntimeException(StringFormatter.format("Expected an array index but found $", mem));
 		}
 	}
 
 	private void putDataInObject(JsonElement el, String mem, JsonElement value) {
-	
+
 		if (!el.isJsonObject())
 			throw new KIRuntimeException(StringFormatter.format("Expected an object but found $", el));
-		
-		el.getAsJsonObject().add(mem, value);
+
+		el.getAsJsonObject()
+		        .add(mem, value);
 	}
 }

@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
-import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
+import static com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator.path;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.reactive.ReactiveSchemaUtil;
-import com.fincity.nocode.kirun.engine.json.schema.validator.ObjectValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.google.gson.JsonElement;
@@ -40,14 +39,14 @@ public class ReactiveObjectValidator {
 		Set<String> keys = new HashSet<>(jsonObject.keySet());
 
 		try {
-			ObjectValidator.checkMinMaxProperties(parents, schema, keys);
+			checkMinMaxProperties(parents, schema, keys);
 		} catch (SchemaValidationException sve) {
 			return Mono.error(sve);
 		}
 
 		if (schema.getRequired() != null) {
 			try {
-				ObjectValidator.checkRequired(parents, schema, jsonObject);
+				checkRequired(parents, schema, jsonObject);
 			} catch (SchemaValidationException sve) {
 				return Mono.error(sve);
 			}
@@ -213,6 +212,29 @@ public class ReactiveObjectValidator {
 		}
 
 		return Tuples.of(jsonObject, keys);
+	}
+
+	public static void checkRequired(List<Schema> parents, Schema schema, JsonObject jsonObject) {
+		for (String key : schema.getRequired()) {
+			if (jsonObject.get(key) == null || jsonObject.get(key)
+			        .isJsonNull()) {
+				throw new SchemaValidationException(path(parents), key + " is mandatory");
+			}
+		}
+	}
+
+	public static void checkMinMaxProperties(List<Schema> parents, Schema schema, Set<String> keys) {
+		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties()
+		        .intValue()) {
+			throw new SchemaValidationException(path(parents),
+			        "Object should have minimum of " + schema.getMinProperties() + " properties");
+		}
+
+		if (schema.getMaxProperties() != null && keys.size() > schema.getMaxProperties()
+		        .intValue()) {
+			throw new SchemaValidationException(path(parents),
+			        "Object can have maximum of " + schema.getMaxProperties() + " properties");
+		}
 	}
 
 	private ReactiveObjectValidator() {

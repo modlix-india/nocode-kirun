@@ -5,9 +5,7 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.MATH;
 import java.util.List;
 import java.util.Map;
 
-import org.reactivestreams.Publisher;
-
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -16,7 +14,7 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,7 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-public class Add extends AbstractFunction {
+public class Add extends AbstractReactiveFunction {
 
 	static final String VALUE = "value";
 
@@ -42,7 +40,7 @@ public class Add extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		Mono<Number> sum = Mono.just(context.getArguments()
 		        .get(VALUE))
@@ -66,11 +64,11 @@ public class Add extends AbstractFunction {
 		        })
 		        .map(Number.class::cast);
 
-		return new FunctionOutput(Flux.merge((Publisher<EventResult>) sum.map(PrimitiveUtil::toPrimitiveType)
+		return Flux.merge(sum.map(PrimitiveUtil::toPrimitiveType)
 		        .map(e -> Map.of(VALUE, (JsonElement) e))
 		        .map(EventResult::outputOf))
 		        .collectList()
-		        .block());
+		        .map(FunctionOutput::new);
 	}
 
 	@Override

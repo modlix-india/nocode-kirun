@@ -5,13 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ContextTokenValueExtractor;
@@ -91,17 +88,5 @@ public class ReactiveFunctionExecutionParameters {
 		if (this.arguments == null)
 			return Map.of();
 		return this.arguments;
-	}
-
-	public FunctionExecutionParameters makeRegularFunctionExecutionParameters(Repository<Function> actualRepo,
-	        Repository<Schema> actualSchemaRepo) {
-
-		return new FunctionExecutionParameters(actualRepo, actualSchemaRepo, this.executionId).setContext(context)
-		        .setArguments(arguments)
-		        .setEvents(events)
-		        .setStatementExecution(statementExecution)
-		        .setSteps(steps)
-		        .setCount(count)
-		        .setValueExtractors(this.valueExtractors);
 	}
 }

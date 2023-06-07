@@ -5,8 +5,10 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonNull;
+
+import reactor.core.publisher.Mono;
 
 public class Fill extends AbstractArrayFunction {
 
@@ -16,7 +18,7 @@ public class Fill extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var source = context.getArguments()
 		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
@@ -29,7 +31,7 @@ public class Fill extends AbstractArrayFunction {
 		        .getAsInt();
 		var element = context.getArguments()
 		        .get(PARAMETER_ANY.getParameterName());
-		
+
 		if (length == -1)
 			length = source.size() - srcfrom;
 
@@ -44,7 +46,7 @@ public class Fill extends AbstractArrayFunction {
 			source.set(i, element.deepCopy());
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 }

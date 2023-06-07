@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -15,7 +15,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.google.gson.JsonPrimitive;
 
-public abstract class AbstractArrayFunction extends AbstractFunction {
+public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final String EVENT_INDEX_NAME = "index";
 	protected static final String EVENT_RESULT_NAME = "result";

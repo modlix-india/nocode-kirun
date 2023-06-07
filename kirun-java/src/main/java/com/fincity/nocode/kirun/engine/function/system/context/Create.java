@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
@@ -22,14 +22,16 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-public class Create extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Create extends AbstractReactiveFunction {
 
 	static final String NAME = "name";
 
@@ -66,7 +68,7 @@ public class Create extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		String name = context.getArguments()
 		        .get(NAME)
@@ -84,7 +86,7 @@ public class Create extends AbstractFunction {
 		        .put(name,
 		                new ContextElement(s, s.getDefaultValue() == null ? JsonNull.INSTANCE : s.getDefaultValue()));
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 
 }

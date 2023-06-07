@@ -8,18 +8,20 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 
-public class Print extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Print extends AbstractReactiveFunction {
 
 	public static final Logger logger = LoggerFactory.getLogger(Print.class);
 
@@ -33,13 +35,13 @@ public class Print extends AbstractFunction {
 	private static final String STDERR = "STDERR";
 	private static final String STD = "STD";
 
-	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Print").setNamespace(SYSTEM)
-			.setParameters(Map.ofEntries(Parameter.ofEntry(VALUES, Schema.ofAny(VALUES), true),
-					Parameter.ofEntry(STREAM,
-							Schema.ofString(STREAM)
-									.setEnums(List.of(new JsonPrimitive(STDOUT), new JsonPrimitive(DEBUGLOG),
-											new JsonPrimitive(ERRORLOG), new JsonPrimitive(STDERR)))
-									.setDefaultValue(new JsonPrimitive(STDOUT)))));
+	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Print")
+	        .setNamespace(SYSTEM)
+	        .setParameters(Map.ofEntries(Parameter.ofEntry(VALUES, Schema.ofAny(VALUES), true),
+	                Parameter.ofEntry(STREAM, Schema.ofString(STREAM)
+	                        .setEnums(List.of(new JsonPrimitive(STDOUT), new JsonPrimitive(DEBUGLOG),
+	                                new JsonPrimitive(ERRORLOG), new JsonPrimitive(STDERR)))
+	                        .setDefaultValue(new JsonPrimitive(STDOUT)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -47,13 +49,17 @@ public class Print extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		var values = context.getArguments().get(VALUES);
+		var values = context.getArguments()
+		        .get(VALUES);
 
-		var stream = context.getArguments().get(STREAM).getAsString();
+		var stream = context.getArguments()
+		        .get(STREAM)
+		        .getAsString();
 
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Gson gson = new GsonBuilder().setPrettyPrinting()
+		        .create();
 
 		for (var value : values.getAsJsonArray()) {
 
@@ -68,6 +74,6 @@ public class Print extends AbstractFunction {
 				logger.error(stringValue);
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 }

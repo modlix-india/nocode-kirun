@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -28,7 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 
-class Print extends AbstractFunction {
+class Print extends AbstractReactiveFunction {
 
 	public static final Logger logger = LoggerFactory.getLogger(Print.class);
 
@@ -64,7 +64,7 @@ class Print extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var values = context.getArguments().get(VALUES).getAsJsonArray().deepCopy();
 

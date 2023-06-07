@@ -6,28 +6,30 @@ import java.util.Random;
 
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import reactor.core.publisher.Mono;
+
 public class Shuffle extends AbstractArrayFunction {
+	
+	private static final Random rand = new Random();
 
 	public Shuffle() {
 		super("Shuffle", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_EMPTY);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
 		if (source.size() <= 1)
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 
 		int x = 0;
 		int size = source.size();
-
-		Random rand = new Random();
 
 		for (int i = 0; i < size; i++) {
 			int y = rand.nextInt(0, size) % size;
@@ -37,6 +39,6 @@ public class Shuffle extends AbstractArrayFunction {
 			x = y;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 }

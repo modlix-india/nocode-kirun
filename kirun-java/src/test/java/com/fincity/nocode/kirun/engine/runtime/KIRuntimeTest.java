@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.HybridRepository;
 import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.Function;
 import com.fincity.nocode.kirun.engine.function.system.GenerateEvent;
 import com.fincity.nocode.kirun.engine.function.system.If;
@@ -275,7 +275,7 @@ class KIRuntimeTest {
 		                .outputEventMapEntry(Map.of("value", Schema.ofArray("value", Schema.ofInteger("value"))))));
 		;
 
-		var fibFunction = new AbstractFunction() {
+		var fibFunction = new AbstractReactiveFunction() {
 
 			@Override
 			public FunctionSignature getSignature() {
@@ -283,7 +283,7 @@ class KIRuntimeTest {
 			}
 
 			@Override
-			protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 				JsonElement e = context.getArguments()
 				        .get("value");

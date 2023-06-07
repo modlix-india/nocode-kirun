@@ -2,14 +2,14 @@ package com.fincity.nocode.kirun.engine.function.system.object;
 
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 
-public abstract class AbstractObjectFunction extends AbstractFunction {
+public abstract class AbstractObjectFunction extends AbstractReactiveFunction {
 
 	private static final String SOURCE = "source";
 

@@ -7,31 +7,38 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.stream.ArrayUtil;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class Sort extends Max {
 
 	protected Sort() {
 		super("Sort", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE, PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH,
-				PARAMETER_BOOLEAN_ASCENDING), EVENT_RESULT_EMPTY);
+		        PARAMETER_BOOLEAN_ASCENDING), EVENT_RESULT_EMPTY);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
-				.getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
+		        .getAsJsonArray();
 
-		JsonPrimitive startPosition = context.getArguments().get(PARAMETER_INT_FIND_FROM.getParameterName())
-				.getAsJsonPrimitive();
+		JsonPrimitive startPosition = context.getArguments()
+		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
+		        .getAsJsonPrimitive();
 
-		JsonPrimitive length = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsJsonPrimitive();
+		JsonPrimitive length = context.getArguments()
+		        .get(PARAMETER_INT_LENGTH.getParameterName())
+		        .getAsJsonPrimitive();
 
-		boolean ascending = context.getArguments().get(PARAMETER_BOOLEAN_ASCENDING.getParameterName()).getAsBoolean();
+		boolean ascending = context.getArguments()
+		        .get(PARAMETER_BOOLEAN_ASCENDING.getParameterName())
+		        .getAsBoolean();
 
 		if (source.isJsonNull() || source.isEmpty())
 			throw new KIRuntimeException("Expected a source of an array but not found any");
@@ -45,7 +52,7 @@ public class Sort extends Max {
 
 		if (start < 0 || start >= source.size() || start + len > source.size())
 			throw new KIRuntimeException(
-					"Given start point is more than the size of the array or not available at that point");
+			        "Given start point is more than the size of the array or not available at that point");
 
 		JsonPrimitive[] elements = ArrayUtil.jsonArrayToPrimitive(source);
 
@@ -55,7 +62,8 @@ public class Sort extends Max {
 			source.set(i, elements[i]);
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_EMPTY.getName(), source))));
+		return Mono
+		        .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_EMPTY.getName(), source)))));
 	}
 
 }

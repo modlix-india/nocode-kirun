@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
-import static com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator.path;
+import static com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator.path;
 
 import java.util.List;
 
