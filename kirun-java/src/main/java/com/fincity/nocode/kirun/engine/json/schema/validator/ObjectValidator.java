@@ -69,7 +69,7 @@ public class ObjectValidator {
 		}
 	}
 
-	private static void checkRequired(List<Schema> parents, Schema schema, JsonObject jsonObject) {
+	public static void checkRequired(List<Schema> parents, Schema schema, JsonObject jsonObject) {
 		for (String key : schema.getRequired()) {
 			if (jsonObject.get(key) == null || jsonObject.get(key)
 			        .isJsonNull()) {
@@ -151,7 +151,7 @@ public class ObjectValidator {
 		}
 	}
 
-	private static void checkMinMaxProperties(List<Schema> parents, Schema schema, Set<String> keys) {
+	public static void checkMinMaxProperties(List<Schema> parents, Schema schema, Set<String> keys) {
 		if (schema.getMinProperties() != null && keys.size() < schema.getMinProperties()
 		        .intValue()) {
 			throw new SchemaValidationException(path(parents),

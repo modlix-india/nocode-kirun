@@ -387,8 +387,8 @@ class ArraySchemaTypeValidatorTest {
 
         SchemaValidationException sve = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, job));
-        assertEquals("null - Value \"name\" is not of valid type(s)\n"
-                + "null - \"name\" is not a Integer", sve.getMessage());
+        assertEquals("Value \"name\" is not of valid type(s)\n"
+                + "\"name\" is not a Integer", sve.getMessage());
     }
 
     @Test
@@ -418,8 +418,8 @@ class ArraySchemaTypeValidatorTest {
 
         SchemaValidationException sve = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, job));
-        assertEquals("null - Value true is not of valid type(s)\n"
-                + "null - true is not a Integer", sve.getMessage());
+        assertEquals("Value true is not of valid type(s)\n"
+                + "true is not a Integer", sve.getMessage());
     }
 
     @Test
@@ -451,8 +451,8 @@ class ArraySchemaTypeValidatorTest {
 
         SchemaValidationException sve = assertThrows(SchemaValidationException.class,
                 () -> ArrayValidator.validate(null, schema, null, job));
-        assertEquals("null - Value 2.34 is not of valid type(s)\n"
-                + "null - 2.34 is not an Object", sve.getMessage());
+        assertEquals("Value 2.34 is not of valid type(s)\n"
+                + "2.34 is not an Object", sve.getMessage());
     }
 
     @Test
@@ -558,9 +558,9 @@ class ArraySchemaTypeValidatorTest {
 
         SchemaValidationException sve = assertThrows(SchemaValidationException.class,
                 () -> SchemaValidator.validate(null, schema, null, job));
-        assertEquals("null - Value [1,\"asd\",{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
-                + "null.null - Value {\"name\":\"thinking\",\"age\":1} is not of valid type(s)\n"
-                + "null.null - {\"name\":\"thinking\",\"age\":1} is not a boolean", sve.getMessage());
+        assertEquals("Value [1,\"asd\",{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
+                + "Value {\"name\":\"thinking\",\"age\":1} is not of valid type(s)\n"
+                + "{\"name\":\"thinking\",\"age\":1} is not a boolean", sve.getMessage());
     }
 
     @Test
@@ -596,8 +596,8 @@ class ArraySchemaTypeValidatorTest {
 
         SchemaValidationException sve = assertThrows(SchemaValidationException.class,
                 () -> SchemaValidator.validate(null, schema, null, job));
-        assertEquals("null - Value [1,\"asd\",false,{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
-                + "null - " + ERROR_MSG, sve.getMessage());
+        assertEquals("Value [1,\"asd\",false,{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
+                + "" + ERROR_MSG, sve.getMessage());
     }
 
 }

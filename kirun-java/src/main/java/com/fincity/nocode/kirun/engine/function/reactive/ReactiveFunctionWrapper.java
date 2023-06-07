@@ -17,6 +17,7 @@ public class ReactiveFunctionWrapper implements ReactiveFunction {
 
 	private Function actualFunction;
 	private Repository<Function> actualRepo;
+	private Repository<Schema> actualSchemaRepo;
 
 	public ReactiveFunctionWrapper(Function actualFunction, Repository<Function> actualRepo) {
 
@@ -36,7 +37,8 @@ public class ReactiveFunctionWrapper implements ReactiveFunction {
 
 	@Override
 	public Mono<FunctionOutput> execute(ReactiveFunctionExecutionParameters context) {
-		return Mono.just(this.actualFunction.execute(context.makeRegularFunctionExecutionParameters(this.actualRepo)));
+		return Mono.just(this.actualFunction
+		        .execute(context.makeRegularFunctionExecutionParameters(this.actualRepo, this.actualSchemaRepo)));
 	}
 
 }

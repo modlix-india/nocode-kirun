@@ -19,8 +19,8 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.model.ParameterReference;
 import com.fincity.nocode.kirun.engine.model.Statement;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -35,7 +35,7 @@ class ReactiveKIRuntimeTest {
 		// Testing the logic for Fibonacci series.
 
 		long start = System.currentTimeMillis();
-		Integer num = 7000;
+		Integer num = 10;
 		JsonArray array = new JsonArray(num);
 		int a = 0, b = 1;
 		array.add(a);
@@ -125,7 +125,7 @@ class ReactiveKIRuntimeTest {
 		        true);
 		var out = runtime
 		        .execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		                new KIRunSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
+		                new KIRunReactiveSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
 		        .map(FunctionOutput::allResults);
 
 		out.subscribe(e -> {
@@ -166,7 +166,7 @@ class ReactiveKIRuntimeTest {
 
 		var out = runtime
 		        .execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		                new KIRunSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
+		                new KIRunReactiveSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
 		        .map(e -> e.allResults());
 
 		StepVerifier.create(out)

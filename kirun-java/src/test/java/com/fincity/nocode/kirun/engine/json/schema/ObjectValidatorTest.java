@@ -242,9 +242,9 @@ class ObjectValidatorTest {
                 () -> SchemaValidator.validate(null, schema, null, job));
 
         assertEquals(
-                "null - Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
-                        + "null.null - Value 13423524 is not of valid type(s)\n"
-                        + "null.null - 13423524 is not String",
+                "Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
+                        + "Value 13423524 is not of valid type(s)\n"
+                        + "13423524 is not String",
                 sve.getMessage());
 
     }

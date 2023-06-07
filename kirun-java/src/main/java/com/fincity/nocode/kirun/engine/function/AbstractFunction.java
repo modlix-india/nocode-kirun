@@ -10,7 +10,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
-import com.fincity.nocode.kirun.engine.util.arguments.Arguments;
+import com.fincity.nocode.kirun.engine.util.arguments.ArgumentsValidationUtil;
 
 public abstract class AbstractFunction implements Function {
 
@@ -24,7 +24,7 @@ public abstract class AbstractFunction implements Function {
 	@Override
 	public FunctionOutput execute(FunctionExecutionParameters context) {
 
-		context.setArguments(Arguments.validateArguments(this.getSignature(), context.getArguments(), context.getSchemaRepository(),
+		context.setArguments(ArgumentsValidationUtil.validateArguments(this.getSignature(), context.getArguments(), context.getSchemaRepository(),
 		        context.getStatementExecution()));
 
 		try {

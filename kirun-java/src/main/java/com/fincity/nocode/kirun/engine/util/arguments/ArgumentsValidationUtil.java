@@ -14,11 +14,10 @@ import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-public class Arguments {
+public class ArgumentsValidationUtil {
 
 	public static Map<String, JsonElement> validateArguments(FunctionSignature signature,
-	        final Map<String, JsonElement> arguments, Repository<Schema> repository,
-	        StatementExecution statementExecution) {
+	        Map<String, JsonElement> arguments, Repository<Schema> repository, StatementExecution statementExecution) {
 
 		return signature.getParameters()
 		        .entrySet()
@@ -80,6 +79,6 @@ public class Arguments {
 		return Map.entry(e.getKey(), array);
 	}
 
-	private Arguments() {
+	private ArgumentsValidationUtil() {
 	}
 }

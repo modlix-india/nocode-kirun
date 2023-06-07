@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.json.schema.validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.Repository;
@@ -124,9 +125,10 @@ public class SchemaValidator {
 
 	public static String path(List<Schema> parents) {
 
-		return parents == null ? ""
+		return parents == null || parents.isEmpty() ? ""
 		        : parents.stream()
 		                .map(Schema::getTitle)
+		                .filter(Objects::nonNull)
 		                .collect(Collectors.joining("."));
 	}
 

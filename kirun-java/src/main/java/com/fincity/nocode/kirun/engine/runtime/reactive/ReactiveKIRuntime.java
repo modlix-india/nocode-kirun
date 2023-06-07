@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.runtime.reactive;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -18,14 +20,13 @@ import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.SchemaUtil;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.reactive.ReactiveSchemaUtil;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -101,7 +102,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	public Mono<ExecutionGraph<String, StatementExecution>> getExecutionPlan(ReactiveRepository<ReactiveFunction> fRepo,
-	        Repository<Schema> sRepo) {
+	        ReactiveRepository<Schema> sRepo) {
 
 		return Flux.fromIterable(this.fd.getSteps()
 		        .values())
@@ -618,96 +619,119 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	private Mono<StatementExecution> prepareStatementExecution(Statement s, ReactiveRepository<ReactiveFunction> fRepo, // NOSONAR
-	        Repository<Schema> sRepo) {
+	        ReactiveRepository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
 
-		Mono<ReactiveFunction> monoFun = fRepo.find(s.getNamespace(), s.getName());
+		return fRepo.find(s.getNamespace(), s.getName())
+		        .map(ReactiveFunction::getSignature)
+		        .map(FunctionSignature::getParameters)
+		        .flatMap(paramSet ->
+				{
 
-		return monoFun.flatMap(fun -> {
-			StatementExecution se = new StatementExecution(s);
+			        if (s.getParameterMap() == null)
+				        return Mono.just(new StatementExecution(s));
 
-			HashMap<String, Parameter> paramSet = new HashMap<>(fun.getSignature()
-			        .getParameters());
+			        StatementExecution se = new StatementExecution(s);
 
-			if (s.getParameterMap() == null)
-				return Mono.just(se);
+			        return Flux.fromIterable(s.getParameterMap()
+			                .entrySet())
+			                .flatMap(param ->
+							{
+				                Parameter p = paramSet.get(param.getKey());
+				                List<ParameterReference> refList = param.getValue() == null ? List.of()
+				                        : new ArrayList<>(param.getValue()
+				                                .values());
 
-			for (Entry<String, Map<String, ParameterReference>> param : s.getParameterMap()
-			        .entrySet()) {
+				                if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
-				Parameter p = paramSet.get(param.getKey());
+					                return ReactiveSchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+					                        .flatMap(hasDefault ->
+											{
+						                        if (!hasDefault.booleanValue())
+							                        se.addMessage(StatementMessageType.ERROR, StringFormatter
+							                                .format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+						                        return Mono.just(Tuples.of(param.getKey(), se));
+					                        });
 
-				List<ParameterReference> refList = param.getValue() == null ? List.of()
-				        : new ArrayList<>(param.getValue()
-				                .values());
+				                } else if (p.isVariableArgument()) {
 
-				if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
+					                if (refList != null) {
 
-					if (!SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
-						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-					paramSet.remove(param.getKey());
-					continue;
-				}
+						                return Flux.fromIterable(refList)
+						                        .sort((a, b) -> a.getOrder() - b.getOrder())
+						                        .flatMap(ref -> parameterReferenceValidation(se, p, ref, sRepo))
+						                        .collectList()
+						                        .map(e -> Tuples.of(param.getKey(), se));
+					                }
 
-				if (p.isVariableArgument()) {
+				                } else if (refList != null && !refList.isEmpty()) {
+					                ParameterReference ref = refList.get(0);
+					                return parameterReferenceValidation(se, p, ref, sRepo)
+					                        .map(e -> Tuples.of(param.getKey(), e));
+				                }
 
-					if (refList != null)
-						refList.sort((a, b) -> a.getOrder() - b.getOrder());
+				                return Mono.just(Tuples.of(param.getKey(), se));
+			                })
+			                .collectList()
+			                .map(lst ->
+							{
 
-					for (ParameterReference ref : refList)
-						parameterReferenceValidation(se, p, ref, sRepo);
-				} else if (refList != null && !refList.isEmpty()) {
+				                Set<String> leftOver = new HashSet<>(paramSet.keySet());
+				                lst.stream()
+				                        .map(Tuple2::getT1)
+				                        .forEach(leftOver::remove);
+				                if (se.getStatement()
+				                        .getDependentStatements() != null)
+					                for (Entry<String, Boolean> statement : s.getDependentStatements()
+					                        .entrySet())
+						                if (statement.getValue()
+						                        .booleanValue())
+							                se.addDependency(statement.getKey());
 
-					ParameterReference ref = refList.get(0);
-					parameterReferenceValidation(se, p, ref, sRepo);
-				}
+				                return leftOver;
+			                })
+			                .flatMap(remaining ->
+							{
 
-				paramSet.remove(p.getParameterName());
-			}
-
-			if (se.getStatement()
-			        .getDependentStatements() != null)
-				for (Entry<String, Boolean> statement : s.getDependentStatements()
-				        .entrySet())
-					if (statement.getValue()
-					        .booleanValue())
-						se.addDependency(statement.getKey());
-
-			if (!paramSet.isEmpty()) {
-				for (Parameter param : paramSet.values()) {
-					if (param.isVariableArgument())
-						continue;
-					if (!SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo))
-						se.addMessage(StatementMessageType.ERROR,
-						        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, param.getParameterName()));
-				}
-			}
-
-			return Mono.just(se);
-
-		})
+				                return Flux.fromIterable(remaining)
+				                        .map(paramSet::get)
+				                        .filter(Predicate.not(Parameter::isVariableArgument))
+				                        .flatMap(p -> ReactiveSchemaUtil
+				                                .hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+				                                .map(hasDefaultValue -> hasDefaultValue.booleanValue() ? se
+				                                        : se.addMessage(StatementMessageType.ERROR,
+				                                                StringFormatter.format(PARAMETER_NEEDS_A_VALUE,
+				                                                        p.getParameterName()))))
+				                        .collectList()
+				                        .map(e -> se);
+			                });
+		        })
 		        .defaultIfEmpty((new StatementExecution(s)).addMessage(StatementMessageType.ERROR,
 		                StringFormatter.format("$.$ is not available", s.getNamespace(), s.getName())));
+
 	}
 
-	private void parameterReferenceValidation(StatementExecution se, Parameter p, // NOSONAR
-	        ParameterReference ref, Repository<Schema> sRepo) {
-		// Breaking this execution doesn't make sense.
+	private Mono<StatementExecution> parameterReferenceValidation(StatementExecution se, Parameter p, // NOSONAR
+	        ParameterReference ref, ReactiveRepository<Schema> sRepo) {
 
 		if (ref == null) {
-			if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
-				se.addMessage(StatementMessageType.ERROR,
-				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-		} else if (ref.getType() == ParameterReferenceType.VALUE) {
-			if ((ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue()))
-			        && !SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)) {
-				se.addMessage(StatementMessageType.ERROR,
-				        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-			}
 
-			if (ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue()))
-				return;
+			return ReactiveSchemaUtil.getDefaultValue(p.getSchema(), sRepo)
+			        .map(e -> se)
+			        .switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
+			                StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
+		} else if (ref.getType() == ParameterReferenceType.VALUE) {
+
+			if (ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue())) {
+
+				return ReactiveSchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+				        .map(hasDefault -> hasDefault.booleanValue() ?
+
+				                se :
+
+				                se.addMessage(StatementMessageType.ERROR,
+				                        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())));
+			}
 
 			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
 			paramElements.push(Tuples.of(p.getSchema(), ref.getValue()));
@@ -779,22 +803,27 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				}
 			}
 
+			return Mono.just(se);
+
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
+
 			if (ref.getExpression() == null || ref.getExpression()
 			        .isBlank()) {
-				if (SchemaUtil.getDefaultValue(p.getSchema(), sRepo) == null)
-					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+				return ReactiveSchemaUtil.getDefaultValue(p.getSchema(), sRepo)
+				        .map(e -> se)
+				        .switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
+				                StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
 			} else {
 				try {
 					// TODO: Type check for the resulting expression has to be done here...
 					this.addDependencies(se, ref.getExpression());
 				} catch (KIRuntimeException ex) {
-					se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage()));
+					return Mono.just(se.addMessage(StatementMessageType.ERROR,
+					        StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage())));
 				}
 			}
 		}
+		return Mono.just(se);
 	}
 
 	private void addDependencies(StatementExecution se, String expression) {

@@ -36,13 +36,13 @@ public class ReactiveFunctionExecutionParameters {
 	private Map<String, Map<String, Map<String, JsonElement>>> steps;
 	private int count;
 	private final ReactiveRepository<ReactiveFunction> functionRepository;
-	private final Repository<Schema> schemaRepository;
+	private final ReactiveRepository<Schema> schemaRepository;
 	private final String executionId;
 
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 
 	public ReactiveFunctionExecutionParameters(ReactiveRepository<ReactiveFunction> functionRepository,
-	        Repository<Schema> schemaRepository) {
+	        ReactiveRepository<Schema> schemaRepository) {
 		this(functionRepository, schemaRepository, UUID.randomUUID()
 		        .toString());
 	}
@@ -93,9 +93,10 @@ public class ReactiveFunctionExecutionParameters {
 		return this.arguments;
 	}
 
-	public FunctionExecutionParameters makeRegularFunctionExecutionParameters(Repository<Function> actualRepo) {
-		
-		return new FunctionExecutionParameters(actualRepo, schemaRepository, this.executionId).setContext(context)
+	public FunctionExecutionParameters makeRegularFunctionExecutionParameters(Repository<Function> actualRepo,
+	        Repository<Schema> actualSchemaRepo) {
+
+		return new FunctionExecutionParameters(actualRepo, actualSchemaRepo, this.executionId).setContext(context)
 		        .setArguments(arguments)
 		        .setEvents(events)
 		        .setStatementExecution(statementExecution)

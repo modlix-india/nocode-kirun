@@ -1,29 +1,27 @@
-package com.fincity.nocode.kirun.engine.json.schema;
+package com.fincity.nocode.kirun.engine.json.schema.reactive;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
-import com.fincity.nocode.kirun.engine.json.schema.validator.SchemaValidator;
-import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
+import com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveArrayValidator;
+import com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-class ArraySchemaAdapterTypeTest {
+import reactor.test.StepVerifier;
+
+class ReactiveArraySchemaAdapterTypeTest {
 
 	@Test
 	void schemaObjectPollutionSchemaValueTypePassTest() {
@@ -51,53 +49,30 @@ class ArraySchemaAdapterTypeTest {
 		                                        """,
 		        Schema.class);
 
-		var repo = new KIRunSchemaRepository();
+		var repo = new KIRunReactiveSchemaRepository();
 
-		var firstValue = SchemaValidator.validate(null, schema, repo, null);
+		JsonArray ja = new JsonArray();
+		JsonObject job1 = new JsonObject();
+		job1.addProperty("x", 20);
+		job1.addProperty("y", "Kiran");
 
-		var value = SchemaValidator.validate(null, xschema, repo, firstValue);
+		JsonObject job2 = new JsonObject();
+		job2.addProperty("x", 30);
+		job2.addProperty("y", "Kiran");
 
-		assertEquals("Kiran", value.getAsJsonArray()
-		        .get(0)
-		        .getAsJsonObject()
-		        .get("y")
-		        .getAsString());
+		ja.add(job1);
+		ja.add(job2);
+
+		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, repo, null)
+		        .flatMap(firstValue -> ReactiveSchemaValidator.validate(null, xschema, repo, firstValue)))
+		        .expectNext(ja)
+		        .verifyComplete();
 
 		assertNull(schema.getDefaultValue()
 		        .getAsJsonArray()
 		        .get(0)
 		        .getAsJsonObject()
 		        .get("y"));
-	}
-
-	@Test
-	void schemaItemsAdapterTest() {
-
-		ArraySchemaTypeAdapter asta = new ArraySchemaTypeAdapter();
-		SchemaTypeAdapter sta = new SchemaTypeAdapter();
-		AdditionalTypeAdapter ata = new AdditionalTypeAdapter();
-
-		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, sta)
-		        .registerTypeAdapter(ArraySchemaType.class, asta)
-		        .registerTypeAdapter(AdditionalType.class, ata)
-		        .create();
-
-		asta.setGson(gson);
-		ata.setGson(gson);
-
-		var arrayAdap = gson.fromJson("""
-		        [{"type":"OBJECT","properties":{"x":{"type":"INTEGER"}}}]
-		        """, ArraySchemaType.class);
-
-		assertNull(arrayAdap.getSingleSchema());
-		assertNotNull(arrayAdap.getTupleSchema());
-		var equality = arrayAdap.getTupleSchema()
-		        .get(0)
-		        .getProperties()
-		        .get("x")
-		        .getType()
-		        .equals(Type.of(SchemaType.INTEGER));
-		assertTrue(equality);
 	}
 
 	@Test
@@ -131,12 +106,10 @@ class ArraySchemaAdapterTypeTest {
 		arr.add(false);
 		arr.add("string example");
 
-		SchemaValidationException sve = assertThrows(SchemaValidationException.class,
-		        () -> SchemaValidator.validate(null, array, null, arr));
-
-		// for single schema type of array additional items are invalid.
-		assert (sve.getMessage()
-		        .contains("false is not an Object"));
+		StepVerifier.create(ReactiveArrayValidator.validate(null, array, null, arr))
+		        .expectErrorMessage("Value false is not of valid type(s)\n"
+		        		+ "false is not an Object")
+		        .verify();
 	}
 
 	@Test
@@ -169,11 +142,10 @@ class ArraySchemaAdapterTypeTest {
 		arr.add(obj1);
 		arr.add(obj2);
 
-		SchemaValidationException sve = assertThrows(SchemaValidationException.class,
-		        () -> SchemaValidator.validate(null, array, null, arr));
-
-		assert (sve.getMessage()
-		        .contains("name is mandatory"));
+		StepVerifier.create(ReactiveArrayValidator.validate(null, array, null, arr))
+		        .expectErrorMessage("Value {\"age\":24} is not of valid type(s)\n"
+		        		+ "name is mandatory")
+		        .verify();
 	}
 
 	@Test
@@ -207,7 +179,9 @@ class ArraySchemaAdapterTypeTest {
 		arr.add(false);
 		arr.add(12.44);
 		arr.add("mla");
-		assertEquals(arr, SchemaValidator.validate(null, array, null, arr));
+		StepVerifier.create(ReactiveSchemaValidator.validate(null, array, null, arr))
+		        .expectNext(arr)
+		        .verifyComplete();
 	}
 
 	@Test
@@ -242,8 +216,10 @@ class ArraySchemaAdapterTypeTest {
 		secArr.add(1);
 		secArr.add(10000);
 		arr.add(secArr);
-		
-		assertEquals(arr, SchemaValidator.validate(null, arraySchema, null, arr));
+
+		StepVerifier.create(ReactiveSchemaValidator.validate(null, arraySchema, null, arr))
+		        .expectNext(arr)
+		        .verifyComplete();
 	}
 
 }

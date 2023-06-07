@@ -11,6 +11,11 @@ public class SchemaValidationException extends RuntimeException {
 	private final String schemaPath;
 	private final List<SchemaValidationException> sveList;
 
+	public SchemaValidationException(String schemaPath, Throwable t) {
+
+		this(schemaPath, "Unknown error occurred : " + t.getMessage(), null);
+	}
+
 	public SchemaValidationException(String schemaPath, String message, List<SchemaValidationException> sve) {
 
 		super(message + (sve == null ? ""

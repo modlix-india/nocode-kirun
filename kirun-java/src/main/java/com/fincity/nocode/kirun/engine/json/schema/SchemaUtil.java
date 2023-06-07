@@ -12,9 +12,9 @@ import reactor.util.function.Tuples;
 
 public class SchemaUtil {
 
-	private static final String UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH = "Unable to retrive schema from referenced path";
+	public static final String UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH = "Unable to retrive schema from referenced path";
 
-	private static final int CYCLIC_REFERENCE_LIMIT_COUNTER = 20;
+	public static final int CYCLIC_REFERENCE_LIMIT_COUNTER = 20;
 
 	public static JsonElement getDefaultValue(Schema s, Repository<Schema> sRepository) {
 
@@ -29,22 +29,24 @@ public class SchemaUtil {
 
 		return getDefaultValue(getSchemaFromRef(s, sRepository, s.getRef(), 0), sRepository);
 	}
-	
-    public static boolean hasDefaultValueOrNullSchemaType(Schema s, Repository<Schema> repo) {
-        if (s == null)
-            return false;
 
-        if (s.getConstant() != null)
-            return true;
-        
-        if(s.getDefaultValue() != null)
-            return true;
+	public static boolean hasDefaultValueOrNullSchemaType(Schema s, Repository<Schema> repo) {
+		if (s == null)
+			return false;
 
-        if (s.getRef() == null) {
-            return s.getType().getAllowedSchemaTypes().contains(SchemaType.NULL);
-        }
-        return hasDefaultValueOrNullSchemaType(SchemaUtil.getSchemaFromRef(s, repo, s.getRef()), repo);
-    }
+		if (s.getConstant() != null)
+			return true;
+
+		if (s.getDefaultValue() != null)
+			return true;
+
+		if (s.getRef() == null) {
+			return s.getType()
+			        .getAllowedSchemaTypes()
+			        .contains(SchemaType.NULL);
+		}
+		return hasDefaultValueOrNullSchemaType(SchemaUtil.getSchemaFromRef(s, repo, s.getRef()), repo);
+	}
 
 	public static Schema getSchemaFromRef(Schema schema, Repository<Schema> sRepository, String ref) {
 		return getSchemaFromRef(schema, sRepository, ref, 0);
@@ -62,15 +64,16 @@ public class SchemaUtil {
 
 		if (!ref.startsWith("#")) {
 
-			var tuple = resolveExternalSchema(schema, sRepository, ref);
+			var tuple = resolveExternalSchema(sRepository, ref);
 			schema = tuple.getT1();
 			ref = tuple.getT2();
 		}
 
 		String[] parts = ref.split("/");
 		int i = 1;
-		
-		if (i == parts.length) return schema;
+
+		if (i == parts.length)
+			return schema;
 
 		return resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
 	}
@@ -79,8 +82,9 @@ public class SchemaUtil {
 	        int iteration, String[] parts, int i) {
 
 		// Cannot divide the code further down in the interest of readability.
-		
-		if (i == parts.length) return null;
+
+		if (i == parts.length)
+			return null;
 
 		while (i < parts.length) {
 
@@ -118,12 +122,11 @@ public class SchemaUtil {
 		return schema;
 	}
 
-	private static Tuple2<Schema, String> resolveExternalSchema(Schema schema, Repository<Schema> sRepository,
-	        String ref) {
+	private static Tuple2<Schema, String> resolveExternalSchema(Repository<Schema> sRepository, String ref) {
 		String[] nms = StringUtil.splitAtFirstOccurance(ref, '/');
 		String[] nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
 
-		schema = sRepository.find(nmspnm[0], nmspnm[1]);
+		Schema schema = sRepository.find(nmspnm[0], nmspnm[1]);
 		if (nms[1] == null || nms[1].isBlank())
 			return Tuples.of(schema, ref);
 

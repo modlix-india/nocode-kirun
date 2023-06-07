@@ -10,8 +10,8 @@ import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveHybridRepository;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -182,7 +182,7 @@ class ReactiveKIRuntimeWithDefinitionOneTest {
 		var repo = new ReactiveHybridRepository<>(new KIRunReactiveFunctionRepository(), new InternalRepository());
 
 		var results = first
-		        .execute(new ReactiveFunctionExecutionParameters(repo, new KIRunSchemaRepository(), "Testing"));
+		        .execute(new ReactiveFunctionExecutionParameters(repo, new KIRunReactiveSchemaRepository(), "Testing"));
 
 		;
 
