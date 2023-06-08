@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class PostPadTest {
 
@@ -21,12 +21,17 @@ class PostPadTest {
 
 		PostPad postpad = new PostPad();
 
-		assertEquals(new JsonPrimitive(" THIScompatY IS A NOcoDE plATFNORMhiranhiranhi"),
-				postpad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PostPad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(postpad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PostPad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(12)))).allResults().get(0).getResult()
-						.get(PostPad.EVENT_RESULT_NAME));
+										PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(12))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PostPad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext(" THIScompatY IS A NOcoDE plATFNORMhiranhiranhi")
+				.verifyComplete();
 	}
 
 	@Test
@@ -37,12 +42,17 @@ class PostPadTest {
 
 		PostPad prepad = new PostPad();
 
-		assertEquals(new JsonPrimitive(" THIScompatY IS A NOcoDE plATFNORM h  h  h  h"),
-				prepad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PostPad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(prepad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PostPad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(11)))).allResults().get(0).getResult()
-						.get(PostPad.EVENT_RESULT_NAME));
+										PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(11))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PostPad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext(" THIScompatY IS A NOcoDE plATFNORM h  h  h  h")
+				.verifyComplete();
 	}
 
 	@Test
@@ -53,12 +63,17 @@ class PostPadTest {
 
 		PostPad postpad = new PostPad();
 
-		assertEquals(new JsonPrimitive(" THIScompatY IS A NOcoDE plATFNORMhir"),
-				postpad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PostPad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(postpad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PostPad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PostPad.PARAMETER_POSTPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(3)))).allResults().get(0).getResult()
-						.get(PostPad.EVENT_RESULT_NAME));
+										PostPad.PARAMETER_LENGTH_NAME, new JsonPrimitive(3))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PostPad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext(" THIScompatY IS A NOcoDE plATFNORMhir")
+				.verifyComplete();
 	}
 
 }

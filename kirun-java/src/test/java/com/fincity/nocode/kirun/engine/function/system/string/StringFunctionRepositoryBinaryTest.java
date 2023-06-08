@@ -1,16 +1,16 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class StringFunctionRepositoryBinaryTest {
 
@@ -18,28 +18,48 @@ class StringFunctionRepositoryBinaryTest {
 	void test3() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "Contains")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-						new JsonPrimitive("			no code  Kirun  PLATform		"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("no code"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Contains").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			no code  Kirun  PLATform		"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("no code"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsBoolean())))
+				.expectNext(true)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "Contains")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("			"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("  "))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Contains").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("  "))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsBoolean())))
+				.expectNext(false)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "Contains")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-										new JsonPrimitive("{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
-										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
-										new JsonPrimitive("4 123 1[[23 245-0 34"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Contains").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive(
+														"{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("4 123 1[[23 245-0 34"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsBoolean())))
+				.expectNext(true)
+				.verifyComplete();
 
 	}
 
@@ -47,99 +67,148 @@ class StringFunctionRepositoryBinaryTest {
 	void test5() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(3), stringFunction.find(Namespaces.STRING, "IndexOf")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-						new JsonPrimitive("			no code  Kirun  PLATform		"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("no code"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "IndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			no code  Kirun  PLATform		"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("no code"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(3)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(-1),
-				stringFunction.find(Namespaces.STRING, "IndexOf")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("			"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("  "))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "IndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("  "))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(-1)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(5),
-				stringFunction.find(Namespaces.STRING, "IndexOf")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-										new JsonPrimitive("{20934 123 1[[23 245-0 34\" 3434\" 123]]}"),
-										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
-										new JsonPrimitive("4 123 1[[23 245-0 34"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
-
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "IndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive(
+														"{20934 123 1[[23 245-0 34\" 3434\" 123]]}"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("4 123 1[[23 245-0 34"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(5)
+				.verifyComplete();
 	}
 
 	@Test
 	void test2() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(20),
-				stringFunction.find(Namespaces.STRING, "LastIndexOf")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-								new JsonPrimitive("			no code  Kirun  PLATform		"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("LA"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "LastIndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			no code  Kirun  PLATform		"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("LA"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(20)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(5),
-				stringFunction.find(Namespaces.STRING, "LastIndexOf")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-								new JsonPrimitive("this is a no code platform"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("is"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "LastIndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("this is a no code platform"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("is"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(5)
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(29),
-				stringFunction.find(Namespaces.STRING, "LastIndexOf")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-								new JsonPrimitive("{20934 123 1[[23 245-0 34\" 3434  \" 123]]}"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("34"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
-
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "LastIndexOf").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("{20934 123 1[[23 245-0 34\" 3434  \" 123]]}"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("34"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME)
+								.getAsNumber())))
+				.expectNext(29)
+				.verifyComplete();
 	}
 
 	@Test
 	void test1() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
 								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 										new JsonPrimitive(" THIS IS A NOcoDE plATFORM		"),
 										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
 										new JsonPrimitive(" THIS IS A NOCODE PLATFORM		"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("				"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
-								new JsonPrimitive("				"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+										new JsonPrimitive("				"),
+										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+										new JsonPrimitive("				"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
 								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"),
 										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
 										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EqualsIgnoreCase").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
 								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
 										new JsonPrimitive("			no code  Kirun  PLATform		"),
 										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
 										new JsonPrimitive("			NO CODE  KIRUN  PLATFORM	"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(false))
+				.verifyComplete();
 	}
 
 	@Test
@@ -147,54 +216,90 @@ class StringFunctionRepositoryBinaryTest {
 
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "EndsWith")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of(AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-										new JsonPrimitive("			no code  Kirun  PLATform		"),
-										AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
-										new JsonPrimitive("PLATform		"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EndsWith").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			no code  Kirun  PLATform		"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("PLATform		"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "EndsWith")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("this is a new job\t"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("job\t"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EndsWith").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("this is a new job\t"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("job\t"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "EndsWith")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-						new JsonPrimitive("{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("\" 123]]}"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
-
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "EndsWith").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive(
+														"{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("\" 123]]}"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 	}
 
 	@Test
 	void test6() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(true), stringFunction.find(Namespaces.STRING, "Matches")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-						new JsonPrimitive("			no code  Kirun  PLATform		"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("(.*)no(.*)"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Matches").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			no code  Kirun  PLATform		"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("(.*)no(.*)"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "Matches")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-								AbstractBinaryStringFunction.PARAMETER_STRING_NAME, new JsonPrimitive("			"),
-								AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("(.*)"))))
-						.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Matches").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive("			"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("(.*)"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(false), stringFunction.find(Namespaces.STRING, "Contains")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-						AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
-						new JsonPrimitive("{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
-						AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive("2093(.*)"))))
-				.allResults().get(0).getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Matches").flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository()).setArguments(
+										Map.of(
+												AbstractBinaryStringFunction.PARAMETER_STRING_NAME,
+												new JsonPrimitive(
+														"{20934 123 1[[23 245-0 34\\\\\\\" 3434 \\\\\\\" 123]]}"),
+												AbstractBinaryStringFunction.PARAMETER_SEARCH_STRING_NAME,
+												new JsonPrimitive("2093(.*)"))))
+						.map(fo -> fo.next().getResult().get(AbstractBinaryStringFunction.EVENT_RESULT_NAME))))
+				.expectNext(new JsonPrimitive(false))
+				.verifyComplete();
 
 	}
 

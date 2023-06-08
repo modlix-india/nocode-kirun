@@ -1,20 +1,19 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class LastIndexOfTest {
 
@@ -39,17 +38,23 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-				Map.of("source", array, "elementObject", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(3)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+						Map.of("source", array, "elementObject", new JsonPrimitive("I"), "findFrom",
+								new JsonPrimitive(3)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertEquals(new JsonPrimitive(7), ind.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(7)))
+				.verifyComplete();
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-				Map.of("source", array, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2)));
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+						Map.of("source", array, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2)));
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep1));
+		StepVerifier.create(ind.execute(fep1))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -73,18 +78,25 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
-				"elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(12)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", array,
+						"elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(12)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertEquals(new JsonPrimitive(15), ind.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(15)))
+				.verifyComplete();
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source",
-				new JsonArray(), "elementObject", new JsonPrimitive("new "), "findFrom", new JsonPrimitive(5)));
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source",
+						new JsonArray(), "elementObject", new JsonPrimitive("new "), "findFrom", new JsonPrimitive(5)));
 
-		assertEquals(new JsonPrimitive(-1), ind.execute(fep1).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(ind.execute(fep1))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(-1)))
+				.verifyComplete();
 	}
 
 	@Test
@@ -108,12 +120,14 @@ class LastIndexOfTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
-				"elementObject", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(-2)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", array,
+						"elementObject", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(-2)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep));
+		StepVerifier.create(ind.execute(fep)).verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -192,12 +206,15 @@ class LastIndexOfTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", array1, "findFrom", new JsonPrimitive(1)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertEquals(new JsonPrimitive(4), ind.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(4)))
+				.verifyComplete();
 	}
 
 	@Test
@@ -240,18 +257,21 @@ class LastIndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", js3, "findFrom", new JsonPrimitive(10)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(ind.execute(fep)).verifyError(KIRuntimeException.class);
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "elementObject", js1, "findFrom", new JsonPrimitive(3)));
 
-		assertEquals(new JsonPrimitive(4), ind.execute(fep1).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(ind.execute(fep1))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(4)))
+				.verifyComplete();
 	}
 
 	@Test
@@ -294,14 +314,13 @@ class LastIndexOfTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-				Map.of("source", arr, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(0)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+						Map.of("source", arr, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(0)));
 
 		LastIndexOf ind = new LastIndexOf();
 
-		assertThrows(KIRuntimeException.class,
-				() -> ind.execute(fep).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(ind.execute(fep)).verifyError(KIRuntimeException.class);
 	}
 
 }

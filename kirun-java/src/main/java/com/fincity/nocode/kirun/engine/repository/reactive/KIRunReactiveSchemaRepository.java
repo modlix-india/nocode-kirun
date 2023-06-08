@@ -1,15 +1,18 @@
-package com.fincity.nocode.kirun.engine.repository;
+package com.fincity.nocode.kirun.engine.repository.reactive;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.Repository;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 
-public class KIRunSchemaRepository implements Repository<Schema> {
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema> {
 
 	private static final Schema ANY = Schema.ofAny("any")
 	        .setNamespace(Namespaces.SYSTEM);
@@ -32,7 +35,7 @@ public class KIRunSchemaRepository implements Repository<Schema> {
 
 	private List<String> filterable;
 
-	public KIRunSchemaRepository() {
+	public KIRunReactiveSchemaRepository() {
 
 		map.put(ANY.getName(), ANY);
 		map.put(BOOLEAN.getName(), BOOLEAN);
@@ -53,22 +56,22 @@ public class KIRunSchemaRepository implements Repository<Schema> {
 	}
 
 	@Override
-	public Schema find(String namespace, String name) {
+	public Mono<Schema> find(String namespace, String name) {
 
 		if (!Namespaces.SYSTEM.equals(namespace))
-			return null;
+			return Mono.empty();
 
-		return map.get(name);
+		return Mono.just(map.get(name));
 	}
-	
+
 	@Override
-	public List<String> filter(String name) {
+	public Flux<String> filter(String name) {
 
 		String lowerCaseName = name.toLowerCase();
 
-		return this.filterable.stream()
+		return Flux.fromIterable(this.filterable)
 		        .filter(e -> e.toLowerCase()
-		                .contains(lowerCaseName))
-		        .toList();
+		                .contains(lowerCaseName));
 	}
+
 }

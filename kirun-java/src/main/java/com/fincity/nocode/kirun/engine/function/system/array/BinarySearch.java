@@ -6,26 +6,34 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.util.stream.ArrayUtil;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class BinarySearch extends AbstractArrayFunction {
 
 	public BinarySearch() {
 		super("BinarySearch", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE, PARAMETER_INT_SOURCE_FROM,
-				PARAMETER_FIND_PRIMITIVE, PARAMETER_INT_LENGTH), EVENT_INDEX);
+		        PARAMETER_FIND_PRIMITIVE, PARAMETER_INT_LENGTH), EVENT_INDEX);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		var source = ArrayUtil.jsonArrayToArray(
-				context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName()).getAsJsonArray());
-		int start = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName()).getAsInt();
-		var find = context.getArguments().get(PARAMETER_FIND_PRIMITIVE.getParameterName());
-		int end = context.getArguments().get(PARAMETER_INT_LENGTH.getParameterName()).getAsInt();
+		var source = ArrayUtil.jsonArrayToArray(context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
+		        .getAsJsonArray());
+		int start = context.getArguments()
+		        .get(PARAMETER_INT_SOURCE_FROM.getParameterName())
+		        .getAsInt();
+		var find = context.getArguments()
+		        .get(PARAMETER_FIND_PRIMITIVE.getParameterName());
+		int end = context.getArguments()
+		        .get(PARAMETER_INT_LENGTH.getParameterName())
+		        .getAsInt();
 
 		if (source.length == 0 || start < 0 || start > source.length) {
 			throw new KIRuntimeException("Search source array cannot be empty");
@@ -52,7 +60,8 @@ public class BinarySearch extends AbstractArrayFunction {
 				start = mid + 1;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_INDEX_NAME, new JsonPrimitive(index)))));
+		return Mono.just(
+		        new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_INDEX_NAME, new JsonPrimitive(index))))));
 	}
 
 }

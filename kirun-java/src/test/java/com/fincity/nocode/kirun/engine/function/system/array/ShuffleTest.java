@@ -8,9 +8,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -20,12 +20,14 @@ class ShuffleTest {
 	void test() {
 		var arr = new JsonArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
-		sf.execute(fep);
+		sf.execute(fep).block();
 
 		assertEquals(new JsonArray(), arr);
 	}
@@ -35,12 +37,14 @@ class ShuffleTest {
 		var arr = new JsonArray();
 		arr.add("surendhar");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
-		sf.execute(fep);
+		sf.execute(fep).block();
 
 		var res = new JsonArray();
 		res.add("surendhar");
@@ -64,12 +68,14 @@ class ShuffleTest {
 		for (int i = 0; i < arr.size(); i++)
 			set1.add(res.get(i).getAsInt());
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle sf = new Shuffle();
 
-		sf.execute(fep);
+		sf.execute(fep).block();
 
 		Set<Integer> set2 = new HashSet<>();
 		for (int i = 0; i < arr.size(); i++)
@@ -106,11 +112,13 @@ class ShuffleTest {
 		for (int i = 0; i < array.size(); i++)
 			set1.add(res.get(i).getAsString());
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", array))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle suf = new Shuffle();
-		suf.execute(fep);
+		suf.execute(fep).block();
 
 		Set<String> set2 = new HashSet<>();
 		for (int i = 0; i < array.size(); i++)
@@ -167,12 +175,14 @@ class ShuffleTest {
 		for (int i = 0; i < res.size(); i++)
 			set1.add(res.get(i).getAsJsonObject());
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle freq = new Shuffle();
 
-		freq.execute(fep);
+		freq.execute(fep).block();
 
 		Set<JsonObject> set2 = new HashSet<>();
 		for (int i = 0; i < arr.size(); i++)
@@ -272,12 +282,14 @@ class ShuffleTest {
 		for (int i = 0; i < res.size(); i++)
 			set1.add(res.get(i));
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr))
 				.setContext(Map.of()).setSteps(Map.of());
 
 		Shuffle suf = new Shuffle();
 
-		suf.execute(fep);
+		suf.execute(fep).block();
 
 		Set<Object> set2 = new HashSet<>();
 		for (int i = 0; i < arr.size(); i++)

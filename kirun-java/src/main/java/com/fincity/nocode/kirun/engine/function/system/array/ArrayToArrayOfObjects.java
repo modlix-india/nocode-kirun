@@ -7,10 +7,11 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
-
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import reactor.core.publisher.Mono;
 
 public class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
@@ -30,7 +31,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
     }
 
     @Override
-    protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
         var source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
@@ -40,8 +41,8 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
         if (source.size() == 0)
 
-            return new FunctionOutput(
-                    List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonArray()))));
+            return Mono.just(new FunctionOutput(
+                    List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonArray())))));
 
         for (int i = 0; i < source.size(); i++) {
             JsonObject obj = new JsonObject();
@@ -53,7 +54,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
             arr.add(obj);
         }
 
-        return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, arr))));
+        return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, arr)))));
     }
 
     private void extractForNestedArray(JsonArray source, JsonArray keys, int i, JsonObject obj) {

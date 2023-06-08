@@ -8,9 +8,11 @@ import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class Max extends AbstractArrayFunction {
 
@@ -23,23 +25,27 @@ public class Max extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
+		        .getAsJsonArray();
 
 		if (source.size() == 0)
 			throw new KIRuntimeException("Search source array cannot be empty");
 
-		JsonPrimitive max = source.get(0).getAsJsonPrimitive();
+		JsonPrimitive max = source.get(0)
+		        .getAsJsonPrimitive();
 
 		for (int i = 1; i < source.size(); i++) {
-			JsonPrimitive y = source.get(i).getAsJsonPrimitive();
+			JsonPrimitive y = source.get(i)
+			        .getAsJsonPrimitive();
 			if (functionSpecificComparator(max, y))
 				continue;
 			max = y;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ANY.getName(), max))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ANY.getName(), max)))));
 	}
 
 	protected boolean functionSpecificComparator(JsonPrimitive max, JsonPrimitive y) {
@@ -63,7 +69,8 @@ public class Max extends AbstractArrayFunction {
 		}
 
 		if (oa.isString() || ob.isString())
-			return oa.getAsString().compareTo(ob.getAsString());
+			return oa.getAsString()
+			        .compareTo(ob.getAsString());
 
 		Number a = oa.getAsNumber();
 		Number b = ob.getAsNumber();

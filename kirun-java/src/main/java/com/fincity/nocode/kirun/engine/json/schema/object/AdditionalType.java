@@ -20,68 +20,80 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 public class AdditionalType implements Serializable {
 
-    private static final long serialVersionUID = -3710026689972221380L;
+	private static final long serialVersionUID = -3710026689972221380L;
 
-    private Boolean booleanValue;
-    private Schema schemaValue;
+	private Boolean booleanValue;
+	private Schema schemaValue;
 
-    public AdditionalType(boolean booleanValue) {
-        this.booleanValue = booleanValue;
-    }
+	public AdditionalType(boolean booleanValue) {
+		this.booleanValue = booleanValue;
+	}
 
-    public AdditionalType(AdditionalType props) {
+	public AdditionalType(AdditionalType props) {
 
-        this.booleanValue = props.booleanValue;
-        this.schemaValue = new Schema(props.schemaValue);
-    }
+		this.booleanValue = props.booleanValue;
+		this.schemaValue = new Schema(props.schemaValue);
+	}
 
-    public static class AdditionalTypeAdapter extends TypeAdapter<AdditionalType> {
+	public static boolean canHaveAddtionalItems(AdditionalType at) {
 
-        private Gson gson;
+		if (at == null)
+			return true;
+		
+		if (at.booleanValue != null)
+			return at.booleanValue.booleanValue();
+		
+		return at.schemaValue != null;
+	}
 
-        @Override
-        public void write(JsonWriter out, AdditionalType value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
+	public static class AdditionalTypeAdapter extends TypeAdapter<AdditionalType> {
 
-            if (value.getBooleanValue() != null) {
-                out.value(value.getBooleanValue());
-            } else if (value.getSchemaValue() != null) {
+		private Gson gson;
 
-                TypeAdapter<Schema> typeAdapter = gson.getAdapter(Schema.class);
-                typeAdapter.write(out, value.schemaValue);
-            }
-        }
+		@Override
+		public void write(JsonWriter out, AdditionalType value) throws IOException {
+			if (value == null) {
+				out.nullValue();
+				return;
+			}
 
-        @Override
-        public AdditionalType read(JsonReader in) throws IOException {
-            JsonToken token = in.peek();
-            AdditionalType additionalType = new AdditionalType();
+			if (value.getBooleanValue() != null) {
+				out.value(value.getBooleanValue());
+			} else if (value.getSchemaValue() != null) {
 
-            if (token == JsonToken.BOOLEAN)
-                additionalType.booleanValue = in.nextBoolean();
+				TypeAdapter<Schema> typeAdapter = gson.getAdapter(Schema.class);
+				typeAdapter.write(out, value.schemaValue);
+			}
+		}
 
-            else if (token == JsonToken.BEGIN_OBJECT) {
-                JsonObject jsonObj = gson.fromJson(in, JsonObject.class);
+		@Override
+		public AdditionalType read(JsonReader in) throws IOException {
+			JsonToken token = in.peek();
+			AdditionalType additionalType = new AdditionalType();
 
-                if (jsonObj.has("booleanValue")) {
-                    additionalType.booleanValue = jsonObj.get("booleanValue").getAsBoolean();
-                } else if (jsonObj.has("schemaValue")) {
-                    additionalType.schemaValue = gson.fromJson(jsonObj.get("schemaValue").getAsJsonObject(),
-                            Schema.class);
-                } else {
-                    additionalType.schemaValue = gson.fromJson(jsonObj.getAsJsonObject(), Schema.class);
-                }
-            }
+			if (token == JsonToken.BOOLEAN)
+				additionalType.booleanValue = in.nextBoolean();
 
-            return additionalType;
-        }
+			else if (token == JsonToken.BEGIN_OBJECT) {
+				JsonObject jsonObj = gson.fromJson(in, JsonObject.class);
 
-        public void setGson(Gson gson) {
-            this.gson = gson;
-        }
+				if (jsonObj.has("booleanValue")) {
+					additionalType.booleanValue = jsonObj.get("booleanValue")
+					        .getAsBoolean();
+				} else if (jsonObj.has("schemaValue")) {
+					additionalType.schemaValue = gson.fromJson(jsonObj.get("schemaValue")
+					        .getAsJsonObject(), Schema.class);
+				} else {
+					additionalType.schemaValue = gson.fromJson(jsonObj.getAsJsonObject(), Schema.class);
+				}
+			}
 
-    }
+			return additionalType;
+		}
+
+		public void setGson(Gson gson) {
+			this.gson = gson;
+		}
+
+	}
 }

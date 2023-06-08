@@ -11,8 +11,8 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.Additio
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -109,7 +109,7 @@ class ReactiveKIRuntimeMessagesTest {
 		var fd = gson.fromJson(func, FunctionDefinition.class);
 
 		var graph = new ReactiveKIRuntime(fd, false).getExecutionPlan(new KIRunReactiveFunctionRepository(),
-		        new KIRunSchemaRepository());
+		        new KIRunReactiveSchemaRepository());
 
 		Mono<List<String>> messages = graph.map(g -> g.getNodeMap()
 		        .values()

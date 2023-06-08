@@ -26,6 +26,14 @@ class Print extends AbstractFunction {
             new Map([
                 Parameter.ofEntry(Print.VALUES, Schema.ofAny(Print.VALUES), true),
                 Parameter.ofEntry(Print.VALUE, Schema.ofAny(Print.VALUE)),
+                Parameter.ofEntry(
+                    Print.VALUE + 'Pick1',
+                    Schema.ofBoolean(Print.VALUE + 'Pick1').setDefaultValue(false),
+                ),
+                Parameter.ofEntry(
+                    Print.VALUE + 'Pick2',
+                    Schema.ofString(Print.VALUE + 'Pick2').setDefaultValue(''),
+                ),
             ]),
         );
 
@@ -36,13 +44,19 @@ class Print extends AbstractFunction {
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let values = context.getArguments()?.get(Print.VALUES);
         let value = context.getArguments()?.get(Print.VALUE);
+        let valuePick1 = context.getArguments()?.get(Print.VALUE + 'Pick1');
+        let valuePick2 = context.getArguments()?.get(Print.VALUE + 'Pick2');
 
         console?.log('Values', ...values);
         console?.log('Value', value);
+        console?.log('ValuePick1', valuePick1);
+        console?.log('ValuePick2', valuePick2);
 
         return new FunctionOutput([EventResult.outputOf(new Map())]);
     }
 }
+
+const mock = jest.spyOn(global.console, 'log').mockImplementation();
 
 test('KIRuntime With Definition no values passed ', async () => {
     var def = {
@@ -80,7 +94,7 @@ test('KIRuntime With Definition no values passed ', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        console.log(fo);
+        expect(mock).toBeCalledTimes(4);
     } catch (e: any) {
         console.error(e);
     }
@@ -122,7 +136,7 @@ test('KIRuntime With Definition with no value passed', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        console.log(fo);
+        expect(mock).toBeCalledTimes(8);
     } catch (e: any) {
         console.error(e);
     }
@@ -165,7 +179,7 @@ test('KIRuntime With Definition with no value and values passed', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        console.log(fo);
+        expect(mock).toBeCalledTimes(12);
     } catch (e: any) {
         console.error(e);
     }

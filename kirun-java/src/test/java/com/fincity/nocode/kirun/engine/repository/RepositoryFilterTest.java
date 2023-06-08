@@ -1,35 +1,46 @@
 package com.fincity.nocode.kirun.engine.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+
+import reactor.test.StepVerifier;
 
 class RepositoryFilterTest {
 
 	@Test
 	void test() {
 
-		var funcRepo = new KIRunFunctionRepository();
-		var schemaRepo = new KIRunSchemaRepository();
+		var funcRepo = new KIRunReactiveFunctionRepository();
+		var schemaRepo = new KIRunReactiveSchemaRepository();
 
-		assertEquals(
-		        Set.of("System.String.Repeat", "System.String.Replace", "System.String.ReplaceFirst",
-		                "System.String.PrePad", "System.String.ReplaceAtGivenPosition"),
-		        new HashSet<>(funcRepo.filter("Rep")));
+		StepVerifier.create(funcRepo.filter("Rep").collect(Collectors.toSet()))
+				.expectNext(Set.of("System.String.PrePad", "System.String.ReplaceAtGivenPosition",
+						"System.String.ReplaceFirst",
+						"System.String.Repeat", "System.String.Replace"))
+				.verifyComplete();
 
-		assertEquals(Set.of("System.Math.CubeRoot", "System.Math.SquareRoot"), new HashSet<>(funcRepo.filter("root")));
+		StepVerifier.create(funcRepo.filter("root").collect(Collectors.toSet()))
+				.expectNext(Set.of("System.Math.CubeRoot", "System.Math.SquareRoot"))
+				.verifyComplete();
 
-		assertEquals(Set.of(), new HashSet<>(schemaRepo.filter("root")));
-		assertEquals(Set.of("System.string"), new HashSet<>(schemaRepo.filter("rin")));
-		assertEquals(Set.of("System.any"), new HashSet<>(schemaRepo.filter("ny")));
-		assertEquals(
-		        Set.of("System.any", "System.boolean", "System.double", "System.float", "System.integer", "System.long",
-		                "System.number", "System.string", "System.ParameterExpression", "System.Null", "System.Schema"),
-		        new HashSet<>(schemaRepo.filter("")));
+		StepVerifier.create(schemaRepo.filter("rin"))
+				.expectNext("System.string")
+				.verifyComplete();
 
+		StepVerifier.create(schemaRepo.filter("ny"))
+				.expectNext("System.any")
+				.verifyComplete();
+
+		StepVerifier.create(schemaRepo.filter("").collect(Collectors.toSet()))
+				.expectNext(Set.of("System.integer", "System.Null", "System.float", "System.number",
+						"System.ParameterExpression", "System.long", "System.string", "System.boolean", "System.Schema",
+						"System.double", "System.any"))
+				.verifyComplete();
 	}
 
 }

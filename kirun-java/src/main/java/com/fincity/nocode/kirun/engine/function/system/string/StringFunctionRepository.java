@@ -3,15 +3,18 @@ package com.fincity.nocode.kirun.engine.function.system.string;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.system.AbstractUnaryFunction;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 
-public class StringFunctionRepository implements Repository<Function> {
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-	private static final Map<String, Function> REPO_MAP = Map.ofEntries(
+public class StringFunctionRepository implements ReactiveRepository<ReactiveFunction> {
+
+	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 	        AbstractUnaryFunction.ofEntryString("Trim", String::trim),
 	        AbstractUnaryFunction.ofEntryString("LowerCase", String::toLowerCase),
 	        AbstractUnaryFunction.ofEntryString("UpperCase", String::toUpperCase),
@@ -37,23 +40,22 @@ public class StringFunctionRepository implements Repository<Function> {
 
 	private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
 	        .stream()
-	        .map(Function::getSignature)
+	        .map(ReactiveFunction::getSignature)
 	        .map(FunctionSignature::getFullName)
 	        .toList();
 
 	@Override
-	public Function find(String namespace, String name) {
+	public Mono<ReactiveFunction> find(String namespace, String name) {
 		if (!namespace.equals(Namespaces.STRING)) {
-			return null;
+			return Mono.empty();
 		}
-		return REPO_MAP.get(name);
+		return Mono.just(REPO_MAP.get(name));
 	}
 
 	@Override
-	public List<String> filter(String name) {
-		return FILTERABLE_NAMES.stream()
+	public Flux<String> filter(String name) {
+		return Flux.fromIterable(FILTERABLE_NAMES)
 		        .filter(e -> e.toLowerCase()
-		                .indexOf(name.toLowerCase()) != -1)
-		        .toList();
+		                .indexOf(name.toLowerCase()) != -1);
 	}
 }

@@ -15,6 +15,8 @@ import com.google.gson.JsonPrimitive;
 public abstract class TokenValueExtractor {
 
 	public static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
+	
+	private static final String LENGTH = "length";
 
 	public JsonElement getValue(String token) {
 
@@ -51,8 +53,12 @@ public abstract class TokenValueExtractor {
 
 		if (i == 0) {
 
+            if (LENGTH.equals(c) && (a.isJsonPrimitive() && ((JsonPrimitive) a).isString())) {
+                return new JsonPrimitive(a.getAsString().length());
+            }
+
 			if (a.isJsonArray()) {
-				if (c.equals("length"))
+				if (c.equals(LENGTH))
 					return new JsonPrimitive(a.getAsJsonArray()
 					        .size());
 				try {

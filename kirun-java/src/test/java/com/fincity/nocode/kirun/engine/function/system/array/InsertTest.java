@@ -1,19 +1,20 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class InsertTest {
 
@@ -42,14 +43,14 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(2), "element", new JsonPrimitive(9)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep);
+		ins.execute(fep).block();
 
 		assertEquals(res, arr);
-
 	}
 
 	@Test
@@ -77,11 +78,12 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep);
+		ins.execute(fep).block();
 
 		assertEquals(res, arr);
 
@@ -96,11 +98,12 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep);
+		ins.execute(fep).block();
 
 		assertEquals(res, arr);
 
@@ -114,11 +117,13 @@ class InsertTest {
 
 		Insert ins = new Insert();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-				Map.of("source", JsonNull.INSTANCE, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+						Map.of("source", JsonNull.INSTANCE, "offset", new JsonPrimitive(0), "element",
+								new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		assertThrows(KIRuntimeException.class, () -> ins.execute(fep));
+		StepVerifier.create(ins.execute(fep)).expectError(KIRuntimeException.class).verify();
 
 	}
 

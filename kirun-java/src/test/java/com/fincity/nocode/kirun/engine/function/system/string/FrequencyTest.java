@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class FrequencyTest {
 
@@ -19,10 +19,15 @@ class FrequencyTest {
 		String s2 = "";
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(0),
-				freq.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
-						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+		StepVerifier.create(freq
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of(Frequency.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
+								Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+				.map(fo -> fo.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME)
+						.getAsNumber()))
+				.expectNext(0)
+				.verifyComplete();
 	}
 
 	@Test
@@ -31,10 +36,15 @@ class FrequencyTest {
 		String s2 = "NO";
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(2),
-				freq.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
-						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+		StepVerifier.create(freq
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of(Frequency.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
+								Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+				.map(fo -> fo.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME)
+						.getAsNumber()))
+				.expectNext(2)
+				.verifyComplete();
 	}
 
 	@Test
@@ -43,10 +53,15 @@ class FrequencyTest {
 		String s2 = "sdf";
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(0),
-				freq.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
-						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+		StepVerifier.create(freq
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of(Frequency.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
+								Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+				.map(fo -> fo.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME)
+						.getAsNumber()))
+				.expectNext(0)
+				.verifyComplete();
 	}
 
 	@Test
@@ -55,9 +70,14 @@ class FrequencyTest {
 		String s2 = "";
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(0),
-				freq.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Frequency.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
-						.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME));
+		StepVerifier.create(freq
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of(Frequency.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
+								Frequency.PARAMETER_SEARCH_STRING_NAME, new JsonPrimitive(s2))))
+				.map(fo -> fo.allResults().get(0).getResult().get(Frequency.EVENT_RESULT_NAME)
+						.getAsNumber()))
+				.expectNext(0)
+				.verifyComplete();
 	}
 }

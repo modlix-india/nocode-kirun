@@ -10,7 +10,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.arguments.Arguments;
+import com.fincity.nocode.kirun.engine.util.arguments.ReactiveArgumentsValidationUtil;
 
 import reactor.core.publisher.Mono;
 
@@ -21,15 +21,16 @@ public abstract class AbstractReactiveFunction implements ReactiveFunction {
 		return this.getSignature()
 		        .getEvents();
 	}
-	
+
 	@Override
 	public Mono<FunctionOutput> execute(ReactiveFunctionExecutionParameters context) {
 
-		context.setArguments(Arguments.validateArguments(this.getSignature(), context.getArguments(), context.getSchemaRepository(),
-		        context.getStatementExecution()));
-
 		try {
-			return this.internalExecute(context);
+			return ReactiveArgumentsValidationUtil
+			        .validateArguments(this.getSignature(), context.getArguments(), context.getSchemaRepository(),
+			                context.getStatementExecution())
+			        .map(context::setArguments)
+			        .flatMap(this::internalExecute);
 		} catch (Exception sve) {
 			FunctionSignature signature = this.getSignature();
 

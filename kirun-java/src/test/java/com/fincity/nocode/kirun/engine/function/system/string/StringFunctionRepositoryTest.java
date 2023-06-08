@@ -1,18 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class StringFunctionRepositoryTest {
 
@@ -20,80 +19,117 @@ class StringFunctionRepositoryTest {
 	void test3() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive("no code  Kirun  PLATform"),
-				stringFunction.find(Namespaces.STRING, "Trim")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "Trim")
+				.flatMap(fun -> fun.execute(new ReactiveFunctionExecutionParameters(
+						new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("no code  Kirun  PLATform")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(""),
-				stringFunction.find(Namespaces.STRING, "Trim")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("						"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Trim")
+						.flatMap(fun -> fun
+								.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+										new KIRunReactiveSchemaRepository())
+										.setArguments(Map.of("value", new JsonPrimitive("						")))))
+						.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}"), stringFunction
-				.find(Namespaces.STRING, "Trim")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-						Map.of("value", new JsonPrimitive("		{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}	"))))
-				.allResults().get(0).getResult().get("value"));
+		StepVerifier
+				.create(stringFunction.find(Namespaces.STRING, "Trim")
+						.flatMap(fun -> fun.execute(new ReactiveFunctionExecutionParameters(
+								new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value",
+										new JsonPrimitive("		{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}	"))))
+								.map(fo -> fo.next().getResult().get("value").getAsString())))
+				.expectNext("{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}")
+				.verifyComplete();
 	}
 
 	@Test
 	void test2() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(" this is a nocode platform	"),
-				stringFunction.find(Namespaces.STRING, "LowerCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM	"))))
-						.next().getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "LowerCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM	")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext(" this is a nocode platform	")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("				"),
-				stringFunction.find(Namespaces.STRING, "LowerCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("				"))))
-						.next().getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "LowerCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive("				")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("				")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"), stringFunction
-				.find(Namespaces.STRING, "LowerCase")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-						Map.of("value", new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"))))
-				.next().getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "LowerCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value",
+										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("		20934 123 123 245-0 34\" 3434 \" 123		")
+				.verifyComplete();
 
-		assertThrows(KIRuntimeException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(1231))))
-				.next().getResult().get("value"));
-
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "LowerCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(1231)))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
 	void test1() {
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(" THIS IS A NOCODE PLATFORM		"),
-				stringFunction.find(Namespaces.STRING, "UpperCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM		"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "UpperCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM		")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext(" THIS IS A NOCODE PLATFORM		")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("				"),
-				stringFunction.find(Namespaces.STRING, "UpperCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("				"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "UpperCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive("				")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("				")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"), stringFunction
-				.find(Namespaces.STRING, "UpperCase")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-						Map.of("value", new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		"))))
-				.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "UpperCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value",
+										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("		20934 123 123 245-0 34\" 3434 \" 123		")
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive("			NO CODE  KIRUN  PLATFORM		"),
-				stringFunction.find(Namespaces.STRING, "UpperCase")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "UpperCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value",
+										new JsonPrimitive("			no code  Kirun  PLATform		")))))
+				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.expectNext("			NO CODE  KIRUN  PLATFORM		")
+				.verifyComplete();
 	}
 
 	@Test
@@ -101,10 +137,13 @@ class StringFunctionRepositoryTest {
 
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertThrows(KIRuntimeException.class, () -> stringFunction.find(Namespaces.STRING, "LowerCase")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(1231))))
-				.next().getResult().get("value"));
-
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "LowerCase")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(1231)))
+								.setArguments(Map.of("value", new JsonPrimitive(1231))))))
+				.verifyError(KIRuntimeException.class);
 	}
 
 }

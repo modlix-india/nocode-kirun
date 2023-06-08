@@ -1,16 +1,16 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 public class StringFunctionBooleanTest {
 
@@ -19,23 +19,35 @@ public class StringFunctionBooleanTest {
 
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsBlank")
+				.flatMap(fun -> {
+					return fun
+							.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+									new KIRunReactiveSchemaRepository())
+									.setArguments(Map.of("value",
+											new JsonPrimitive("			no code  Kirun  PLATform		"))))
+							.map(fo -> fo.allResults().get(0).getResult().get("value"));
+				}))
+				.expectNext(new JsonPrimitive(false))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsBlank")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
-						.allResults().get(0).getResult().get("value"));
+						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "IsBlank")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(""))))
-						.allResults().get(0).getResult().get("value"));
-
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsBlank")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(""))))
+						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 	}
 
 	@Test
@@ -43,22 +55,32 @@ public class StringFunctionBooleanTest {
 
 		StringFunctionRepository stringFunction = new StringFunctionRepository();
 
-		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(
-								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		"))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsEmpty")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value",
+										new JsonPrimitive("			no code  Kirun  PLATform		"))))
+						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+				.expectNext(new JsonPrimitive(false))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(false),
-				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsEmpty")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
 								.setArguments(Map.of("value", new JsonPrimitive("						"))))
-						.allResults().get(0).getResult().get("value"));
+						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+				.expectNext(new JsonPrimitive(false))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(true),
-				stringFunction.find(Namespaces.STRING, "IsEmpty")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", new JsonPrimitive(""))))
-						.allResults().get(0).getResult().get("value"));
-
+		StepVerifier.create(stringFunction.find(Namespaces.STRING, "IsEmpty")
+				.flatMap(fun -> fun
+						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+								new KIRunReactiveSchemaRepository())
+								.setArguments(Map.of("value", new JsonPrimitive(""))))
+						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+				.expectNext(new JsonPrimitive(true))
+				.verifyComplete();
 	}
 }

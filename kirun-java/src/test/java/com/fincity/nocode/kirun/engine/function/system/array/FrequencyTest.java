@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class FrequencyTest {
 
@@ -38,14 +37,20 @@ class FrequencyTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(
-				Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array, Frequency.PARAMETER_ANY.getParameterName(),
-				new JsonPrimitive("I"), Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-				Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+						Map.of(
+								Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
+								Frequency.PARAMETER_ANY.getParameterName(),
+								new JsonPrimitive("I"), Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(),
+								new JsonPrimitive(2),
+								Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(2), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(freq.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.verifyComplete();
 	}
 
 	@Test
@@ -69,7 +74,8 @@ class FrequencyTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
 						Frequency.PARAMETER_ANY.getParameterName(), new JsonPrimitive("developement"),
 						Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-2),
@@ -77,26 +83,30 @@ class FrequencyTest {
 
 		Frequency freq = new Frequency();
 
-		assertThrows(KIRuntimeException.class, () -> freq.execute(fep));
+		StepVerifier.create(freq.execute(fep)).verifyError(KIRuntimeException.class);
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", array, "element", new JsonPrimitive("developement"), "findFrom",
 						new JsonPrimitive(2), "length", new JsonPrimitive(20)));
 
-		assertThrows(KIRuntimeException.class, () -> freq.execute(fep1));
+		StepVerifier.create(freq.execute(fep1)).verifyError(KIRuntimeException.class);
 	}
 
 	@Test
 	void test3() {
 		var array = new JsonArray();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", array,
-				"element", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(2), "length", new JsonPrimitive(10)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", array,
+						"element", new JsonPrimitive("I"), "findFrom", new JsonPrimitive(2), "length",
+						new JsonPrimitive(10)));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(0), freq.execute(fep).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
+				.get("output").getAsInt() == 0).verifyComplete();
 	}
 
 	@Test
@@ -139,12 +149,15 @@ class FrequencyTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr,
-				"element", js1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr,
+						"element", js1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(2), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
+				.get("output").getAsInt() == 2).verifyComplete();
 
 	}
 
@@ -224,12 +237,15 @@ class FrequencyTest {
 		arr.add(array4);
 		arr.add(array1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr,
-				"element", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr,
+						"element", array1, "findFrom", new JsonPrimitive(0), "length", new JsonPrimitive(arr.size())));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(3), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
+				.get("output").getAsInt() == 3).verifyComplete();
 	}
 
 	@Test
@@ -272,12 +288,14 @@ class FrequencyTest {
 		arr.add(js4);
 		arr.add(js1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "element", js4, "findFrom", new JsonPrimitive(2)));
 
 		Frequency freq = new Frequency();
 
-		assertEquals(new JsonPrimitive(1), freq.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
+				.get("output").getAsInt() == 1).verifyComplete();
 
 	}
 }

@@ -1,17 +1,16 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class EqualsTest {
 
@@ -35,38 +34,43 @@ class EqualsTest {
 		findArray.add(33);
 		findArray.add(34);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
-		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
+				Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
 
-		FunctionOutput fo = equals.execute(fep);
-
-		assertEquals(new JsonPrimitive(true), fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Equals.EVENT_RESULT_NAME));
+		StepVerifier.create(equals.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(Equals.EVENT_RESULT_NAME)
+						.getAsBoolean())
+				.verifyComplete();
 
 		findArray.set(1, new JsonPrimitive(41));
 
-		fo = equals.execute(fep);
+		StepVerifier.create(equals.execute(fep))
+				.expectNextMatches(fo1 -> !fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(Equals.EVENT_RESULT_NAME)
+						.getAsBoolean())
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(false), fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Equals.EVENT_RESULT_NAME));
-
-		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
-		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray,
-		        Equals.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-		        Equals.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2)));
-		
-		fo = equals.execute(fep);
-		
-		assertEquals(new JsonPrimitive(true), fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Equals.EVENT_RESULT_NAME));
+				Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray,
+				Equals.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
+				Equals.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(2)));
+
+		StepVerifier.create(equals.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(Equals.EVENT_RESULT_NAME)
+						.getAsBoolean())
+				.verifyComplete();
 
 		srcArray = new JsonArray();
 		srcArray.add(true);
@@ -78,16 +82,18 @@ class EqualsTest {
 		findArray.add(true);
 		findArray.add(false);
 
-		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository());
 		fep.setArguments(Map.of(Equals.PARAMETER_ARRAY_SOURCE.getParameterName(), srcArray,
-		        Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
+				Equals.PARAMETER_ARRAY_FIND.getParameterName(), findArray));
 
-		fo = equals.execute(fep);
-
-		assertEquals(new JsonPrimitive(true), fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Equals.EVENT_RESULT_NAME));
+		StepVerifier.create(equals.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(Equals.EVENT_RESULT_NAME)
+						.getAsBoolean())
+				.verifyComplete();
 
 	}
 

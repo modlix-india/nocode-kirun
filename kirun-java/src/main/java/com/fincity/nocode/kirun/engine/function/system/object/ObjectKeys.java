@@ -6,9 +6,11 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class ObjectKeys extends AbstractObjectFunction {
 
@@ -21,7 +23,7 @@ public class ObjectKeys extends AbstractObjectFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var source = context.getArguments()
 		        .get(SOURCE);
@@ -29,7 +31,7 @@ public class ObjectKeys extends AbstractObjectFunction {
 		JsonArray arr = new JsonArray();
 
 		if (source == null || source.isJsonNull() || (source.isJsonPrimitive() && !((JsonPrimitive) source).isString()))
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, new JsonArray()))));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, new JsonArray())))));
 
 		else if (source.isJsonPrimitive()) {
 
@@ -55,6 +57,6 @@ public class ObjectKeys extends AbstractObjectFunction {
 			        .forEach(arr::add);
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, arr))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, arr)))));
 	}
 }

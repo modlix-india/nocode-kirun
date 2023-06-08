@@ -8,8 +8,8 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
@@ -78,7 +78,7 @@ class ReactiveKIRuntimeWithoutGenEventTest {
 		        }""", FunctionDefinition.class), false);
 
 		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		        new KIRunSchemaRepository()).setArguments(
+		        new KIRunReactiveSchemaRepository()).setArguments(
 		                Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 
 		StepVerifier.create(func.execute(fep))
@@ -145,7 +145,7 @@ class ReactiveKIRuntimeWithoutGenEventTest {
 		        }""", FunctionDefinition.class), false);
 
 		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		        new KIRunSchemaRepository()).setArguments(
+		        new KIRunReactiveSchemaRepository()).setArguments(
 		                Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 
 		StepVerifier.create(func.execute(fep))
@@ -204,7 +204,7 @@ class ReactiveKIRuntimeWithoutGenEventTest {
 		            }
 		        }""", FunctionDefinition.class), false);
 
-		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(), new KIRunSchemaRepository())
+		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 		        .setArguments(
 		                Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 

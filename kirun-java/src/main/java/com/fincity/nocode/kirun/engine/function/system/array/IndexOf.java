@@ -6,37 +6,43 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class IndexOf extends AbstractArrayFunction {
 
 	public IndexOf() {
 		super("IndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_NOT_NULL, PARAMETER_INT_FIND_FROM),
-				EVENT_RESULT_INTEGER);
+		        EVENT_RESULT_INTEGER);
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
+		JsonArray source = context.getArguments()
+		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
+		        .getAsJsonArray();
 
-		var find = context.getArguments().get(PARAMETER_ANY_NOT_NULL.getParameterName());
+		var find = context.getArguments()
+		        .get(PARAMETER_ANY_NOT_NULL.getParameterName());
 
-		JsonPrimitive srcFrom = context.getArguments().get(PARAMETER_INT_FIND_FROM.getParameterName())
-				.getAsJsonPrimitive();
+		JsonPrimitive srcFrom = context.getArguments()
+		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
+		        .getAsJsonPrimitive();
 
 		if (source.isEmpty())
-			return new FunctionOutput(
-					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1)))));
+			return Mono.just(new FunctionOutput(
+			        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1))))));
 
 		int len = srcFrom.getAsInt();
 
 		if (len < 0 || len > source.size())
 			throw new KIRuntimeException(
-					"The size of the search index of the array is greater than the size of the array");
+			        "The size of the search index of the array is greater than the size of the array");
 
 		int index = -1;
 
@@ -49,7 +55,7 @@ public class IndexOf extends AbstractArrayFunction {
 
 		}
 
-		return new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(index)))));
+		return Mono.just(new FunctionOutput(
+		        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(index))))));
 	}
 }

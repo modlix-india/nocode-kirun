@@ -2,21 +2,20 @@ package com.fincity.nocode.kirun.engine.function.system.array;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class CopyTest {
 
@@ -32,12 +31,15 @@ class CopyTest {
 		source.add(4);
 		source.add(5);
 
-		final FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
-		                Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-		                Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
+		final ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
+						Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
+						Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 
-		assertThrows(KIRuntimeException.class, () -> copy.execute(fep1));
+		StepVerifier.create(copy.execute(fep1))
+				.expectError(KIRuntimeException.class)
+				.verify();
 
 		source.add(6);
 
@@ -47,17 +49,21 @@ class CopyTest {
 		result.add(5);
 		result.add(6);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
-		                Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-		                Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
+						Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
+						Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 
-		FunctionOutput fo = copy.execute(fep);
-
-		assertEquals(result, fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Copy.EVENT_RESULT_NAME));
+		final JsonArray finResult = result;
+		StepVerifier.create(copy.execute(fep))
+				.expectNextMatches(fo -> {
+					return finResult.equals(fo.allResults()
+							.get(0)
+							.getResult()
+							.get(Copy.EVENT_RESULT_NAME));
+				}).verifyComplete();
 
 		source = new JsonArray();
 
@@ -69,9 +75,11 @@ class CopyTest {
 		obj.addProperty("name", "Kumar");
 		source.add(obj);
 
-		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
-		        source, Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
-		        Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
+		fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
+						source, Copy.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
+						Copy.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 
 		result = new JsonArray();
 
@@ -83,30 +91,35 @@ class CopyTest {
 		obj.addProperty("name", "Kumar");
 		result.add(obj);
 
-		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-		        .setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source));
+		fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(), source));
 
-		fo = copy.execute(fep);
-
-		assertEquals(result, fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Copy.EVENT_RESULT_NAME));
+		final JsonArray finResult1 = result;
+		StepVerifier.create(copy.execute(fep))
+				.expectNextMatches(fo -> {
+					return finResult1.equals(fo.allResults()
+							.get(0)
+							.getResult()
+							.get(Copy.EVENT_RESULT_NAME));
+				}).verifyComplete();
 
 		assertNotSame(source.get(0), result.get(0));
 
-		fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
-		        source, Copy.PARAMETER_BOOLEAN_DEEP_COPY.getParameterName(), new JsonPrimitive(false)));
+		fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Copy.PARAMETER_ARRAY_SOURCE.getParameterName(),
+						source, Copy.PARAMETER_BOOLEAN_DEEP_COPY.getParameterName(), new JsonPrimitive(false)));
 
-		fo = copy.execute(fep);
+		StepVerifier.create(copy.execute(fep))
+				.expectNextMatches(fo -> {
+					return finResult1.equals(fo.allResults()
+							.get(0)
+							.getResult()
+							.get(Copy.EVENT_RESULT_NAME));
+				}).verifyComplete();
 
-		result = fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Copy.EVENT_RESULT_NAME)
-		        .getAsJsonArray();
-
-		assertSame(source.get(0), result.get(0));
+		assertEquals(source.get(0), result.get(0));
 	}
 
 }

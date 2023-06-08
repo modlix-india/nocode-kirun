@@ -1,52 +1,62 @@
 package com.fincity.nocode.kirun.engine.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 
-class KIRunFunctionRepositoryTest {
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+class KIRunReactiveFunctionRepositoryTest {
 
 	@Test
 	void test() {
 
-		FunctionSignature fun = new MathFunctionRepository().find(Namespaces.MATH, "Absolute").getSignature();
+		Mono<ReactiveFunction> fun = new MathFunctionRepository().find(Namespaces.MATH, "Absolute");
 
-		FunctionSignature signature = new KIRunFunctionRepository().find(fun.getNamespace(), fun.getName())
-				.getSignature();
+		StepVerifier.create(fun)
+				.expectNextMatches(funs -> funs.getSignature().getName()
+						.equals("Absolute"));
 
-		assertEquals(Namespaces.MATH, signature.getNamespace());
-		assertEquals(fun.getName(), signature.getName());
-		
-		Function function = new KIRunFunctionRepository().find(Namespaces.STRING, "ToString");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "ToString");
-		
-		function = new KIRunFunctionRepository().find(Namespaces.STRING, "IndexOfWithStartPoint");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "IndexOfWithStartPoint");
-		
-		
-		function = new KIRunFunctionRepository().find(Namespaces.SYSTEM_ARRAY, "Compare");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "Compare");
+		Mono<FunctionSignature> signature = fun.map(ReactiveFunction::getSignature)
+				.flatMap(funs -> new KIRunReactiveFunctionRepository().find(funs.getNamespace(), funs.getName()))
+				.map(ReactiveFunction::getSignature);
 
-		function = new KIRunFunctionRepository().find(Namespaces.MATH, "RandomInt");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "RandomInt");
-		
-		function = new KIRunFunctionRepository().find(Namespaces.MATH, "Exponential");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "Exponential");
-		
-		function = new KIRunFunctionRepository().find(Namespaces.SYSTEM, "If");
-		assertNotNull(function);
-		assertEquals(function.getSignature().getName(), "If");
+		StepVerifier.create(signature).expectNextMatches(fs -> fs.getNamespace().equals(Namespaces.MATH));
+
+		Mono<ReactiveFunction> function = new KIRunReactiveFunctionRepository().find(Namespaces.STRING, "ToString");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("ToString"));
+
+		function = new KIRunReactiveFunctionRepository().find(Namespaces.STRING, "IndexOfWithStartPoint");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("IndexOfWithStartPoint"));
+
+		function = new KIRunReactiveFunctionRepository().find(Namespaces.SYSTEM_ARRAY, "Compare");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("Compare"));
+
+		function = new KIRunReactiveFunctionRepository().find(Namespaces.MATH, "RandomInt");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("RandomInt"));
+
+		function = new KIRunReactiveFunctionRepository().find(Namespaces.MATH, "Exponential");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("Exponential"));
+
+		function = new KIRunReactiveFunctionRepository().find(Namespaces.SYSTEM, "If");
+
+		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
+				.equals("If"));
 	}
 
 }

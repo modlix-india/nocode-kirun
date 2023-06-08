@@ -8,10 +8,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -23,53 +23,55 @@ class SetTest {
 
 		Set setFunction = new Set();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		Map<String, ContextElement> contextMap = new HashMap<>();
 		contextMap.put("a", new ContextElement(Schema.ofAny("test"), new JsonObject()));
 		fep.setContext(contextMap);
 		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a.b"), "value", new JsonPrimitive(20)));
 
-		setFunction.execute(fep);
+		setFunction.execute(fep).block();
 
 		assertEquals(new JsonPrimitive(20), contextMap.get("a")
-		        .getElement()
-		        .getAsJsonObject()
-		        .get("b"));
+				.getElement()
+				.getAsJsonObject()
+				.get("b"));
 
 		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a.c[2].d"), "value", new JsonPrimitive(25)));
 
-		setFunction.execute(fep);
+		setFunction.execute(fep).block();
 
 		assertEquals(new JsonPrimitive(25), contextMap.get("a")
-		        .getElement()
-		        .getAsJsonObject()
-		        .get("c")
-		        .getAsJsonArray()
-		        .get(2)
-		        .getAsJsonObject()
-		        .get("d"));
+				.getElement()
+				.getAsJsonObject()
+				.get("c")
+				.getAsJsonArray()
+				.get(2)
+				.getAsJsonObject()
+				.get("d"));
 
 	}
-	
+
 	@Test
 	void testFirstLevelArray() {
 
 		Set setFunction = new Set();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		Map<String, ContextElement> contextMap = new HashMap<>();
 		contextMap.put("a", new ContextElement(Schema.ofAny("test"), new JsonArray()));
 		fep.setContext(contextMap);
 		fep.setArguments(Map.of("name", new JsonPrimitive("Context.a[1]"), "value", new JsonPrimitive(240)));
 
-		setFunction.execute(fep);
+		setFunction.execute(fep).block();
 
 		assertEquals(new JsonPrimitive(240), contextMap.get("a")
-		        .getElement()
-		        .getAsJsonArray()
-		        .get(1));
+				.getElement()
+				.getAsJsonArray()
+				.get(1));
 
 	}
 

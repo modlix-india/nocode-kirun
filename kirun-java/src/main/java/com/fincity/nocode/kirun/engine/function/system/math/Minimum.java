@@ -7,26 +7,29 @@ import java.util.List;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 
-public class Minimum extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Minimum extends AbstractReactiveFunction {
 
 	private static final String VALUE = "value";
 
-	private final FunctionSignature MIN_SIGNATURE = new FunctionSignature().setName("Minimum").setNamespace(MATH)
-			.setParameters(Map.of(VALUE,
-					new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))
-							.setVariableArgument(true)))
-			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
+	private static final FunctionSignature MIN_SIGNATURE = new FunctionSignature().setName("Minimum")
+	        .setNamespace(MATH)
+	        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
+	                .setSchema(Schema.ofNumber(VALUE))
+	                .setVariableArgument(true)))
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -34,19 +37,22 @@ public class Minimum extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonElement jsonElement = context.getArguments().get(VALUE);
+		JsonElement jsonElement = context.getArguments()
+		        .get(VALUE);
 
 		if (!jsonElement.isJsonArray()) {
 			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", jsonElement));
 		}
 
-		if (jsonElement.getAsJsonArray().isEmpty()) {
-			return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		if (jsonElement.getAsJsonArray()
+		        .isEmpty()) {
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 		}
 
-		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray().iterator();
+		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray()
+		        .iterator();
 
 		JsonElement element = iterator.next();
 		double first = element.getAsDouble();
@@ -61,7 +67,7 @@ public class Minimum extends AbstractFunction {
 			element = otherOne;
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, element))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, element)))));
 	}
 
 }

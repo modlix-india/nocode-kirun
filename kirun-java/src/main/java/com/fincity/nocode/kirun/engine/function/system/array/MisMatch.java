@@ -7,10 +7,12 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.stream.ArrayUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Mono;
 
 public class MisMatch extends AbstractArrayFunction {
 
@@ -20,7 +22,7 @@ public class MisMatch extends AbstractArrayFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray firstSource = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
@@ -45,11 +47,11 @@ public class MisMatch extends AbstractArrayFunction {
 			throw new KIRuntimeException(
 					"The size of the array for first and second which was being requested is more than size of the given array");
 
-		return new FunctionOutput(
+		return Mono.just(new FunctionOutput(
 				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(),
 						new JsonPrimitive(Arrays.mismatch(ArrayUtil.jsonArrayToArray(firstSource), first,
 								first + length.getAsInt(), ArrayUtil.jsonArrayToArray(secondSource), second,
-								second + length.getAsInt()))))));
+								second + length.getAsInt())))))));
 	}
 
 }

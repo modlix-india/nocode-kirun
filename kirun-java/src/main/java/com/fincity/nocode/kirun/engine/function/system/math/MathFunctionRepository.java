@@ -3,16 +3,19 @@ package com.fincity.nocode.kirun.engine.function.system.math;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.system.AbstractUnaryFunction;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 
-public class MathFunctionRepository implements Repository<Function> {
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-	private static final Map<String, Function> REPO_MAP = Map.ofEntries(
+public class MathFunctionRepository implements ReactiveRepository<ReactiveFunction> {
+
+	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 	        AbstractUnaryFunction.ofEntryAnyType("Absolute",
 	                Map.of(Integer.class, n -> Math.abs(n.intValue()), Float.class, n -> Math.abs(n.floatValue()),
 	                        Double.class, n -> Math.abs(n.doubleValue()), Long.class, n -> Math.abs(n.longValue())),
@@ -46,22 +49,21 @@ public class MathFunctionRepository implements Repository<Function> {
 
 	private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
 	        .stream()
-	        .map(Function::getSignature)
+	        .map(ReactiveFunction::getSignature)
 	        .map(FunctionSignature::getFullName)
 	        .toList();
 
 	@Override
-	public Function find(String namespace, String name) {
+	public Mono<ReactiveFunction> find(String namespace, String name) {
 		if (!namespace.equals(Namespaces.MATH))
-			return null;
-		return REPO_MAP.get(name);
+			return Mono.empty();
+		return Mono.just(REPO_MAP.get(name));
 	}
 
 	@Override
-	public List<String> filter(String name) {
-		return FILTERABLE_NAMES.stream()
+	public Flux<String> filter(String name) {
+		return Flux.fromIterable(FILTERABLE_NAMES)
 		        .filter(e -> e.toLowerCase()
-		                .indexOf(name.toLowerCase()) != -1)
-		        .toList();
+		                .indexOf(name.toLowerCase()) != -1);
 	}
 }

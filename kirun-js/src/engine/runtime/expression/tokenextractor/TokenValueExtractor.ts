@@ -53,6 +53,9 @@ export abstract class TokenValueExtractor {
         if (isNullValue(a)) return undefined;
 
         if (i === 0) {
+            if (c === 'length' && typeof a === 'string') {
+                return a.length;
+            }
             if (Array.isArray(a)) {
                 if (c === 'length') return a.length;
                 try {

@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class SplitTest {
 
@@ -36,13 +35,15 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME,
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive(" ")));
 
-		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("result"));
-
+		StepVerifier.create(split.execute(fep).map(fo -> fo.allResults().get(0).getResult().get("result")))
+				.expectNext(array)
+				.verifyComplete();
 	}
 
 	@Test
@@ -64,13 +65,15 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME,
 						new JsonPrimitive("I am using eclipse to test the changes with test Driven developement"),
 						Split.PARAMETER_SPLIT_STRING_NAME, new JsonPrimitive("e")));
 
-		assertEquals(array, split.execute(fep).allResults().get(0).getResult().get("result"));
-
+		StepVerifier.create(split.execute(fep).map(fo -> fo.allResults().get(0).getResult().get("result")))
+				.expectNext(array)
+				.verifyComplete();
 	}
 
 	@Test
@@ -78,11 +81,13 @@ class SplitTest {
 
 		Split split = new Split();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Split.PARAMETER_STRING_NAME, JsonNull.INSTANCE, Split.PARAMETER_SPLIT_STRING_NAME,
 						new JsonPrimitive("e")));
 
-		assertThrows(KIRuntimeException.class, () -> split.execute(fep));
+		StepVerifier.create(split.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 }

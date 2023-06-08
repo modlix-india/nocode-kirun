@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class BinarySearchTest {
 
@@ -29,15 +28,17 @@ class BinarySearchTest {
 
 		var search = new JsonPrimitive(20);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), search,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 		BinarySearch bs = new BinarySearch();
 
-		assertEquals(bs.execute(fep).allResults().get(0).getResult().get(BinarySearch.EVENT_INDEX_NAME),
-				new JsonPrimitive(4));
+		StepVerifier.create(bs.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get(BinarySearch.EVENT_INDEX_NAME)
+						.equals(new JsonPrimitive(4)));
 	}
 
 	@Test
@@ -50,14 +51,16 @@ class BinarySearchTest {
 		src.add(20);
 		src.add(1233);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), src,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), JsonNull.INSTANCE,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
+		StepVerifier.create(bs.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -79,15 +82,17 @@ class BinarySearchTest {
 
 		var res = new JsonPrimitive('c');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), res,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(8)));
 		BinarySearch bs = new BinarySearch();
 
-		assertEquals(bs.execute(fep).allResults().get(0).getResult().get(BinarySearch.EVENT_INDEX_NAME),
-				new JsonPrimitive(2));
+		StepVerifier.create(bs.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get(BinarySearch.EVENT_INDEX_NAME)
+						.equals(new JsonPrimitive(2)));
 	}
 
 	@Test
@@ -109,16 +114,18 @@ class BinarySearchTest {
 
 		var res = new JsonPrimitive('z');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-1),
 						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), res,
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
+		StepVerifier.create(bs.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
-	
+
 	@Test
 	void test5() {
 
@@ -136,13 +143,15 @@ class BinarySearchTest {
 		arr.add('s');
 		arr.add('z');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(BinarySearch.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr,
 						BinarySearch.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(4),
 						BinarySearch.PARAMETER_FIND_PRIMITIVE.getParameterName(), new JsonArray(),
 						BinarySearch.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(arr.size())));
 		BinarySearch bs = new BinarySearch();
 
-		assertThrows(KIRuntimeException.class, () -> bs.execute(fep));
+		StepVerifier.create(bs.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 }

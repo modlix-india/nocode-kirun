@@ -4,7 +4,7 @@ import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -12,14 +12,14 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
-public class RangeLoop extends AbstractFunction {
+public class RangeLoop extends AbstractReactiveFunction {
 
 	static final String FROM = "from";
 
@@ -32,25 +32,25 @@ public class RangeLoop extends AbstractFunction {
 	static final String INDEX = "index";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("RangeLoop")
-	        .setNamespace(SYSTEM_LOOP)
-	        .setParameters(Map.ofEntries(
-	                Parameter.ofEntry(FROM,
-	                        Schema.of(FROM, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
-	                                .setDefaultValue(new JsonPrimitive(0))),
-	                Parameter.ofEntry(TO,
-	                        Schema.of(TO, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
-	                                .setDefaultValue(new JsonPrimitive(1))),
-	                Parameter.ofEntry(STEP,
-	                        Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
-	                                .setDefaultValue(new JsonPrimitive(1))
-	                                .setNot(new Schema().setConstant(new JsonPrimitive(0))))))
-	        .setEvents(Map.ofEntries(
-	                Event.eventMapEntry(Event.ITERATION,
-	                        Map.of(INDEX,
-	                                Schema.of(INDEX, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT,
-	                                        SchemaType.DOUBLE))),
-	                Event.outputEventMapEntry(Map.of(VALUE, Schema.of(VALUE, SchemaType.INTEGER, SchemaType.LONG,
-	                        SchemaType.FLOAT, SchemaType.DOUBLE)))));
+			.setNamespace(SYSTEM_LOOP)
+			.setParameters(Map.ofEntries(
+					Parameter.ofEntry(FROM,
+							Schema.of(FROM, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
+									.setDefaultValue(new JsonPrimitive(0))),
+					Parameter.ofEntry(TO,
+							Schema.of(TO, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
+									.setDefaultValue(new JsonPrimitive(1))),
+					Parameter.ofEntry(STEP,
+							Schema.of(STEP, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT, SchemaType.DOUBLE)
+									.setDefaultValue(new JsonPrimitive(1))
+									.setNot(new Schema().setConstant(new JsonPrimitive(0))))))
+			.setEvents(Map.ofEntries(
+					Event.eventMapEntry(Event.ITERATION,
+							Map.of(INDEX,
+									Schema.of(INDEX, SchemaType.INTEGER, SchemaType.LONG, SchemaType.FLOAT,
+											SchemaType.DOUBLE))),
+					Event.outputEventMapEntry(Map.of(VALUE, Schema.of(VALUE, SchemaType.INTEGER, SchemaType.LONG,
+							SchemaType.FLOAT, SchemaType.DOUBLE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -58,7 +58,7 @@ public class RangeLoop extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var from = context.getArguments()
 		        .get(FROM);
@@ -90,71 +90,67 @@ public class RangeLoop extends AbstractFunction {
 				        return integerSeries(f.intValue(), t.intValue(), s.intValue(), forward);
 			        });
 
-		return new FunctionOutput(Flux
+		return Flux
 		        .merge(fluxrange.map(e -> EventResult.of(Event.ITERATION, Map.of(INDEX, e))),
 		                Flux.just(EventResult.outputOf(Map.of(VALUE, to))))
 		        .collectList()
-		        .block());
+		        .map(FunctionOutput::new);
 	}
 
 	private Flux<JsonPrimitive> integerSeries(final Integer f, final Integer t, final Integer s,
-	        final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				int v = state;
+			final boolean forward) {
+		return Flux.generate(() -> f, (state, sink) -> {
+			int v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Integer.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Integer.valueOf(v));
 
-				return v + s;
-			})
-		        .map(e -> new JsonPrimitive((Number) e));
+			return v + s;
+		})
+				.map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> longSeries(final Long f, final Long t, final Long s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				long v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			long v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Long.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Long.valueOf(v));
 
-				return v + s;
-			})
-		        .map(e -> new JsonPrimitive((Number) e));
+			return v + s;
+		})
+				.map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> floatSeries(final Float f, final Float t, final Float s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				float v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			float v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Float.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Float.valueOf(v));
 
-				return v + s;
-			})
-		        .map(e -> new JsonPrimitive((Number) e));
+			return v + s;
+		})
+				.map(e -> new JsonPrimitive((Number) e));
 	}
 
 	private Flux<JsonPrimitive> doubleSeries(final Double f, final Double t, final Double s, final boolean forward) {
-		return Flux.generate(() -> f, (state, sink) ->
-			{
-				double v = state;
+		return Flux.generate(() -> f, (state, sink) -> {
+			double v = state;
 
-				if ((forward && v >= t) || (!forward && v <= t))
-					sink.complete();
-				else
-					sink.next(Double.valueOf(v));
+			if ((forward && v >= t) || (!forward && v <= t))
+				sink.complete();
+			else
+				sink.next(Double.valueOf(v));
 
-				return v + s;
-			})
-		        .map(e -> new JsonPrimitive((Number) e));
+			return v + s;
+		})
+				.map(e -> new JsonPrimitive((Number) e));
 	}
 }

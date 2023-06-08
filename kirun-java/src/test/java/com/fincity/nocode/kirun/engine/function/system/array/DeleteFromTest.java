@@ -1,17 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class DeleteFromTest {
 
@@ -41,13 +41,13 @@ class DeleteFromTest {
 		res.add('e');
 		res.add('f');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(6)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		del.execute(fep);
-
-		assertEquals(res, arr);
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
 
 	@Test
@@ -79,13 +79,13 @@ class DeleteFromTest {
 		res.add('a');
 		res.add('a');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(6), "length", new JsonPrimitive(3)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		del.execute(fep);
-
-		assertEquals(res, arr);
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
 
 	@Test
@@ -187,25 +187,25 @@ class DeleteFromTest {
 		res.add(array4);
 		res.add(array1);
 		res.add(array1);
-//		res.add(array3);
-//		res.add(array2);
-//		res.add(array4);
+		// res.add(array3);
+		// res.add(array2);
+		// res.add(array4);
 		res.add(array1);
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep =
+		ReactiveFunctionExecutionParameters fep =
 
-				new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+				new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(
 								Map.of("source", arr, "srcFrom", new JsonPrimitive(5), "length", new JsonPrimitive(3)))
 						.setContext(Map.of()).setSteps(Map.of());
 
 		DeleteFrom del = new DeleteFrom();
-		del.execute(fep);
 
-		assertEquals(res, arr);
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
 
 	@Test
@@ -230,19 +230,19 @@ class DeleteFromTest {
 		res.add('a');
 		res.add('b');
 		res.add('c');
-//		res.add('d');
-//		res.add('e');
-//		res.add('f');
-//		res.add('a');
-//		res.add('a');
-//		res.add('a');
+		// res.add('d');
+		// res.add('e');
+		// res.add('f');
+		// res.add('a');
+		// res.add('a');
+		// res.add('a');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "srcFrom", new JsonPrimitive(3))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		del.execute(fep);
-
-		assertEquals(res, arr);
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
 }

@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class InsertAtGivenPositionTest {
 
@@ -21,12 +21,16 @@ class InsertAtGivenPositionTest {
 
 		InsertAtGivenPosition insert = new InsertAtGivenPosition();
 
-		assertEquals(new JsonPrimitive(" THIScsurendharompatY IS A NOcoDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(insert
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of(InsertAtGivenPosition.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME, new JsonPrimitive(s2),
 								InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME, new JsonPrimitive(6))))
-				.allResults().get(0).getResult().get(InsertAtGivenPosition.EVENT_RESULT_NAME));
+				.map(fo -> fo.allResults().get(0).getResult().get(InsertAtGivenPosition.EVENT_RESULT_NAME)
+						.getAsString()))
+				.expectNext(" THIScsurendharompatY IS A NOcoDE plATFNORM")
+				.verifyComplete();
 	}
 
 	@Test
@@ -37,12 +41,16 @@ class InsertAtGivenPositionTest {
 
 		InsertAtGivenPosition insert = new InsertAtGivenPosition();
 
-		assertEquals(new JsonPrimitive(" THIScompatY IS A NOcosurendharDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(insert
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of(InsertAtGivenPosition.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								InsertAtGivenPosition.PARAMETER_INSERT_STRING_NAME, new JsonPrimitive(s2),
 								InsertAtGivenPosition.PARAMETER_AT_POSITION_NAME, new JsonPrimitive(22))))
-				.allResults().get(0).getResult().get(InsertAtGivenPosition.EVENT_RESULT_NAME));
+				.map(fo -> fo.allResults().get(0).getResult().get(InsertAtGivenPosition.EVENT_RESULT_NAME)
+						.getAsString()))
+				.expectNext(" THIScompatY IS A NOcosurendharDE plATFNORM")
+				.verifyComplete();
 	}
 
 }

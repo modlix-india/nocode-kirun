@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class TrimToTest {
 
@@ -20,10 +20,14 @@ class TrimToTest {
 
 		TrimTo trimed = new TrimTo();
 
-		assertEquals(new JsonPrimitive(" THIScompatY I"),
-				trimed.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(14)))).allResults()
-						.get(0).getResult().get(TrimTo.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(trimed.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(TrimTo.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(14)))))
+				.expectNextMatches(fo -> fo.next().getResult().get(TrimTo.EVENT_RESULT_NAME).getAsString()
+						.equals(" THIScompatY I"))
+				.verifyComplete();
 	}
 
 	@Test
@@ -33,9 +37,13 @@ class TrimToTest {
 
 		TrimTo trimed = new TrimTo();
 
-		assertEquals(new JsonPrimitive(""),
-				trimed.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(TrimTo.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(0)))).allResults().get(0)
-						.getResult().get(TrimTo.EVENT_RESULT_NAME));
+		StepVerifier
+				.create(trimed.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(TrimTo.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), TrimTo.PARAMETER_LENGTH_NAME, new JsonPrimitive(0)))))
+				.expectNextMatches(fo -> fo.next().getResult().get(TrimTo.EVENT_RESULT_NAME).getAsString()
+						.equals(""))
+				.verifyComplete();
 	}
 }

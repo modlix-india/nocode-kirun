@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -15,15 +16,15 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-public abstract class AbstractUnaryMathFunction extends AbstractFunction {
+public abstract class AbstractUnaryMathFunction extends AbstractReactiveFunction {
 
 	static final String VALUE = "value";
 
@@ -31,9 +32,11 @@ public abstract class AbstractUnaryMathFunction extends AbstractFunction {
 
 	protected AbstractUnaryMathFunction(String functionName) {
 
-		this.signature = new FunctionSignature().setNamespace(MATH).setName(functionName)
-				.setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE).setSchema(Schema.ofNumber(VALUE))))
-				.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
+		this.signature = new FunctionSignature().setNamespace(MATH)
+		        .setName(functionName)
+		        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
+		                .setSchema(Schema.ofNumber(VALUE))))
+		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
 	}
 
 	@Override
@@ -42,12 +45,13 @@ public abstract class AbstractUnaryMathFunction extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonElement pValue = context.getArguments().get(VALUE);
+		JsonElement pValue = context.getArguments()
+		        .get(VALUE);
 
 		Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil
-				.findPrimitiveNumberType(pValue.getAsJsonPrimitive());
+		        .findPrimitiveNumberType(pValue.getAsJsonPrimitive());
 		JsonPrimitive rValue = null;
 
 		switch (primitiveTypeTuple.getT1()) {
@@ -67,20 +71,20 @@ public abstract class AbstractUnaryMathFunction extends AbstractFunction {
 			rValue = new JsonPrimitive(this.mathFunction(pValue.getAsInt()));
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, (JsonElement) rValue))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, (JsonElement) rValue)))));
 	}
 
 	@Override
 	public Map<String, Event> getProbableEventSignature(Map<String, List<Schema>> probableParameters) {
 
-		Schema s = probableParameters.get(VALUE).get(0);
+		Schema s = probableParameters.get(VALUE)
+		        .get(0);
 		return Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, s)));
 	}
 
 	public abstract Number mathFunction(Number n);
 
-	public static Map.Entry<String, com.fincity.nocode.kirun.engine.function.Function> ofEntry(final String name,
-			UnaryOperator<Number> function) {
+	public static Map.Entry<String, ReactiveFunction> ofEntry(final String name, UnaryOperator<Number> function) {
 		return Map.entry(name, new AbstractUnaryMathFunction(name) {
 
 			@Override
@@ -90,15 +94,15 @@ public abstract class AbstractUnaryMathFunction extends AbstractFunction {
 		});
 	}
 
-	public static Map.Entry<String, com.fincity.nocode.kirun.engine.function.Function> ofEntryDouble(String name,
-			DoubleUnaryOperator function) {
+	public static Map.Entry<String, ReactiveFunction> ofEntryDouble(String name, DoubleUnaryOperator function) {
 
 		return ofEntry(name, n -> (Number) function.applyAsDouble(n.doubleValue()));
 	}
 
-	public static Map.Entry<String, com.fincity.nocode.kirun.engine.function.Function> ofEntryAnyType(String name,
-			Map<Class<? extends Number>, UnaryOperator<Number>> map) {
+	public static Map.Entry<String, ReactiveFunction> ofEntryAnyType(String name,
+	        Map<Class<? extends Number>, UnaryOperator<Number>> map) {
 
-		return ofEntry(name, n -> map.get(n.getClass()).apply(n));
+		return ofEntry(name, n -> map.get(n.getClass())
+		        .apply(n));
 	}
 }

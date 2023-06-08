@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class PrePadTest {
 
@@ -21,12 +21,17 @@ class PrePadTest {
 
 		PrePad prepad = new PrePad();
 
-		assertEquals(new JsonPrimitive("hiranhiranhi THIScompatY IS A NOcoDE plATFNORM"),
-				prepad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PrePad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(prepad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PrePad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(12)))).allResults().get(0).getResult()
-						.get(PrePad.EVENT_RESULT_NAME));
+										PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(12))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PrePad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext("hiranhiranhi THIScompatY IS A NOcoDE plATFNORM")
+				.verifyComplete();
 	}
 
 	@Test
@@ -37,12 +42,17 @@ class PrePadTest {
 
 		PrePad prepad = new PrePad();
 
-		assertEquals(new JsonPrimitive(" h  h  h  h THIScompatY IS A NOcoDE plATFNORM"),
-				prepad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PrePad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(prepad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PrePad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(11)))).allResults().get(0).getResult()
-						.get(PrePad.EVENT_RESULT_NAME));
+										PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(11))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PrePad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext(" h  h  h  h THIScompatY IS A NOcoDE plATFNORM")
+				.verifyComplete();
 	}
 
 	@Test
@@ -53,11 +63,16 @@ class PrePadTest {
 
 		PrePad prepad = new PrePad();
 
-		assertEquals(new JsonPrimitive("hira THIScompatY IS A NOcoDE plATFNORM"),
-				prepad.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of(PrePad.PARAMETER_STRING_NAME,
-						new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME, new JsonPrimitive(s2),
+		StepVerifier.create(prepad
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PrePad.PARAMETER_STRING_NAME,
+										new JsonPrimitive(s1), PrePad.PARAMETER_PREPAD_STRING_NAME,
+										new JsonPrimitive(s2),
 
-						PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(4)))).allResults().get(0).getResult()
-						.get(PrePad.EVENT_RESULT_NAME));
+										PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(4))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PrePad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext("hira THIScompatY IS A NOcoDE plATFNORM")
+				.verifyComplete();
 	}
 }

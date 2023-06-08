@@ -5,8 +5,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -20,11 +20,12 @@ class ReactiveFunctionWrapperTest {
 	void test() {
 
 		var repo = new KIRunReactiveFunctionRepository();
+		var schemaRepo = new KIRunReactiveSchemaRepository();
 
 		Mono<JsonElement> output = repo.find(Namespaces.MATH, "Log10")
 		        .flatMap(e ->
 				{
-			        return e.execute(new ReactiveFunctionExecutionParameters(repo, new KIRunSchemaRepository())
+			        return e.execute(new ReactiveFunctionExecutionParameters(repo, schemaRepo)
 			                .setArguments(Map.of("value", new JsonPrimitive(144))));
 
 		        })

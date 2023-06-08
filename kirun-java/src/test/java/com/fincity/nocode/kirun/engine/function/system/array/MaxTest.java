@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class MaxTest {
 
@@ -24,15 +23,21 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
-		assertEquals(new JsonPrimitive(12), max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(12)))
+				.verifyComplete();
 
 		var arr1 = new JsonArray();
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr1));
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr1));
 
-		assertThrows(KIRuntimeException.class, () -> max.execute(fep1).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(max.execute(fep1))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -45,9 +50,13 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
-		assertEquals(new JsonPrimitive(98), max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(98)))
+				.verifyComplete();
 
 		var arr1 = new JsonArray();
 
@@ -55,9 +64,13 @@ class MaxTest {
 		arr1.add('r');
 		arr1.add('d');
 		arr1.add('s');
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr1));
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr1));
 
-		assertEquals(new JsonPrimitive('s'), max.execute(fep1).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep1))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive('s')))
+				.verifyComplete();
 
 	}
 
@@ -66,9 +79,12 @@ class MaxTest {
 		var arr = new JsonArray();
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
-		assertThrows(KIRuntimeException.class, () -> max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -80,9 +96,13 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
-		assertEquals(new JsonPrimitive("platform"), max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive("platform")))
+				.verifyComplete();
 	}
 
 	@Test
@@ -96,19 +116,24 @@ class MaxTest {
 
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("source", arr));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
-		assertEquals(new JsonPrimitive("platform"), max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive("platform")))
+				.verifyComplete();
 	}
 
 	@Test
 	void test6() {
 		Max max = new Max();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE));
 
-		assertThrows(KIRuntimeException.class,
-				() -> max.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(max.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 }

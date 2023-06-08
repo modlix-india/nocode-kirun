@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.function.AbstractFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SingleType;
@@ -15,21 +15,25 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-public class Concatenate extends AbstractFunction {
+import reactor.core.publisher.Mono;
+
+public class Concatenate extends AbstractReactiveFunction {
 
 	static final String VALUE = "value";
 
-	private static final Schema SCHEMA = new Schema().setName(VALUE).setType(new SingleType(SchemaType.STRING));
+	private static final Schema SCHEMA = new Schema().setName(VALUE)
+	        .setType(new SingleType(SchemaType.STRING));
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Concatenate")
-			.setNamespace(STRING)
-			.setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA).setVariableArgument(true)))
-			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
+	        .setNamespace(STRING)
+	        .setParameters(Map.of(VALUE, new Parameter().setSchema(SCHEMA)
+	                .setVariableArgument(true)))
+	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofString(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -37,19 +41,22 @@ public class Concatenate extends AbstractFunction {
 	}
 
 	@Override
-	protected FunctionOutput internalExecute(FunctionExecutionParameters context) {
+	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		JsonArray arugments = context.getArguments().get(VALUE).getAsJsonArray();
+		JsonArray arugments = context.getArguments()
+		        .get(VALUE)
+		        .getAsJsonArray();
 
 		StringBuilder concatenatedString = new StringBuilder();
 
 		Iterator<JsonElement> iterator = arugments.iterator();
 
 		while (iterator.hasNext()) {
-			concatenatedString.append(iterator.next().getAsString());
+			concatenatedString.append(iterator.next()
+			        .getAsString());
 		}
 
-		return new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(concatenatedString.toString())))));
+		return Mono.just(new FunctionOutput(
+		        List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(concatenatedString.toString()))))));
 	}
 }

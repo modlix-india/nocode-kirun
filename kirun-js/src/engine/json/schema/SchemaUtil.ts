@@ -36,7 +36,7 @@ export class SchemaUtil {
         if (!s) return false;
         if (s.getConstant()) return true;
 
-        if (s.getDefaultValue()) return true;
+        if (!isNullValue(s.getDefaultValue())) return true;
 
         if (isNullValue(s.getRef())) {
             if (s.getType()?.getAllowedSchemaTypes().has(SchemaType.NULL)) return true;
