@@ -1,17 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.math;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.function.system.math.MathFunctionRepository;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class MathFunctionRepositoryBinaryTest {
 
@@ -19,16 +19,27 @@ class MathFunctionRepositoryBinaryTest {
 	void test() {
 		MathFunctionRepository math = new MathFunctionRepository();
 
-		assertEquals(new JsonPrimitive(1.849095985800008d),
-				math.find(Namespaces.MATH, "ArcTangent2")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value1", new JsonPrimitive(14), "value2", new JsonPrimitive(-4))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier
+				.create(math.find(Namespaces.MATH, "ArcTangent2")
+						.flatMap(fun -> fun
+								.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+										new KIRunReactiveSchemaRepository())
+										.setArguments(Map.of("value1", new JsonPrimitive(14), "value2",
+												new JsonPrimitive(-4))))))
+				.expectNextMatches(
+						fo -> fo.next().getResult().get("value").equals(new JsonPrimitive(1.849095985800008d)))
+				.verifyComplete();
 
-		assertEquals(new JsonPrimitive(1.968424318317026d), math.find(Namespaces.MATH, "ArcTangent2")
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-						.setArguments(Map.of("value1", new JsonPrimitive(100), "value2", new JsonPrimitive(-42))))
-				.allResults().get(0).getResult().get("value"));
+		StepVerifier
+				.create(math.find(Namespaces.MATH, "ArcTangent2")
+						.flatMap(fun -> fun
+								.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+										new KIRunReactiveSchemaRepository())
+										.setArguments(Map.of("value1", new JsonPrimitive(100), "value2",
+												new JsonPrimitive(-42))))))
+				.expectNextMatches(
+						fo -> fo.next().getResult().get("value").equals(new JsonPrimitive(1.968424318317026d)))
+				.verifyComplete();
 
 	}
 
@@ -36,11 +47,16 @@ class MathFunctionRepositoryBinaryTest {
 	void test2() {
 		MathFunctionRepository math = new MathFunctionRepository();
 
-		assertEquals(new JsonPrimitive(10000),
-				math.find(Namespaces.MATH, "Power")
-						.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
-								.setArguments(Map.of("value1", new JsonPrimitive(100), "value2", new JsonPrimitive(2))))
-						.allResults().get(0).getResult().get("value"));
+		StepVerifier
+				.create(math.find(Namespaces.MATH, "Power")
+						.flatMap(fun -> fun
+								.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+										new KIRunReactiveSchemaRepository())
+										.setArguments(Map.of("value1", new JsonPrimitive(100), "value2",
+												new JsonPrimitive(2))))))
+				.expectNextMatches(
+						fo -> fo.next().getResult().get("value").equals(new JsonPrimitive(10000)))
+				.verifyComplete();
 	}
 
 }

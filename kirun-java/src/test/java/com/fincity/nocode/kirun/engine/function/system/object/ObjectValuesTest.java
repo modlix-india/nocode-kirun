@@ -1,18 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.object;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class ObjectValuesTest {
 
@@ -24,12 +24,14 @@ class ObjectValuesTest {
 
         JsonArray res = new JsonArray();
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", job)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -50,12 +52,14 @@ class ObjectValuesTest {
         res.add(arr);
         res.add(2);
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", job)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -67,12 +71,14 @@ class ObjectValuesTest {
 
         JsonArray res = new JsonArray();
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", prim)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -84,12 +90,14 @@ class ObjectValuesTest {
 
         JsonArray res = new JsonArray();
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", prim)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -105,12 +113,14 @@ class ObjectValuesTest {
         for (int i = 0; i < splitted.length; i++)
             res.add(splitted[i]);
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", prim)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -135,12 +145,14 @@ class ObjectValuesTest {
         res.add("this is a string");
 
         res.add(tempObj);
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", arr)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 
     @Test
@@ -174,11 +186,13 @@ class ObjectValuesTest {
         res.add(2);
         res.add(tempObj1);
 
-        FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-                new KIRunSchemaRepository())
+        ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository())
                 .setArguments(Map.of("source", job)).setContext(Map.of())
                 .setSteps(Map.of());
 
-        assertEquals(res, values.execute(fep).allResults().get(0).getResult().get("value"));
+        StepVerifier.create(values.execute(fep).map(e -> e.next().getResult().get("value"))).expectNext(res)
+                .verifyComplete();
     }
 }

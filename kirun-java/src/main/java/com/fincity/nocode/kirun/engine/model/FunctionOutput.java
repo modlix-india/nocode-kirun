@@ -40,4 +40,27 @@ public class FunctionOutput {
 	public List<EventResult> allResults() {
 		return this.fo;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == null)
+			return false;
+		if (!(obj instanceof FunctionOutput))
+			return false;
+
+		FunctionOutput other = (FunctionOutput) obj;
+		if (this.fo == null)
+			return other.fo == null;
+
+		if (this.fo.size() != other.fo.size())
+			return false;
+
+		for (int i = 0; i < this.fo.size(); i++) {
+			if (!this.fo.get(i).equals(other.fo.get(i)))
+				return false;
+		}
+
+		return true;
+	}
 }

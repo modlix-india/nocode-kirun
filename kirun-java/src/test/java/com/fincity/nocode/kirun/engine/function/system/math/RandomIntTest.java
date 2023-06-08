@@ -1,14 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class RandomIntTest {
 	@Test
@@ -19,13 +22,15 @@ class RandomIntTest {
 		var max = new JsonPrimitive(1000012);
 
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
-		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();
-		System.out.println(val);
-
-		assertTrue(val >= min.getAsInt() && val <= max.getAsInt());
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsInt() >= min.getAsInt() && x.getAsInt() <= max.getAsInt());
+			return true;
+		}).verifyComplete();
 	}
 
 	@Test
@@ -33,12 +38,15 @@ class RandomIntTest {
 
 		var min = new JsonPrimitive(1009);
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("minValue", min));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("minValue", min));
 
-		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();
-		System.out.println(val);
-
-		assertTrue(val >= min.getAsInt() && val <= Integer.MAX_VALUE);
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsInt() >= min.getAsInt() && x.getAsInt() <= Integer.MAX_VALUE);
+			return true;
+		}).verifyComplete();
 	}
 
 	@Test
@@ -48,24 +56,28 @@ class RandomIntTest {
 
 		var max = new JsonPrimitive(2);
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
-		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();
-		System.out.println(val);
-
-		assertTrue(val >= min.getAsInt() && val <= max.getAsInt());
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsInt() >= min.getAsInt() && x.getAsInt() <= max.getAsInt());
+			return true;
+		}).verifyComplete();
 	}
 
 	@Test
 	void test4() {
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(Map.of());
 
-		int val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsInt();
-		System.out.println(val);
-
-		assertTrue(val >= Integer.MIN_VALUE && val <= Integer.MAX_VALUE);
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsInt() >= Integer.MIN_VALUE && x.getAsInt() <= Integer.MAX_VALUE);
+			return true;
+		}).verifyComplete();
 
 	}
 }

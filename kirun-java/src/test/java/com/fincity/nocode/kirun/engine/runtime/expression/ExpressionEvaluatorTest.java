@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -51,8 +51,8 @@ class ExpressionEvaluatorTest {
 		Map<String, Map<String, Map<String, JsonElement>>> output = Map.of("step1",
 		        Map.of("output", Map.of("name", new JsonPrimitive("Kiran"), "obj", obj)));
 
-		FunctionExecutionParameters parameters = new FunctionExecutionParameters(new KIRunFunctionRepository(),
-		        new KIRunSchemaRepository()).setArguments(Map.of())
+		ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+		        new KIRunReactiveSchemaRepository()).setArguments(Map.of())
 		        .setContext(Map.of())
 		        .setSteps(output);
 

@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class IndexOfArrayTest {
 
@@ -38,14 +37,19 @@ class IndexOfArrayTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
-		assertEquals(new JsonPrimitive(1),
-				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
-
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.getAsInt() == 1)
+				.verifyComplete();
 	}
 
 	@Test
@@ -70,14 +74,19 @@ class IndexOfArrayTest {
 		res.add('e');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
-		assertEquals(new JsonPrimitive(5),
-				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
-
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.getAsInt() == 5)
+				.verifyComplete();
 	}
 
 	@Test
@@ -166,14 +175,21 @@ class IndexOfArrayTest {
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(1)));
 
 		IndexOfArray ind = new IndexOfArray();
 
-		assertEquals(new JsonPrimitive(7), ind.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.getAsInt() == 7)
+				.verifyComplete();
 	}
 
 	@Test
@@ -196,14 +212,19 @@ class IndexOfArrayTest {
 		res.add('e');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), res,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
-		assertEquals(new JsonPrimitive(-1),
-				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
-
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.getAsInt() == -1)
+				.verifyComplete();
 	}
 
 	@Test
@@ -221,14 +242,14 @@ class IndexOfArrayTest {
 		arr.add('e');
 		arr.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(4)));
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep).allResults().get(0).getResult()
-				.get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
-
+		StepVerifier.create(ind.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -250,13 +271,18 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as));
 
-		assertEquals(new JsonPrimitive(6),
-				ind.execute(fep).allResults().get(0).getResult().get(IndexOfArray.EVENT_RESULT_INTEGER.getName()));
-
+		StepVerifier.create(ind.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults()
+						.get(0)
+						.getResult()
+						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.getAsInt() == 6)
+				.verifyComplete();
 	}
 
 	@Test
@@ -278,12 +304,14 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), as,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(-2)));
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep));
+		StepVerifier.create(ind.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -305,11 +333,13 @@ class IndexOfArrayTest {
 		as.add('c');
 		as.add('e');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(IndexOfArray.PARAMETER_ARRAY_SOURCE.getParameterName(), as,
 						IndexOfArray.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr,
 						IndexOfArray.PARAMETER_INT_FIND_FROM.getParameterName(), new JsonPrimitive(0)));
 
-		assertThrows(KIRuntimeException.class, () -> ind.execute(fep));
+		StepVerifier.create(ind.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 }

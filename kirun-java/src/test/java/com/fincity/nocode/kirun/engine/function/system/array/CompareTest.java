@@ -6,14 +6,15 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.model.FunctionOutput;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class CompareTest {
 
@@ -22,7 +23,8 @@ class CompareTest {
 
 		Compare compare = new Compare();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		JsonArray source = new JsonArray();
 		source.add(4);
@@ -33,14 +35,13 @@ class CompareTest {
 		find.add(6);
 
 		fep.setArguments(Map.of(Compare.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
-		        Compare.PARAMETER_ARRAY_FIND.getParameterName(), find));
+				Compare.PARAMETER_ARRAY_FIND.getParameterName(), find));
 
-		FunctionOutput fo = compare.execute(fep);
-
-		assertEquals(new JsonPrimitive(Integer.compare(5, 6)), fo.allResults()
-		        .get(0)
-		        .getResult()
-		        .get(Equals.EVENT_RESULT_NAME));
+		StepVerifier.create(compare.execute(fep))
+				.expectNextMatches(result -> result.next().getResult()
+						.get(Equals.EVENT_RESULT_NAME)
+						.equals(new JsonPrimitive(Integer.compare(5, 6))))
+				.verifyComplete();
 	}
 
 	@Test
@@ -49,15 +50,15 @@ class CompareTest {
 		Compare compare = new Compare();
 
 		JsonElement[] source = new JsonElement[] { new JsonPrimitive(2), new JsonPrimitive(2), new JsonPrimitive(3),
-		        new JsonPrimitive(4), new JsonPrimitive(5) };
+				new JsonPrimitive(4), new JsonPrimitive(5) };
 
 		JsonElement[] find = new JsonElement[] { new JsonPrimitive(2d), new JsonPrimitive(2d), new JsonPrimitive(2d),
-		        new JsonPrimitive(3d), new JsonPrimitive(4d), new JsonPrimitive(5d) };
+				new JsonPrimitive(3d), new JsonPrimitive(4d), new JsonPrimitive(5d) };
 
 		assertEquals(0, compare.compare(source, 0, 2, find, 1, 3));
 
 		find = new JsonElement[] { new JsonPrimitive(2d), new JsonPrimitive(2d), new JsonPrimitive(3d),
-		        new JsonPrimitive(4d), new JsonPrimitive(5d) };
+				new JsonPrimitive(4d), new JsonPrimitive(5d) };
 
 		assertEquals(0, compare.compare(source, 0, source.length, find, 0, find.length));
 

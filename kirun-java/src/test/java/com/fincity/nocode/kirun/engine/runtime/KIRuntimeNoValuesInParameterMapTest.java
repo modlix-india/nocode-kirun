@@ -1,8 +1,5 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fincity.nocode.kirun.engine.HybridRepository;
-import com.fincity.nocode.kirun.engine.Repository;
-import com.fincity.nocode.kirun.engine.function.AbstractReactiveFunction;
-import com.fincity.nocode.kirun.engine.function.Function;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
@@ -22,11 +17,19 @@ import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveHybridRepository;
+import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveKIRuntime;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 class Print extends AbstractReactiveFunction {
 
@@ -44,14 +47,15 @@ class Print extends AbstractReactiveFunction {
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Print").setNamespace("")
 			.setParameters(Map.ofEntries(
-					
+
 					Parameter.ofEntry(VALUES, Schema.ofAny(VALUES), true),
-					
-					Parameter.ofEntry(VALUES+"Pick1", Schema.ofString(VALUES+"Pick1").setDefaultValue(new JsonPrimitive(""))),
-					
-					Parameter.ofEntry(VALUES+"Pick2", Schema.ofBoolean(VALUES+"Pick2").setDefaultValue(new JsonPrimitive(false)), true),
-					
-					
+
+					Parameter.ofEntry(VALUES + "Pick1",
+							Schema.ofString(VALUES + "Pick1").setDefaultValue(new JsonPrimitive(""))),
+
+					Parameter.ofEntry(VALUES + "Pick2",
+							Schema.ofBoolean(VALUES + "Pick2").setDefaultValue(new JsonPrimitive(false)), true),
+
 					Parameter.ofEntry(STREAM,
 							Schema.ofString(STREAM)
 									.setEnums(List.of(new JsonPrimitive(STDOUT), new JsonPrimitive(DEBUGLOG),
@@ -69,12 +73,12 @@ class Print extends AbstractReactiveFunction {
 		var values = context.getArguments().get(VALUES).getAsJsonArray().deepCopy();
 
 		var stream = context.getArguments().get(STREAM).getAsString();
-		
-		var pick1 = context.getArguments().get(VALUES+"Pick1").getAsString();
-		var pick2 = context.getArguments().get(VALUES+"Pick2").getAsBoolean();
+
+		var pick1 = context.getArguments().get(VALUES + "Pick1").getAsString();
+		var pick2 = context.getArguments().get(VALUES + "Pick2").getAsBoolean();
 
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		
+
 		values.add(pick1);
 		values.add(pick2);
 
@@ -91,60 +95,60 @@ class Print extends AbstractReactiveFunction {
 				logger.error(stringValue);
 		}
 
-		return new FunctionOutput(List.of(EventResult.outputOf(Map.of())));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
 }
 
 class KIRuntimeNoValuesInParameterMapTest {
 
-    @Test
-    void test() {
+	@Test
+	void test() {
 
-        Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
-                .create();
+		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
+				.create();
 
-        var first = new KIRuntime(gson.fromJson(
-                """
+		var first = new ReactiveKIRuntime(gson.fromJson(
+				"""
 
-                                        {
-                        "name": "Make an error",
-                        "namespace": "UIApp",
-                        "steps": {
-                        "print": {
-                        "statementName": "print",
-                        "namespace": "function",
-                        "name": "test",
-                        "parameterMap": {
-                        }
-                        }
-                        }
-                        }""", FunctionDefinition.class));
+						                {
+						"name": "Make an error",
+						"namespace": "UIApp",
+						"steps": {
+						"print": {
+						"statementName": "print",
+						"namespace": "function",
+						"name": "test",
+						"parameterMap": {
+						}
+						}
+						}
+						}""", FunctionDefinition.class));
 
-        Print printMethod = new Print();
+		Print printMethod = new Print();
 
-        class InternalRepository implements Repository<Function> {
+		class InternalRepository implements ReactiveRepository<ReactiveFunction> {
 
-            @Override
-            public Function find(String namespace, String name) {
-                if ("function".equals(namespace))
-                    return printMethod;
-                return null;
-            }
+			@Override
+			public Mono<ReactiveFunction> find(String namespace, String name) {
+				if ("function".equals(namespace))
+					return Mono.just(printMethod);
+				return Mono.empty();
+			}
 
-            @Override
-            public List<String> filter(String name) {
-                return List.of();
-            }
-        }
+			@Override
+			public Flux<String> filter(String name) {
+				return Flux.empty();
+			}
+		}
 
-        var repo = new HybridRepository<>(new KIRunFunctionRepository(), new InternalRepository());
+		var repo = new ReactiveHybridRepository<>(new KIRunReactiveFunctionRepository(), new InternalRepository());
 
-        var results = first
-                .execute(new FunctionExecutionParameters(repo, new KIRunSchemaRepository()).setArguments(Map.of()));
+		var results = first
+				.execute(new ReactiveFunctionExecutionParameters(repo, new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of()))
+				.map(fo -> fo.allResults());
 
-        var res = new ArrayList<>();
-        assertEquals(res, results.allResults());
-
-    }
+		StepVerifier.create(results).expectNext(List.of()).verifyComplete();
+	}
 
 }

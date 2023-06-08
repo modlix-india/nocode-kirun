@@ -1,19 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+
+import reactor.test.StepVerifier;
 
 class DeleteTest {
 
@@ -36,15 +34,14 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		del.execute(fep);
-
-		assertEquals(ares, arr);
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
 	}
 
 	// @Test
@@ -60,7 +57,8 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setSteps(Map.of()).setContext(Map.of());
@@ -69,12 +67,11 @@ class DeleteTest {
 		ares.add("nocode");
 		ares.add(14);
 
-		del.execute(fep);
-
-		assertEquals(ares, arr);
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
 	}
 
-//	 	//@Test
+	// //@Test
 	void test3() {
 		var arr = new JsonArray();
 		arr.add("nocode");
@@ -88,13 +85,14 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), JsonNull.INSTANCE))
 				.setSteps(Map.of()).setContext(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> del.execute(fep));
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr));
 	}
 
 	// @Test
@@ -109,13 +107,14 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), arr))
 				.setSteps(Map.of()).setContext(Map.of());
 
-		assertThrows(SchemaValidationException.class, () -> del.execute(fep));
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr));
 	}
 
 	@Test
@@ -135,14 +134,14 @@ class DeleteTest {
 		ares.add("nocode");
 		ares.add(14);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), res))
 				.setSteps(Map.of()).setContext(Map.of());
 
-		del.execute(fep);
-		assertEquals(ares, arr);
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
 	}
 
 	@Test
@@ -182,41 +181,43 @@ class DeleteTest {
 
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), delArr))
 				.setSteps(Map.of()).setContext(Map.of());
 
-		del.execute(fep);
-		assertEquals(res, arr);
-
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
-	
+
 	@Test
 	void failingTest() {
-		
+
 		var arr1 = new JsonArray();
 		arr1.add("nocode");
 		arr1.add("platform");
 		arr1.add(14);
-		
+
 		var delArr = new JsonArray();
-		
+
 		delArr.add("platform");
 		delArr.add(14);
-		
+
 		Delete del = new Delete();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Delete.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Delete.PARAMETER_ANY_VAR_ARGS.getParameterName(), delArr))
 				.setSteps(Map.of()).setContext(Map.of());
 
 		del.execute(fep);
-		
+
 		var res = new JsonArray();
 		res.add("nocode");
 
-		assertEquals(res, arr1);
+		StepVerifier.create(del.execute(fep))
+				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
 	}
 }

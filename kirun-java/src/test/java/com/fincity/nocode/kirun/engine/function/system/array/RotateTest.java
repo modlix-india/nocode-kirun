@@ -1,18 +1,19 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class RotateTest {
 
@@ -32,7 +33,8 @@ class RotateTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
 				.setSteps(Map.of());
@@ -54,16 +56,17 @@ class RotateTest {
 		res.add("eclipse");
 
 		Rotate rotate = new Rotate();
-		rotate.execute(fep);
+		rotate.execute(fep).block();
 
 		assertEquals(res, array);
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(0))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(KIRuntimeException.class, () -> rotate.execute(fep1));
+		StepVerifier.create(rotate.execute(fep1)).expectError(KIRuntimeException.class).verify();
 	}
 
 	@Test
@@ -82,7 +85,8 @@ class RotateTest {
 		array.add("Driven");
 		array.add("developement");
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
 				.setSteps(Map.of());
@@ -104,16 +108,17 @@ class RotateTest {
 		res.add("eclipse");
 
 		Rotate rotate = new Rotate();
-		rotate.execute(fep);
+		rotate.execute(fep).block();
 
 		assertEquals(res, array);
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository());
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(-2))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		assertThrows(KIRuntimeException.class, () -> rotate.execute(fep1));
+		StepVerifier.create(rotate.execute(fep1)).expectError(KIRuntimeException.class).verify();
 	}
 
 }

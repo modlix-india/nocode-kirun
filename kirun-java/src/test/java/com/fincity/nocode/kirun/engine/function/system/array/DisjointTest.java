@@ -1,22 +1,23 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class DisjointTest {
 
@@ -42,7 +43,8 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -58,20 +60,12 @@ class DisjointTest {
 		res.add('b');
 		res.add('p');
 
-		JsonArray s1 = dis.execute(fep).allResults().get(0).getResult().get("output").getAsJsonArray();
-
-		Set<Object> set1 = new HashSet<>();
-
-		for (int i = 0; i < s1.size(); i++)
-			set1.add(s1.get(i));
-
-		Set<Object> set2 = new HashSet<>();
-
-		for (int i = 0; i < res.size(); i++)
-			set2.add(res.get(i));
-
-		assertEquals(set2, set1);
-
+		StepVerifier.create(dis.execute(fep))
+				.expectNextMatches(r -> StreamSupport
+						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.collect(Collectors.toSet()).equals(StreamSupport
+								.stream(res.spliterator(), false).collect(Collectors.toSet())))
+				.verifyComplete();
 	}
 
 	@Test
@@ -97,14 +91,16 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-12),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(3)));
 
-		assertThrows(KIRuntimeException.class, () -> dis.execute(fep));
+		StepVerifier.create(dis.execute(fep))
+				.verifyError(KIRuntimeException.class);
 
 	}
 
@@ -131,15 +127,16 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(5),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(2),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
 
-		assertThrows(KIRuntimeException.class, () -> dis.execute(fep).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(dis.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -164,15 +161,16 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(5),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(3)));
 
-		assertThrows(KIRuntimeException.class,
-				() -> dis.execute(fep).allResults().get(0).getResult().get("output").getAsJsonArray());
+		StepVerifier.create(dis.execute(fep))
+				.verifyError(KIRuntimeException.class);
 
 	}
 
@@ -198,14 +196,16 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), JsonNull.INSTANCE,
 						Disjoint.PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName(), new JsonPrimitive(5),
 						Disjoint.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(3)));
 
-		assertThrows(KIRuntimeException.class, () -> dis.execute(fep));
+		StepVerifier.create(dis.execute(fep))
+				.verifyError(KIRuntimeException.class);
 	}
 
 	@Test
@@ -230,7 +230,8 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1,
 						Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
 						Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -243,19 +244,12 @@ class DisjointTest {
 		res.add('p');
 		res.add('e');
 
-		JsonArray s1 = dis.execute(fep).allResults().get(0).getResult().get("output").getAsJsonArray();
-
-		Set<Object> set1 = new HashSet<>();
-
-		for (int i = 0; i < s1.size(); i++)
-			set1.add(s1.get(i));
-
-		Set<Object> set2 = new HashSet<>();
-
-		for (int i = 0; i < res.size(); i++)
-			set2.add(res.get(i));
-
-		assertEquals(set2, set1);
+		StepVerifier.create(dis.execute(fep))
+				.expectNextMatches(r -> StreamSupport
+						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.collect(Collectors.toSet()).equals(StreamSupport
+								.stream(res.spliterator(), false).collect(Collectors.toSet())))
+				.verifyComplete();
 	}
 
 	@Test
@@ -335,9 +329,10 @@ class DisjointTest {
 		for (int i = 0; i < d.size(); i++)
 			set1.add(d.get(i));
 
-		FunctionExecutionParameters fep =
+		ReactiveFunctionExecutionParameters fep =
 
-				new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+				new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of(Disjoint.PARAMETER_ARRAY_SOURCE.getParameterName(), arr,
 								Disjoint.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(1),
 								Disjoint.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), arr2,
@@ -346,14 +341,11 @@ class DisjointTest {
 
 		Disjoint dis = new Disjoint();
 
-		var res = dis.execute(fep).allResults().get(0).getResult().get("output").getAsJsonArray();
-
-		Set<Object> set2 = new HashSet<>();
-
-		for (int i = 0; i < res.size(); i++)
-			set2.add(res.get(i));
-
-		assertEquals(set1, set2);
+		StepVerifier.create(dis.execute(fep))
+				.expectNextMatches(r -> StreamSupport
+						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.collect(Collectors.toSet()).equals(set1))
+				.verifyComplete();
 
 	}
 

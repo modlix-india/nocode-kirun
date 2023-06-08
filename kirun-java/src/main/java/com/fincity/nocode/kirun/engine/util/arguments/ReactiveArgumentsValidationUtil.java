@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -90,6 +91,7 @@ public class ReactiveArgumentsValidationUtil {
 		        .map(tups ->
 				{
 			        JsonArray arr = new JsonArray(tups.size());
+			        for (int i=0;i<tups.size();i++) arr.add(JsonNull.INSTANCE);
 
 			        for (var tup : tups) {
 				        arr.set(tup.getT1(), tup.getT2());

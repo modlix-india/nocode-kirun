@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -13,11 +12,15 @@ import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type.SchemaTypeAdapter;
 import com.fincity.nocode.kirun.engine.model.FunctionDefinition;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveKIRuntime;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class KIRuntimeWithoutGenEventTest {
 
@@ -26,7 +29,7 @@ class KIRuntimeWithoutGenEventTest {
 
 		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter()).create();
 
-		var func = new KIRuntime(gson.fromJson("""
+		var func = new ReactiveKIRuntime(gson.fromJson("""
 				      {
 				    "name": "getAppData",
 				    "namespace": "UIApp",
@@ -79,13 +82,14 @@ class KIRuntimeWithoutGenEventTest {
 				    }
 				}""", FunctionDefinition.class), false);
 
-		var fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
 				.setArguments(
 						Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(outContent));
-		assertThrows(KIRuntimeException.class, () -> func.execute(fep));
+		StepVerifier.create(func.execute(fep)).expectError(KIRuntimeException.class).verify();
 	}
 
 	@Test
@@ -93,7 +97,7 @@ class KIRuntimeWithoutGenEventTest {
 
 		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter()).create();
 
-		var func = new KIRuntime(gson.fromJson("""
+		var func = new ReactiveKIRuntime(gson.fromJson("""
 				      {
 				    "name": "getAppData",
 				    "namespace": "UIApp",
@@ -146,13 +150,14 @@ class KIRuntimeWithoutGenEventTest {
 				    }
 				}""", FunctionDefinition.class), false);
 
-		var fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
 				.setArguments(
 						Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(outContent));
-		func.execute(fep);
+		func.execute(fep).block();
 		assertEquals("\"Something muchh....\"\n31\n", outContent.toString());
 	}
 
@@ -161,7 +166,7 @@ class KIRuntimeWithoutGenEventTest {
 
 		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter()).create();
 
-		var func = new KIRuntime(gson.fromJson("""
+		var func = new ReactiveKIRuntime(gson.fromJson("""
 				      {
 				    "name": "getAppData",
 				    "namespace": "UIApp",
@@ -207,13 +212,14 @@ class KIRuntimeWithoutGenEventTest {
 				    }
 				}""", FunctionDefinition.class), false);
 
-		var fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		var fep = new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository())
 				.setArguments(
 						Map.of("a", new JsonPrimitive(7), "b", new JsonPrimitive(11), "c", new JsonPrimitive(13)));
 
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(outContent));
-		func.execute(fep);
+		func.execute(fep).block();
 		assertEquals("\"Nothing muchh....\"\n31\n", outContent.toString());
 	}
 }

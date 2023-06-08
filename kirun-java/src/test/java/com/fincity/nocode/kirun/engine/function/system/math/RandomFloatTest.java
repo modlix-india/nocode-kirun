@@ -1,14 +1,17 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class RandomFloatTest {
 
@@ -19,34 +22,44 @@ class RandomFloatTest {
 		var max = new JsonPrimitive(1000f);
 
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("minValue", min, "maxValue", max));
 
-		float val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsFloat();
-		System.out.println(val);
-
-		assertTrue(val >= min.getAsFloat() && val <= max.getAsFloat());
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsFloat() >= min.getAsFloat() && x.getAsFloat() <= max.getAsFloat());
+			return true;
+		}).verifyComplete();
 	}
 
 	@Test
 	void test2() {
 		var min = new JsonPrimitive(1.09e2);
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("minValue", min));
-		float val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsFloat();
-		System.out.println(val);
-		assertTrue(val >= min.getAsFloat() && val <= Float.MAX_VALUE);
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("minValue", min));
+
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsFloat() >= min.getAsFloat() && x.getAsFloat() <= Float.MAX_VALUE);
+			return true;
+		}).verifyComplete();
 	}
 
 	@Test
 	void test3() {
 		var max = new JsonPrimitive(1.23e4);
 		RandomInt ran = new RandomInt();
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("maxValue", max));
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("maxValue", max));
 
-		float val = ran.execute(fep).allResults().get(0).getResult().get("value").getAsFloat();
-		System.out.println(val);
-
-		assertTrue(val >= Float.MIN_VALUE && val <= max.getAsFloat());
+		StepVerifier.create(ran.execute(fep)).expectNextMatches(r -> {
+			var x = r.next().getResult().get("value");
+			assertTrue(x.getAsFloat() >= Float.MIN_VALUE && x.getAsFloat() <= max.getAsFloat());
+			return true;
+		}).verifyComplete();
 	}
 }

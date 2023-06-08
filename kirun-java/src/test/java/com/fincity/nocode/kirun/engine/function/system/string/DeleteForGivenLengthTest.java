@@ -1,15 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class DeleteForGivenLengthTest {
 
@@ -19,12 +19,16 @@ class DeleteForGivenLengthTest {
 
 		DeleteForGivenLength delete = new DeleteForGivenLength();
 
-		assertEquals(new JsonPrimitive(" THIScompaNOcoDE plATFNORM"), delete
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(delete
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of(DeleteForGivenLength.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								DeleteForGivenLength.PARAMETER_AT_START_NAME, new JsonPrimitive(10),
 								DeleteForGivenLength.PARAMETER_AT_END_NAME, new JsonPrimitive(18))))
-				.allResults().get(0).getResult().get(DeleteForGivenLength.EVENT_RESULT_NAME));
+				.map(fo -> fo.allResults().get(0).getResult().get(DeleteForGivenLength.EVENT_RESULT_NAME)
+						.getAsString()))
+				.expectNext(" THIScompaNOcoDE plATFNORM")
+				.verifyComplete();
 	}
 
 	@Test
@@ -34,11 +38,15 @@ class DeleteForGivenLengthTest {
 
 		DeleteForGivenLength insert = new DeleteForGivenLength();
 
-		assertEquals(new JsonPrimitive(" THItY IS A NOcoDE plATFNORM"), insert
-				.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		StepVerifier.create(insert
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of(DeleteForGivenLength.PARAMETER_STRING_NAME, new JsonPrimitive(s1),
 								DeleteForGivenLength.PARAMETER_AT_START_NAME, new JsonPrimitive(4),
 								DeleteForGivenLength.PARAMETER_AT_END_NAME, new JsonPrimitive(10))))
-				.allResults().get(0).getResult().get(DeleteForGivenLength.EVENT_RESULT_NAME));
+				.map(fo -> fo.allResults().get(0).getResult().get(DeleteForGivenLength.EVENT_RESULT_NAME)
+						.getAsString()))
+				.expectNext(" THItY IS A NOcoDE plATFNORM")
+				.verifyComplete();
 	}
 }

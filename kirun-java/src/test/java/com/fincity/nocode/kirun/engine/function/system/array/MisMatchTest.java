@@ -1,19 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class MisMatchTest {
 
@@ -37,13 +36,16 @@ class MisMatchTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(7), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(0), "length", new JsonPrimitive(3)));
 
 		MisMatch mis = new MisMatch();
 
-		assertEquals(new JsonPrimitive(2), mis.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(mis.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.verifyComplete();
 	}
 
 	@Test
@@ -66,15 +68,14 @@ class MisMatchTest {
 		res.add('c');
 		res.add('d');
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(0), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(2), "length", new JsonPrimitive(5)));
 
 		MisMatch mis = new MisMatch();
 
-		assertThrows(KIRuntimeException.class, () -> mis.execute(fep));
-
-		// .allResults().get(0).getResult().get("output")
+		StepVerifier.create(mis.execute(fep)).expectError(KIRuntimeException.class).verify();
 	}
 
 	@Test
@@ -164,13 +165,16 @@ class MisMatchTest {
 		res.add(array1);
 		res.add(array4);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(2), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
 		MisMatch mis = new MisMatch();
 
-		assertEquals(new JsonPrimitive(2), mis.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(mis.execute(fep))
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.verifyComplete();
 
 	}
 
@@ -179,22 +183,21 @@ class MisMatchTest {
 		var res = new JsonArray();
 		res.add(1);
 
-		FunctionExecutionParameters fep = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2), "secondSource", res,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
 		MisMatch mis = new MisMatch();
 
-		assertThrows(KIRuntimeException.class,
-				() -> mis.execute(fep).allResults().get(0).getResult().get("output"));
+		StepVerifier.create(mis.execute(fep)).expectError(KIRuntimeException.class).verify();
 
-		FunctionExecutionParameters fep1 = new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository())
+		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", res, "findFrom", new JsonPrimitive(2), "secondSource", JsonNull.INSTANCE,
 						"secondSrcFrom", new JsonPrimitive(3), "length", new JsonPrimitive(3)));
 
-		assertThrows(KIRuntimeException.class,
-				() -> mis.execute(fep1).allResults().get(0).getResult().get("output"));
-
+		StepVerifier.create(mis.execute(fep1)).expectError(KIRuntimeException.class).verify();
 	}
 
 }

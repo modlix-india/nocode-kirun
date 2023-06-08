@@ -1,16 +1,15 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.repository.KIRunFunctionRepository;
-import com.fincity.nocode.kirun.engine.repository.KIRunSchemaRepository;
-import com.fincity.nocode.kirun.engine.runtime.FunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
+import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
+
+import reactor.test.StepVerifier;
 
 class HypotenuseTest {
 
@@ -23,9 +22,11 @@ class HypotenuseTest {
 		nums.add(5);
 		nums.add(6);
 
-		assertEquals(new JsonPrimitive(8.366600265340756d),
-				hyp.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", nums))).next().getResult()
-						.get("value"));
+		StepVerifier
+				.create(hyp.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", nums))))
+				.expectNextMatches(r -> r.next().getResult().get("value").getAsDouble() == 8.366600265340756d)
+				.verifyComplete();
 	}
 
 	@Test
@@ -34,9 +35,11 @@ class HypotenuseTest {
 		Hypotenuse hyp = new Hypotenuse();
 		var nums = new JsonArray();
 
-		assertEquals(new JsonPrimitive(0),
-				hyp.execute(new FunctionExecutionParameters(new KIRunFunctionRepository(), new KIRunSchemaRepository()).setArguments(Map.of("value", nums))).next().getResult()
-						.get("value"));
+		StepVerifier
+				.create(hyp.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", nums))))
+				.expectNextMatches(r -> r.next().getResult().get("value").getAsDouble() == 0d)
+				.verifyComplete();
 	}
 
 }
