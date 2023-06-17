@@ -4,6 +4,7 @@ import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../util/MapUtil';
 import { isNullValue } from '../../../util/NullCheck';
+import { duplicate } from '../../../util/duplicate';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
@@ -47,8 +48,7 @@ export class Copy extends AbstractArrayFunction {
         const ja: any[] = new Array(length);
 
         for (let i = srcfrom; i < srcfrom + length; i++) {
-            if (!isNullValue(source[i]))
-                ja[i - srcfrom] = deep ? JSON.parse(JSON.stringify(source[i])) : source[i];
+            if (!isNullValue(source[i])) ja[i - srcfrom] = deep ? duplicate(source[i]) : source[i];
         }
 
         return new FunctionOutput([EventResult.outputOf(MapUtil.of(Copy.EVENT_RESULT_NAME, ja))]);

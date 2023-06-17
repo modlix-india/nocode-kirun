@@ -4,6 +4,7 @@ import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../util/MapUtil';
 import { isNullValue } from '../../../util/NullCheck';
+import { duplicate } from '../../../util/duplicate';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
@@ -38,14 +39,17 @@ export class Fill extends AbstractArrayFunction {
 
         let add = srcfrom + length - source.length;
 
+        source = [...source];
         if (add > 0) {
             for (let i = 0; i < add; i++) source.push();
         }
 
         for (let i = srcfrom; i < srcfrom + length; i++) {
-            source[i] = isNullValue(element) ? element : JSON.parse(JSON.stringify(element));
+            source[i] = isNullValue(element) ? element : duplicate(element);
         }
 
-        return new FunctionOutput([EventResult.outputOf(MapUtil.of())]);
+        return new FunctionOutput([
+            EventResult.outputOf(MapUtil.of(AbstractArrayFunction.EVENT_RESULT_NAME, source)),
+        ]);
     }
 }

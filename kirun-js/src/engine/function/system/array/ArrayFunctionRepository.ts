@@ -3,7 +3,7 @@ import { Repository } from '../../../Repository';
 import mapEntry from '../../../util/mapEntry';
 import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';
-import { Add } from './Add';
+import { Concatenate } from './Concatenate';
 import { AddFirst } from './AddFirst';
 import { ArrayToArrayOfObjects } from './ArrayToArrayOfObjects';
 import { BinarySearch } from './BinarySearch';
@@ -33,7 +33,7 @@ import { Insert } from './Insert';
 
 export class ArrayFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
-        mapEntry(new Add()),
+        mapEntry(new Concatenate()),
         mapEntry(new AddFirst()),
         mapEntry(new BinarySearch()),
         mapEntry(new Compare()),

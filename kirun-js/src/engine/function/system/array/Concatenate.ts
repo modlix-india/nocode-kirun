@@ -3,15 +3,15 @@ import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
-export class Add extends AbstractArrayFunction {
+export class Concatenate extends AbstractArrayFunction {
     public constructor() {
         super(
-            'Add',
+            'Concatenate',
             [
                 AbstractArrayFunction.PARAMETER_ARRAY_SOURCE,
                 AbstractArrayFunction.PARAMETER_ARRAY_SECOND_SOURCE,
             ],
-            AbstractArrayFunction.EVENT_RESULT_EMPTY,
+            AbstractArrayFunction.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -24,8 +24,10 @@ export class Add extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(AbstractArrayFunction.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName());
 
-        source.splice(source.length, 0, ...secondSource);
-
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(
+                new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, [...source, ...secondSource]]]),
+            ),
+        ]);
     }
 }

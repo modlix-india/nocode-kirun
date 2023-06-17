@@ -10,7 +10,7 @@ export class Insert extends AbstractArrayFunction {
         super(
             'Insert',
             [Insert.PARAMETER_ARRAY_SOURCE, Insert.PARAMETER_INT_OFFSET, Insert.PARAMETER_ANY],
-            Insert.EVENT_RESULT_EMPTY,
+            Insert.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -28,9 +28,13 @@ export class Insert extends AbstractArrayFunction {
         if (isNullValue(output) || isNullValue(offset) || offset > source.length)
             throw new KIRuntimeException('Please valid resouces to insert at the correct location');
 
+        source = [...source];
+
         if (source.length == 0) {
             if (offset == 0) source.push(output);
-            return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+            return new FunctionOutput([
+                EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+            ]);
         }
 
         source.push(output);
@@ -43,6 +47,8 @@ export class Insert extends AbstractArrayFunction {
             source[len--] = temp;
         }
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

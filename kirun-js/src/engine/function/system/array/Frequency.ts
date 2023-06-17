@@ -39,14 +39,11 @@ export class Frequency extends AbstractArrayFunction {
 
         if (source.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_INTEGER.getName(), 0]])),
+                EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_NAME, 0]])),
             ]);
 
         if (start > source.length)
             throw new KIRuntimeException('Given start point is more than the size of source');
-
-        if (isNullValue(find))
-            throw new KIRuntimeException('Given find was null. Hence cannot be found in the array');
 
         let end: number = start + length;
 
@@ -62,7 +59,7 @@ export class Frequency extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_INTEGER.getName(), frequency]])),
+            EventResult.outputOf(new Map([[Frequency.EVENT_RESULT_NAME, frequency]])),
         ]);
     }
 }

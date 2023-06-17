@@ -33,9 +33,7 @@ export class LastIndexOfArray extends AbstractArrayFunction {
 
         if (source.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(
-                    new Map([[LastIndexOfArray.EVENT_RESULT_ARRAY.getName(), -1]]),
-                ),
+                EventResult.outputOf(new Map([[LastIndexOfArray.EVENT_RESULT_NAME, -1]])),
             ]);
 
         if (from < 0 || from > source.length || secondSource.length > source.length)
@@ -62,9 +60,7 @@ export class LastIndexOfArray extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(
-                new Map([[LastIndexOfArray.EVENT_RESULT_INTEGER.getName(), index]]),
-            ),
+            EventResult.outputOf(new Map([[LastIndexOfArray.EVENT_RESULT_NAME, index]])),
         ]);
     }
 }

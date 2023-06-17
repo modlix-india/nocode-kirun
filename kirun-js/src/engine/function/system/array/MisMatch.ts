@@ -60,7 +60,7 @@ export class MisMatch extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[MisMatch.EVENT_RESULT_INTEGER.getName(), index]])),
+            EventResult.outputOf(new Map([[MisMatch.EVENT_RESULT_NAME, index]])),
         ]);
     }
 }

@@ -60,7 +60,7 @@ export class BinarySearch extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[BinarySearch.EVENT_INDEX.getName(), index]])),
+            EventResult.outputOf(new Map([[BinarySearch.EVENT_INDEX_NAME, index]])),
         ]);
     }
 }
