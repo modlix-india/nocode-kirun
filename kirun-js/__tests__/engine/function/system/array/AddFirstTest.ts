@@ -23,15 +23,15 @@ test('Add Test 1', async () => {
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
+                [AddFirst.PARAMETER_ANY.getParameterName(), temp],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await addFirst.execute(fep);
-
-    expect(source).toStrictEqual(temp2);
+    expect((await addFirst.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        temp2,
+    );
 });
 
 test('Add Test 2', async () => {
@@ -50,15 +50,15 @@ test('Add Test 2', async () => {
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
+                [AddFirst.PARAMETER_ANY.getParameterName(), temp],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await addFirst.execute(fep);
-
-    expect(source).toStrictEqual(temp2);
+    expect((await addFirst.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(
+        temp2,
+    );
 });
 
 test('Add Test 3', async () => {
@@ -100,15 +100,15 @@ test('Add Test 3', async () => {
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
+                [AddFirst.PARAMETER_ANY.getParameterName(), temp],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await addFirst.execute(fep);
-
-    expect(source).toStrictEqual(temp2);
+    expect((await addFirst.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(
+        temp2,
+    );
 });
 
 test('Add Test 5', async () => {
@@ -200,15 +200,15 @@ test('Add Test 5', async () => {
         .setArguments(
             new Map<string, any>([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), obj],
+                [AddFirst.PARAMETER_ANY.getParameterName(), obj],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await addFirst.execute(fep);
-
-    expect(source).toStrictEqual(temp2);
+    expect((await addFirst.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(
+        temp2,
+    );
 });
 
 test('Add Test 4', async () => {
@@ -239,7 +239,7 @@ test('Add Test 5', async () => {
 
     let temp: any = null;
 
-    let temp2: any[] = ['a', 'c', 'p', 3, 4, 5];
+    let temp2: any[] = ['a', 'c', 'p', undefined, 3, 4, 5];
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
@@ -248,11 +248,20 @@ test('Add Test 5', async () => {
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), temp2],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
+                [AddFirst.PARAMETER_ANY.getParameterName(), temp],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await expect(addFirst.execute(fep)).rejects.toThrow();
+    expect((await addFirst.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject([
+        undefined,
+        'a',
+        'c',
+        'p',
+        undefined,
+        3,
+        4,
+        5,
+    ]);
 });

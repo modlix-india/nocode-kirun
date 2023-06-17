@@ -14,9 +14,7 @@ test('max test 1 ', async () => {
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]));
 
-    expect(
-        (await max.execute(fep)).allResults()[0].getResult().get(Max.EVENT_RESULT_ANY.getName()),
-    ).toBe(12);
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe(12);
 });
 
 test('max test 2 ', async () => {
@@ -42,7 +40,7 @@ test('max test 3', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]));
-    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe(98);
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe(98);
 });
 
 test('Max test 4', async () => {
@@ -54,7 +52,7 @@ test('Max test 4', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]));
-    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('platform');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe('platform');
 });
 
 test('Max test 6', async () => {
@@ -79,7 +77,7 @@ test('Max test 5', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]));
-    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('platform');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe('platform');
 });
 
 test('Max test 7', async () => {
@@ -93,7 +91,7 @@ test('Max test 7', async () => {
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr1]]));
 
-    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('s');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe('s');
 });
 
 test('Max test 8', async () => {
@@ -103,5 +101,5 @@ test('Max test 8', async () => {
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Max.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr]]));
 
-    expect((await max.execute(fep)).allResults()[0].getResult().get('output')).toBe('surendhar');
+    expect((await max.execute(fep)).allResults()[0].getResult().get('result')).toBe('surendhar');
 });

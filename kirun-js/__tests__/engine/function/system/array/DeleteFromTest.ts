@@ -41,9 +41,7 @@ test('delete from 1', async () => {
     res.push('e');
     res.push('f');
 
-    await del.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await del.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('del from 2 ', async () => {
@@ -86,9 +84,7 @@ test('del from 2 ', async () => {
     res.push('a');
     res.push('a');
 
-    await del.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await del.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('del from 3 ', async () => {
@@ -202,9 +198,7 @@ test('del from 3 ', async () => {
         )
         .setContext(new Map([]))
         .setSteps(new Map([]));
-    await del.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await del.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('del from 4', async () => {
@@ -239,7 +233,5 @@ test('del from 4', async () => {
         )
         .setContext(new Map([]))
         .setSteps(new Map([]));
-    await del.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await del.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
 });

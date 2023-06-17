@@ -78,7 +78,7 @@ test('Compy Test', async () => {
 
     fo = await copy.execute(fep);
 
-    expect(fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME)).toStrictEqual(result);
+    expect(fo.allResults()[0].getResult().get(Copy.EVENT_RESULT_NAME)).toMatchObject(result);
     expect(source[0] == result[0]).toBeFalsy();
 
     fep = new FunctionExecutionParameters(

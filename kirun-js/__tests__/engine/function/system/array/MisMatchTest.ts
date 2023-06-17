@@ -37,10 +37,7 @@ test('mismatch test 1', async () => {
     );
 
     expect(
-        (await mismatch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(MisMatch.EVENT_RESULT_INTEGER.getName()),
+        (await mismatch.execute(fep)).allResults()[0].getResult().get(MisMatch.EVENT_RESULT_NAME),
     ).toBe(2);
 });
 
@@ -177,10 +174,7 @@ test('Mismatch test 3', async () => {
     );
 
     expect(
-        (await mismatch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(MisMatch.EVENT_RESULT_INTEGER.getName()),
+        (await mismatch.execute(fep)).allResults()[0].getResult().get(MisMatch.EVENT_RESULT_NAME),
     ).toBe(2);
 });
 
@@ -217,9 +211,6 @@ test('mismatch test 4', async () => {
     );
 
     expect(
-        (await mismatch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(MisMatch.EVENT_RESULT_INTEGER.getName()),
+        (await mismatch.execute(fep)).allResults()[0].getResult().get(MisMatch.EVENT_RESULT_NAME),
     ).toBe(-1);
 });

@@ -37,10 +37,7 @@ test('Index of Test 1', async () => {
         ]),
     );
     expect(
-        (await ind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(12);
 });
 
@@ -89,7 +86,7 @@ test('Index of Test 2', async () => {
         ]),
     );
     expect(
-        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_INDEX.getName()),
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(-1);
 });
 
@@ -129,10 +126,7 @@ test('Index of Test 3', async () => {
     );
 
     expect(
-        (await ind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(-1);
 });
 
@@ -225,10 +219,7 @@ test('Index of Test 4', async () => {
     );
 
     expect(
-        (await ind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(2);
 });
 
@@ -279,10 +270,7 @@ test('indexof test 5', async () => {
     );
 
     expect(
-        (await ind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(5);
 
     fep.setArguments(

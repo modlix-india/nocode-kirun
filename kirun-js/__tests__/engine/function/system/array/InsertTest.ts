@@ -58,9 +58,7 @@ test('Insert of Test 1', async () => {
     res.push('Driven');
     res.push('developement');
 
-    await ins.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    expect((await ins.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Insert of Test 2', async () => {
@@ -102,9 +100,7 @@ test('Insert of Test 2', async () => {
     res.push(6);
     res.push(7);
     res.push(8);
-    await ins.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await ins.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Insert of Test 3', async () => {
@@ -146,9 +142,7 @@ test('Insert of Test 3', async () => {
     res.push(6);
     res.push(7);
     res.push(8);
-    await ins.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await ins.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Insert of Test 4', async () => {
@@ -191,9 +185,7 @@ test('Insert of Test 4', async () => {
     res.push(8);
     res.push(['this is an array']);
 
-    await ins.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await ins.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Insert of Test 5', async () => {
@@ -218,9 +210,7 @@ test('Insert of Test 5', async () => {
 
     res.push(['this is an array']);
 
-    await ins.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await ins.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Insert of Test 6', async () => {

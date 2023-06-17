@@ -33,7 +33,7 @@ test('split test1', async () => {
     array.push('Driven');
     array.push('developement');
 
-    expect((await Spli.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(
+    expect((await Spli.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
         array,
     );
 });
@@ -66,7 +66,7 @@ test('split test2', async () => {
     array.push('m');
     array.push('nt');
 
-    expect((await Spli.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(
+    expect((await Spli.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
         array,
     );
 });

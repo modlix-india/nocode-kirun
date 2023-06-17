@@ -36,7 +36,7 @@ test('freq test 1', async () => {
     );
 
     expect(
-        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName()),
+        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_RESULT_NAME),
     ).toBe(2);
 });
 
@@ -102,6 +102,6 @@ test('freq test 3', async () => {
     );
 
     expect(
-        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_INDEX.getName()),
+        (await freq.execute(fep)).allResults()[0].getResult().get(Frequency.EVENT_RESULT_NAME),
     ).toBe(0);
 });

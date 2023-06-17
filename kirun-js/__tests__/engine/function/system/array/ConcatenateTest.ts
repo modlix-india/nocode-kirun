@@ -1,9 +1,9 @@
-import { Add } from '../../../../../src/engine/function/system/array/Add';
+import { Concatenate } from '../../../../../src/engine/function/system/array/Concatenate';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
-test('Add Test 1', async () => {
-    let add: Add = new Add();
+test('Concatenate Test 1', async () => {
+    let add: Concatenate = new Concatenate();
 
     let source: any[] = [2, 2, 3, 4, 5];
 
@@ -21,20 +21,18 @@ test('Add Test 1', async () => {
     )
         .setArguments(
             new Map([
-                [Add.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
+                [Concatenate.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
+                [Concatenate.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await add.execute(fep);
-
-    expect(source).toStrictEqual(temp1);
+    expect((await add.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(temp1);
 });
 
-test('Add test 2', async () => {
-    let add: Add = new Add();
+test('Concatenate test 2', async () => {
+    let add: Concatenate = new Concatenate();
 
     let source: any[] = ['nocode', 'platform'];
 
@@ -52,8 +50,8 @@ test('Add test 2', async () => {
     )
         .setArguments(
             new Map([
-                [Add.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
+                [Concatenate.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
+                [Concatenate.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
         .setSteps(new Map([]))
@@ -64,8 +62,8 @@ test('Add test 2', async () => {
     expect(source).toStrictEqual(temp1);
 });
 
-test('Add test 3', async () => {
-    let add: Add = new Add();
+test('Concatenate test 3', async () => {
+    let add: Concatenate = new Concatenate();
 
     let source: any[] = [];
 
@@ -83,8 +81,8 @@ test('Add test 3', async () => {
     )
         .setArguments(
             new Map([
-                [Add.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
-                [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
+                [Concatenate.PARAMETER_ARRAY_SOURCE.getParameterName(), source],
+                [Concatenate.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
         .setSteps(new Map([]))
@@ -95,8 +93,8 @@ test('Add test 3', async () => {
     expect(source).toStrictEqual(temp1);
 });
 
-test('Add test 4', async () => {
-    let add: Add = new Add();
+test('Concatenate test 4', async () => {
+    let add: Concatenate = new Concatenate();
 
     let secondSource: any[] = [];
 
@@ -106,8 +104,8 @@ test('Add test 4', async () => {
     )
         .setArguments(
             new Map([
-                [Add.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
-                [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
+                [Concatenate.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
+                [Concatenate.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), secondSource],
             ]),
         )
         .setSteps(new Map([]))
@@ -116,8 +114,8 @@ test('Add test 4', async () => {
     await expect(add.execute(fep)).rejects.toThrow('');
 });
 
-test('Add test 5', async () => {
-    let add: Add = new Add();
+test('Concatenate test 5', async () => {
+    let add: Concatenate = new Concatenate();
 
     let secondSource: any[] = [];
 
@@ -127,8 +125,8 @@ test('Add test 5', async () => {
     )
         .setArguments(
             new Map([
-                [Add.PARAMETER_ARRAY_SOURCE.getParameterName(), secondSource],
-                [Add.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
+                [Concatenate.PARAMETER_ARRAY_SOURCE.getParameterName(), secondSource],
+                [Concatenate.PARAMETER_ARRAY_SECOND_SOURCE.getParameterName(), undefined],
             ]),
         )
         .setSteps(new Map([]))
