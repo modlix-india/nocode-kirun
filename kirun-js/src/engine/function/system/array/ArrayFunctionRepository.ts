@@ -30,6 +30,7 @@ import { Shuffle } from './Shuffle';
 import { Sort } from './Sort';
 import { SubArray } from './SubArray';
 import { Insert } from './Insert';
+import { InsertLast } from './InsertLast';
 
 export class ArrayFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
@@ -60,6 +61,7 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new SubArray()),
         mapEntry(new ArrayToArrayOfObjects()),
         mapEntry(new Insert()),
+        mapEntry(new InsertLast()),
     );
 
     private static readonly filterableNames = Array.from(
