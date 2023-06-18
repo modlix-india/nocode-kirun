@@ -18,6 +18,7 @@ import com.google.gson.JsonPrimitive;
 
 public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
+	private static final String ELEMENT = "element";
 	protected static final String EVENT_INDEX_NAME = "index";
 	protected static final String EVENT_RESULT_NAME = "result";
 	protected static final String EACH_SOURCE = "eachSource";
@@ -77,9 +78,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	protected static final Parameter PARAMETER_FIND_PRIMITIVE = Parameter.of("findPrimitive", Schema.of("findPrimitive",
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));
 
-	protected static final Parameter PARAMETER_ANY = Parameter.of("element", Schema.ofAny("element"));
+	protected static final Parameter PARAMETER_ANY = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT));
 
-	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of("element", Schema.ofAny("element"))
+	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT))
 			.setVariableArgument(true);
 
 	protected static final Parameter PARAMETER_ARRAY_RESULT = Parameter.of(EVENT_RESULT_NAME,

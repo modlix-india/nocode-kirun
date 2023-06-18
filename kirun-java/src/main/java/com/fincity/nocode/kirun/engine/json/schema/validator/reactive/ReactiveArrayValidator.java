@@ -91,6 +91,7 @@ public class ReactiveArrayValidator {
 		        });
 	}
 
+	@SuppressWarnings("null")
 	private static Mono<Integer> countContains(List<Schema> parents, Schema schema,
 	        ReactiveRepository<Schema> repository, JsonArray array, boolean stopPoint) {
 

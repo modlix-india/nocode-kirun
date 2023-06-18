@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 public class StringFunctionRepository implements ReactiveRepository<ReactiveFunction> {
 
+	@SuppressWarnings("null")
 	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 	        AbstractUnaryFunction.ofEntryString("Trim", String::trim),
 	        AbstractUnaryFunction.ofEntryString("LowerCase", String::toLowerCase),

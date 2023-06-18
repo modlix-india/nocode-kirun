@@ -19,6 +19,7 @@ public class Delete extends AbstractArrayFunction {
 		super("Delete", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_VAR_ARGS), EVENT_RESULT_ARRAY);
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
