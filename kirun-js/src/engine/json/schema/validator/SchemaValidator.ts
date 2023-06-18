@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { deepEqual } from '../../../util/deepEqual';
 import { isNullValue } from '../../../util/NullCheck';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { Schema } from '../Schema';
@@ -40,7 +41,7 @@ export class SchemaValidator {
             return JSON.parse(JSON.stringify(schema.getDefaultValue()));
         }
 
-        if (schema.getConstant()) {
+        if (!isNullValue(schema.getConstant())) {
             return SchemaValidator.constantValidation(parents, schema, element);
         }
 
@@ -92,7 +93,7 @@ export class SchemaValidator {
     }
 
     public static constantValidation(parents: Schema[], schema: Schema, element: any): any {
-        if (!schema.getConstant().equals(element)) {
+        if (!deepEqual(schema.getConstant(), element)) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 'Expecting a constant value : ' + element,
