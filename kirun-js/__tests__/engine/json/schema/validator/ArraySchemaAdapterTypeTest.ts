@@ -107,7 +107,6 @@ test('schemaArray With Tuple Test ', () => {
         12.34,
         'mla',
     ];
-    console.log(JSON.stringify(schema, undefined, 2));
 
     expect(SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
 });

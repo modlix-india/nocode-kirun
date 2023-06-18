@@ -46,7 +46,6 @@ test('KIRuntime With Definition without values object inside parameter Map', asy
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        console.log(fo);
     } catch (e: any) {
         console.error(e);
     }
