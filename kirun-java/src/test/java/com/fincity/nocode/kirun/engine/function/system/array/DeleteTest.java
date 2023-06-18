@@ -41,7 +41,7 @@ class DeleteTest {
 				.setContext(Map.of()).setSteps(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(ares)).verifyComplete();
 	}
 
 	// @Test
@@ -68,7 +68,7 @@ class DeleteTest {
 		ares.add(14);
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(ares)).verifyComplete();
 	}
 
 	// //@Test
@@ -92,7 +92,7 @@ class DeleteTest {
 				.setSteps(Map.of()).setContext(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(arr)).verifyComplete();
 	}
 
 	// @Test
@@ -114,7 +114,7 @@ class DeleteTest {
 				.setSteps(Map.of()).setContext(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(arr)).verifyComplete();
 	}
 
 	@Test
@@ -141,7 +141,7 @@ class DeleteTest {
 				.setSteps(Map.of()).setContext(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(ares));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(ares)).verifyComplete();
 	}
 
 	@Test
@@ -188,7 +188,7 @@ class DeleteTest {
 				.setSteps(Map.of()).setContext(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -218,6 +218,6 @@ class DeleteTest {
 		res.add("nocode");
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 }

@@ -92,7 +92,7 @@ public class ReactiveSchemaValidator {
 
 		return Flux.fromIterable(schema.getType()
 		        .getAllowedSchemaTypes())
-		        .flatMap(type -> Mono.just(element)
+		        .flatMap(type -> Mono.just(element == null ? JsonNull.INSTANCE : element)
 		                .flatMap(el -> ReactiveTypeValidator.validate(parents, type, schema, repository, el)
 		                        .map(e -> Tuples.of(el, Optional.<Throwable>empty()))
 		                        .onErrorResume(sve -> Mono

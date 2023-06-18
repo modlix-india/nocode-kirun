@@ -44,7 +44,7 @@ class MisMatchTest {
 		MisMatch mis = new MisMatch();
 
 		StepVerifier.create(mis.execute(fep))
-				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("result").getAsInt() == 2)
 				.verifyComplete();
 	}
 
@@ -173,7 +173,7 @@ class MisMatchTest {
 		MisMatch mis = new MisMatch();
 
 		StepVerifier.create(mis.execute(fep))
-				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("result").getAsInt() == 2)
 				.verifyComplete();
 
 	}

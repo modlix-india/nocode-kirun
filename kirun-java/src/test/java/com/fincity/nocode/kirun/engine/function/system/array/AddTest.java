@@ -23,7 +23,7 @@ class AddTest {
 		var arr2 = new JsonArray();
 		arr2.add(14);
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
@@ -34,22 +34,23 @@ class AddTest {
 		res.add(14);
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 
 		var arr1 = new JsonArray();
 		arr1.add(12);
+		arr1.add(14);
 
 		var res1 = new JsonArray();
 		res1.add(12);
-		res1.add(12);
 		res1.add(14);
+		res1.add(12);
 
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr1, "secondSource", arr)).setContext(Map.of()).setSteps(Map.of());
 
-		StepVerifier.create(ad.execute(fep1))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res1));
+		StepVerifier.create(ad.execute(fep1).map(e -> e.next().getResult().get("result")))
+				.expectNext(res1).verifyComplete();
 	}
 
 	@Test
@@ -61,7 +62,7 @@ class AddTest {
 		arr.add("nocode");
 		arr.add("platform");
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
@@ -72,7 +73,7 @@ class AddTest {
 		res.add("platform");
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -81,14 +82,14 @@ class AddTest {
 
 		var arr = new JsonArray();
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr, "secondSource", emp)).setContext(Map.of()).setSteps(Map.of());
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(emp));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(emp)).verifyComplete();
 	}
 
 	@Test
@@ -100,7 +101,7 @@ class AddTest {
 		arr.add("nocode");
 		arr.add("platform");
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
@@ -111,7 +112,7 @@ class AddTest {
 		res.add("platform");
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 
 	}
 
@@ -122,7 +123,7 @@ class AddTest {
 		arr.add("nocode");
 		arr.add("platform");
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
@@ -144,7 +145,7 @@ class AddTest {
 		arr.add("nocode");
 		arr.add("platform");
 
-		Add ad = new Add();
+		Concatenate ad = new Concatenate();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())

@@ -28,7 +28,7 @@ class MaxTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(max.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(12)))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(12)))
 				.verifyComplete();
 
 		var arr1 = new JsonArray();
@@ -55,7 +55,7 @@ class MaxTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(max.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(98)))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(98)))
 				.verifyComplete();
 
 		var arr1 = new JsonArray();
@@ -69,7 +69,7 @@ class MaxTest {
 				.setArguments(Map.of("source", arr1));
 
 		StepVerifier.create(max.execute(fep1))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive('s')))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive('s')))
 				.verifyComplete();
 
 	}
@@ -101,7 +101,7 @@ class MaxTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(max.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive("platform")))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive("platform")))
 				.verifyComplete();
 	}
 
@@ -121,7 +121,7 @@ class MaxTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(max.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive("platform")))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive("platform")))
 				.verifyComplete();
 	}
 

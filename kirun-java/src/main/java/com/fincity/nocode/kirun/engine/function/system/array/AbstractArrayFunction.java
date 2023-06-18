@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
 public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
@@ -32,8 +33,6 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final Event EVENT_RESULT_ARRAY = new Event().setName(Event.OUTPUT).setParameters(
 			Map.of(EVENT_RESULT_NAME, Schema.ofArray(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME))));
-
-	protected static final Event EVENT_RESULT_EMPTY = new Event().setName(Event.OUTPUT).setParameters(Map.of());
 
 	protected static final Event EVENT_RESULT_ANY = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME)));
@@ -80,9 +79,6 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final Parameter PARAMETER_ANY = Parameter.of("element", Schema.ofAny("element"));
 
-	protected static final Parameter PARAMETER_ANY_NOT_NULL = Parameter.of("elementObject",
-			Schema.ofAnyNotNull("elementObject"));
-
 	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of("element", Schema.ofAny("element"))
 			.setVariableArgument(true);
 
@@ -104,5 +100,12 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	@Override
 	public FunctionSignature getSignature() {
 		return this.signature;
+	}
+
+	public JsonArray duplicateArray(JsonArray array) {
+		JsonArray newArray = new JsonArray();
+		for (int i = 0; i < array.size(); i++)
+			newArray.add(array.get(i));
+		return newArray;
 	}
 }

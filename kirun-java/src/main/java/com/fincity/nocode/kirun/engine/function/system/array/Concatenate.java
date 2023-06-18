@@ -10,28 +10,29 @@ import com.google.gson.JsonArray;
 
 import reactor.core.publisher.Mono;
 
-public class Add extends AbstractArrayFunction {
+public class Concatenate extends AbstractArrayFunction {
 
-	public Add() {
-		super("Add", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ARRAY_SECOND_SOURCE), EVENT_RESULT_EMPTY);
+	public Concatenate() {
+		super("Concatenate", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ARRAY_SECOND_SOURCE), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonArray secondSource = context.getArguments()
-		        .get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		if (secondSource.isJsonNull() || secondSource.isEmpty())
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 
+		source = duplicateArray(source);
 		source.addAll(secondSource);
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 }

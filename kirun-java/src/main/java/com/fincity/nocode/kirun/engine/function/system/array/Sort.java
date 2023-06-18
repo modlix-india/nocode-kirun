@@ -18,27 +18,27 @@ public class Sort extends Max {
 
 	protected Sort() {
 		super("Sort", List.of(PARAMETER_ARRAY_SOURCE_PRIMITIVE, PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH,
-		        PARAMETER_BOOLEAN_ASCENDING), EVENT_RESULT_EMPTY);
+				PARAMETER_BOOLEAN_ASCENDING), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
+				.getAsJsonArray();
 
 		JsonPrimitive startPosition = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		JsonPrimitive length = context.getArguments()
-		        .get(PARAMETER_INT_LENGTH.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_LENGTH.getParameterName())
+				.getAsJsonPrimitive();
 
 		boolean ascending = context.getArguments()
-		        .get(PARAMETER_BOOLEAN_ASCENDING.getParameterName())
-		        .getAsBoolean();
+				.get(PARAMETER_BOOLEAN_ASCENDING.getParameterName())
+				.getAsBoolean();
 
 		if (source.isJsonNull() || source.isEmpty())
 			throw new KIRuntimeException("Expected a source of an array but not found any");
@@ -52,18 +52,19 @@ public class Sort extends Max {
 
 		if (start < 0 || start >= source.size() || start + len > source.size())
 			throw new KIRuntimeException(
-			        "Given start point is more than the size of the array or not available at that point");
+					"Given start point is more than the size of the array or not available at that point");
 
 		JsonPrimitive[] elements = ArrayUtil.jsonArrayToPrimitive(source);
 
 		Arrays.sort(elements, start, start + len, ascending ? this::compareTo : (o1, o2) -> -this.compareTo(o1, o2));
+		source = new JsonArray(elements.length);
 
-		for (int i = start; i < start + len; i++) {
-			source.set(i, elements[i]);
+		for (int i = 0; i < elements.length; i++) {
+			source.add(elements[i]);
 		}
 
 		return Mono
-		        .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_EMPTY.getName(), source)))));
+				.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 
 }

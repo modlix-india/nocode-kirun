@@ -16,33 +16,33 @@ import reactor.core.publisher.Mono;
 public class IndexOf extends AbstractArrayFunction {
 
 	public IndexOf() {
-		super("IndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_NOT_NULL, PARAMETER_INT_FIND_FROM),
-		        EVENT_RESULT_INTEGER);
+		super("IndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_FIND_FROM),
+				EVENT_RESULT_INTEGER);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		var find = context.getArguments()
-		        .get(PARAMETER_ANY_NOT_NULL.getParameterName());
+				.get(PARAMETER_ANY.getParameterName());
 
 		JsonPrimitive srcFrom = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		if (source.isEmpty())
 			return Mono.just(new FunctionOutput(
-			        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1))))));
+					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(-1))))));
 
 		int len = srcFrom.getAsInt();
 
 		if (len < 0 || len > source.size())
 			throw new KIRuntimeException(
-			        "The size of the search index of the array is greater than the size of the array");
+					"The size of the search index of the array is greater than the size of the array");
 
 		int index = -1;
 
@@ -56,6 +56,6 @@ public class IndexOf extends AbstractArrayFunction {
 		}
 
 		return Mono.just(new FunctionOutput(
-		        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(index))))));
+				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(index))))));
 	}
 }

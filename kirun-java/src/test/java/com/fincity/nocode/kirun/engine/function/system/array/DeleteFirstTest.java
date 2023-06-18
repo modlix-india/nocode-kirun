@@ -38,7 +38,7 @@ class DeleteFirstTest {
 				.setContext(Map.of()).setSteps(Map.of());
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr1));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(arr1)).verifyComplete();
 	}
 
 	@Test
@@ -108,7 +108,7 @@ class DeleteFirstTest {
 
 		DeleteFirst del = new DeleteFirst();
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -201,7 +201,7 @@ class DeleteFirstTest {
 		DeleteFirst freq = new DeleteFirst();
 
 		StepVerifier.create(freq.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test

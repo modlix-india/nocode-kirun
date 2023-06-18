@@ -16,33 +16,33 @@ import reactor.core.publisher.Mono;
 public class LastIndexOf extends AbstractArrayFunction {
 
 	public LastIndexOf() {
-		super("LastIndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_NOT_NULL, PARAMETER_INT_FIND_FROM),
-		        EVENT_RESULT_INTEGER);
+		super("LastIndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_FIND_FROM),
+				EVENT_RESULT_INTEGER);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		var find = context.getArguments()
-		        .get(PARAMETER_ANY_NOT_NULL.getParameterName());
+				.get(PARAMETER_ANY.getParameterName());
 
 		JsonPrimitive length = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		if (source.size() == 0)
 			return Mono.just(new FunctionOutput(
-			        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1))))));
+					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(-1))))));
 
 		int len = length.getAsInt();
 
 		if (len < 0 || len > source.size())
 			throw new KIRuntimeException(
-			        "The value of length shouldn't the exceed the size of the array or shouldn't be in terms");
+					"The value of length shouldn't the exceed the size of the array or shouldn't be in terms");
 
 		int index = -1;
 
@@ -57,6 +57,6 @@ public class LastIndexOf extends AbstractArrayFunction {
 		}
 
 		return Mono.just(new FunctionOutput(
-		        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(index))))));
+				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(index))))));
 	}
 }

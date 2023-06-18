@@ -47,7 +47,7 @@ class IndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(IndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 1)
 				.verifyComplete();
 	}
@@ -84,7 +84,7 @@ class IndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(IndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 5)
 				.verifyComplete();
 	}
@@ -187,7 +187,7 @@ class IndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(IndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 7)
 				.verifyComplete();
 	}
@@ -222,7 +222,7 @@ class IndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(IndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == -1)
 				.verifyComplete();
 	}
@@ -280,7 +280,7 @@ class IndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(IndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(IndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 6)
 				.verifyComplete();
 	}

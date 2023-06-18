@@ -16,23 +16,23 @@ public class SubArray extends AbstractArrayFunction {
 
 	public SubArray() {
 		super("SubArray", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH),
-		        EVENT_RESULT_ARRAY);
+				EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonPrimitive from = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		JsonPrimitive length = context.getArguments()
-		        .get(PARAMETER_INT_LENGTH.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_LENGTH.getParameterName())
+				.getAsJsonPrimitive();
 
 		int len = length.getAsInt();
 
@@ -42,12 +42,13 @@ public class SubArray extends AbstractArrayFunction {
 			len = source.size() - start;
 
 		if (len <= 0)
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+			return Mono.just(
+					new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonArray())))));
 
 		if (!(start >= 0 && start < source.size()) || start + len > source.size())
 
 			throw new KIRuntimeException(
-			        "Given find from point is more than the source size array or the Requested length for the subarray was more than the source size");
+					"Given find from point is more than the source size array or the Requested length for the subarray was more than the source size");
 
 		JsonArray subArr = new JsonArray();
 

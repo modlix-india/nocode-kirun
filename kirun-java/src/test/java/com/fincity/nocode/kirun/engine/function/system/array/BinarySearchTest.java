@@ -38,7 +38,7 @@ class BinarySearchTest {
 
 		StepVerifier.create(bs.execute(fep))
 				.expectNextMatches(result -> result.next().getResult().get(BinarySearch.EVENT_INDEX_NAME)
-						.equals(new JsonPrimitive(4)));
+						.equals(new JsonPrimitive(4))).verifyComplete();
 	}
 
 	@Test
@@ -92,7 +92,7 @@ class BinarySearchTest {
 
 		StepVerifier.create(bs.execute(fep))
 				.expectNextMatches(result -> result.next().getResult().get(BinarySearch.EVENT_INDEX_NAME)
-						.equals(new JsonPrimitive(2)));
+						.equals(new JsonPrimitive(2))).verifyComplete();
 	}
 
 	@Test

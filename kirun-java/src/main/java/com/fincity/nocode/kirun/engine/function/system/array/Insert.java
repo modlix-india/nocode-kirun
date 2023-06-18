@@ -14,28 +14,29 @@ import reactor.core.publisher.Mono;
 public class Insert extends AbstractArrayFunction {
 
 	public Insert() {
-		super("Insert", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_OFFSET, PARAMETER_ANY), EVENT_RESULT_EMPTY);
+		super("Insert", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_OFFSET, PARAMETER_ANY), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		int offset = context.getArguments()
-		        .get(PARAMETER_INT_OFFSET.getParameterName())
-		        .getAsJsonPrimitive()
-		        .getAsInt();
+				.get(PARAMETER_INT_OFFSET.getParameterName())
+				.getAsJsonPrimitive()
+				.getAsInt();
 
 		var output = context.getArguments()
-		        .get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY.getParameterName());
 
+		source = duplicateArray(source);
 		if (source.size() == 0) {
 			if (offset == 0)
 				source.add(output);
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 		}
 
 		source.add(output);
@@ -49,7 +50,7 @@ public class Insert extends AbstractArrayFunction {
 			len--;
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 
 	}
 

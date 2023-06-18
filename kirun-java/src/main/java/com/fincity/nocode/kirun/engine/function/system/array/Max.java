@@ -28,24 +28,24 @@ public class Max extends AbstractArrayFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName())
+				.getAsJsonArray();
 
 		if (source.size() == 0)
 			throw new KIRuntimeException("Search source array cannot be empty");
 
 		JsonPrimitive max = source.get(0)
-		        .getAsJsonPrimitive();
+				.getAsJsonPrimitive();
 
 		for (int i = 1; i < source.size(); i++) {
 			JsonPrimitive y = source.get(i)
-			        .getAsJsonPrimitive();
+					.getAsJsonPrimitive();
 			if (functionSpecificComparator(max, y))
 				continue;
 			max = y;
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ANY.getName(), max)))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, max)))));
 	}
 
 	protected boolean functionSpecificComparator(JsonPrimitive max, JsonPrimitive y) {
@@ -70,7 +70,7 @@ public class Max extends AbstractArrayFunction {
 
 		if (oa.isString() || ob.isString())
 			return oa.getAsString()
-			        .compareTo(ob.getAsString());
+					.compareTo(ob.getAsString());
 
 		Number a = oa.getAsNumber();
 		Number b = ob.getAsNumber();

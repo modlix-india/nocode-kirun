@@ -56,7 +56,7 @@ class RotateTest {
 		res.add("eclipse");
 
 		Rotate rotate = new Rotate();
-		rotate.execute(fep).block();
+		array = (JsonArray) rotate.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, array);
 
@@ -108,7 +108,7 @@ class RotateTest {
 		res.add("eclipse");
 
 		Rotate rotate = new Rotate();
-		rotate.execute(fep).block();
+		array = (JsonArray) rotate.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, array);
 
