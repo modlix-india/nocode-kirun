@@ -5,7 +5,6 @@ import UUID from '../util/UUID';
 import { ContextElement } from './ContextElement';
 import { TokenValueExtractor } from './expression/tokenextractor/TokenValueExtractor';
 import { StatementExecution } from './StatementExecution';
-import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 
@@ -19,6 +18,7 @@ export class FunctionExecutionParameters {
     private functionRepository: Repository<Function>;
     private schemaRepository: Repository<Schema>;
     private executionId: string;
+    private executionContext: Map<string, any> = new Map();
 
     private valueExtractors: Map<string, TokenValueExtractor> = new Map();
 
@@ -120,5 +120,14 @@ export class FunctionExecutionParameters {
         for (const [k, v] of valuesMap.entries()) this.valueExtractors.set(k, v);
 
         return this;
+    }
+
+    public setExecutionContext(executionContext: Map<string, any>): FunctionExecutionParameters {
+        this.executionContext = executionContext;
+        return this;
+    }
+
+    public getExecutionContext(): Map<string, any> {
+        return this.executionContext;
     }
 }

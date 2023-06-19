@@ -3,7 +3,7 @@ import { Repository } from '../../../Repository';
 import mapEntry from '../../../util/mapEntry';
 import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';
-import { Add } from './Add';
+import { Concatenate } from './Concatenate';
 import { AddFirst } from './AddFirst';
 import { ArrayToArrayOfObjects } from './ArrayToArrayOfObjects';
 import { BinarySearch } from './BinarySearch';
@@ -30,10 +30,11 @@ import { Shuffle } from './Shuffle';
 import { Sort } from './Sort';
 import { SubArray } from './SubArray';
 import { Insert } from './Insert';
+import { InsertLast } from './InsertLast';
 
 export class ArrayFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
-        mapEntry(new Add()),
+        mapEntry(new Concatenate()),
         mapEntry(new AddFirst()),
         mapEntry(new BinarySearch()),
         mapEntry(new Compare()),
@@ -60,6 +61,7 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new SubArray()),
         mapEntry(new ArrayToArrayOfObjects()),
         mapEntry(new Insert()),
+        mapEntry(new InsertLast()),
     );
 
     private static readonly filterableNames = Array.from(

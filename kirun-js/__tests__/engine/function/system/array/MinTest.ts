@@ -14,9 +14,9 @@ test('min test 1 ', async () => {
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]));
 
-    expect(
-        (await min.execute(fep)).allResults()[0].getResult().get(Min.EVENT_RESULT_ANY.getName()),
-    ).toBe(12);
+    expect((await min.execute(fep)).allResults()[0].getResult().get(Min.EVENT_RESULT_NAME)).toBe(
+        12,
+    );
 });
 
 test('min test 2 ', async () => {
@@ -42,7 +42,7 @@ test('min test 3', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]));
-    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe(1);
+    expect((await min.execute(fep)).allResults()[0].getResult().get('result')).toBe(1);
 });
 
 test('min test 4', async () => {
@@ -55,7 +55,7 @@ test('min test 4', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]));
-    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('NoCode');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('result')).toBe('NoCode');
 });
 
 test('min test 5', async () => {
@@ -81,7 +81,7 @@ test('min test 6', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]));
-    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe(1);
+    expect((await min.execute(fep)).allResults()[0].getResult().get('result')).toBe(1);
 });
 
 test('min test 7', async () => {
@@ -95,7 +95,7 @@ test('min test 7', async () => {
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr1]]));
 
-    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('c');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('result')).toBe('c');
 });
 
 test('min test 8', async () => {
@@ -104,5 +104,5 @@ test('min test 8', async () => {
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(new Map([[Min.PARAMETER_ARRAY_SOURCE.getParameterName(), arr]]));
-    expect((await min.execute(fep)).allResults()[0].getResult().get('output')).toBe('surendhar');
+    expect((await min.execute(fep)).allResults()[0].getResult().get('result')).toBe('surendhar');
 });

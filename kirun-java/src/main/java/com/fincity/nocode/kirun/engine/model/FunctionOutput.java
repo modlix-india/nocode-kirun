@@ -63,4 +63,9 @@ public class FunctionOutput {
 
 		return true;
 	}
+	
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 }

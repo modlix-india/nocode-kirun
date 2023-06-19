@@ -16,7 +16,7 @@ public class Reverse extends AbstractArrayFunction {
 
 	public Reverse() {
 		super("Reverse", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH),
-				EVENT_RESULT_EMPTY);
+				EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -38,6 +38,7 @@ public class Reverse extends AbstractArrayFunction {
 					"Please provide start point between the start and end indexes or provide the length which was less than the source size ");
 
 		int endPoint = st + length - 1;
+		source = duplicateArray(source);
 
 		while (st < endPoint) {
 			JsonElement first = source.get(st);
@@ -46,6 +47,6 @@ public class Reverse extends AbstractArrayFunction {
 			source.set(endPoint--, first);
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 }

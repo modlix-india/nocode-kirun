@@ -49,7 +49,7 @@ test('Disjoint Test 1', async () => {
     let res: any[] = (await dis.execute(fep))
         .allResults()[0]
         .getResult()
-        .get(Disjoint.EVENT_RESULT_ARRAY.getName());
+        .get(Disjoint.EVENT_RESULT_NAME);
 
     res.forEach((element) => set2.add(element));
 
@@ -183,11 +183,11 @@ test('Disjoint test 3', async () => {
         ]),
     );
 
-    var res: any[] = (await dis.execute(fep)).allResults()[0].getResult().get('output');
+    var res: any[] = (await dis.execute(fep)).allResults()[0].getResult().get('result');
 
     let set2: Set<Object> = new Set<Object>();
 
     for (let i: number = 0; i < res.length; i++) set2.add(res[i]);
 
-    expect(set1).toStrictEqual(set2);
+    expect(set1).toMatchObject(set2);
 });

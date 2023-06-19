@@ -18,8 +18,8 @@ public class Frequency extends AbstractArrayFunction {
 
 	public Frequency() {
 		super("Frequency",
-		        List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH),
-		        EVENT_RESULT_INTEGER);
+				List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH),
+				EVENT_RESULT_INTEGER);
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class Frequency extends AbstractArrayFunction {
 
 		if (source.size() == 0)
 			return Mono.just(new FunctionOutput(
-					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(0))))));
+					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(0))))));
 
 		if (start > source.size())
 			throw new KIRuntimeException("Given start point is more than the size of source");
@@ -62,7 +62,7 @@ public class Frequency extends AbstractArrayFunction {
 		}
 
 		return Mono.just(new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(frequency))))));
+				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(frequency))))));
 	}
 
 }

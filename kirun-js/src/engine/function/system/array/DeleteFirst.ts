@@ -6,7 +6,7 @@ import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class DeleteFirst extends AbstractArrayFunction {
     public constructor() {
-        super('DeleteFirst', [DeleteFirst.PARAMETER_ARRAY_SOURCE], DeleteFirst.EVENT_RESULT_EMPTY);
+        super('DeleteFirst', [DeleteFirst.PARAMETER_ARRAY_SOURCE], DeleteFirst.EVENT_RESULT_ARRAY);
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
@@ -16,7 +16,10 @@ export class DeleteFirst extends AbstractArrayFunction {
 
         if (source.length == 0) throw new KIRuntimeException('Given source array is empty');
 
+        source = [...source];
         source.shift();
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

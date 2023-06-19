@@ -34,11 +34,17 @@ export class CountLoop extends AbstractFunction {
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let count: number = context.getArguments()?.get(COUNT);
         let current = 0;
+        let statementName = context.getStatementExecution()?.getStatement()?.getStatementName();
 
         return new FunctionOutput({
             next(): EventResult {
-                if (current >= count) {
-                    return EventResult.outputOf(new Map([[VALUE, count]]));
+                if (
+                    current >= count ||
+                    (statementName && context.getExecutionContext()?.get(statementName))
+                ) {
+                    // check for break;
+                    if (statementName) context.getExecutionContext()?.delete(statementName);
+                    return EventResult.outputOf(new Map([[VALUE, current]]));
                 }
 
                 const eve = EventResult.of(Event.ITERATION, new Map([[INDEX, current]]));

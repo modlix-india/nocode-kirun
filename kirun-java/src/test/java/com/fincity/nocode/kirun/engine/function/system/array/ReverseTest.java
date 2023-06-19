@@ -39,7 +39,7 @@ class ReverseTest {
 				Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(2))).setContext(Map.of())
 				.setSteps(Map.of());
 
-		rev.execute(fep).block();
+		source = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, source);
 	}
@@ -66,7 +66,7 @@ class ReverseTest {
 						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(6)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		rev.execute(fep).block();
+		arr = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
 
 		JsonArray res = new JsonArray();
 		res.add('a'); // 0
@@ -174,7 +174,7 @@ class ReverseTest {
 
 		Reverse rev = new Reverse();
 
-		rev.execute(fep).block();
+		arr = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, arr);
 	}
@@ -201,7 +201,7 @@ class ReverseTest {
 						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(2)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		rev.execute(fep).block();
+		arr = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
 
 		JsonArray res = new JsonArray();
 		res.add('a');

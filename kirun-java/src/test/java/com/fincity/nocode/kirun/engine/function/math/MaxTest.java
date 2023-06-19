@@ -29,7 +29,8 @@ class MaxTest {
 		StepVerifier.create(
 				maxFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
-				.expectNextMatches(result -> result.next().getResult().get("value").equals(new JsonPrimitive(10.2)));
+				.expectNextMatches(result -> result.next().getResult().get("value").equals(new JsonPrimitive(10.2)))
+				.verifyComplete();
 
 	}
 
@@ -43,7 +44,7 @@ class MaxTest {
 		StepVerifier.create(
 				maxFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
-				.expectNextMatches(result -> result.next().getResult().get("value") == nullVar);
+				.expectNextMatches(result -> result.next().getResult().get("value") == nullVar).verifyComplete();
 	}
 
 	@Test
@@ -61,7 +62,8 @@ class MaxTest {
 				maxFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
 				.expectNextMatches(result -> result.next().getResult().get("value")
-						.equals(new JsonPrimitive(Double.NaN)));
+						.equals(new JsonPrimitive(Double.NaN)))
+				.verifyComplete();
 	}
 
 }

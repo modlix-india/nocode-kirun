@@ -22,10 +22,7 @@ test('Binary Search test 1', async () => {
     );
 
     expect(
-        (await bsearch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep)).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX_NAME),
     ).toBe(6);
 });
 
@@ -47,10 +44,7 @@ test('Binary Search test 2', async () => {
     );
 
     expect(
-        (await bsearch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep)).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX_NAME),
     ).toBe(-1);
 });
 
@@ -92,10 +86,7 @@ test('Binary Search test 6', async () => {
     );
 
     expect(
-        (await bsearch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep)).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX_NAME),
     ).toBe(-1);
 });
 
@@ -133,10 +124,7 @@ test('Binary Search test 4', async () => {
     );
 
     expect(
-        (await bsearch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep)).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX_NAME),
     ).toBe(src.length - 1);
 });
 
@@ -170,9 +158,6 @@ test('Binary Search test 5', async () => {
     );
 
     expect(
-        (await bsearch.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(BinarySearch.EVENT_INDEX.getName()),
+        (await bsearch.execute(fep)).allResults()[0].getResult().get(BinarySearch.EVENT_INDEX_NAME),
     ).toBe(10);
 });

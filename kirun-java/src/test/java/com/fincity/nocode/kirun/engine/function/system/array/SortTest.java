@@ -4,12 +4,16 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 class SortTest {
@@ -24,9 +28,9 @@ class SortTest {
 		arr.add(1);
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", arr, "findFrom", new JsonPrimitive(0), "length",
-								new JsonPrimitive(arr.size())));
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+		        .setArguments(Map.of("source", arr, "findFrom", new JsonPrimitive(0), "length",
+		                new JsonPrimitive(arr.size())));
 
 		var res = new JsonArray();
 		res.add(1);
@@ -37,8 +41,11 @@ class SortTest {
 		Sort sort = new Sort();
 
 		StepVerifier.create(sort.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(res))
-				.verifyComplete();
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("result")
+		                .equals(res))
+		        .verifyComplete();
 	}
 
 	@Test
@@ -50,8 +57,8 @@ class SortTest {
 		arr.add(1);
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", arr, "findFrom", new JsonPrimitive(1), "ascending", new JsonPrimitive(false)));
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+		                Map.of("source", arr, "findFrom", new JsonPrimitive(1), "ascending", new JsonPrimitive(false)));
 
 		var res = new JsonArray();
 
@@ -60,11 +67,14 @@ class SortTest {
 		res.add(15);
 		res.add(1);
 
-		Sort sort = new Sort();
+		Mono<JsonElement> sort = (new Sort()).execute(fep)
+		        .map(FunctionOutput::next)
+		        .map(EventResult::getResult)
+		        .map(e -> e.get("result"));
 
-		StepVerifier.create(sort.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(res))
-				.verifyComplete();
+		StepVerifier.create(sort)
+		        .expectNext(res)
+		        .verifyComplete();
 	}
 
 	@Test
@@ -87,14 +97,17 @@ class SortTest {
 		res.add(1);
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", arr, "findFrom", new JsonPrimitive(2), "ascending", new JsonPrimitive(false)));
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+		                Map.of("source", arr, "findFrom", new JsonPrimitive(2), "ascending", new JsonPrimitive(false)));
 
 		Sort sort = new Sort();
 
 		StepVerifier.create(sort.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(res))
-				.verifyComplete();
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("result")
+		                .equals(res))
+		        .verifyComplete();
 
 	}
 

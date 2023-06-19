@@ -8,7 +8,7 @@ export class Rotate extends AbstractArrayFunction {
         super(
             'Rotate',
             [Rotate.PARAMETER_ARRAY_SOURCE, Rotate.PARAMETER_ROTATE_LENGTH],
-            Rotate.EVENT_RESULT_EMPTY,
+            Rotate.EVENT_RESULT_ANY,
         );
     }
 
@@ -21,7 +21,12 @@ export class Rotate extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(Rotate.PARAMETER_ROTATE_LENGTH.getParameterName());
 
-        if (source.length == 0) return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        if (source.length == 0)
+            return new FunctionOutput([
+                EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+            ]);
+
+        source = [...source];
 
         let size: number = source.length;
         rotLen = rotLen % size;
@@ -30,7 +35,9 @@ export class Rotate extends AbstractArrayFunction {
         this.rotate(source, rotLen, size - 1);
         this.rotate(source, 0, size - 1);
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 
     private rotate(elements: any[], start: number, end: number): void {

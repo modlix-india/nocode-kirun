@@ -14,22 +14,23 @@ import reactor.core.publisher.Mono;
 public class DeleteLast extends AbstractArrayFunction {
 
 	public DeleteLast() {
-		super("DeleteLast", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_EMPTY);
+		super("DeleteLast", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		if (source.isEmpty())
 			throw new KIRuntimeException("Given source array is empty");
 
+		source = duplicateArray(source);
 		source.remove(source.size() - 1);
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 
 }

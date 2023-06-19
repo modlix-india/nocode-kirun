@@ -29,7 +29,8 @@ class MinTest {
 		StepVerifier.create(
 				minFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
-				.expectNextMatches(result -> result.next().getResult().get("value").equals(new JsonPrimitive(3)));
+				.expectNextMatches(result -> result.next().getResult().get("value").equals(new JsonPrimitive(3)))
+				.verifyComplete();
 	}
 
 	@Test
@@ -42,7 +43,7 @@ class MinTest {
 		StepVerifier.create(
 				minFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
-				.expectNextMatches(result -> result.next().getResult().get("value") == empty);
+				.expectNextMatches(result -> result.next().getResult().get("value") == empty).verifyComplete();
 	}
 
 	@Test
@@ -60,7 +61,8 @@ class MinTest {
 				minFunction.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("value", (JsonElement) nums))))
 				.expectNextMatches(
-						result -> result.next().getResult().get("value").equals(new JsonPrimitive(Double.NaN)));
+						result -> result.next().getResult().get("value").equals(new JsonPrimitive(Double.NaN)))
+				.verifyComplete();
 	}
 
 }

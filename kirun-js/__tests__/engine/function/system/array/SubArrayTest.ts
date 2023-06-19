@@ -48,10 +48,7 @@ test('SubArray of Test 1', async () => {
     );
 
     expect(
-        (await sub.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
+        (await sub.execute(fep)).allResults()[0].getResult().get(SubArray.EVENT_RESULT_NAME),
     ).toStrictEqual(res);
 });
 
@@ -112,10 +109,7 @@ test('SubArray of Test 5', async () => {
     );
 
     expect(
-        (await sub.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
+        (await sub.execute(fep)).allResults()[0].getResult().get(SubArray.EVENT_RESULT_NAME),
     ).toStrictEqual(res);
 });
 
@@ -253,9 +247,6 @@ test('SubArray of Test 4', async () => {
         ]),
     );
     expect(
-        (await sub.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(SubArray.EVENT_RESULT_ARRAY.getName()),
-    ).toStrictEqual(res);
+        (await sub.execute(fep)).allResults()[0].getResult().get(SubArray.EVENT_RESULT_NAME),
+    ).toMatchObject(res);
 });

@@ -25,8 +25,6 @@ export class Min extends AbstractArrayFunction {
                 min = source[i];
         }
 
-        return new FunctionOutput([
-            EventResult.outputOf(new Map([[Min.EVENT_RESULT_ANY.getName(), min]])),
-        ]);
+        return new FunctionOutput([EventResult.outputOf(new Map([[Min.EVENT_RESULT_NAME, min]]))]);
     }
 }

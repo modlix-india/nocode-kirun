@@ -50,7 +50,7 @@ class LastIndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(LastIndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 9)
 				.verifyComplete();
 	}
@@ -88,7 +88,7 @@ class LastIndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(LastIndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == -1)
 				.verifyComplete();
 	}
@@ -199,7 +199,7 @@ class LastIndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(LastIndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == -1)
 				.verifyComplete();
 	}
@@ -336,7 +336,7 @@ class LastIndexOfArrayTest {
 				.expectNextMatches(fo1 -> fo1.allResults()
 						.get(0)
 						.getResult()
-						.get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName())
+						.get(LastIndexOfArray.EVENT_RESULT_NAME)
 						.getAsInt() == 7)
 				.verifyComplete();
 	}

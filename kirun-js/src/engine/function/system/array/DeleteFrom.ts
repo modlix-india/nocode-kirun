@@ -13,7 +13,7 @@ export class DeleteFrom extends AbstractArrayFunction {
                 DeleteFrom.PARAMETER_INT_SOURCE_FROM,
                 DeleteFrom.PARAMETER_INT_LENGTH,
             ],
-            DeleteFrom.EVENT_RESULT_EMPTY,
+            DeleteFrom.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -32,6 +32,7 @@ export class DeleteFrom extends AbstractArrayFunction {
 
         if (source.length == 0) throw new KIRuntimeException('There are no elements to be deleted');
 
+        source = [...source];
         if (start >= source.length || start < 0)
             throw new KIRuntimeException(
                 'The int source for the array should be in between 0 and length of the array ',
@@ -46,6 +47,8 @@ export class DeleteFrom extends AbstractArrayFunction {
 
         source.splice(start, len);
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

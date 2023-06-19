@@ -249,8 +249,6 @@ test('Array with nested array object and mixed with key arrays', async () => {
         .getResult()
         .get('result');
 
-    console.log(result);
-
     expect(result).toStrictEqual([
         { valueA: true, valueB: false, valueC: undefined, valueD: undefined },
         { valueA: 1, valueB: 'surendhar', valueC: undefined, valueD: undefined },

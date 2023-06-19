@@ -14,29 +14,30 @@ public class Fill extends AbstractArrayFunction {
 
 	public Fill() {
 		super("Fill", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH, PARAMETER_ANY),
-		        EVENT_RESULT_EMPTY);
+				EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 		var srcfrom = context.getArguments()
-		        .get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-		        .getAsInt();
+				.get(PARAMETER_INT_SOURCE_FROM.getParameterName())
+				.getAsInt();
 		var length = context.getArguments()
-		        .get(PARAMETER_INT_LENGTH.getParameterName())
-		        .getAsInt();
+				.get(PARAMETER_INT_LENGTH.getParameterName())
+				.getAsInt();
 		var element = context.getArguments()
-		        .get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY.getParameterName());
 
 		if (length == -1)
 			length = source.size() - srcfrom;
 
 		int add = (srcfrom + length) - source.size();
 
+		source = duplicateArray(source);
 		if (add > 0) {
 			for (int i = 0; i < add; i++)
 				source.add(JsonNull.INSTANCE);
@@ -46,7 +47,7 @@ public class Fill extends AbstractArrayFunction {
 			source.set(i, element.deepCopy());
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 
 }

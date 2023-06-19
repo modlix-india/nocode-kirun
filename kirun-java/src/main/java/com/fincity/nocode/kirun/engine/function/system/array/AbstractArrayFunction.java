@@ -13,10 +13,12 @@ import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
 public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
+	private static final String ELEMENT = "element";
 	protected static final String EVENT_INDEX_NAME = "index";
 	protected static final String EVENT_RESULT_NAME = "result";
 	protected static final String EACH_SOURCE = "eachSource";
@@ -32,8 +34,6 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final Event EVENT_RESULT_ARRAY = new Event().setName(Event.OUTPUT).setParameters(
 			Map.of(EVENT_RESULT_NAME, Schema.ofArray(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME))));
-
-	protected static final Event EVENT_RESULT_EMPTY = new Event().setName(Event.OUTPUT).setParameters(Map.of());
 
 	protected static final Event EVENT_RESULT_ANY = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME)));
@@ -78,12 +78,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	protected static final Parameter PARAMETER_FIND_PRIMITIVE = Parameter.of("findPrimitive", Schema.of("findPrimitive",
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));
 
-	protected static final Parameter PARAMETER_ANY = Parameter.of("element", Schema.ofAny("element"));
+	protected static final Parameter PARAMETER_ANY = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT));
 
-	protected static final Parameter PARAMETER_ANY_NOT_NULL = Parameter.of("elementObject",
-			Schema.ofAnyNotNull("elementObject"));
-
-	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of("element", Schema.ofAny("element"))
+	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT))
 			.setVariableArgument(true);
 
 	protected static final Parameter PARAMETER_ARRAY_RESULT = Parameter.of(EVENT_RESULT_NAME,
@@ -104,5 +101,12 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	@Override
 	public FunctionSignature getSignature() {
 		return this.signature;
+	}
+
+	public JsonArray duplicateArray(JsonArray array) {
+		JsonArray newArray = new JsonArray();
+		for (int i = 0; i < array.size(); i++)
+			newArray.add(array.get(i));
+		return newArray;
 	}
 }

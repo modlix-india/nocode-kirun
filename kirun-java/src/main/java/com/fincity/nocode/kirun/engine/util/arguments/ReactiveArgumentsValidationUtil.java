@@ -78,6 +78,12 @@ public class ReactiveArgumentsValidationUtil {
 
 		JsonArray actualArray = array;
 
+		return validateVariableArguments(repository, e, param, actualArray);
+
+	}
+
+	private static Mono<Entry<String, JsonElement>> validateVariableArguments(ReactiveRepository<Schema> repository,
+	        Entry<String, Parameter> e, Parameter param, JsonArray actualArray) {
 		return Flux.<Tuple2<Integer, JsonElement>>create(sink -> {
 
 			for (int i = 0; i < actualArray.size(); i++)
@@ -99,7 +105,6 @@ public class ReactiveArgumentsValidationUtil {
 
 			        return Map.entry(e.getKey(), arr);
 		        });
-
 	}
 
 	private ReactiveArgumentsValidationUtil() {

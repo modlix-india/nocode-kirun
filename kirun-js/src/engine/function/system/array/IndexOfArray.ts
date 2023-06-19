@@ -33,7 +33,7 @@ export class IndexOfArray extends AbstractArrayFunction {
 
         if (source.length == 0 || secondSource.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(new Map([[IndexOfArray.EVENT_RESULT_INTEGER.getName(), -1]])),
+                EventResult.outputOf(new Map([[IndexOfArray.EVENT_RESULT_NAME, -1]])),
             ]);
 
         if (from < 0 || from > source.length || source.length < secondSource.length)
@@ -61,7 +61,7 @@ export class IndexOfArray extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[IndexOfArray.EVENT_RESULT_INTEGER.getName(), index]])),
+            EventResult.outputOf(new Map([[IndexOfArray.EVENT_RESULT_NAME, index]])),
         ]);
     }
 }

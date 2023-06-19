@@ -47,7 +47,7 @@ class DeleteFromTest {
 				.setContext(Map.of()).setSteps(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -85,7 +85,7 @@ class DeleteFromTest {
 				.setContext(Map.of()).setSteps(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -205,7 +205,7 @@ class DeleteFromTest {
 		DeleteFrom del = new DeleteFrom();
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 
 	@Test
@@ -243,6 +243,6 @@ class DeleteFromTest {
 				.setSteps(Map.of());
 
 		StepVerifier.create(del.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+				.expectNextMatches(result -> result.next().getResult().get("result").equals(res)).verifyComplete();
 	}
 }

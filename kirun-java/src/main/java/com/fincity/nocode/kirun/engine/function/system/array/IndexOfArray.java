@@ -17,27 +17,27 @@ public class IndexOfArray extends AbstractArrayFunction {
 
 	public IndexOfArray() {
 		super("IndexOfArray", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ARRAY_SECOND_SOURCE, PARAMETER_INT_FIND_FROM),
-		        EVENT_RESULT_INTEGER);
+				EVENT_RESULT_INTEGER);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonArray secondSource = context.getArguments()
-		        .get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonPrimitive from = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		if (source.isEmpty() || secondSource.isEmpty())
 			return Mono.just(new FunctionOutput(
-			        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(-1))))));
+					List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(-1))))));
 
 		if (from.getAsInt() < 0 || from.getAsInt() > source.size() || source.size() < secondSource.size())
 			throw new KIRuntimeException("Given from second source is more than the size of the source array");
@@ -64,6 +64,6 @@ public class IndexOfArray extends AbstractArrayFunction {
 		}
 
 		return Mono.just(new FunctionOutput(
-		        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(), new JsonPrimitive(index))))));
+				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(index))))));
 	}
 }

@@ -13,11 +13,11 @@ import com.google.gson.JsonElement;
 import reactor.core.publisher.Mono;
 
 public class Shuffle extends AbstractArrayFunction {
-	
+
 	private static final Random rand = new Random();
 
 	public Shuffle() {
-		super("Shuffle", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_EMPTY);
+		super("Shuffle", List.of(PARAMETER_ARRAY_SOURCE), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -26,10 +26,11 @@ public class Shuffle extends AbstractArrayFunction {
 		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
 		if (source.size() <= 1)
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 
 		int x = 0;
 		int size = source.size();
+		source = duplicateArray(source);
 
 		for (int i = 0; i < size; i++) {
 			int y = rand.nextInt(0, size) % size;
@@ -39,6 +40,6 @@ public class Shuffle extends AbstractArrayFunction {
 			x = y;
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 }

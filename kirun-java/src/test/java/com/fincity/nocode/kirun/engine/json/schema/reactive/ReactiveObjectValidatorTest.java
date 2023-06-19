@@ -26,16 +26,16 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType(false));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType(false));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
 		job.addProperty("phone", 13423524);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -45,8 +45,8 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType(false));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType(false));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -54,9 +54,9 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-		                + "schema - [age] are additional properties which are not allowed.")
-		        .verify();
+				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
+						+ "schema - [age] are additional properties which are not allowed.")
+				.verify();
 	}
 
 	@Test
@@ -66,16 +66,16 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType(true));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType(true));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
 		job.addProperty("phone", 13423524);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -85,8 +85,8 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType(true));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType(true));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -94,8 +94,8 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -105,16 +105,16 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
 		job.addProperty("phone", 13423524);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -124,8 +124,8 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setBooleanValue(false));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(false));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -133,8 +133,9 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-		                + "schema - [age] are additional properties which are not allowed.");
+				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
+						+ "schema - [age] are additional properties which are not allowed.")
+				.verify();
 	}
 
 	@Test
@@ -144,16 +145,16 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setBooleanValue(true));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(true));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
 		job.addProperty("phone", 13423524);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -163,8 +164,8 @@ class ReactiveObjectValidatorTest {
 		props.put("name", Schema.ofString("name"));
 		props.put("phone", Schema.ofLong("phone"));
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setBooleanValue(true));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setBooleanValue(true));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -172,8 +173,8 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 	@Test
@@ -186,8 +187,8 @@ class ReactiveObjectValidatorTest {
 		Schema addSchema = Schema.ofBoolean("addSchema");
 
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setSchemaValue(addSchema));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setSchemaValue(addSchema));
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -195,8 +196,8 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("married?", false);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job.deepCopy())
-		        .verifyComplete();
+				.expectNext(job.deepCopy())
+				.verifyComplete();
 	}
 
 	@Test
@@ -209,8 +210,8 @@ class ReactiveObjectValidatorTest {
 		Schema addSchema = Schema.ofBoolean("addSchema");
 
 		Schema schema = Schema.ofObject("schema")
-		        .setProperties(props)
-		        .setAdditionalProperties(new AdditionalType().setSchemaValue(addSchema));
+				.setProperties(props)
+				.setAdditionalProperties(new AdditionalType().setSchemaValue(addSchema));
 
 		String city = "Yanam";
 
@@ -222,13 +223,13 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("city", city);
 
 		ReactiveSchemaValidator.validate(null, schema, null, job)
-		        .subscribe(System.out::println);
+				.subscribe(System.out::println);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-		                + "schema.addSchema - Value \"" + city + "\" is not of valid type(s)\n"
-		                + "schema.addSchema - \"" + city + "\" is not a boolean")
-		        .verify();
+				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
+						+ "schema.addSchema - Value \"" + city + "\" is not of valid type(s)\n"
+						+ "schema.addSchema - \"" + city + "\" is not a boolean")
+				.verify();
 	}
 
 	@Test
@@ -237,17 +238,17 @@ class ReactiveObjectValidatorTest {
 		AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
 
 		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
-		        .registerTypeAdapter(AdditionalType.class, addType)
-		        .create();
+				.registerTypeAdapter(AdditionalType.class, addType)
+				.create();
 
 		addType.setGson(gson);
 
 		Schema schema = gson.fromJson("""
-		        {"type": "OBJECT",
-		        "properties": {"name": { "type": "STRING" }},
-		        "additionalProperties": {"type" : "STRING" }
-		        }
-		        """, Schema.class);
+				{"type": "OBJECT",
+				"properties": {"name": { "type": "STRING" }},
+				"additionalProperties": {"type" : "STRING" }
+				}
+				""", Schema.class);
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -255,10 +256,10 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("married", false);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage(
-		                "Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
-		                        + "Value 13423524 is not of valid type(s)\n" + "13423524 is not String")
-		        .verify();
+				.expectErrorMessage(
+						"Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
+								+ "Value 13423524 is not of valid type(s)\n" + "13423524 is not String")
+				.verify();
 	}
 
 	@Test
@@ -267,20 +268,20 @@ class ReactiveObjectValidatorTest {
 		AdditionalTypeAdapter addType = new AdditionalTypeAdapter();
 
 		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new SchemaTypeAdapter())
-		        .registerTypeAdapter(AdditionalType.class, addType)
-		        .create();
+				.registerTypeAdapter(AdditionalType.class, addType)
+				.create();
 
 		addType.setGson(gson);
 
 		Schema schema = gson.fromJson("""
-		        {"type": "OBJECT",
-		        "properties": {"name": { "type": "STRING" }, "phone" : {"type" :"INTEGER" }},
-		        "additionalProperties": {
+				{"type": "OBJECT",
+				"properties": {"name": { "type": "STRING" }, "phone" : {"type" :"INTEGER" }},
+				"additionalProperties": {
 
-		        "schemaValue" : {"type" : "LONG" }
-		        }
-		        }
-		        """, Schema.class);
+				"schemaValue" : {"type" : "LONG" }
+				}
+				}
+				""", Schema.class);
 
 		JsonObject job = new JsonObject();
 		job.addProperty("name", "surendhar");
@@ -288,8 +289,8 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectNext(job)
-		        .verifyComplete();
+				.expectNext(job)
+				.verifyComplete();
 	}
 
 }

@@ -33,10 +33,7 @@ test('index of array 1', async () => {
     );
 
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(1);
 });
 
@@ -70,10 +67,7 @@ test('Index of array 2', async () => {
     );
 
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(5);
 });
 
@@ -169,10 +163,7 @@ test('index of array 3', async () => {
     );
 
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(7);
 });
 
@@ -205,10 +196,7 @@ test('index of array test 4', async () => {
     );
 
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(-1);
 });
 
@@ -238,10 +226,7 @@ test('index of array 5', async () => {
         ]),
     );
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(6);
 });
 
@@ -355,9 +340,6 @@ test('index of array 3', async () => {
     );
 
     expect(
-        (await ioa.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(IndexOfArray.EVENT_RESULT_INTEGER.getName()),
+        (await ioa.execute(fep)).allResults()[0].getResult().get(IndexOfArray.EVENT_RESULT_NAME),
     ).toBe(-1);
 });

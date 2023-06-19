@@ -23,9 +23,9 @@ test('Delete Test 1', async () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await delet.execute(fep);
-
-    expect(source).toStrictEqual(temp);
+    expect((await delet.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        temp,
+    );
 });
 
 test('Delete Test 2', async () => {
@@ -49,9 +49,9 @@ test('Delete Test 2', async () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await delet.execute(fep);
-
-    expect(source).toStrictEqual(temp);
+    expect((await delet.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        temp,
+    );
 });
 
 test('Delete Test 3', async () => {
@@ -158,7 +158,5 @@ test('Delete Test 5', async () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await delet.execute(fep);
-
-    expect(arr).toStrictEqual(res);
+    expect((await delet.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
 });

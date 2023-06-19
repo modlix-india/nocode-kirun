@@ -39,7 +39,7 @@ test('Last Index of array Test 1', async () => {
         (await larr.execute(fep))
             .allResults()[0]
             .getResult()
-            .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),
+            .get(LastIndexOfArray.EVENT_RESULT_NAME),
     ).toBe(9);
 });
 
@@ -76,7 +76,7 @@ test('last index of array test 2', async () => {
         (await larr.execute(fep))
             .allResults()[0]
             .getResult()
-            .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),
+            .get(LastIndexOfArray.EVENT_RESULT_NAME),
     ).toBe(-1);
 });
 
@@ -221,6 +221,6 @@ test('last index of array test 4', async () => {
         (await larr.execute(fep))
             .allResults()[0]
             .getResult()
-            .get(LastIndexOfArray.EVENT_RESULT_INTEGER.getName()),
+            .get(LastIndexOfArray.EVENT_RESULT_NAME),
     ).toBe(7);
 });

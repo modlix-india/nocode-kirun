@@ -24,8 +24,6 @@ export class Max extends AbstractArrayFunction {
             max = y;
         }
 
-        return new FunctionOutput([
-            EventResult.outputOf(new Map([[Max.EVENT_RESULT_ANY.getName(), max]])),
-        ]);
+        return new FunctionOutput([EventResult.outputOf(new Map([[Max.EVENT_RESULT_NAME, max]]))]);
     }
 }

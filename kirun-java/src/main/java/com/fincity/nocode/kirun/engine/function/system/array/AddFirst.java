@@ -14,25 +14,24 @@ import reactor.core.publisher.Mono;
 public class AddFirst extends AbstractArrayFunction {
 
 	public AddFirst() {
-		super("AddFirst", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_NOT_NULL), EVENT_RESULT_EMPTY);
+		super("AddFirst", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		var input = context.getArguments()
-		        .get(PARAMETER_ANY_NOT_NULL.getParameterName());
+				.get(PARAMETER_ANY.getParameterName());
 
-		if (input.isJsonArray())
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		source = duplicateArray(source);
 
 		if (source.isEmpty()) {
 			source.add(input);
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 		}
 
 		source.add(input);
@@ -46,7 +45,7 @@ public class AddFirst extends AbstractArrayFunction {
 			len--;
 		}
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 
 }

@@ -5,6 +5,7 @@ import { Get } from '../function/system/context/Get';
 import { SetFunction } from '../function/system/context/SetFunction';
 import { GenerateEvent } from '../function/system/GenerateEvent';
 import { If } from '../function/system/If';
+import { Break } from '../function/system/loop/Break';
 import { CountLoop } from '../function/system/loop/CountLoop';
 import { RangeLoop } from '../function/system/loop/RangeLoop';
 import { MathFunctionRepository } from '../function/system/math/MathFunctionRepository';
@@ -20,7 +21,10 @@ const map: Map<string, Map<string, Function>> = new Map([
         Namespaces.SYSTEM_CTX,
         new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
     ],
-    [Namespaces.SYSTEM_LOOP, new Map([mapEntry(new RangeLoop()), mapEntry(new CountLoop())])],
+    [
+        Namespaces.SYSTEM_LOOP,
+        new Map([mapEntry(new RangeLoop()), mapEntry(new CountLoop()), mapEntry(new Break())]),
+    ],
     [
         Namespaces.SYSTEM,
         new Map([mapEntry(new If()), mapEntry(new GenerateEvent()), mapEntry(new Print())]),

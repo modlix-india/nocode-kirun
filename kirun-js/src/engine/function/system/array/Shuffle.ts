@@ -5,7 +5,7 @@ import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class Shuffle extends AbstractArrayFunction {
     public constructor() {
-        super('Shuffle', [Shuffle.PARAMETER_ARRAY_SOURCE], Shuffle.EVENT_RESULT_EMPTY);
+        super('Shuffle', [Shuffle.PARAMETER_ARRAY_SOURCE], Shuffle.EVENT_RESULT_ANY);
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
@@ -13,8 +13,12 @@ export class Shuffle extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(Shuffle.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        if (source.length <= 1) return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        if (source.length <= 1)
+            return new FunctionOutput([
+                EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+            ]);
 
+        source = [...source];
         let x: number = 0;
         let size: number = source.length;
 
@@ -26,6 +30,8 @@ export class Shuffle extends AbstractArrayFunction {
             x = y;
         }
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

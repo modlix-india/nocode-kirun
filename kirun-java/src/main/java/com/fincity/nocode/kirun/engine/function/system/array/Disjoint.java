@@ -20,31 +20,31 @@ public class Disjoint extends AbstractArrayFunction {
 
 	public Disjoint() {
 		super("Disjoint", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_ARRAY_SECOND_SOURCE,
-		        PARAMETER_INT_SECOND_SOURCE_FROM, PARAMETER_INT_LENGTH), EVENT_RESULT_ARRAY);
+				PARAMETER_INT_SECOND_SOURCE_FROM, PARAMETER_INT_LENGTH), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray firstSource = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonPrimitive firstFrom = context.getArguments()
-		        .get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_SOURCE_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		JsonArray secondSource = context.getArguments()
-		        .get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		JsonPrimitive secondFrom = context.getArguments()
-		        .get(PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_SECOND_SOURCE_FROM.getParameterName())
+				.getAsJsonPrimitive();
 
 		JsonPrimitive length = context.getArguments()
-		        .get(PARAMETER_INT_LENGTH.getParameterName())
-		        .getAsJsonPrimitive();
+				.get(PARAMETER_INT_LENGTH.getParameterName())
+				.getAsJsonPrimitive();
 
 		int first = firstFrom.getAsInt();
 
@@ -56,10 +56,10 @@ public class Disjoint extends AbstractArrayFunction {
 			len = firstSource.size() <= secondSource.size() ? firstSource.size() - first : secondSource.size() - second;
 
 		if (len > firstSource.size() || len > secondSource.size() || first + len > firstSource.size()
-		        || second + len > secondSource.size())
+				|| second + len > secondSource.size())
 
 			throw new KIRuntimeException(
-			        "The length which was being requested is more than than the size either source array or second source array");
+					"The length which was being requested is more than than the size either source array or second source array");
 
 		Set<Object> set1 = new HashSet<>();
 		Set<Object> set2 = new HashSet<>();
@@ -98,6 +98,6 @@ public class Disjoint extends AbstractArrayFunction {
 		while (itr3.hasNext())
 			arr.add((JsonElement) itr3.next());
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_ARRAY.getName(), arr)))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, arr)))));
 	}
 }

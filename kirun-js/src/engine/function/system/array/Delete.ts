@@ -13,7 +13,7 @@ export class Delete extends AbstractArrayFunction {
                 AbstractArrayFunction.PARAMETER_ARRAY_SOURCE,
                 AbstractArrayFunction.PARAMETER_ANY_VAR_ARGS,
             ],
-            AbstractArrayFunction.EVENT_RESULT_EMPTY,
+            AbstractArrayFunction.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -37,7 +37,6 @@ export class Delete extends AbstractArrayFunction {
             );
 
         let indexes = new Set<number>();
-        let duplicateResource: any[] = [];
 
         for (let i: number = source.length - 1; i >= 0; i--) {
             for (let j: number = 0; j < receivedArgs.length; j++) {
@@ -46,10 +45,15 @@ export class Delete extends AbstractArrayFunction {
             }
         }
 
-        duplicateResource = source.filter((value) => !indexes.has(value));
-
-        source.splice(0, source.length, ...duplicateResource);
-
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(
+                new Map([
+                    [
+                        AbstractArrayFunction.EVENT_RESULT_NAME,
+                        source.filter((value) => !indexes.has(value)),
+                    ],
+                ]),
+            ),
+        ]);
     }
 }

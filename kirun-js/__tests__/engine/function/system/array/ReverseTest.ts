@@ -22,8 +22,7 @@ test('Reverse test 1 ', async () => {
         .setSteps(new Map([]));
 
     let res = [5, 4, 6, 7];
-    await rev.execute(fep);
-    expect(src).toStrictEqual(res);
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('Reverse test 2 ', async () => {
@@ -177,8 +176,7 @@ test('Rev test 4', async () => {
     res.push(array3);
     res.push(array1);
 
-    await rev.execute(fep);
-
+    arr = (await rev.execute(fep)).allResults()[0].getResult().get('result');
     expect(arr).toStrictEqual(res);
 
     fep.setArguments(
@@ -196,8 +194,7 @@ test('Rev test 4', async () => {
     res1.push(array2);
     res1.push(array4);
 
-    await rev.execute(fep);
-    expect(arr).toStrictEqual(res1);
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res1);
 });
 
 test('rev test 5', async () => {
@@ -236,8 +233,7 @@ test('rev test 5', async () => {
     res.push('c');
     res.push('a');
 
-    await rev.execute(fep);
-    expect(arr).toStrictEqual(res);
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 
     fep.setArguments(
         new Map<string, any>([

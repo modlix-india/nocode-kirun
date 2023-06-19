@@ -33,7 +33,7 @@ export class LastIndexOf extends AbstractArrayFunction {
 
         if (source.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(new Map([[LastIndexOf.EVENT_RESULT_INTEGER.getName(), -1]])),
+                EventResult.outputOf(new Map([[LastIndexOf.EVENT_RESULT_NAME, -1]])),
             ]);
 
         if (len < 0 || len > source.length)
@@ -43,11 +43,6 @@ export class LastIndexOf extends AbstractArrayFunction {
 
         let index: number = -1;
 
-        if (typeof find == null || typeof find == undefined)
-            throw new KIRuntimeException(
-                'Please provide the valid find object or primitive in order to verify',
-            );
-
         for (let i: number = source.length - 1; i >= len; i--) {
             if (PrimitiveUtil.compare(source[i], find) == 0) {
                 index = i;
@@ -56,7 +51,7 @@ export class LastIndexOf extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[LastIndexOf.EVENT_RESULT_INTEGER.getName(), index]])),
+            EventResult.outputOf(new Map([[LastIndexOf.EVENT_RESULT_NAME, index]])),
         ]);
     }
 }

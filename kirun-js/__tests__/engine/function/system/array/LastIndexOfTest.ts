@@ -37,10 +37,7 @@ test('Last Index of Test 1', async () => {
         ]),
     );
     expect(
-        (await lind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await lind.execute(fep)).allResults()[0].getResult().get(LastIndexOf.EVENT_RESULT_NAME),
     ).toBe(13);
 });
 
@@ -153,10 +150,7 @@ test('Last Index of Test 4', async () => {
         ]),
     );
     expect(
-        (await lind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await lind.execute(fep)).allResults()[0].getResult().get(LastIndexOf.EVENT_RESULT_NAME),
     ).toBe(15);
 
     fep.setArguments(
@@ -167,10 +161,7 @@ test('Last Index of Test 4', async () => {
         ]),
     );
     expect(
-        (await lind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(LastIndexOf.EVENT_RESULT_INTEGER.getName()),
+        (await lind.execute(fep)).allResults()[0].getResult().get(LastIndexOf.EVENT_RESULT_NAME),
     ).toBe(-1);
 });
 
@@ -263,10 +254,5 @@ test('Last Index of Test 6', async () => {
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
         ]),
     );
-    expect(
-        (await lind.execute(fep))
-            .allResults()[0]
-            .getResult()
-            .get(LastIndexOf.EVENT_RESULT_EMPTY.getName()),
-    ).toBe(4);
+    expect((await lind.execute(fep)).allResults()[0].getResult().get('result')).toBe(4);
 });

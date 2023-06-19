@@ -47,9 +47,9 @@ test('Rotate test1 ', async () => {
     res.push('using');
     res.push('eclipse');
 
-    await rotate.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    expect((await rotate.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        res,
+    );
 });
 
 test('rotate  test 2', async () => {
@@ -96,9 +96,9 @@ test('rotate  test 2', async () => {
     res.push('test');
     res.push('Driven');
 
-    await rotate.execute(fep);
-
-    expect(src).toStrictEqual(res);
+    expect((await rotate.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        res,
+    );
 });
 
 test('rotate test 3', async () => {
@@ -141,7 +141,7 @@ test('rotate test 3', async () => {
 
     res.push('I');
 
-    await rotate.execute(fep);
-
-    expect(array).toStrictEqual(res);
+    expect((await rotate.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(
+        res,
+    );
 });

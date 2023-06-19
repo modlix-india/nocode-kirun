@@ -49,7 +49,7 @@ class FrequencyTest {
 		Frequency freq = new Frequency();
 
 		StepVerifier.create(freq.execute(fep))
-				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("output").getAsInt() == 2)
+				.expectNextMatches(fo1 -> fo1.allResults().get(0).getResult().get("result").getAsInt() == 2)
 				.verifyComplete();
 	}
 
@@ -106,7 +106,7 @@ class FrequencyTest {
 		Frequency freq = new Frequency();
 
 		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
-				.get("output").getAsInt() == 0).verifyComplete();
+				.get("result").getAsInt() == 0).verifyComplete();
 	}
 
 	@Test
@@ -157,7 +157,7 @@ class FrequencyTest {
 		Frequency freq = new Frequency();
 
 		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
-				.get("output").getAsInt() == 2).verifyComplete();
+				.get("result").getAsInt() == 2).verifyComplete();
 
 	}
 
@@ -245,7 +245,7 @@ class FrequencyTest {
 		Frequency freq = new Frequency();
 
 		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
-				.get("output").getAsInt() == 3).verifyComplete();
+				.get("result").getAsInt() == 3).verifyComplete();
 	}
 
 	@Test
@@ -295,7 +295,7 @@ class FrequencyTest {
 		Frequency freq = new Frequency();
 
 		StepVerifier.create(freq.execute(fep)).expectNextMatches(fo -> fo.allResults().get(0).getResult()
-				.get("output").getAsInt() == 1).verifyComplete();
+				.get("result").getAsInt() == 1).verifyComplete();
 
 	}
 }

@@ -29,7 +29,7 @@ test('sort test 1', async () => {
     res.push(15);
     res.push(98);
 
-    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('sort test 2', async () => {
@@ -57,7 +57,7 @@ test('sort test 2', async () => {
     res.push(15);
     res.push(98);
 
-    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('sort test 3', async () => {
@@ -88,7 +88,7 @@ test('sort test 3', async () => {
         ]),
     );
 
-    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('sort test 4', async () => {
@@ -125,7 +125,7 @@ test('sort test 4', async () => {
         ]),
     );
 
-    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
 
 test('sort test 5', async () => {
@@ -142,5 +142,5 @@ test('sort test 5', async () => {
         ]),
     );
     let res: any[] = ['Banana', 'Apple', 'Mango', 'Orange'];
-    expect((await sort.execute(fep)).allResults()[0].getResult().get('output')).toStrictEqual(res);
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
 });

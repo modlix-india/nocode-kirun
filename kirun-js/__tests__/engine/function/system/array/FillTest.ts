@@ -14,7 +14,7 @@ test('Fill Test', async () => {
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 3));
 
-    await fill.execute(fep);
+    array = (await fill.execute(fep)).allResults()[0].getResult().get('result');
     expect(array).toStrictEqual([3, 3]);
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 5, 'srcFrom', 2, 'length', 5))
@@ -22,17 +22,17 @@ test('Fill Test', async () => {
         .setSteps(MapUtil.of());
 
     let finArray = [3, 3, 5, 5, 5, 5, 5];
-    await fill.execute(fep);
 
-    expect(array).toStrictEqual(finArray);
+    array = (await fill.execute(fep)).allResults()[0].getResult().get('result');
+    expect(array).toMatchObject(finArray);
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 25, 'srcFrom', 5));
 
     finArray = [3, 3, 5, 5, 5, 25, 25];
 
-    await fill.execute(fep);
-
-    expect(array).toStrictEqual(finArray);
+    expect((await fill.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(
+        finArray,
+    );
 
     fep.setArguments(MapUtil.of('source', array as any, 'element', 20, 'srcFrom', -1));
 

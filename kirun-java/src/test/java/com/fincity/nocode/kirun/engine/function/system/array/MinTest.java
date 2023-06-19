@@ -28,7 +28,7 @@ class MinTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(min.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(12)))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(12)))
 				.verifyComplete();
 
 		var arr1 = new JsonArray();
@@ -55,7 +55,7 @@ class MinTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(min.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(1)))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(1)))
 				.verifyComplete();
 
 		var arr1 = new JsonArray();
@@ -69,7 +69,7 @@ class MinTest {
 				.setArguments(Map.of("source", arr1));
 
 		StepVerifier.create(min.execute(fep1))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive('c')))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive('c')))
 				.verifyComplete();
 	}
 
@@ -100,7 +100,7 @@ class MinTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(min.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive("NoCode")))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive("NoCode")))
 				.verifyComplete();
 	}
 
@@ -120,7 +120,7 @@ class MinTest {
 				.setArguments(Map.of("source", arr));
 
 		StepVerifier.create(min.execute(fep))
-				.expectNextMatches(r -> r.next().getResult().get("output").equals(new JsonPrimitive(123)))
+				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(123)))
 				.verifyComplete();
 	}
 

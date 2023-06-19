@@ -359,7 +359,8 @@ export class KIRuntime extends AbstractFunction {
                 .setEvents(inContext.getEvents()!)
                 .setSteps(inContext.getSteps()!)
                 .setStatementExecution(vertex.getData())
-                .setCount(inContext.getCount());
+                .setCount(inContext.getCount())
+                .setExecutionContext(inContext.getExecutionContext());
         }
 
         let result: FunctionOutput = await fun.execute(fep);

@@ -15,7 +15,7 @@ export class Sort extends AbstractArrayFunction {
                 Sort.PARAMETER_INT_LENGTH,
                 Sort.PARAMETER_BOOLEAN_ASCENDING,
             ],
-            Sort.EVENT_RESULT_EMPTY,
+            Sort.EVENT_RESULT_ANY,
         );
     }
 
@@ -38,9 +38,10 @@ export class Sort extends AbstractArrayFunction {
 
         if (source.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(new Map([[Sort.EVENT_RESULT_EMPTY.getName(), source]])),
+                EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
             ]);
 
+        source = [...source];
         if (len == -1) len = source.length - start;
 
         if (start < 0 || start >= source.length || start + len > source.length)
@@ -55,7 +56,7 @@ export class Sort extends AbstractArrayFunction {
         source.splice(start, len, ...slicedArray);
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[Sort.EVENT_RESULT_EMPTY.getName(), source]])),
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
         ]);
     }
 }

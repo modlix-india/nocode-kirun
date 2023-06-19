@@ -32,7 +32,7 @@ export class IndexOf extends AbstractArrayFunction {
 
         if (source.length == 0)
             return new FunctionOutput([
-                EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_INTEGER.getName(), -1]])),
+                EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_NAME, -1]])),
             ]);
 
         if (len < 0 || len > source.length)
@@ -50,7 +50,7 @@ export class IndexOf extends AbstractArrayFunction {
         }
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_INTEGER.getName(), index]])),
+            EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_NAME, index]])),
         ]);
     }
 }

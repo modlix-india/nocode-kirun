@@ -62,7 +62,7 @@ class DisjointTest {
 
 		StepVerifier.create(dis.execute(fep))
 				.expectNextMatches(r -> StreamSupport
-						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.stream(r.next().getResult().get("result").getAsJsonArray().spliterator(), false)
 						.collect(Collectors.toSet()).equals(StreamSupport
 								.stream(res.spliterator(), false).collect(Collectors.toSet())))
 				.verifyComplete();
@@ -246,7 +246,7 @@ class DisjointTest {
 
 		StepVerifier.create(dis.execute(fep))
 				.expectNextMatches(r -> StreamSupport
-						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.stream(r.next().getResult().get("result").getAsJsonArray().spliterator(), false)
 						.collect(Collectors.toSet()).equals(StreamSupport
 								.stream(res.spliterator(), false).collect(Collectors.toSet())))
 				.verifyComplete();
@@ -343,7 +343,7 @@ class DisjointTest {
 
 		StepVerifier.create(dis.execute(fep))
 				.expectNextMatches(r -> StreamSupport
-						.stream(r.next().getResult().get("output").getAsJsonArray().spliterator(), false)
+						.stream(r.next().getResult().get("result").getAsJsonArray().spliterator(), false)
 						.collect(Collectors.toSet()).equals(set1))
 				.verifyComplete();
 

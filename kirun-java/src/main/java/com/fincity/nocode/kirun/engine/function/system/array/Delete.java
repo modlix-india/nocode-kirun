@@ -16,18 +16,19 @@ import reactor.core.publisher.Mono;
 public class Delete extends AbstractArrayFunction {
 
 	public Delete() {
-		super("Delete", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_VAR_ARGS), EVENT_RESULT_EMPTY);
+		super("Delete", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_VAR_ARGS), EVENT_RESULT_ARRAY);
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		var receivedArgs = context.getArguments()
-		        .get(PARAMETER_ANY_VAR_ARGS.getParameterName());
+				.get(PARAMETER_ANY_VAR_ARGS.getParameterName());
 
 		if (receivedArgs == null || receivedArgs.isJsonNull())
 			throw new KIRuntimeException("The deletable var args are empty. So cannot be proceeded further.");
@@ -46,10 +47,11 @@ public class Delete extends AbstractArrayFunction {
 			}
 		}
 
+		source = duplicateArray(source);
 		indexes.stream()
-		        .forEach(source::remove);
+				.forEach(source::remove);
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 	}
 
 }

@@ -20,43 +20,45 @@ class KIRunReactiveFunctionRepositoryTest {
 
 		StepVerifier.create(fun)
 				.expectNextMatches(funs -> funs.getSignature().getName()
-						.equals("Absolute"));
+						.equals("Absolute"))
+				.verifyComplete();
 
 		Mono<FunctionSignature> signature = fun.map(ReactiveFunction::getSignature)
 				.flatMap(funs -> new KIRunReactiveFunctionRepository().find(funs.getNamespace(), funs.getName()))
 				.map(ReactiveFunction::getSignature);
 
-		StepVerifier.create(signature).expectNextMatches(fs -> fs.getNamespace().equals(Namespaces.MATH));
+		StepVerifier.create(signature).expectNextMatches(fs -> fs.getNamespace().equals(Namespaces.MATH))
+				.verifyComplete();
 
 		Mono<ReactiveFunction> function = new KIRunReactiveFunctionRepository().find(Namespaces.STRING, "ToString");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("ToString"));
+				.equals("ToString")).verifyComplete();
 
 		function = new KIRunReactiveFunctionRepository().find(Namespaces.STRING, "IndexOfWithStartPoint");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("IndexOfWithStartPoint"));
+				.equals("IndexOfWithStartPoint")).verifyComplete();
 
 		function = new KIRunReactiveFunctionRepository().find(Namespaces.SYSTEM_ARRAY, "Compare");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("Compare"));
+				.equals("Compare")).verifyComplete();
 
 		function = new KIRunReactiveFunctionRepository().find(Namespaces.MATH, "RandomInt");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("RandomInt"));
+				.equals("RandomInt")).verifyComplete();
 
 		function = new KIRunReactiveFunctionRepository().find(Namespaces.MATH, "Exponential");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("Exponential"));
+				.equals("Exponential")).verifyComplete();
 
 		function = new KIRunReactiveFunctionRepository().find(Namespaces.SYSTEM, "If");
 
 		StepVerifier.create(function).expectNextMatches(funs -> funs.getSignature().getName()
-				.equals("If"));
+				.equals("If")).verifyComplete();
 	}
 
 }

@@ -100,13 +100,19 @@ export class RangeLoop extends AbstractFunction {
         const forward = step > 0;
         let current: number = from;
         let done: boolean = false;
+        let statementName = context.getStatementExecution()?.getStatement()?.getStatementName();
 
         return new FunctionOutput({
             next(): EventResult | undefined {
                 if (done) return undefined;
 
-                if ((forward && current >= to) || (!forward && current <= to)) {
+                if (
+                    (forward && current >= to) ||
+                    (!forward && current <= to) ||
+                    (statementName && context.getExecutionContext()?.get(statementName)) //Check for break;
+                ) {
                     done = true;
+                    if (statementName) context.getExecutionContext()?.delete(statementName);
                     return EventResult.outputOf(new Map([[VALUE, current]]));
                 }
 

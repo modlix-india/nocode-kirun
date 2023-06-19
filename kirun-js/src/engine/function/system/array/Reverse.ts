@@ -13,7 +13,7 @@ export class Reverse extends AbstractArrayFunction {
                 Reverse.PARAMETER_INT_SOURCE_FROM,
                 Reverse.PARAMETER_INT_LENGTH,
             ],
-            Reverse.EVENT_RESULT_EMPTY,
+            Reverse.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -37,6 +37,8 @@ export class Reverse extends AbstractArrayFunction {
                 'Please provide start point between the start and end indexes or provide the length which was less than the source size ',
             );
 
+        source = [...source];
+
         let endpoint: number = st + len - 1;
         while (st <= endpoint) {
             let first: any = source[st];
@@ -45,6 +47,8 @@ export class Reverse extends AbstractArrayFunction {
             source[endpoint--] = first;
         }
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[Reverse.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

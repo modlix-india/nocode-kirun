@@ -10,10 +10,10 @@ import com.google.gson.JsonArray;
 
 import reactor.core.publisher.Mono;
 
-public class Add extends AbstractArrayFunction {
+public class InsertLast extends AbstractArrayFunction {
 
-	public Add() {
-		super("Add", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ARRAY_SECOND_SOURCE), EVENT_RESULT_EMPTY);
+	public InsertLast() {
+		super("InsertLast", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -23,15 +23,14 @@ public class Add extends AbstractArrayFunction {
 		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
 		        .getAsJsonArray();
 
-		JsonArray secondSource = context.getArguments()
-		        .get(PARAMETER_ARRAY_SECOND_SOURCE.getParameterName())
-		        .getAsJsonArray();
+		var output = context.getArguments()
+		        .get(PARAMETER_ANY.getParameterName());
 
-		if (secondSource.isJsonNull() || secondSource.isEmpty())
-			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
+		source = duplicateArray(source);
+		source.add(output);
 
-		source.addAll(secondSource);
+		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, source)))));
 
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}
+
 }

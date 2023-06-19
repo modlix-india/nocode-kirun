@@ -42,7 +42,7 @@ export class SubArray extends AbstractArrayFunction {
         let slicedArray: any[] = source.slice(start, start + len);
 
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[SubArray.EVENT_RESULT_ARRAY.getName(), slicedArray]])),
+            EventResult.outputOf(new Map([[SubArray.EVENT_RESULT_NAME, slicedArray]])),
         ]);
     }
 }

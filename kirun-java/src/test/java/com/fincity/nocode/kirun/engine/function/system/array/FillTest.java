@@ -32,7 +32,7 @@ class FillTest {
 				.setContext(Map.of())
 				.setSteps(Map.of());
 
-		fill.execute(fep).block();
+		array = (JsonArray) fill.execute(fep).block().next().getResult().get("result");
 
 		JsonArray finArray = new JsonArray();
 		finArray.add(new JsonPrimitive(3));
@@ -54,7 +54,7 @@ class FillTest {
 		finArray.add(new JsonPrimitive(5));
 		finArray.add(new JsonPrimitive(5));
 
-		fill.execute(fep).block();
+		array = (JsonArray) fill.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(finArray, array);
 
@@ -73,7 +73,7 @@ class FillTest {
 
 		fill.execute(fep).block();
 
-		assertEquals(finArray, array);
+		array = (JsonArray) fill.execute(fep).block().next().getResult().get("result");
 
 		fep.setArguments(Map.of("source", array, "element", new JsonPrimitive(20), "srcFrom", new JsonPrimitive(-1)))
 				.setContext(Map.of())

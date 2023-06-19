@@ -5,6 +5,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+import com.fincity.nocode.kirun.engine.model.EventResult;
+import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
@@ -36,11 +38,16 @@ class AddFirstTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive('a'))).setContext(Map.of())
+				.setArguments(Map.of("source", arr, "element", new JsonPrimitive('a')))
+				.setContext(Map.of())
 				.setSteps(Map.of());
 
 		StepVerifier.create(ad.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(arr1));
+				.expectNextMatches(result -> result.next()
+						.getResult()
+		                .get("result")
+						.equals(arr1))
+				.verifyComplete();
 	}
 
 	@Test
@@ -67,8 +74,9 @@ class AddFirstTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "elementObject", new JsonPrimitive("surendhar")))
-				.setContext(Map.of()).setSteps(Map.of());
+				.setArguments(Map.of("source", arr, "element", new JsonPrimitive("surendhar")))
+				.setContext(Map.of())
+				.setSteps(Map.of());
 
 		JsonArray out = new JsonArray();
 		out.add("surendhar");
@@ -83,7 +91,11 @@ class AddFirstTest {
 		out.add('d');
 
 		StepVerifier.create(add.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(out));
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(out))
+				.verifyComplete();
 	}
 
 	@Test
@@ -193,13 +205,18 @@ class AddFirstTest {
 		ReactiveFunctionExecutionParameters fep =
 
 				new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-						new KIRunReactiveSchemaRepository()).setArguments(Map.of("source", arr, "elementObject", obj))
-						.setContext(Map.of()).setSteps(Map.of());
+						new KIRunReactiveSchemaRepository()).setArguments(Map.of("source", arr, "element", obj))
+						.setContext(Map.of())
+						.setSteps(Map.of());
 
 		AddFirst add = new AddFirst();
 
-		StepVerifier.create(add.execute(fep))
-				.expectNextMatches(result -> result.next().getResult().get("source").equals(res));
+		StepVerifier.create(add.execute(fep)
+				.map(e -> e.next()
+						.getResult()
+						.get("result")))
+				.expectNext(res)
+				.verifyComplete();
 	}
 
 	@Test
@@ -214,11 +231,13 @@ class AddFirstTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", JsonNull.INSTANCE, "elementObject", arr)).setContext(Map.of())
+				.setArguments(Map.of("source", JsonNull.INSTANCE, "element", arr))
+				.setContext(Map.of())
 				.setSteps(Map.of());
 
 		StepVerifier.create(ad.execute(fep))
-				.expectError(KIRuntimeException.class).verify();
+				.expectError(KIRuntimeException.class)
+				.verify();
 	}
 
 	@Test
@@ -233,10 +252,22 @@ class AddFirstTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "elementObject", JsonNull.INSTANCE)).setContext(Map.of())
+				.setArguments(Map.of("source", arr, "element", JsonNull.INSTANCE))
+				.setContext(Map.of())
 				.setSteps(Map.of());
 
-		StepVerifier.create(ad.execute(fep))
-				.expectError(KIRuntimeException.class).verify();
+		var res = new JsonArray();
+		res.add(JsonNull.INSTANCE);
+		res.add('c');
+		res.add('p');
+		res.add('i');
+		res.add('e');
+
+		StepVerifier.create(ad.execute(fep)
+				.map(FunctionOutput::next)
+				.map(EventResult::getResult)
+				.map(e -> e.get("result")))
+				.expectNext(res)
+				.verifyComplete();
 	}
 }

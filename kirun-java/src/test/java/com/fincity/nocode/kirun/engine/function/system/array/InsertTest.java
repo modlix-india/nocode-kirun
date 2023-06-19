@@ -48,7 +48,7 @@ class InsertTest {
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(2), "element", new JsonPrimitive(9)))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep).block();
+		arr = (JsonArray) ins.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, arr);
 	}
@@ -83,7 +83,7 @@ class InsertTest {
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep).block();
+		arr = (JsonArray) ins.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, arr);
 
@@ -103,7 +103,7 @@ class InsertTest {
 				.setArguments(Map.of("source", arr, "offset", new JsonPrimitive(0), "element", new JsonPrimitive('a')))
 				.setContext(Map.of()).setSteps(Map.of());
 
-		ins.execute(fep).block();
+		arr = (JsonArray) ins.execute(fep).block().next().getResult().get("result");
 
 		assertEquals(res, arr);
 

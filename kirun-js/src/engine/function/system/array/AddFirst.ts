@@ -7,11 +7,8 @@ export class AddFirst extends AbstractArrayFunction {
     public constructor() {
         super(
             'AddFirst',
-            [
-                AbstractArrayFunction.PARAMETER_ARRAY_SOURCE,
-                AbstractArrayFunction.PARAMETER_ANY_NOT_NULL,
-            ],
-            AbstractArrayFunction.EVENT_RESULT_EMPTY,
+            [AbstractArrayFunction.PARAMETER_ARRAY_SOURCE, AbstractArrayFunction.PARAMETER_ANY],
+            AbstractArrayFunction.EVENT_RESULT_ARRAY,
         );
     }
 
@@ -22,7 +19,9 @@ export class AddFirst extends AbstractArrayFunction {
 
         let input: any = context
             ?.getArguments()
-            ?.get(AbstractArrayFunction.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.get(AbstractArrayFunction.PARAMETER_ANY.getParameterName());
+
+        source = [...source];
 
         if (source.length == 0) {
             source.push(input);
@@ -39,6 +38,8 @@ export class AddFirst extends AbstractArrayFunction {
             source[len--] = temp;
         }
 
-        return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+        return new FunctionOutput([
+            EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]])),
+        ]);
     }
 }

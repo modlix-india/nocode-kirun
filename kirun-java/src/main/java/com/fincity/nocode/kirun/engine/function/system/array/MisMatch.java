@@ -48,7 +48,7 @@ public class MisMatch extends AbstractArrayFunction {
 					"The size of the array for first and second which was being requested is more than size of the given array");
 
 		return Mono.just(new FunctionOutput(
-				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_INTEGER.getName(),
+				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME,
 						new JsonPrimitive(Arrays.mismatch(ArrayUtil.jsonArrayToArray(firstSource), first,
 								first + length.getAsInt(), ArrayUtil.jsonArrayToArray(secondSource), second,
 								second + length.getAsInt())))))));

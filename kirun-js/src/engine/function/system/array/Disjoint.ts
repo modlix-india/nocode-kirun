@@ -74,12 +74,8 @@ export class Disjoint extends AbstractArrayFunction {
             if (!set1.has(element)) set3.add(element);
         });
 
-        let disjointArray: any[] = [];
-
-        set3.forEach((element) => disjointArray.push(element));
-
         return new FunctionOutput([
-            EventResult.outputOf(new Map([[Disjoint.EVENT_RESULT_ARRAY.getName(), disjointArray]])),
+            EventResult.outputOf(new Map([[Disjoint.EVENT_RESULT_NAME, [...set3]]])),
         ]);
     }
 }
