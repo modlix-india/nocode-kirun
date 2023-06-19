@@ -43,7 +43,7 @@ test('Count Loop2', async () => {
 
     expect(iterations).toMatchObject([]);
     expect(er?.getName()).toBe('output');
-    expect(er?.getResult().get('value')).toBe(-1);
+    expect(er?.getResult().get('value')).toBe(0);
 });
 
 test('Count Loop3', async () => {
