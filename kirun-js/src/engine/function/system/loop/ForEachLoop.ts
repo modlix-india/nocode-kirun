@@ -14,7 +14,7 @@ const EACH = 'each';
 const INDEX = 'index';
 const VALUE = 'value';
 
-const SIGNATURE = new FunctionSignature('CountLoop')
+const SIGNATURE = new FunctionSignature('ForEachLoop')
     .setNamespace(Namespaces.SYSTEM_LOOP)
     .setParameters(
         new Map([Parameter.ofEntry(SOURCE, Schema.ofArray(SOURCE, Schema.ofAny(SOURCE)))]),
@@ -51,7 +51,7 @@ export class ForEachLoop extends AbstractFunction {
                     (statementName && context.getExecutionContext()?.get(statementName)) //check for breaks;
                 ) {
                     if (statementName) context.getExecutionContext()?.delete(statementName);
-                    return EventResult.outputOf(new Map([[VALUE, source.length]]));
+                    return EventResult.outputOf(new Map([[VALUE, current]]));
                 }
 
                 const eve = EventResult.of(

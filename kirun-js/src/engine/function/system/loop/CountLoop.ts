@@ -39,13 +39,12 @@ export class CountLoop extends AbstractFunction {
         return new FunctionOutput({
             next(): EventResult {
                 if (
-                    current >= count &&
-                    statementName &&
-                    context.getExecutionContext()?.get(statementName)
+                    current >= count ||
+                    (statementName && context.getExecutionContext()?.get(statementName))
                 ) {
                     // check for break;
                     if (statementName) context.getExecutionContext()?.delete(statementName);
-                    return EventResult.outputOf(new Map([[VALUE, count]]));
+                    return EventResult.outputOf(new Map([[VALUE, current]]));
                 }
 
                 const eve = EventResult.of(Event.ITERATION, new Map([[INDEX, current]]));

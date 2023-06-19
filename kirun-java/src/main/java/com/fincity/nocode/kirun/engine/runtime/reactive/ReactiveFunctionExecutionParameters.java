@@ -35,6 +35,7 @@ public class ReactiveFunctionExecutionParameters {
 	private final ReactiveRepository<ReactiveFunction> functionRepository;
 	private final ReactiveRepository<Schema> schemaRepository;
 	private final String executionId;
+	private Map<String, JsonElement> executionContext = new HashMap<>();
 
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 

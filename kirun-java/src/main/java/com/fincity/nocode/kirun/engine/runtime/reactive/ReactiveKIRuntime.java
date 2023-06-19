@@ -418,7 +418,8 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				        .setEvents(inContext.getEvents())
 				        .setSteps(inContext.getSteps())
 				        .setStatementExecution(vertex.getData())
-				        .setCount(inContext.getCount());
+				        .setCount(inContext.getCount())
+				        .setExecutionContext(inContext.getExecutionContext());
 			}
 
 			return fun.execute(fep);
