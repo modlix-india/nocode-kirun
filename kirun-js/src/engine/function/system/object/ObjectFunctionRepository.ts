@@ -6,6 +6,7 @@ import { Function } from '../../Function';
 import { ObjectDeleteKey } from './ObjectDeleteKey';
 import { ObjectEntries } from './ObjectEntries';
 import { ObjectKeys } from './ObjectKeys';
+import { ObjectPutValue } from './ObjectPutValue';
 import { ObjectValues } from './ObjectValues';
 
 const functionObjectsIndex: { [key: string]: AbstractFunction } = {
@@ -13,6 +14,7 @@ const functionObjectsIndex: { [key: string]: AbstractFunction } = {
     ObjectKeys: new ObjectKeys(),
     ObjectEntries: new ObjectEntries(),
     ObjectDeleteKey: new ObjectDeleteKey(),
+    ObjectPutValue: new ObjectPutValue(),
 };
 
 const filterableNames = Object.values(functionObjectsIndex).map((e) =>
