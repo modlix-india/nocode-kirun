@@ -115,7 +115,7 @@ export abstract class TokenValueExtractor {
         }
     }
 
-    private checkIfObject(
+    protected checkIfObject(
         token: string,
         parts: string[],
         partNumber: number,

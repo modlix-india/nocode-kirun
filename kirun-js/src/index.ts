@@ -27,6 +27,7 @@ export * from './engine/runtime/FunctionExecutionParameters';
 export * from './engine/runtime/expression/Expression';
 export * from './engine/runtime/expression/tokenextractor/TokenValueExtractor';
 export * from './engine/runtime/expression/tokenextractor/LiteralTokenValueExtractor';
+export * from './engine/runtime/expression/tokenextractor/ObjectValueSetterExtractor';
 export * from './engine/runtime/expression/ExpressionEvaluator';
 export * from './engine/runtime/expression/Operation';
 export * from './engine/runtime/expression/ExpressionToken';
