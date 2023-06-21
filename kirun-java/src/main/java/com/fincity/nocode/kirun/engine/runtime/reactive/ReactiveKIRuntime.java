@@ -232,17 +232,17 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				                        .isEmpty())
 					        return Mono.error(new KIRuntimeException("No events raised"));
 			        }
-			        
+
 			        List<EventResult> list = inContext.getEvents()
-	                .entrySet()
-	                .stream()
-	                .flatMap(e -> e.getValue()
-	                        .stream()
-	                        .map(v -> EventResult.of(e.getKey(), v)))
-	                .toList();
-			        
+			                .entrySet()
+			                .stream()
+			                .flatMap(e -> e.getValue()
+			                        .stream()
+			                        .map(v -> EventResult.of(e.getKey(), v)))
+			                .toList();
+
 			        if (!eGraph.isSubGraph() && list.isEmpty()) {
-			        	list = List.of(EventResult.outputOf(Map.of()));
+				        list = List.of(EventResult.outputOf(Map.of()));
 			        }
 
 			        return Mono.just(new FunctionOutput(list));
@@ -718,6 +718,14 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 						                if (statement.getValue()
 						                        .booleanValue())
 							                se.addDependency(statement.getKey());
+
+				                if (se.getStatement()
+				                        .getExecuteIftrue() != null)
+					                for (Entry<String, Boolean> statement : s.getExecuteIftrue()
+					                        .entrySet())
+						                if (statement.getValue()
+						                        .booleanValue())
+							                this.addDependencies(se, statement.getKey());
 
 				                return leftOver;
 			                })
