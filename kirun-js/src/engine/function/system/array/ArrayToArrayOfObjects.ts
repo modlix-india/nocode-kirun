@@ -10,7 +10,7 @@ const KEY_NAME = 'keyName';
 export class ArrayToArrayOfObjects extends AbstractArrayFunction {
     public constructor() {
         super(
-            'ArrayToObjects',
+            'ArrayToArrayOfObjects',
             [
                 AbstractArrayFunction.PARAMETER_ARRAY_SOURCE,
                 Parameter.of(KEY_NAME, Schema.ofString(KEY_NAME), true),

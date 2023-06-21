@@ -1,6 +1,6 @@
 {
     "name": "@fincity/kirun-js",
-    "version": "1.8.0",
+    "version": "1.9.0",
     "description": "Javascript Runtime for Kinetic Instructions",
     "source": "src/index.ts",
     "main": "dist/index.js",

@@ -7,6 +7,7 @@ import { GenerateEvent } from '../function/system/GenerateEvent';
 import { If } from '../function/system/If';
 import { Break } from '../function/system/loop/Break';
 import { CountLoop } from '../function/system/loop/CountLoop';
+import { ForEachLoop } from '../function/system/loop/ForEachLoop';
 import { RangeLoop } from '../function/system/loop/RangeLoop';
 import { MathFunctionRepository } from '../function/system/math/MathFunctionRepository';
 import { ObjectFunctionRepository } from '../function/system/object/ObjectFunctionRepository';
@@ -23,7 +24,12 @@ const map: Map<string, Map<string, Function>> = new Map([
     ],
     [
         Namespaces.SYSTEM_LOOP,
-        new Map([mapEntry(new RangeLoop()), mapEntry(new CountLoop()), mapEntry(new Break())]),
+        new Map([
+            mapEntry(new RangeLoop()),
+            mapEntry(new CountLoop()),
+            mapEntry(new Break()),
+            mapEntry(new ForEachLoop()),
+        ]),
     ],
     [
         Namespaces.SYSTEM,

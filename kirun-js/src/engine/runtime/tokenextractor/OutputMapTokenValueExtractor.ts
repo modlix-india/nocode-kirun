@@ -1,4 +1,3 @@
-import { StringUtil } from '../../util/string/StringUtil';
 import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class OutputMapTokenValueExtractor extends TokenValueExtractor {
@@ -20,7 +19,8 @@ export class OutputMapTokenValueExtractor extends TokenValueExtractor {
         if (!events || ind >= parts.length) return undefined;
 
         let eachEvent: Map<string, any> | undefined = events.get(parts[ind++]);
-        if (!eachEvent || ind >= parts.length) return undefined;
+        if (!eachEvent || ind > parts.length) return undefined;
+        if (ind === parts.length) return eachEvent;
 
         const bracket = parts[ind].indexOf('[');
 
