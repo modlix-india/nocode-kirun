@@ -302,6 +302,19 @@ export class KIRuntime extends AbstractFunction {
     ) {
         let s: Statement = vertex.getData().getStatement();
 
+        if (s.getExecuteIftrue().size) {
+            const outputTokenValueExtrator = inContext
+                .getValuesMap()
+                .get(OutputMapTokenValueExtractor.PREFIX);
+
+            const allTrue = (Array.from(s.getExecuteIftrue().entries()) ?? [])
+                .filter((e) => e[1])
+                .map(([e]) => outputTokenValueExtrator?.getValue(e))
+                .every((e) => !isNullValue(e));
+
+            if (!allTrue) return;
+        }
+
         let fun: Function | undefined = fRepo.find(s.getNamespace(), s.getName());
 
         if (!fun) {
