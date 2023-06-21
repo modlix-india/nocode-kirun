@@ -10,6 +10,7 @@ import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.google.gson.JsonObject;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,11 +37,17 @@ public class Statement extends AbstractStatement {
 
 	                        "dependentStatements", Schema.ofObject("dependentstatement")
 	                                .setAdditionalProperties(
-	                                        new AdditionalType().setSchemaValue(Schema.ofBoolean("exits"))),
+	                                        new AdditionalType().setSchemaValue(Schema.ofBoolean("exits")))
+	                                .setDefaultValue(new JsonObject()),
+
+	                        "executeIftrue", Schema.ofObject("executeIftrue")
+	                                .setAdditionalProperties(
+	                                        new AdditionalType().setSchemaValue(Schema.ofBoolean("exits")))
+	                                .setDefaultValue(new JsonObject()),
 
 	                        "parameterMap", new Schema().setName("parameterMap")
-	                                .setAdditionalProperties(new AdditionalType()
-	                                        .setSchemaValue(Schema.ofObject("parameterReference")
+	                                .setAdditionalProperties(
+	                                        new AdditionalType().setSchemaValue(Schema.ofObject("parameterReference")
 	                                                .setAdditionalProperties(new AdditionalType()
 	                                                        .setSchemaValue(ParameterReference.SCHEMA)))),
 	                        "position", Position.SCHEMA));
@@ -50,6 +57,7 @@ public class Statement extends AbstractStatement {
 	private String name;
 	private Map<String, Map<String, ParameterReference>> parameterMap;
 	private Map<String, Boolean> dependentStatements;
+	private Map<String, Boolean> executeIftrue;
 
 	public Statement(Statement statement) {
 
@@ -62,6 +70,11 @@ public class Statement extends AbstractStatement {
 		        : statement.dependentStatements.entrySet()
 		                .stream()
 		                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		
+		this.executeIftrue = statement.executeIftrue == null ? null
+		        : statement.executeIftrue.entrySet()
+		                .stream()
+		                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
 		this.parameterMap = statement.parameterMap == null ? null
 		        : statement.parameterMap.entrySet()
@@ -71,6 +84,7 @@ public class Statement extends AbstractStatement {
 		                        .entrySet()
 		                        .stream()
 		                        .collect(Collectors.toMap(Entry::getKey, k -> new ParameterReference(k.getValue())))));
+		
 	}
 
 	public Statement(String statementName) {

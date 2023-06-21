@@ -21,9 +21,19 @@ export class Statement extends AbstractStatement {
                 ['name', Schema.ofString('name')],
                 [
                     'dependentStatements',
-                    Schema.ofObject('dependentstatement').setAdditionalProperties(
-                        new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
-                    ),
+                    Schema.ofObject('dependentstatement')
+                        .setAdditionalProperties(
+                            new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
+                        )
+                        .setDefaultValue({}),
+                ],
+                [
+                    'executeIftrue',
+                    Schema.ofObject('executeIftrue')
+                        .setAdditionalProperties(
+                            new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
+                        )
+                        .setDefaultValue({}),
                 ],
                 [
                     'parameterMap',
