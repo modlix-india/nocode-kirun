@@ -1,9 +1,10 @@
-import { Operation } from '../../Operation';
+import { isNullValue } from '../../../../util/NullCheck';
 import { BinaryOperator } from './BinaryOperator';
 
 export class ArithmeticAdditionOperator extends BinaryOperator {
     public apply(t: any, u: any): any {
-        this.nullCheck(t, u, Operation.ADDITION);
+        if (isNullValue(t)) return u;
+        else if (isNullValue(u)) return t;
         return t + u;
     }
 }

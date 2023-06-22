@@ -21,9 +21,19 @@ export class Statement extends AbstractStatement {
                 ['name', Schema.ofString('name')],
                 [
                     'dependentStatements',
-                    Schema.ofObject('dependentstatement').setAdditionalProperties(
-                        new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
-                    ),
+                    Schema.ofObject('dependentstatement')
+                        .setAdditionalProperties(
+                            new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
+                        )
+                        .setDefaultValue({}),
+                ],
+                [
+                    'executeIftrue',
+                    Schema.ofObject('executeIftrue')
+                        .setAdditionalProperties(
+                            new AdditionalType().setSchemaValue(Schema.ofBoolean('exists')),
+                        )
+                        .setDefaultValue({}),
                 ],
                 [
                     'parameterMap',
@@ -45,6 +55,7 @@ export class Statement extends AbstractStatement {
     private name: string;
     private parameterMap?: Map<string, Map<string, ParameterReference>>;
     private dependentStatements?: Map<string, boolean>;
+    private executeIftrue?: Map<string, boolean>;
 
     public constructor(sn: string | Statement, namespace?: string, name?: string) {
         super(sn instanceof Statement ? (sn as Statement) : undefined);
@@ -111,11 +122,22 @@ export class Statement extends AbstractStatement {
         this.parameterMap = parameterMap;
         return this;
     }
+
     public getDependentStatements(): Map<string, boolean> {
         return this.dependentStatements ?? new Map();
     }
+
     public setDependentStatements(dependentStatements: Map<string, boolean>): Statement {
         this.dependentStatements = dependentStatements;
+        return this;
+    }
+
+    public getExecuteIftrue(): Map<string, boolean> {
+        return this.executeIftrue ?? new Map();
+    }
+
+    public setExecuteIftrue(executeIftrue: Map<string, boolean>): Statement {
+        this.executeIftrue = executeIftrue;
         return this;
     }
 
@@ -146,6 +168,7 @@ export class Statement extends AbstractStatement {
             .setDependentStatements(
                 new Map<string, boolean>(Object.entries(json.dependentStatements ?? {})),
             )
+            .setExecuteIftrue(new Map<string, boolean>(Object.entries(json.executeIftrue ?? {})))
             .setPosition(Position.from(json.position))
             .setComment(json.comment)
             .setDescription(json.description) as Statement;

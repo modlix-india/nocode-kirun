@@ -302,6 +302,18 @@ export class KIRuntime extends AbstractFunction {
     ) {
         let s: Statement = vertex.getData().getStatement();
 
+        if (s.getExecuteIftrue().size) {
+            const allTrue = (Array.from(s.getExecuteIftrue().entries()) ?? [])
+                .filter((e) => e[1])
+                .map(([e]) => {
+                    const v = new ExpressionEvaluator(e).evaluate(inContext.getValuesMap());
+                    return v;
+                })
+                .every((e) => !isNullValue(e) && e !== false);
+
+            if (!allTrue) return;
+        }
+
         let fun: Function | undefined = fRepo.find(s.getNamespace(), s.getName());
 
         if (!fun) {
@@ -591,6 +603,12 @@ export class KIRuntime extends AbstractFunction {
             for (let statement of se.getStatement().getDependentStatements().entries())
                 if (statement[1]) se.addDependency(statement[0]);
         }
+
+        if (!isNullValue(se.getStatement().getExecuteIftrue())) {
+            for (let statement of se.getStatement().getExecuteIftrue().entries())
+                if (statement[1]) this.addDependencies(se, statement[0]);
+        }
+
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
                 if (param.isVariableArgument()) continue;

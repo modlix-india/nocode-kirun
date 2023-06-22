@@ -8,7 +8,6 @@ import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.STRING
 
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.runtime.expression.Operation;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
@@ -20,11 +19,15 @@ public class ArithmeticAdditionOperator implements BinaryOperator {
 
 	@Override
 	public JsonElement apply(JsonElement t, JsonElement u) {
-		
-		this.nullCheck(t, u, Operation.ADDITION);
 
 		Tuple2<SchemaType, Object> tType = PrimitiveUtil.findPrimitive(t);
 		Tuple2<SchemaType, Object> uType = PrimitiveUtil.findPrimitive(u);
+
+		if (tType.getT1() == SchemaType.NULL) {
+			return u;
+		} else if (tType.getT2() == SchemaType.NULL) {
+			return t;
+		}
 
 		if (tType.getT1() == STRING || uType.getT1() == STRING)
 			return new JsonPrimitive(tType.getT2()

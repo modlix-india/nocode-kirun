@@ -243,3 +243,38 @@ test('Partial path evaluation', () => {
     console.log(ev.getExpression().toString());
     expect(ev.evaluate(valuesMap)).toBe(2);
 });
+
+test('Expression with consecutive negative operators', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 1],
+            ['b1', 4],
+            ['b2', 4],
+        ]),
+    );
+
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('Arguments.b - Arguments.b1 - Arguments.b2');
+    expect(ev.evaluate(valuesMap)).toBe(-7);
+});
+
+test('Expression with multiple coalesce operator', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 1],
+            ['b1', 4],
+            ['b2', 4],
+        ]),
+    );
+
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev = new ExpressionEvaluator('Arguments.b3 ?? (Arguments.b - 3) ?? Arguments.b5 ?? 4');
+    expect(ev.evaluate(valuesMap)).toBe(-2);
+
+    ev = new ExpressionEvaluator('Arguments.b3 ?? Arguments.b - 3 ?? Arguments.b5 ?? 4');
+    expect(ev.evaluate(valuesMap)).toBe(-2);
+});

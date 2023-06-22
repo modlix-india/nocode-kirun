@@ -54,6 +54,11 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofAny(this.EVENT_RESULT_NAME)),
     );
 
+    public static readonly EVENT_RESULT_OBJECT: Event = new Event(
+        Event.OUTPUT,
+        MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofObject(this.EVENT_RESULT_NAME)),
+    );
+
     public static readonly PARAMETER_INT_LENGTH: Parameter = Parameter.of(
         'length',
         Schema.ofInteger('length').setDefaultValue(-1),

@@ -31,6 +31,8 @@ import { Sort } from './Sort';
 import { SubArray } from './SubArray';
 import { Insert } from './Insert';
 import { InsertLast } from './InsertLast';
+import { RemoveDuplicates } from './RemoveDuplicates';
+import { ArrayToObject } from './ArrayToObject';
 
 export class ArrayFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
@@ -62,6 +64,8 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new ArrayToArrayOfObjects()),
         mapEntry(new Insert()),
         mapEntry(new InsertLast()),
+        mapEntry(new RemoveDuplicates()),
+        mapEntry(new ArrayToObject()),
     );
 
     private static readonly filterableNames = Array.from(

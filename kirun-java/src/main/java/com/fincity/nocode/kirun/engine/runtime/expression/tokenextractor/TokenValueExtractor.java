@@ -15,6 +15,7 @@ import com.google.gson.JsonPrimitive;
 public abstract class TokenValueExtractor {
 
 	public static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
+	public static final String REGEX_DOT = "\\.";
 	
 	private static final String LENGTH = "length";
 
@@ -107,7 +108,7 @@ public abstract class TokenValueExtractor {
 		}
 	}
 
-	private void checkIfObject(String token, String[] parts, int partNumber, JsonElement jsonElement) {
+	protected void checkIfObject(String token, String[] parts, int partNumber, JsonElement jsonElement) {
 
 		if (!jsonElement.isJsonObject())
 			throw new ExpressionEvaluationException(token, StringFormatter.format(
