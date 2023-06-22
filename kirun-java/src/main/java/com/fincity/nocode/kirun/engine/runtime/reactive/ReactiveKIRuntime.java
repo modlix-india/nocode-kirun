@@ -53,6 +53,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -232,13 +233,19 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 					        return Mono.error(new KIRuntimeException("No events raised"));
 			        }
 
-			        return Mono.just(new FunctionOutput(inContext.getEvents()
+			        List<EventResult> list = inContext.getEvents()
 			                .entrySet()
 			                .stream()
 			                .flatMap(e -> e.getValue()
 			                        .stream()
 			                        .map(v -> EventResult.of(e.getKey(), v)))
-			                .toList()));
+			                .toList();
+
+			        if (!eGraph.isSubGraph() && list.isEmpty()) {
+				        list = List.of(EventResult.outputOf(Map.of()));
+			        }
+
+			        return Mono.just(new FunctionOutput(list));
 
 		        });
 	}
@@ -365,6 +372,29 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 		Statement s = vertex.getData()
 		        .getStatement();
+
+		if (s.getExecuteIftrue() != null && !s.getExecuteIftrue()
+		        .isEmpty()) {
+
+			boolean allTrue = s.getExecuteIftrue()
+			        .entrySet()
+			        .stream()
+			        .filter(Entry::getValue)
+			        .map(e -> new ExpressionEvaluator(e.getKey()).evaluate(inContext.getValuesMap()))
+			        .allMatch(e ->
+					{
+				        if (e == null || JsonNull.INSTANCE.equals(e))
+					        return false;
+				        if (!e.isJsonPrimitive())
+					        return true;
+
+				        JsonPrimitive jp = e.getAsJsonPrimitive();
+				        return !jp.isBoolean() || jp.getAsBoolean();
+			        });
+
+			if (!allTrue)
+				return Mono.just(true);
+		}
 
 		Mono<ReactiveFunction> monoFunction = inContext.getFunctionRepository()
 		        .find(s.getNamespace(), s.getName());
@@ -688,6 +718,14 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 						                if (statement.getValue()
 						                        .booleanValue())
 							                se.addDependency(statement.getKey());
+
+				                if (se.getStatement()
+				                        .getExecuteIftrue() != null)
+					                for (Entry<String, Boolean> statement : s.getExecuteIftrue()
+					                        .entrySet())
+						                if (statement.getValue()
+						                        .booleanValue())
+							                this.addDependencies(se, statement.getKey());
 
 				                return leftOver;
 			                })

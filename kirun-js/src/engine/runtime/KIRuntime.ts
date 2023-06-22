@@ -303,14 +303,13 @@ export class KIRuntime extends AbstractFunction {
         let s: Statement = vertex.getData().getStatement();
 
         if (s.getExecuteIftrue().size) {
-            const outputTokenValueExtrator = inContext
-                .getValuesMap()
-                .get(OutputMapTokenValueExtractor.PREFIX);
-
             const allTrue = (Array.from(s.getExecuteIftrue().entries()) ?? [])
                 .filter((e) => e[1])
-                .map(([e]) => outputTokenValueExtrator?.getValue(e))
-                .every((e) => !isNullValue(e));
+                .map(([e]) => {
+                    const v = new ExpressionEvaluator(e).evaluate(inContext.getValuesMap());
+                    return v;
+                })
+                .every((e) => !isNullValue(e) && e !== false);
 
             if (!allTrue) return;
         }
@@ -604,6 +603,12 @@ export class KIRuntime extends AbstractFunction {
             for (let statement of se.getStatement().getDependentStatements().entries())
                 if (statement[1]) se.addDependency(statement[0]);
         }
+
+        if (!isNullValue(se.getStatement().getExecuteIftrue())) {
+            for (let statement of se.getStatement().getExecuteIftrue().entries())
+                if (statement[1]) this.addDependencies(se, statement[0]);
+        }
+
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
                 if (param.isVariableArgument()) continue;
