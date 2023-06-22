@@ -148,7 +148,7 @@ class KIRuntimeNoValuesInParameterMapTest {
 						.setArguments(Map.of()))
 				.map(fo -> fo.allResults());
 
-		StepVerifier.create(results).expectNext(List.of()).verifyComplete();
+		StepVerifier.create(results.map(e -> e.get(0).getResult())).expectNext(Map.of()).verifyComplete();
 	}
 
 }
