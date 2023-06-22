@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -74,7 +73,7 @@ class KIRuntimeNoValuesTest {
                         .setArguments(Map.of()))
                 .map(fo -> fo.allResults());
 
-        StepVerifier.create(results).expectNext(List.of()).verifyComplete();
+        StepVerifier.create(results.map(e -> e.get(0).getResult())).expectNext(Map.of()).verifyComplete();
     }
 
 }
