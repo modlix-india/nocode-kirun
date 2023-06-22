@@ -19,7 +19,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
     public static final String KEY_NAME = "keyName";
 
-    public static final String ARRAY_TO_OBJECTS = "ArrayToObjects";
+    public static final String ARRAY_TO_OBJECTS = "ArrayToArrayOfObjects";
 
     protected ArrayToArrayOfObjects() {
         super(
