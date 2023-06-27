@@ -78,16 +78,18 @@ export class StringFunctionRepository implements Repository<Function> {
         StringFunctionRepository.repoMap.values(),
     ).map((e) => e.getSignature().getFullName());
 
-    public find(namespace: string, name: string): Function | undefined {
+    public async find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.STRING) {
-            return undefined;
+            return Promise.resolve(undefined);
         }
-        return StringFunctionRepository.repoMap.get(name);
+        return Promise.resolve(StringFunctionRepository.repoMap.get(name));
     }
 
-    public filter(name: string): string[] {
-        return StringFunctionRepository.filterableNames.filter(
-            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+    public async filter(name: string): Promise<string[]> {
+        return Promise.resolve(
+            StringFunctionRepository.filterableNames.filter(
+                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+            ),
         );
     }
 }

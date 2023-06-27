@@ -64,13 +64,15 @@ const filterableNames = Object.values(functionObjectsIndex).map((e) =>
 );
 
 export class MathFunctionRepository implements Repository<Function> {
-    find(namespace: string, name: string): Function | undefined {
-        if (namespace != Namespaces.MATH) return undefined;
+    public async find(namespace: string, name: string): Promise<Function | undefined> {
+        if (namespace != Namespaces.MATH) return Promise.resolve(undefined);
 
-        return functionObjectsIndex[name];
+        return Promise.resolve(functionObjectsIndex[name]);
     }
 
-    public filter(name: string): string[] {
-        return filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
+    public async filter(name: string): Promise<string[]> {
+        return Promise.resolve(
+            filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1),
+        );
     }
 }

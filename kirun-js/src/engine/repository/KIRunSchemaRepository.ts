@@ -20,13 +20,15 @@ const map: Map<string, Schema> = new Map([
 const filterableNames = Array.from(map.values()).map((e) => e.getFullName());
 
 export class KIRunSchemaRepository implements Repository<Schema> {
-    public find(namespace: string, name: string): Schema | undefined {
-        if (Namespaces.SYSTEM != namespace) return undefined;
+    public async find(namespace: string, name: string): Promise<Schema | undefined> {
+        if (Namespaces.SYSTEM != namespace) return Promise.resolve(undefined);
 
-        return map.get(name);
+        return Promise.resolve(map.get(name));
     }
 
-    public filter(name: string): string[] {
-        return filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
+    public async filter(name: string): Promise<string[]> {
+        return Promise.resolve(
+            filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1),
+        );
     }
 }

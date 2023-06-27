@@ -6,7 +6,7 @@ import { SchemaValidationException } from './exception/SchemaValidationException
 import { SchemaValidator } from './SchemaValidator';
 
 export class ObjectValidator {
-    public static validate(
+    public static async validate(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -30,7 +30,7 @@ export class ObjectValidator {
         ObjectValidator.checkMinMaxProperties(parents, schema, keys);
 
         if (schema.getPropertyNames()) {
-            ObjectValidator.checkPropertyNameSchema(parents, schema, repository, keys);
+            await ObjectValidator.checkPropertyNameSchema(parents, schema, repository, keys);
         }
 
         if (schema.getRequired()) {
@@ -38,19 +38,31 @@ export class ObjectValidator {
         }
 
         if (schema.getProperties()) {
-            ObjectValidator.checkProperties(parents, schema, repository, jsonObject, keys);
+            await ObjectValidator.checkProperties(parents, schema, repository, jsonObject, keys);
         }
 
         if (schema.getPatternProperties()) {
-            ObjectValidator.checkPatternProperties(parents, schema, repository, jsonObject, keys);
+            await ObjectValidator.checkPatternProperties(
+                parents,
+                schema,
+                repository,
+                jsonObject,
+                keys,
+            );
         }
 
         if (schema.getAdditionalProperties()) {
-            ObjectValidator.checkAddtionalProperties(parents, schema, repository, jsonObject, keys);
+            await ObjectValidator.checkAddtionalProperties(
+                parents,
+                schema,
+                repository,
+                jsonObject,
+                keys,
+            );
         }
     }
 
-    private static checkPropertyNameSchema(
+    private static async checkPropertyNameSchema(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -58,7 +70,7 @@ export class ObjectValidator {
     ) {
         for (let key of Array.from(keys.values())) {
             try {
-                SchemaValidator.validate(
+                await SchemaValidator.validate(
                     parents,
                     schema.getPropertyNames() as Schema,
                     repository,
@@ -84,7 +96,7 @@ export class ObjectValidator {
         }
     }
 
-    private static checkAddtionalProperties(
+    private static async checkAddtionalProperties(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -96,7 +108,7 @@ export class ObjectValidator {
             for (let key of Array.from(keys.values())) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
 
-                let element: any = SchemaValidator.validate(
+                let element: any = await SchemaValidator.validate(
                     newParents,
                     apt.getSchemaValue(),
                     repository,
@@ -114,7 +126,7 @@ export class ObjectValidator {
         }
     }
 
-    private static checkPatternProperties(
+    private static async checkPatternProperties(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -132,7 +144,7 @@ export class ObjectValidator {
 
             for (const e of Array.from(compiledPatterns.entries())) {
                 if (e[1].test(key)) {
-                    const element: any = SchemaValidator.validate(
+                    const element: any = await SchemaValidator.validate(
                         newParents,
                         schema.getPatternProperties()!.get(e[0]),
                         repository,
@@ -146,7 +158,7 @@ export class ObjectValidator {
         }
     }
 
-    private static checkProperties(
+    private static async checkProperties(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -157,12 +169,18 @@ export class ObjectValidator {
             let value: any = jsonObject[each[0]];
 
             if (!jsonObject.hasOwnProperty(each[0]) && isNullValue(value)) {
-                const defValue = SchemaUtil.getDefaultValue(each[1], repository);
+                const defValue = await SchemaUtil.getDefaultValue(each[1], repository);
                 if (isNullValue(defValue)) continue;
             }
 
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = SchemaValidator.validate(newParents, each[1], repository, value);
+            let element: any = await SchemaValidator.validate(
+                newParents,
+                each[1],
+                repository,
+                value,
+            );
+
             jsonObject[each[0]] = element;
             keys.delete(each[0]);
         }

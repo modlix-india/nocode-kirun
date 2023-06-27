@@ -45,10 +45,11 @@ export class KIRunFunctionRepository extends HybridRepository<Function> {
     public constructor() {
         super(
             {
-                find(namespace: string, name: string): Function | undefined {
+                async find(namespace: string, name: string): Promise<Function | undefined> {
                     return map.get(namespace)?.get(name);
                 },
-                filter(name: string): string[] {
+
+                async filter(name: string): Promise<string[]> {
                     return Array.from(filterableNames).filter(
                         (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
                     );

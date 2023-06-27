@@ -4,7 +4,6 @@ import { isNullValue } from '../../../util/NullCheck';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { Schema } from '../Schema';
 import { SchemaUtil } from '../SchemaUtil';
-import { SchemaType } from '../type/SchemaType';
 import { AnyOfAllOfOneOfValidator } from './AnyOfAllOfOneOfValidator';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { TypeValidator } from './TypeValidator';
@@ -19,12 +18,12 @@ export class SchemaValidator {
             .reduce((a, c, i) => a + (i === 0 ? '' : '.') + c, '');
     }
 
-    public static validate(
+    public static async validate(
         parents: Schema[] | undefined,
         schema: Schema | undefined,
         repository: Repository<Schema> | undefined,
         element: any,
-    ): any {
+    ): Promise<any> {
         if (!schema) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
@@ -58,13 +57,13 @@ export class SchemaValidator {
             );
 
         if (schema.getType()) {
-            SchemaValidator.typeValidation(parents, schema, repository, element);
+            await SchemaValidator.typeValidation(parents, schema, repository, element);
         }
 
         if (!StringUtil.isNullOrBlank(schema.getRef())) {
-            return SchemaValidator.validate(
+            return await SchemaValidator.validate(
                 parents,
-                SchemaUtil.getSchemaFromRef(parents[0], repository, schema.getRef()),
+                await SchemaUtil.getSchemaFromRef(parents[0], repository, schema.getRef()),
                 repository,
                 element,
             );
@@ -77,7 +76,12 @@ export class SchemaValidator {
         if (schema.getNot()) {
             let flag: boolean = false;
             try {
-                SchemaValidator.validate(parents, schema.getNot(), repository, element);
+                let x = await SchemaValidator.validate(
+                    parents,
+                    schema.getNot(),
+                    repository,
+                    element,
+                );
                 flag = true;
             } catch (err) {
                 flag = false;
@@ -120,7 +124,7 @@ export class SchemaValidator {
         }
     }
 
-    public static typeValidation(
+    public static async typeValidation(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -128,10 +132,10 @@ export class SchemaValidator {
     ) {
         let valid: boolean = false;
         let list: SchemaValidationException[] = [];
-
-        for (const type of Array.from(schema.getType()?.getAllowedSchemaTypes()?.values() ?? [])) {
+        let type;
+        for (type of Array.from(schema.getType()?.getAllowedSchemaTypes()?.values() ?? [])) {
             try {
-                TypeValidator.validate(parents, type, schema, repository, element);
+                await TypeValidator.validate(parents, type, schema, repository, element);
                 valid = true;
                 break;
             } catch (err: any) {

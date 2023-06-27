@@ -13,51 +13,56 @@ import { Tuple2 } from '../util/Tuples';
 import { Function } from './Function';
 
 export abstract class AbstractFunction implements Function {
-    protected validateArguments(
+    protected async validateArguments(
         args: Map<string, any>,
         schemaRepository: Repository<Schema>,
         statementExecution: StatementExecution | undefined,
-    ): Map<string, any> {
-        return Array.from(this.getSignature().getParameters().entries())
-            .map((e) => {
-                let param: Parameter = e[1];
-                try {
-                    return this.validateArgument(args, schemaRepository, e, param);
-                } catch (err: any) {
-                    const signature = this.getSignature();
-                    throw new KIRuntimeException(
-                        `Error while executing the function ${signature.getNamespace()}.${signature.getName()}'s parameter ${param.getParameterName()} with step name '${
-                            statementExecution?.getStatement().getStatementName() ?? 'Unknown Step'
-                        }' with error : ${err?.message}`,
-                    );
-                }
-            })
-            .reduce((a, c) => {
-                a.set(c.getT1(), c.getT2());
-                return a;
-            }, new Map<string, any>());
+    ): Promise<Map<string, any>> {
+        const retmap = new Map<string, any>();
+
+        for (let e of Array.from(this.getSignature().getParameters().entries())) {
+            let param: Parameter = e[1];
+            try {
+                let tup = await this.validateArgument(args, schemaRepository, e, param);
+                retmap.set(tup.getT1(), tup.getT2());
+            } catch (err: any) {
+                const signature = this.getSignature();
+                throw new KIRuntimeException(
+                    `Error while executing the function ${signature.getNamespace()}.${signature.getName()}'s parameter ${param.getParameterName()} with step name '${
+                        statementExecution?.getStatement().getStatementName() ?? 'Unknown Step'
+                    }' with error : ${err?.message}`,
+                );
+            }
+        }
+
+        return retmap;
     }
 
-    private validateArgument(
+    private async validateArgument(
         args: Map<string, any>,
         schemaRepository: Repository<Schema>,
         e: [string, Parameter],
         param: Parameter,
-    ): Tuple2<string, any> {
+    ): Promise<Tuple2<string, any>> {
         let key: string = e[0];
         let jsonElement: any = args.get(e[0]);
 
         if (isNullValue(jsonElement) && !param.isVariableArgument()) {
             return new Tuple2(
                 key,
-                SchemaValidator.validate(undefined, param.getSchema(), schemaRepository, undefined),
+                await SchemaValidator.validate(
+                    undefined,
+                    param.getSchema(),
+                    schemaRepository,
+                    undefined,
+                ),
             );
         }
 
         if (!param?.isVariableArgument())
             return new Tuple2(
                 key,
-                SchemaValidator.validate(
+                await SchemaValidator.validate(
                     undefined,
                     param.getSchema(),
                     schemaRepository,
@@ -76,7 +81,7 @@ export abstract class AbstractFunction implements Function {
         }
 
         for (let i = 0; i < array.length; i++) {
-            array[i] = SchemaValidator.validate(
+            array[i] = await SchemaValidator.validate(
                 undefined,
                 param.getSchema(),
                 schemaRepository,
@@ -88,13 +93,12 @@ export abstract class AbstractFunction implements Function {
     }
 
     public async execute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        context.setArguments(
-            this.validateArguments(
-                context.getArguments() ?? new Map(),
-                context.getSchemaRepository(),
-                context.getStatementExecution(),
-            ),
+        const args: Map<string, any> = await this.validateArguments(
+            context.getArguments() ?? new Map(),
+            context.getSchemaRepository(),
+            context.getStatementExecution(),
         );
+        context.setArguments(args);
         try {
             return this.internalExecute(context);
         } catch (err: any) {

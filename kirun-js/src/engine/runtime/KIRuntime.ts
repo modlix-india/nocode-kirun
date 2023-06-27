@@ -73,7 +73,7 @@ export class KIRuntime extends AbstractFunction {
     ): Promise<ExecutionGraph<string, StatementExecution>> {
         let g: ExecutionGraph<string, StatementExecution> = new ExecutionGraph();
         for (let s of Array.from(this.fd.getSteps().values()))
-            g.addVertex(this.prepareStatementExecution(s, fRepo, sRepo));
+            g.addVertex(await this.prepareStatementExecution(s, fRepo, sRepo));
 
         let unresolved = this.makeEdges(g);
 
@@ -314,7 +314,7 @@ export class KIRuntime extends AbstractFunction {
             if (!allTrue) return;
         }
 
-        let fun: Function | undefined = fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = await fRepo.find(s.getNamespace(), s.getName());
 
         if (!fun) {
             throw new KIRuntimeException(
@@ -550,25 +550,25 @@ export class KIRuntime extends AbstractFunction {
         return ret;
     }
 
-    private prepareStatementExecution(
+    private async prepareStatementExecution(
         s: Statement,
         fRepo: Repository<Function>,
         sRepo: Repository<Schema>,
-    ): StatementExecution {
+    ): Promise<StatementExecution> {
         let se: StatementExecution = new StatementExecution(s);
 
-        let fun: Function | undefined = fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = await fRepo.find(s.getNamespace(), s.getName());
 
         if (!fun) {
             se.addMessage(
                 StatementMessageType.ERROR,
                 StringFormatter.format('$.$ is not available', s.getNamespace(), s.getName()),
             );
-            return se;
+            return Promise.resolve(se);
         }
 
         let paramSet: Map<string, Parameter> = new Map(fun.getSignature().getParameters());
-        if (!s.getParameterMap()) return se;
+        if (!s.getParameterMap()) return Promise.resolve(se);
         for (let param of Array.from(s.getParameterMap().entries())) {
             let p: Parameter | undefined = paramSet.get(param[0]);
             if (!p) continue;
@@ -576,7 +576,7 @@ export class KIRuntime extends AbstractFunction {
             let refList: ParameterReference[] = Array.from(param[1]?.values() ?? []);
 
             if (!refList.length && !p.isVariableArgument()) {
-                if (!SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
+                if (!(await SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -612,7 +612,7 @@ export class KIRuntime extends AbstractFunction {
         if (paramSet.size) {
             for (let param of Array.from(paramSet.values())) {
                 if (param.isVariableArgument()) continue;
-                if (!SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo))
+                if (!(await SchemaUtil.hasDefaultValueOrNullSchemaType(param.getSchema(), sRepo)))
                     se.addMessage(
                         StatementMessageType.ERROR,
                         StringFormatter.format(
@@ -623,19 +623,19 @@ export class KIRuntime extends AbstractFunction {
             }
         }
 
-        return se;
+        return Promise.resolve(se);
     }
 
-    private parameterReferenceValidation(
+    private async parameterReferenceValidation(
         se: StatementExecution,
         p: Parameter,
         ref: ParameterReference,
         sRepo: Repository<Schema>,
-    ): void {
+    ): Promise<void> {
         // Breaking this execution doesn't make sense.
 
         if (!ref) {
-            if (isNullValue(SchemaUtil.getDefaultValue(p.getSchema(), sRepo)))
+            if (isNullValue(await SchemaUtil.getDefaultValue(p.getSchema(), sRepo)))
                 se.addMessage(
                     StatementMessageType.ERROR,
                     StringFormatter.format(KIRuntime.PARAMETER_NEEDS_A_VALUE, p.getParameterName()),
@@ -643,7 +643,7 @@ export class KIRuntime extends AbstractFunction {
         } else if (ref.getType() == ParameterReferenceType.VALUE) {
             if (
                 isNullValue(ref.getValue()) &&
-                !SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+                !(await SchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo))
             )
                 se.addMessage(
                     StatementMessageType.ERROR,
