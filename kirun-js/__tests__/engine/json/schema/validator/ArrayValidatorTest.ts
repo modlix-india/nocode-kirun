@@ -9,7 +9,7 @@ import {
 
 const repo = new KIRunSchemaRepository();
 
-test('schema array validator tuple schema test for additional items with boolean different datatype', () => {
+test('schema array validator tuple schema test for additional items with boolean different datatype', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: [
@@ -35,10 +35,10 @@ test('schema array validator tuple schema test for additional items with boolean
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });
 
-test('schema array validator tuple schema test for additional items with boolean true datatype', () => {
+test('schema array validator tuple schema test for additional items with boolean true datatype', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: [
@@ -58,10 +58,10 @@ test('schema array validator tuple schema test for additional items with boolean
 
     let obj = ['asd', true, { a: 'b' }];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).toStrictEqual(obj);
+    expect(await SchemaValidator.validate([], schema, repo, obj)).toStrictEqual(obj);
 });
 
-test('schema array validator test for additional items with boolean false different datatype', () => {
+test('schema array validator test for additional items with boolean false different datatype', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: { type: 'INTEGER' },
@@ -69,10 +69,10 @@ test('schema array validator test for additional items with boolean false differ
     });
     let obj = [1, 2, 3, 4, 'stringtype', true];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });
 
-test('schema array validator test for additional items with boolean true different datatype', () => {
+test('schema array validator test for additional items with boolean true different datatype', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -87,10 +87,10 @@ test('schema array validator test for additional items with boolean true differe
 
     let obj = [1, 2, 3, 'stringtype', true];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });
 
-test('schema array validator tuple schema test for additional items with boolean different datatype', () => {
+test('schema array validator tuple schema test for additional items with boolean different datatype', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: [
@@ -113,10 +113,10 @@ test('schema array validator tuple schema test for additional items with boolean
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });
 
-test('multi level validation inner object pollution test', () => {
+test('multi level validation inner object pollution test', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -140,11 +140,11 @@ test('multi level validation inner object pollution test', () => {
         },
     });
 
-    let value = SchemaValidator.validate(
+    let value = await SchemaValidator.validate(
         undefined,
         xschema,
         repo,
-        SchemaValidator.validate(undefined, schema, repo, undefined),
+        await SchemaValidator.validate(undefined, schema, repo, undefined),
     );
 
     expect(schema?.getDefaultValue()[0].y).toBeUndefined();

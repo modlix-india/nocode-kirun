@@ -2,7 +2,7 @@ import { KIRunSchemaRepository, Schema, SchemaType, SchemaValidator } from '../.
 
 const repo = new KIRunSchemaRepository();
 
-test('schema Object validator test schema based old ARRAY style', () => {
+test('schema Object validator test schema based old ARRAY style', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
@@ -11,13 +11,13 @@ test('schema Object validator test schema based old ARRAY style', () => {
     expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
 
     var obj = { name: 'Kiran', num: [1, 2, 3] };
-    expect(SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
+    expect(await SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, {
             name: 'Kiran',
             num: 23,
             lastName: 'grandhi',
         }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });

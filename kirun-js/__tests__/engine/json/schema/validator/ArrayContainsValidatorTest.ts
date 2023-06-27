@@ -11,7 +11,7 @@ import {
 
 const repo = new KIRunSchemaRepository();
 
-test('schema array contains test  ', () => {
+test('schema array contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -31,10 +31,10 @@ test('schema array contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
-test('schema array error contains test  ', () => {
+test('schema array error contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -54,12 +54,12 @@ test('schema array error contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj];
 
-    expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
+    expect(ArrayValidator.validate([], schema, repo, array)).rejects.toThrow(
         'None of the items are of type contains schema',
     );
 });
 
-test('schema array min contains test  ', () => {
+test('schema array min contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -85,10 +85,10 @@ test('schema array min contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
-test('schema array max contains test  ', () => {
+test('schema array max contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -114,10 +114,10 @@ test('schema array max contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toStrictEqual(array);
 });
 
-test('schema array min contains test  ', () => {
+test('schema array min contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -143,14 +143,14 @@ test('schema array min contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
+    expect(ArrayValidator.validate([], schema, repo, array)).rejects.toThrow(
         'The minimum number of the items of type contains schema should be ' +
             schema.getMinContains() +
             ' but found 2',
     );
 });
 
-test('schema array max contains test  ', () => {
+test('schema array max contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -176,14 +176,14 @@ test('schema array max contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
+    expect(ArrayValidator.validate([], schema, repo, array)).rejects.toThrow(
         'The maximum number of the items of type contains schema should be ' +
             schema.getMaxContains() +
             ' but found 2',
     );
 });
 
-test('schema array min error contains test  ', () => {
+test('schema array min error contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -209,14 +209,14 @@ test('schema array min error contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
+    expect(ArrayValidator.validate([], schema, repo, array)).rejects.toThrow(
         'The minimum number of the items of type contains schema should be ' +
             schema.getMinContains() +
             ' but found 2',
     );
 });
 
-test('schema array min max contains test  ', () => {
+test('schema array min max contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -243,10 +243,10 @@ test('schema array min max contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toBe(array);
 });
 
-test('schema array min max contains test  ', () => {
+test('schema array min max contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -273,14 +273,14 @@ test('schema array min max contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(() => ArrayValidator.validate([], schema, repo, array)).toThrow(
+    expect(ArrayValidator.validate([], schema, repo, array)).rejects.toThrow(
         'The maximum number of the items of type contains schema should be ' +
             schema.getMaxContains() +
             ' but found 2',
     );
 });
 
-test('schema array min max contains without contains test  ', () => {
+test('schema array min max contains without contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -306,10 +306,10 @@ test('schema array min max contains without contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toBe(array);
 });
 
-test('schema array min max contains without contains test  ', () => {
+test('schema array min max contains without contains test  ', async () => {
     let tupleS: Schema[] = [
         Schema.ofString('item1'),
         Schema.ofInteger('item2'),
@@ -335,5 +335,5 @@ test('schema array min max contains without contains test  ', () => {
 
     let array: any[] = ['jimmy', 31, obj, true, obj1];
 
-    expect(ArrayValidator.validate([], schema, repo, array)).toBe(array);
+    expect(await ArrayValidator.validate([], schema, repo, array)).toBe(array);
 });

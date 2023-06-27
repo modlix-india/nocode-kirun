@@ -340,17 +340,19 @@ test('KIRuntime Test 4', async () => {
     var expression = { isExpression: true, value: 'Steps.fib.output.value' };
     let resultObj = { name: 'result', value: expression };
 
-    var hybrid = new HybridRepository(new KIRunFunctionRepository(), {
-        find(namespace, name): Function {
+    class X {
+        async find(namespace: string, name: string): Promise<Function> {
             return fibFunction;
-        },
+        }
 
-        filter(name: string): string[] {
+        async filter(name: string): Promise<string[]> {
             return [fibFunction.getSignature().getFullName()].filter((e) =>
                 e.toLowerCase().includes(name.toLowerCase()),
             );
-        },
-    });
+        }
+    }
+
+    var hybrid = new HybridRepository(new KIRunFunctionRepository(), new X());
 
     start = new Date().getTime();
     let out: EventResult[] = (

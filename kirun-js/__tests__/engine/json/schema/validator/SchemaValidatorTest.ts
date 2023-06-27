@@ -1,4 +1,4 @@
-import { AdditionalType, HybridRepository } from '../../../../../src';
+import { AdditionalType, HybridRepository, Repository } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 import { SchemaType } from '../../../../../src/engine/json/schema/type/SchemaType';
 import { TypeUtil } from '../../../../../src/engine/json/schema/type/TypeUtil';
@@ -8,25 +8,25 @@ import { KIRunSchemaRepository } from '../../../../../src/engine/repository/KIRu
 
 const repo = new KIRunSchemaRepository();
 
-test('Schema Validator Test 1', () => {
+test('Schema Validator Test 1', async () => {
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER));
 
-    expect(SchemaValidator.validate([], schema, repo, 2)).toBe(2);
+    expect(await SchemaValidator.validate([], schema, repo, 2)).toBe(2);
 
     let obj = { name: 'shagil' };
     let objSchema: Schema = Schema.ofObject('testObj')
         .setProperties(new Map<string, Schema>([['name', Schema.ofString('name')]]))
         .setRequired(['name']);
-    expect(SchemaValidator.validate([], objSchema, repo, obj)).toBe(obj);
+    expect(await SchemaValidator.validate([], objSchema, repo, obj)).toBe(obj);
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, { name: 123 })).toThrow(
+    expect(SchemaValidator.validate([], objSchema, repo, { name: 123 })).rejects.toThrow(
         'Value {"name":123} is not of valid type(s)\nValue 123 is not of valid type(s)\n123 is not String',
     );
 
-    // expect(SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));
+    // expect(await SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));
 });
 
-test('Schema validation when ref of ref', () => {
+test('Schema validation when ref of ref', async () => {
     const locationSchema = Schema.from({
         name: 'Location',
         namespace: 'Test',
@@ -55,32 +55,36 @@ test('Schema validation when ref of ref', () => {
         ['TestSchema', testSchema],
     ]);
 
-    const repo = new HybridRepository<Schema>(
-        {
-            find(namespace: string, name: string): Schema | undefined {
-                if (namespace !== 'Test') return undefined;
-                return schemaMap.get(name);
-            },
+    class X implements Repository<Schema> {
+        async find(namespace: string, name: string): Promise<Schema | undefined> {
+            if (namespace !== 'Test') return undefined;
+            return schemaMap.get(name);
+        }
 
-            filter(name: string): string[] {
-                return Array.from(schemaMap.values())
-                    .map((e) => e!.getFullName())
-                    .filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
-            },
-        },
-        new KIRunSchemaRepository(),
-    );
+        async filter(name: string): Promise<string[]> {
+            return Array.from(schemaMap.values())
+                .map((e) => e!.getFullName())
+                .filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1);
+        }
+    }
+
+    const repo = new HybridRepository<Schema>(new X(), new KIRunSchemaRepository());
     const obj = { obj: { url: 'http://xxxxxx.com' } };
     const queryParams = {
         obj: { obj: { url: 'http://xxxxxx.com' } },
     };
 
     expect(
-        SchemaValidator.validate(undefined, Schema.ofRef('Test.TestSchema'), repo, queryParams),
+        await SchemaValidator.validate(
+            undefined,
+            Schema.ofRef('Test.TestSchema'),
+            repo,
+            queryParams,
+        ),
     ).toBe(queryParams);
 });
 
-test('Schema Validator Test 2', () => {
+test('Schema Validator Test 2', async () => {
     const locationSchema = Schema.from({
         name: 'Location',
         namespace: 'Test',
@@ -93,13 +97,13 @@ test('Schema Validator Test 2', () => {
 
     const repo = new HybridRepository<Schema>(
         {
-            find(namespace, name): Schema | undefined {
+            async find(namespace, name): Promise<Schema | undefined> {
                 if (namespace === 'Test' && name === 'Location') {
                     return locationSchema;
                 }
                 return undefined;
             },
-            filter(name): string[] {
+            async filter(name): Promise<string[]> {
                 return [locationSchema!.getFullName()].filter((n) =>
                     n.toLowerCase().includes(name.toLowerCase()),
                 );
@@ -110,16 +114,23 @@ test('Schema Validator Test 2', () => {
 
     const obj = { url: 'http://xxxx.com' };
 
-    expect(SchemaValidator.validate(undefined, Schema.ofRef('Test.Location'), repo, obj)).toBe(obj);
+    expect(
+        await SchemaValidator.validate(undefined, Schema.ofRef('Test.Location'), repo, obj),
+    ).toBe(obj);
 });
 
-test('Validate null for ofAny schema', () => {
+test('Validate null for ofAny schema', async () => {
     expect(
-        SchemaValidator.validate(undefined, Schema.ofAny('ofanyundefined'), undefined, undefined),
+        await SchemaValidator.validate(
+            undefined,
+            Schema.ofAny('ofanyundefined'),
+            undefined,
+            undefined,
+        ),
     ).toBe(undefined);
 });
 
-test('Schema Validator Test 3', () => {
+test('Schema Validator Test 3', async () => {
     const obj = { url: 'http://xxxx.com' };
 
     const locationSchema = Schema.from({
@@ -135,14 +146,14 @@ test('Schema Validator Test 3', () => {
 
     const repo = new HybridRepository<Schema>(
         {
-            find(namespace, name): Schema | undefined {
+            async find(namespace, name): Promise<Schema | undefined> {
                 if (namespace === 'Test' && name === 'Location') {
                     return locationSchema;
                 }
                 return undefined;
             },
 
-            filter(name): string[] {
+            async filter(name): Promise<string[]> {
                 return [locationSchema!.getFullName()].filter((n) =>
                     n.toLowerCase().includes(name.toLowerCase()),
                 );
@@ -155,7 +166,7 @@ test('Schema Validator Test 3', () => {
     const obj1 = { url: 'http://yyyy.com' };
 
     expect(
-        SchemaValidator.validate(
+        await SchemaValidator.validate(
             undefined,
             Schema.ofRef('Test.Location').setDefaultValue(obj1),
             repo,

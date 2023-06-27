@@ -8,7 +8,7 @@ import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../s
 const repo = new StringFunctionRepository();
 
 test('StringFunctionRepository - Trim', async () => {
-    let fun = repo.find(Namespaces.STRING, 'Trim');
+    let fun = await repo.find(Namespaces.STRING, 'Trim');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -26,7 +26,7 @@ test('StringFunctionRepository - Trim', async () => {
 });
 
 test('StringFunctionRepo -Repeat', async () => {
-    let fun = repo.find(Namespaces.STRING, 'Repeat');
+    let fun = await repo.find(Namespaces.STRING, 'Repeat');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -53,7 +53,7 @@ test('StringFunctionRepo -Repeat', async () => {
 });
 
 test('StringFunctionRepo -Lowercase', async () => {
-    let fun = repo.find(Namespaces.STRING, 'LowerCase');
+    let fun = await repo.find(Namespaces.STRING, 'LowerCase');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -79,7 +79,7 @@ test('StringFunctionRepo -Lowercase', async () => {
 });
 
 test('StringFunctionRepo -UpperCase', async () => {
-    let fun = repo.find(Namespaces.STRING, 'UpperCase');
+    let fun = await repo.find(Namespaces.STRING, 'UpperCase');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -104,7 +104,7 @@ test('StringFunctionRepo -UpperCase', async () => {
 });
 
 test('StringFunctionRepo -Blank1', async () => {
-    let fun = repo.find(Namespaces.STRING, 'IsBlank');
+    let fun = await repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -124,7 +124,7 @@ test('StringFunctionRepo -Blank1', async () => {
 });
 
 test('StringFunctionRepo -Blank2', async () => {
-    let fun = repo.find(Namespaces.STRING, 'IsBlank');
+    let fun = await repo.find(Namespaces.STRING, 'IsBlank');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -149,7 +149,7 @@ test('StringFunctionRepo -Blank2', async () => {
 });
 
 test('StringFunctionRepo -Empty1', async () => {
-    let fun = repo.find(Namespaces.STRING, 'IsEmpty');
+    let fun = await repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
     }
@@ -171,7 +171,7 @@ test('StringFunctionRepo -Empty1', async () => {
 });
 
 test('StringFunctionRepo -Empty2', async () => {
-    let fun = repo.find(Namespaces.STRING, 'IsEmpty');
+    let fun = await repo.find(Namespaces.STRING, 'IsEmpty');
     if (!fun) {
         throw new Error('Function not available');
     }

@@ -53,6 +53,7 @@ test('KIRuntime Without Gen Event Definition 1', async () => {
 
     const fd = FunctionDefinition.from(def);
 
+    const oldConsole = console.log;
     const test = (console.log = jest.fn().mockImplementation(() => {}));
 
     await new KIRuntime(fd, false).execute(
@@ -67,6 +68,7 @@ test('KIRuntime Without Gen Event Definition 1', async () => {
             ]),
         ),
     );
+    console.log = oldConsole;
     expect(test.mock.calls[0][0]).toBe('Nothing muchh....');
     expect(test.mock.calls[0][1]).toBe(31);
 });
@@ -124,7 +126,7 @@ test('KIRuntime Without Gen Event Definition 2', async () => {
     };
 
     const fd = FunctionDefinition.from(def);
-
+    const oldConsole = console.log;
     const test = (console.log = jest.fn().mockImplementation(() => {}));
 
     await new KIRuntime(fd, false).execute(
@@ -139,6 +141,7 @@ test('KIRuntime Without Gen Event Definition 2', async () => {
             ]),
         ),
     );
+    console.log = oldConsole;
     expect(test.mock.calls[0][0]).toBe('Something muchh....');
     expect(test.mock.calls[0][1]).toBe(31);
 });

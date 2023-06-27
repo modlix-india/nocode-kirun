@@ -9,20 +9,20 @@ import { StringValidator } from '../../../../../src';
 
 const repo = new KIRunSchemaRepository();
 
-test('String valid case', () => {
+test('String valid case', async () => {
     let value: String = 'surendhar';
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING));
 
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String invalid case', () => {
+test('String invalid case', async () => {
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING));
 
     expect(() => StringValidator.validate([], schema, 123).toThrow(123 + ' is not String'));
 });
 
-test('String min length invalid', () => {
+test('String min length invalid', async () => {
     let value: String = 'abcd';
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING)).setMinLength(5);
 
@@ -33,7 +33,7 @@ test('String min length invalid', () => {
     );
 });
 
-test('String max length invalid', () => {
+test('String max length invalid', async () => {
     let value: String = 'surendhar';
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING)).setMaxLength(8);
 
@@ -44,21 +44,21 @@ test('String max length invalid', () => {
     );
 });
 
-test('String min length', () => {
+test('String min length', async () => {
     let value: String = 'abcdefg';
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING)).setMinLength(5);
 
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String max length', () => {
+test('String max length', async () => {
     let value: String = 'surendhar';
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.STRING)).setMaxLength(12323);
 
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String date invalid case', () => {
+test('String date invalid case', async () => {
     let value: String = '1234-12-1245';
 
     let schema: Schema = new Schema().setFormat(StringFormat.DATE);
@@ -70,7 +70,7 @@ test('String date invalid case', () => {
     );
 });
 
-test('String date valid case', () => {
+test('String date valid case', async () => {
     let value: String = '2023-01-26';
 
     let schema: Schema = new Schema().setFormat(StringFormat.DATE);
@@ -78,7 +78,7 @@ test('String date valid case', () => {
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String time invalid case', () => {
+test('String time invalid case', async () => {
     let value: String = '231:45:56';
 
     let schema: Schema = new Schema().setFormat(StringFormat.TIME);
@@ -88,7 +88,7 @@ test('String time invalid case', () => {
     );
 });
 
-test('String time valid case', () => {
+test('String time valid case', async () => {
     let value: String = '22:32:45';
 
     let schema: Schema = new Schema().setFormat(StringFormat.TIME);
@@ -96,7 +96,7 @@ test('String time valid case', () => {
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String date time invalid case', () => {
+test('String date time invalid case', async () => {
     let value: String = '26-jan-2023 231:45:56';
 
     let schema: Schema = new Schema().setFormat(StringFormat.DATETIME);
@@ -106,7 +106,7 @@ test('String date time invalid case', () => {
     );
 });
 
-test('String date time valid case', () => {
+test('String date time valid case', async () => {
     let value: String = '2032-02-12T02:54:23';
 
     let schema: Schema = new Schema().setFormat(StringFormat.DATETIME);
@@ -114,7 +114,7 @@ test('String date time valid case', () => {
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
-test('String email invalid case', () => {
+test('String email invalid case', async () => {
     let value: String = 'testemail fai%6&8ls@gmail.com';
 
     let schema: Schema = new Schema().setFormat(StringFormat.EMAIL);
@@ -124,7 +124,7 @@ test('String email invalid case', () => {
     );
 });
 
-test('String email valid case', () => {
+test('String email valid case', async () => {
     let value: String = 'testemaifai%6&8lworkings@magil.com';
 
     let schema: Schema = new Schema().setFormat(StringFormat.EMAIL);

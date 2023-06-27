@@ -1,6 +1,6 @@
 import { SchemaType, TypeUtil } from '../../../../../src';
 
-test('TypeUtilTest', () => {
+test('TypeUtilTest', async () => {
     expect(TypeUtil.from('OBJECT')?.contains(SchemaType.OBJECT)).toBeTruthy();
 
     let type = TypeUtil.from(['OBJECT', 'STRING']);

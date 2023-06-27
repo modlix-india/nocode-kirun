@@ -1,3 +1,3 @@
 import { SchemaUtil } from '../../../../src';
 
-test('Schema Util Test', () => {});
+test('Schema Util Test', async () => {});
