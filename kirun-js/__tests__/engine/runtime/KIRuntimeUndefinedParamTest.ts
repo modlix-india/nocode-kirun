@@ -79,17 +79,13 @@ test('KIRuntime Undefined and null param type with varargs', async () => {
         }
     }
 
-    try {
-        var fo: FunctionOutput = await new KIRuntime(fd).execute(
-            new FunctionExecutionParameters(
-                new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
-                new KIRunSchemaRepository(),
-            ).setArguments(new Map()),
-        );
-        expect(fo.allResults()).toStrictEqual([]);
-    } catch (e: any) {
-        console.error(e);
-    }
+    var fo: FunctionOutput = await new KIRuntime(fd).execute(
+        new FunctionExecutionParameters(
+            new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map()),
+    );
+    expect(fo.allResults()[0].getResult().size).toBe(0);
 });
 
 test('KIRuntime Undefined and null param type without varargs', async () => {
@@ -123,15 +119,16 @@ test('KIRuntime Undefined and null param type without varargs', async () => {
         }
     }
 
-    try {
-        var fo: FunctionOutput = await new KIRuntime(fd).execute(
-            new FunctionExecutionParameters(
-                new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
-                new KIRunSchemaRepository(),
-            ).setArguments(new Map()),
-        );
-        expect(fo.allResults()).toStrictEqual([]);
-    } catch (e: any) {
-        console.error(e);
-    }
+    expect(
+        (
+            await new KIRuntime(fd).execute(
+                new FunctionExecutionParameters(
+                    new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
+                    new KIRunSchemaRepository(),
+                ).setArguments(new Map()),
+            )
+        )
+            .allResults()[0]
+            .getResult().size,
+    ).toBe(0);
 });
