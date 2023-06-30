@@ -110,6 +110,7 @@ export class FunctionDefinition extends FunctionSignature {
                         .filter((e) => !!e)
                         .map((e: any) => [e.parameterName, Parameter.from(e)]),
                 ),
-            ) as FunctionDefinition;
+            )
+            .setNamespace(json.namespace) as FunctionDefinition;
     }
 }
