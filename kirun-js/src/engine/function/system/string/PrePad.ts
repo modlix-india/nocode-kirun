@@ -74,10 +74,7 @@ export class PrePad extends AbstractFunction {
 
         outputString += inputString;
         return new FunctionOutput([
-            EventResult.of(
-                PrePad.EVENT_RESULT_NAME,
-                new Map([[PrePad.EVENT_RESULT_NAME, outputString]]),
-            ),
+            EventResult.outputOf(new Map([[PrePad.EVENT_RESULT_NAME, outputString]])),
         ]);
     }
 }
