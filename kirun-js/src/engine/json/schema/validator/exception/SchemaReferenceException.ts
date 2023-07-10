@@ -1,6 +1,6 @@
 export class SchemaReferenceException extends Error {
     private schemaPath: string;
-    private cause?: Error;
+    cause?: Error;
 
     constructor(schemaPath: string, message: string, err?: Error) {
         super(schemaPath.trim() ? schemaPath + '-' + message : message);
