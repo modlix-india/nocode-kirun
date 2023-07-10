@@ -1,6 +1,6 @@
 export class SchemaValidationException extends Error {
     private schemaPath: string;
-    private cause?: Error;
+    cause?: Error;
     constructor(
         schemaPath: string,
         message: string,
