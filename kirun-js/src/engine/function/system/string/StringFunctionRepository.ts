@@ -7,6 +7,7 @@ import { AbstractStringFunction } from './AbstractStringFunction';
 import { Concatenate } from './Concatenate';
 import { DeleteForGivenLength } from './DeleteForGivenLength';
 import { InsertAtGivenPosition } from './InsertAtGivenPosition';
+import { Matches } from './Matches';
 import { PostPad } from './PostPad';
 import { PrePad } from './PrePad';
 import { RegionMatches } from './RegionMatches';
@@ -72,6 +73,7 @@ export class StringFunctionRepository implements Repository<Function> {
         mapEntry(new Split()),
         mapEntry(new ToString()),
         mapEntry(new TrimTo()),
+        mapEntry(new Matches()),
     );
 
     private static readonly filterableNames = Array.from(

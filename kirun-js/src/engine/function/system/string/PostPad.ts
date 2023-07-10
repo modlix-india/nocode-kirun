@@ -84,10 +84,7 @@ export class PostPad extends AbstractFunction {
         }
 
         return new FunctionOutput([
-            EventResult.of(
-                PostPad.EVENT_RESULT_NAME,
-                new Map([[PostPad.EVENT_RESULT_NAME, outputString.toString()]]),
-            ),
+            EventResult.outputOf(new Map([[PostPad.EVENT_RESULT_NAME, outputString.toString()]])),
         ]);
     }
 }

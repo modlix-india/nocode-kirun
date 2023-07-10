@@ -53,8 +53,7 @@ export class TrimTo extends AbstractFunction {
         let length: number = context.getArguments()?.get(TrimTo.PARAMETER_LENGTH_NAME);
 
         return new FunctionOutput([
-            EventResult.of(
-                TrimTo.EVENT_RESULT_NAME,
+            EventResult.outputOf(
                 new Map([[TrimTo.EVENT_RESULT_NAME, inputString.substring(0, length)]]),
             ),
         ]);
