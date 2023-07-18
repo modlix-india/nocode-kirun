@@ -75,6 +75,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	protected static final Parameter PARAMETER_BOOLEAN_ASCENDING = Parameter.of("ascending",
 			Schema.ofBoolean("ascending").setDefaultValue(new JsonPrimitive(true)));
 
+	public static final Parameter PARAMETER_KEY_PATH = Parameter.of("keyPath",
+			Schema.ofString("keyPath").setDefaultValue(new JsonPrimitive("")));
+
 	protected static final Parameter PARAMETER_FIND_PRIMITIVE = Parameter.of("findPrimitive", Schema.of("findPrimitive",
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));
 

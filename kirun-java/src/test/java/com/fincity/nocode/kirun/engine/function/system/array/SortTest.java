@@ -9,10 +9,13 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import netscape.javascript.JSObject;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -99,6 +102,147 @@ class SortTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
 		                Map.of("source", arr, "findFrom", new JsonPrimitive(2), "ascending", new JsonPrimitive(false)));
+
+		Sort sort = new Sort();
+
+		StepVerifier.create(sort.execute(fep))
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("result")
+		                .equals(res))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void test3() {
+
+		Gson gson = new Gson();
+
+		String firstJson = """
+			[
+				{ "order": { "order": 13 } },
+						{ "order": { "order": 3 } },
+						{ "order": { "order": 130 } },
+						{ "order": { "order": 10 } },
+						{ "order": { "order": 21 } },
+						{ "order": { "order": 1 } }
+				]
+				""";
+
+		String secondJson = """
+			[
+				{ "order": { "order": 1 } },
+				{ "order": { "order": 3 } },
+				{ "order": { "order": 10 } },
+				{ "order": { "order": 13 } },
+				{ "order": { "order": 21 } },
+				{ "order": { "order": 130 } }
+			]
+				""";
+		
+		JsonArray arr = gson.fromJson(firstJson,JsonArray.class);
+		
+		JsonArray res = gson.fromJson(secondJson,JsonArray.class);
+		System.out.println(arr);
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+		                Map.of("source", arr, "keyPath", new JsonPrimitive("order.order"), "ascending", new JsonPrimitive(true)));
+
+		Sort sort = new Sort();
+
+		StepVerifier.create(sort.execute(fep))
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("result")
+		                .equals(res))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void test4() {
+
+		Gson gson = new Gson();
+
+		String firstJson = """
+			[
+        { "order": 13 },
+        { "order": 3 },
+        { "order": 130 },
+        { "order": 10 },
+        { "order": 21 },
+        { "order": 1 }
+    ]
+				""";
+
+		String secondJson = """
+			[
+				{ "order": 1 },
+				{ "order": 3 },
+				{ "order": 10 },
+				{ "order": 13 },
+				{ "order": 21 },
+				{ "order": 130 }
+			]
+				""";
+		
+		JsonArray arr = gson.fromJson(firstJson,JsonArray.class);
+		
+		JsonArray res = gson.fromJson(secondJson,JsonArray.class);
+		System.out.println(arr);
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+		                Map.of("source", arr, "keyPath", new JsonPrimitive("order"), "ascending", new JsonPrimitive(true)));
+
+		Sort sort = new Sort();
+
+		StepVerifier.create(sort.execute(fep))
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("result")
+		                .equals(res))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void test5() {
+
+		Gson gson = new Gson();
+
+		String firstJson = """
+			[
+        { "order": { "order": 13 } },
+        { "order": { "order": 3 } },
+        { "order": { "order": 130 } },
+        { "order": { "order": 10 } },
+        { "order": { "order": 21 } },
+        { "order": { "order": 1 } }
+    ]
+				""";
+
+		String secondJson = """
+			[
+        { "order": { "order": 130 } },
+        { "order": { "order": 21 } },
+        { "order": { "order": 13 } },
+        { "order": { "order": 10 } },
+        { "order": { "order": 3 } },
+        { "order": { "order": 1 } }
+    ]
+				""";
+		
+		JsonArray arr = gson.fromJson(firstJson,JsonArray.class);
+		
+		JsonArray res = gson.fromJson(secondJson,JsonArray.class);
+		System.out.println(arr);
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
+		                Map.of("source", arr, "keyPath", new JsonPrimitive("order.order"), "ascending", new JsonPrimitive(false)));
 
 		Sort sort = new Sort();
 
