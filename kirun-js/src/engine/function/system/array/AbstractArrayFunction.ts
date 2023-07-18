@@ -92,7 +92,12 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
 
     public static readonly PARAMETER_BOOLEAN_ASCENDING: Parameter = Parameter.of(
         'ascending',
-        Schema.ofBoolean('ascending').setDefaultValue(false),
+        Schema.ofBoolean('ascending').setDefaultValue(true),
+    );
+
+    public static readonly PARAMETER_KEY_PATH: Parameter = Parameter.of(
+        'keyPath',
+        Schema.ofString('keyPath').setDefaultValue(''),
     );
 
     public static readonly PARAMETER_FIND_PRIMITIVE: Parameter = Parameter.of(
