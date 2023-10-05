@@ -64,6 +64,7 @@ export class SchemaUtil {
 
         if (!ref.startsWith('#')) {
             var tuple = await SchemaUtil.resolveExternalSchema(schema, sRepository, ref);
+            if (!tuple) return Promise.resolve(undefined);
             if (tuple) {
                 schema = tuple.getT1();
                 ref = tuple.getT2();
