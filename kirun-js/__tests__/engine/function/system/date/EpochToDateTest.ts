@@ -37,4 +37,47 @@ describe('testing EpochToDateFunction', () => {
             '7338-04-20T14:48:20.000Z',
         );
     });
+    test('epoch string to date 1', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', '1696489387']]));
+
+        expect((await epochToDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(
+            '2023-10-05T07:03:07.000Z',
+        );
+    });
+
+    test('epoch string to date 2', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', 'a1696489387']]));
+
+        expect(async () =>
+            (await epochToDate.execute(fep)).allResults()[0].getResult().get('date'),
+        ).rejects.toThrowError('Please provide a valid value for epoch.');
+    });
+
+    test('epoch string to date 3', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', '169648938as7']]));
+
+        expect((await epochToDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(
+            '1975-05-18T12:42:18.000Z',
+        );
+    });
+
+    test('epoch string to date 4 all chars', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', 'abcdef']]));
+
+        expect(async () =>
+            (await epochToDate.execute(fep)).allResults()[0].getResult().get('date'),
+        ).rejects.toThrow('Please provide a valid value for epoch.');
+    });
 });

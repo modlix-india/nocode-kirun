@@ -35,5 +35,6 @@ test('Repository Filter Test', async () => {
         'System.ParameterExpression',
         'System.Null',
         'System.Schema',
+        'System.Date.timeStamp',
     ]);
 });
