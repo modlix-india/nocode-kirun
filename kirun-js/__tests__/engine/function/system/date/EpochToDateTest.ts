@@ -80,4 +80,26 @@ describe('testing EpochToDateFunction', () => {
             (await epochToDate.execute(fep)).allResults()[0].getResult().get('date'),
         ).rejects.toThrow('Please provide a valid value for epoch.');
     });
+
+    test('epoch test for large string function', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', '1696494131000']]));
+
+        expect((await epochToDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(
+            '+055729-10-04T17:43:20.000Z',
+        );
+    });
+
+    test('epoch test for small string function', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['epoch', '169640']]));
+
+        expect((await epochToDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(
+            '1970-01-02T23:07:20.000Z',
+        );
+    });
 });
