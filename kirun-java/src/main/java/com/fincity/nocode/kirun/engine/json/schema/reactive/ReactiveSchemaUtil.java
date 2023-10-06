@@ -76,6 +76,9 @@ public class ReactiveSchemaUtil {
 
 			return resolveExternalSchema(sRepository, ref).flatMap(tuple -> {
 
+                if (tuple == null)
+                    return Mono.empty();
+	    
 				Schema sch = tuple.getT1();
 				String updateRef = tuple.getT2();
 
