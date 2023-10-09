@@ -1,9 +1,11 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -15,16 +17,19 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
+
+//check wheher is it possible to improve program
 
 public class EpochToDate extends AbstractReactiveFunction {
 
     private static final String EPOCH = "epoch";
 
     private static final String OUTPUT = "date";
+
+    private static final String ERROR_MSG = "Please provide a valid value for epoch.";
 
     @Override
     public FunctionSignature getSignature() {
@@ -38,14 +43,8 @@ public class EpochToDate extends AbstractReactiveFunction {
 
                                 new Schema()
                                         .setOneOf(List.of(
-
-                                                new Schema().setAnyOf(
-                                                        List.of(Schema.ofInteger(EPOCH),
-                                                                Schema.ofLong(EPOCH))),
-
-                                                Schema.ofString(EPOCH))))
-
-                ))
+                                                Schema.ofLong(EPOCH),
+                                                Schema.ofString(EPOCH))))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
                         Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + "timestamp")))));
 
@@ -58,38 +57,34 @@ public class EpochToDate extends AbstractReactiveFunction {
 
         try {
             if (epochIp.isJsonPrimitive()) {
+
                 JsonPrimitive epochPrimitive = epochIp.getAsJsonPrimitive();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss.SSS'Z'");
 
-                if (epochPrimitive.isNumber()) {
+                if (epochPrimitive.isBoolean())
+                    throw new KIRuntimeException(ERROR_MSG);
 
-                    Long longDate = epochPrimitive.getAsLong();
+                Long longDate = epochPrimitive.isNumber() ? epochPrimitive.getAsLong()
+                        : Long.parseLong(epochPrimitive.getAsString());
 
-                    Date dt = new Date(longDate * 1000); // multipling with ms
+                Date dt = longDate > 999999999999L ? new Date(longDate) : new Date(longDate * 1000);
 
-                    return Mono.just(
-                            new FunctionOutput(
-                                    List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(sdf.format(dt)))))));
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                TimeZone tz = TimeZone.getTimeZone("UTC");
+                df.setTimeZone(tz);
 
-                } else if (epochPrimitive.isString()) {
+                return Mono.just(
+                        new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(df.format(dt)))))));
 
-                    Long longDate = Long.parseLong(epochPrimitive.getAsString());
-                    Date dt = new Date(longDate * 1000); // multipling with ms
-
-                    return Mono.just(
-                            new FunctionOutput(
-                                    List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(sdf.format(dt)))))));
-
-                }
             }
+
+            throw new KIRuntimeException(ERROR_MSG);
 
         } catch (NumberFormatException nfe) {
 
-            throw new KIRuntimeException("Please provide a valid ");
+            throw new KIRuntimeException(ERROR_MSG);
 
         }
-
-        throw new KIRuntimeException("Please provide a valid ");
 
     }
 

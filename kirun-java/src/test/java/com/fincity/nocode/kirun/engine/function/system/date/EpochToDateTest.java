@@ -20,11 +20,11 @@ class EpochToDateTest {
     @Test
     void integerTest() {
 
-        rfep.setArguments(Map.of("epoch", new JsonPrimitive(1696494131)));
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive(1696431)));
 
         StepVerifier.create(etd.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("date").getAsString().equals("2023-10-05T13:52:11.000Z");
+                    return r.next().getResult().get("date").getAsString().equals("1970-01-20T15:13:51.000Z");
                 })
                 .verifyComplete();
     }
@@ -36,7 +36,7 @@ class EpochToDateTest {
 
         StepVerifier.create(etd.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("date").getAsString().equals("2507-08-07T17:11:50.000Z");
+                    return r.next().getResult().get("date").getAsString().equals("2507-08-07T11:41:50.000Z");
                 })
                 .verifyComplete();
     }
@@ -48,7 +48,7 @@ class EpochToDateTest {
 
         StepVerifier.create(etd.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("date").getAsString().equals("55729-10-04T23:13:20.000Z");
+                    return r.next().getResult().get("date").getAsString().equals("2023-10-05T08:22:11.000Z");
                 })
                 .verifyComplete();
     }
@@ -60,7 +60,7 @@ class EpochToDateTest {
 
         StepVerifier.create(etd.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("date").getAsString().equals("2507-08-07T17:11:50.000Z");
+                    return r.next().getResult().get("date").getAsString().equals("2507-08-07T11:41:50.000Z");
                 })
                 .verifyComplete();
 
@@ -72,9 +72,40 @@ class EpochToDateTest {
 
         StepVerifier.create(etd.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("date").getAsString().equals("2023-10-05T13:52:11.000Z");
+                    return r.next().getResult().get("date").getAsString().equals("2023-10-05T08:22:11.000Z");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void stringTest4() {
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive("169640")));
+
+        StepVerifier.create(etd.execute(rfep))
+                .expectNextMatches(r -> {
+                    return r.next().getResult().get("date").getAsString().equals("1970-01-02T23:07:20.000Z");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void LongTest2() {
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive(1694072117L)));
+
+        StepVerifier.create(etd.execute(rfep))
+                .expectNextMatches(r -> {
+                    return r.next().getResult().get("date").getAsString().equals("2023-09-07T07:35:17.000Z");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void booleanTest() {
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive(true)));
+
+        StepVerifier.create(etd.execute(rfep))
+                .expectError()
+                .verify();
     }
 
 }
