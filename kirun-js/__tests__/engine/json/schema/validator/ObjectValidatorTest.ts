@@ -10,7 +10,7 @@ import {
 
 const repo = new KIRunSchemaRepository();
 
-test('schema Object validator test boolean value', () => {
+test('schema Object validator test boolean value', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
@@ -18,16 +18,16 @@ test('schema Object validator test boolean value', () => {
     });
     expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
 
-    expect(SchemaValidator.validate([], schema!, repo, { name: 'Kiran' })).toStrictEqual({
+    expect(await SchemaValidator.validate([], schema!, repo, { name: 'Kiran' })).toStrictEqual({
         name: 'Kiran',
     });
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, { name: 'Kiran', lastName: 'Grandhi' }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });
 
-test('schema Object validator test schema based', () => {
+test('schema Object validator test schema based', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
@@ -35,37 +35,39 @@ test('schema Object validator test schema based', () => {
     });
     expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
 
-    expect(SchemaValidator.validate([], schema!, repo, { name: 'Kiran', num: 23 })).toStrictEqual({
+    expect(
+        await SchemaValidator.validate([], schema!, repo, { name: 'Kiran', num: 23 }),
+    ).toStrictEqual({
         name: 'Kiran',
         num: 23,
     });
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, {
             name: 'Kiran',
             num: 23,
             lastName: 'grandhi',
         }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });
 
-test('schema Object validator test boolean value old style', () => {
+test('schema Object validator test boolean value old style', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
         additionalProperties: { booleanValue: false },
     });
 
-    expect(SchemaValidator.validate([], schema!, repo, { name: 'Kiran' })).toStrictEqual({
+    expect(await SchemaValidator.validate([], schema!, repo, { name: 'Kiran' })).toStrictEqual({
         name: 'Kiran',
     });
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, { name: 'Kiran', lastName: 'Grandhi' }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });
 
-test('schema Object validator test schema based old style', () => {
+test('schema Object validator test schema based old style', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
@@ -73,21 +75,23 @@ test('schema Object validator test schema based old style', () => {
     });
     expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
 
-    expect(SchemaValidator.validate([], schema!, repo, { name: 'Kiran', num: 23 })).toStrictEqual({
+    expect(
+        await SchemaValidator.validate([], schema!, repo, { name: 'Kiran', num: 23 }),
+    ).toStrictEqual({
         name: 'Kiran',
         num: 23,
     });
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, {
             name: 'Kiran',
             num: 23,
             lastName: 'grandhi',
         }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });
 
-test('schema Object validator test schema based old ARRAY style', () => {
+test('schema Object validator test schema based old ARRAY style', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: { name: { type: 'STRING' } },
@@ -96,18 +100,18 @@ test('schema Object validator test schema based old ARRAY style', () => {
     expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
 
     var obj = { name: 'Kiran', num: [1, 2, 3] };
-    expect(SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
+    expect(await SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
 
-    expect(() =>
+    expect(
         SchemaValidator.validate([], schema!, repo, {
             name: 'Kiran',
             num: 23,
             lastName: 'grandhi',
         }),
-    ).toThrowError();
+    ).rejects.toThrowError();
 });
 
-test('schema Object validator test schema based old Object style', () => {
+test('schema Object validator test schema based old Object style', async () => {
     let schema = Schema.from({
         type: 'OBJECT',
         properties: {
@@ -119,7 +123,7 @@ test('schema Object validator test schema based old Object style', () => {
     });
 
     var obj = { name: 'Kiran', age: 23 };
-    expect(SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
+    expect(await SchemaValidator.validate([], schema!, repo, obj)).toStrictEqual(obj);
 
     var objwithAdditional = {
         name: 'Kiran',
@@ -130,7 +134,7 @@ test('schema Object validator test schema based old Object style', () => {
         },
     };
 
-    expect(SchemaValidator.validate([], schema!, repo, objwithAdditional)).toStrictEqual(
+    expect(await SchemaValidator.validate([], schema!, repo, objwithAdditional)).toStrictEqual(
         objwithAdditional,
     );
 
@@ -144,10 +148,10 @@ test('schema Object validator test schema based old Object style', () => {
         city: 'kakinada',
     };
 
-    expect(() => SchemaValidator.validate([], schema!, repo, objwithMoreAdditional)).toThrow();
+    expect(SchemaValidator.validate([], schema!, repo, objwithMoreAdditional)).rejects.toThrow();
 });
 
-test('Schema test with object value as null for any', () => {
+test('Schema test with object value as null for any', async () => {
     let filterOperator = Schema.from({
         namespace: 'test',
         name: 'filterOperator',
@@ -260,14 +264,14 @@ test('Schema test with object value as null for any', () => {
     schemaMap.set('FilterCondition', filterCondition!);
 
     class TestRepository implements Repository<Schema> {
-        public find(namespace: string, name: string): Schema | undefined {
+        public async find(namespace: string, name: string): Promise<Schema | undefined> {
             if (!namespace) {
                 return undefined;
             }
             return schemaMap.get(name);
         }
 
-        public filter(name: string): string[] {
+        public async filter(name: string): Promise<string[]> {
             return [];
         }
     }
@@ -275,6 +279,6 @@ test('Schema test with object value as null for any', () => {
 
     var tempOb2 = { field: 'nullcheck', operator: 'LESS_THAN', value: null, isValue: true };
 
-    var res3 = SchemaValidator.validate(undefined, filterCondition, repo, tempOb2);
+    var res3 = await SchemaValidator.validate(undefined, filterCondition, repo, tempOb2);
     expect(res3).toStrictEqual(tempOb2);
 });

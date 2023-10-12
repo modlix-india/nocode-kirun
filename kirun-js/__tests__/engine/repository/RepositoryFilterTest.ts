@@ -3,8 +3,8 @@ import { KIRunSchemaRepository, KIRunFunctionRepository } from '../../../src';
 const funcRepo = new KIRunFunctionRepository();
 const schemaRepo = new KIRunSchemaRepository();
 
-test('Repository Filter Test', () => {
-    expect(funcRepo.filter('Rep')).toStrictEqual([
+test('Repository Filter Test', async () => {
+    expect(await funcRepo.filter('Rep')).toStrictEqual([
         'System.String.Repeat',
         'System.String.Replace',
         'System.String.ReplaceFirst',
@@ -12,18 +12,18 @@ test('Repository Filter Test', () => {
         'System.String.ReplaceAtGivenPosition',
     ]);
 
-    expect(funcRepo.filter('root')).toStrictEqual([
+    expect(await funcRepo.filter('root')).toStrictEqual([
         'System.Math.CubeRoot',
         'System.Math.SquareRoot',
     ]);
 
-    expect(schemaRepo.filter('root')).toStrictEqual([]);
+    expect(await schemaRepo.filter('root')).toStrictEqual([]);
 
-    expect(schemaRepo.filter('rin')).toStrictEqual(['System.string']);
+    expect(await schemaRepo.filter('rin')).toStrictEqual(['System.string']);
 
-    expect(schemaRepo.filter('ny')).toStrictEqual(['System.any']);
+    expect(await schemaRepo.filter('ny')).toStrictEqual(['System.any']);
 
-    expect(schemaRepo.filter('')).toStrictEqual([
+    expect(await schemaRepo.filter('')).toStrictEqual([
         'System.any',
         'System.boolean',
         'System.double',

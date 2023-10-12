@@ -29,10 +29,10 @@ test('KIRuntime Without any parameter map passed in definition', async () => {
     const tstPrint = new Print();
 
     class TestRepository implements Repository<Function> {
-        public find(namespace: string, name: string): Function | undefined {
+        public async find(namespace: string, name: string): Promise<Function | undefined> {
             return tstPrint;
         }
-        filter(name: string): string[] {
+        public async filter(name: string): Promise<string[]> {
             throw new Error('Method not implemented.');
         }
     }

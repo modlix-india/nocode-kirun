@@ -7,6 +7,7 @@ import { AbstractStringFunction } from './AbstractStringFunction';
 import { Concatenate } from './Concatenate';
 import { DeleteForGivenLength } from './DeleteForGivenLength';
 import { InsertAtGivenPosition } from './InsertAtGivenPosition';
+import { Matches } from './Matches';
 import { PostPad } from './PostPad';
 import { PrePad } from './PrePad';
 import { RegionMatches } from './RegionMatches';
@@ -53,7 +54,7 @@ export class StringFunctionRepository implements Repository<Function> {
             (a, b, c) => a.lastIndexOf(b, c),
         ),
         AbstractStringFunction.ofEntryAsStringStringStringStringOutput('Replace', (a, b, c) => {
-            return a;
+            return a.replaceAll(b, c);
         }),
         AbstractStringFunction.ofEntryAsStringStringStringStringOutput('ReplaceFirst', (a, b, c) =>
             a.replace(b, c),
@@ -72,22 +73,25 @@ export class StringFunctionRepository implements Repository<Function> {
         mapEntry(new Split()),
         mapEntry(new ToString()),
         mapEntry(new TrimTo()),
+        mapEntry(new Matches()),
     );
 
     private static readonly filterableNames = Array.from(
         StringFunctionRepository.repoMap.values(),
     ).map((e) => e.getSignature().getFullName());
 
-    public find(namespace: string, name: string): Function | undefined {
+    public async find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.STRING) {
-            return undefined;
+            return Promise.resolve(undefined);
         }
-        return StringFunctionRepository.repoMap.get(name);
+        return Promise.resolve(StringFunctionRepository.repoMap.get(name));
     }
 
-    public filter(name: string): string[] {
-        return StringFunctionRepository.filterableNames.filter(
-            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+    public async filter(name: string): Promise<string[]> {
+        return Promise.resolve(
+            StringFunctionRepository.filterableNames.filter(
+                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+            ),
         );
     }
 }

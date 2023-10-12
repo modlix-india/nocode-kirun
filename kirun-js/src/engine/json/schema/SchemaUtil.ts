@@ -13,10 +13,10 @@ export class SchemaUtil {
 
     private static readonly CYCLIC_REFERENCE_LIMIT_COUNTER: number = 20;
 
-    public static getDefaultValue(
+    public static async getDefaultValue(
         s: Schema | undefined,
         sRepository: Repository<Schema> | undefined,
-    ): any {
+    ): Promise<any> {
         if (!s) return undefined;
 
         if (s.getConstant()) return s.getConstant();
@@ -24,45 +24,46 @@ export class SchemaUtil {
         if (!isNullValue(s.getDefaultValue())) return s.getDefaultValue();
 
         return SchemaUtil.getDefaultValue(
-            SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
+            await SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
             sRepository,
         );
     }
 
-    public static hasDefaultValueOrNullSchemaType(
+    public static async hasDefaultValueOrNullSchemaType(
         s: Schema | undefined,
         sRepository: Repository<Schema> | undefined,
-    ): boolean {
-        if (!s) return false;
-        if (s.getConstant()) return true;
+    ): Promise<boolean> {
+        if (!s) return Promise.resolve(false);
+        if (s.getConstant()) return Promise.resolve(true);
 
-        if (!isNullValue(s.getDefaultValue())) return true;
+        if (!isNullValue(s.getDefaultValue())) return Promise.resolve(true);
 
         if (isNullValue(s.getRef())) {
-            if (s.getType()?.getAllowedSchemaTypes().has(SchemaType.NULL)) return true;
-            return false;
+            if (s.getType()?.getAllowedSchemaTypes().has(SchemaType.NULL))
+                return Promise.resolve(true);
+            return Promise.resolve(false);
         }
 
         return this.hasDefaultValueOrNullSchemaType(
-            SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
+            await SchemaUtil.getSchemaFromRef(s, sRepository, s.getRef()),
             sRepository,
         );
     }
 
-    public static getSchemaFromRef(
+    public static async getSchemaFromRef(
         schema: Schema,
         sRepository: Repository<Schema> | undefined,
         ref: string | undefined,
         iteration: number = 0,
-    ): Schema | undefined {
+    ): Promise<Schema | undefined> {
         iteration++;
         if (iteration == SchemaUtil.CYCLIC_REFERENCE_LIMIT_COUNTER)
             throw new SchemaValidationException(ref ?? '', 'Schema has a cyclic reference');
 
-        if (!schema || !ref || StringUtil.isNullOrBlank(ref)) return undefined;
+        if (!schema || !ref || StringUtil.isNullOrBlank(ref)) return Promise.resolve(undefined);
 
         if (!ref.startsWith('#')) {
-            var tuple = SchemaUtil.resolveExternalSchema(schema, sRepository, ref);
+            var tuple = await SchemaUtil.resolveExternalSchema(schema, sRepository, ref);
             if (tuple) {
                 schema = tuple.getT1();
                 ref = tuple.getT2();
@@ -72,19 +73,21 @@ export class SchemaUtil {
         let parts: string[] = ref.split('/');
         let i: number = 1;
 
-        if (i === parts.length) return schema;
+        if (i === parts.length) return Promise.resolve(schema);
 
-        return SchemaUtil.resolveInternalSchema(schema, sRepository, ref, iteration, parts, i);
+        return Promise.resolve(
+            SchemaUtil.resolveInternalSchema(schema, sRepository, ref, iteration, parts, i),
+        );
     }
 
-    private static resolveInternalSchema(
+    private static async resolveInternalSchema(
         inSchema: Schema,
         sRepository: Repository<Schema> | undefined,
         ref: string,
         iteration: number,
         parts: string[],
         i: number,
-    ): Schema | undefined {
+    ): Promise<Schema | undefined> {
         let schema: Schema | undefined = inSchema;
         if (i === parts.length) return undefined;
         while (i < parts.length) {
@@ -120,7 +123,7 @@ export class SchemaUtil {
                 );
 
             if (!StringUtil.isNullOrBlank(schema.getRef())) {
-                schema = SchemaUtil.getSchemaFromRef(
+                schema = await SchemaUtil.getSchemaFromRef(
                     schema,
                     sRepository,
                     schema.getRef(),
@@ -133,25 +136,25 @@ export class SchemaUtil {
                     );
             }
         }
-        return schema;
+        return Promise.resolve(schema);
     }
 
-    private static resolveExternalSchema(
+    private static async resolveExternalSchema(
         inSchem: Schema,
         sRepository: Repository<Schema> | undefined,
         ref: string,
-    ): Tuple2<Schema, string> | undefined {
-        if (!sRepository) return undefined;
+    ): Promise<Tuple2<Schema, string> | undefined> {
+        if (!sRepository) return Promise.resolve(undefined);
 
         let nms = StringUtil.splitAtFirstOccurance(ref ?? '', '/');
-        if (!nms[0]) return undefined;
+        if (!nms[0]) return Promise.resolve(undefined);
 
         let nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
-        if (!nmspnm[0] || !nmspnm[1]) return undefined;
+        if (!nmspnm[0] || !nmspnm[1]) return Promise.resolve(undefined);
 
-        let schema = sRepository.find(nmspnm[0], nmspnm[1]);
-        if (!schema) return undefined;
-        if (!nms[1] || nms[1] === '') return new Tuple2(schema, ref);
+        let schema = await sRepository.find(nmspnm[0], nmspnm[1]);
+        if (!schema) return Promise.resolve(undefined);
+        if (!nms[1] || nms[1] === '') return Promise.resolve(new Tuple2(schema, ref));
 
         ref = '#/' + nms[1];
 
@@ -161,7 +164,7 @@ export class SchemaUtil {
                 SchemaUtil.UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH,
             );
 
-        return new Tuple2(schema, ref);
+        return Promise.resolve(new Tuple2(schema, ref));
     }
 
     private constructor() {}

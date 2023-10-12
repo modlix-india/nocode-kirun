@@ -71,25 +71,21 @@ test('KIRuntime Undefined and null param type with varargs', async () => {
     const tstPrint = new Print();
 
     class TestRepository implements Repository<Function> {
-        public find(namespace: string, name: string): Function | undefined {
+        public async find(namespace: string, name: string): Promise<Function | undefined> {
             return tstPrint;
         }
-        filter(name: string): string[] {
+        public async filter(name: string): Promise<string[]> {
             throw new Error('Method not implemented.');
         }
     }
 
-    try {
-        var fo: FunctionOutput = await new KIRuntime(fd).execute(
-            new FunctionExecutionParameters(
-                new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
-                new KIRunSchemaRepository(),
-            ).setArguments(new Map()),
-        );
-        expect(fo.allResults()).toStrictEqual([]);
-    } catch (e: any) {
-        console.error(e);
-    }
+    var fo: FunctionOutput = await new KIRuntime(fd).execute(
+        new FunctionExecutionParameters(
+            new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map()),
+    );
+    expect(fo.allResults()[0].getResult().size).toBe(0);
 });
 
 test('KIRuntime Undefined and null param type without varargs', async () => {
@@ -115,23 +111,24 @@ test('KIRuntime Undefined and null param type without varargs', async () => {
     const tstPrint = new Print();
 
     class TestRepository implements Repository<Function> {
-        public find(namespace: string, name: string): Function | undefined {
+        public async find(namespace: string, name: string): Promise<Function | undefined> {
             return tstPrint;
         }
-        filter(name: string): string[] {
+        public async filter(name: string): Promise<string[]> {
             throw new Error('Method not implemented.');
         }
     }
 
-    try {
-        var fo: FunctionOutput = await new KIRuntime(fd).execute(
-            new FunctionExecutionParameters(
-                new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
-                new KIRunSchemaRepository(),
-            ).setArguments(new Map()),
-        );
-        expect(fo.allResults()).toStrictEqual([]);
-    } catch (e: any) {
-        console.error(e);
-    }
+    expect(
+        (
+            await new KIRuntime(fd).execute(
+                new FunctionExecutionParameters(
+                    new HybridRepository(new KIRunFunctionRepository(), new TestRepository()),
+                    new KIRunSchemaRepository(),
+                ).setArguments(new Map()),
+            )
+        )
+            .allResults()[0]
+            .getResult().size,
+    ).toBe(0);
 });

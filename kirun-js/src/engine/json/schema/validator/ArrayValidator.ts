@@ -6,12 +6,12 @@ import { SchemaValidationException } from './exception/SchemaValidationException
 import { SchemaValidator } from './SchemaValidator';
 
 export class ArrayValidator {
-    public static validate(
+    public static async validate(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
         element: any,
-    ): any {
+    ): Promise<any> {
         if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
@@ -28,16 +28,16 @@ export class ArrayValidator {
 
         ArrayValidator.checkMinMaxItems(parents, schema, array);
 
-        ArrayValidator.checkItems(parents, schema, repository, array);
+        await ArrayValidator.checkItems(parents, schema, repository, array);
 
         ArrayValidator.checkUniqueItems(parents, schema, array);
 
-        ArrayValidator.checkContains(schema, parents, repository, array);
+        await ArrayValidator.checkContains(schema, parents, repository, array);
 
         return element;
     }
 
-    private static checkContains(
+    private static async checkContains(
         schema: Schema,
         parents: Schema[],
         repository: Repository<Schema> | undefined,
@@ -45,7 +45,7 @@ export class ArrayValidator {
     ) {
         if (isNullValue(schema.getContains())) return;
 
-        let count = ArrayValidator.countContains(
+        let count = await ArrayValidator.countContains(
             parents,
             schema,
             repository,
@@ -79,19 +79,24 @@ export class ArrayValidator {
             );
     }
 
-    public static countContains(
+    public static async countContains(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
         array: any[],
         stopOnFirst?: boolean,
-    ): number {
+    ): Promise<number> {
         let count = 0;
         for (let i = 0; i < array.length; i++) {
             let newParents: Schema[] = !parents ? [] : [...parents];
 
             try {
-                SchemaValidator.validate(newParents, schema.getContains(), repository, array[i]);
+                await SchemaValidator.validate(
+                    newParents,
+                    schema.getContains(),
+                    repository,
+                    array[i],
+                );
                 count++;
                 if (stopOnFirst) break;
             } catch (err) {}
@@ -127,7 +132,7 @@ export class ArrayValidator {
         }
     }
 
-    public static checkItems(
+    public static async checkItems(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -140,7 +145,7 @@ export class ArrayValidator {
         if (type.getSingleSchema()) {
             for (let i = 0; i < array.length; i++) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
-                let element: any = SchemaValidator.validate(
+                let element: any = await SchemaValidator.validate(
                     newParents,
                     type.getSingleSchema(),
                     repository,
@@ -164,13 +169,13 @@ export class ArrayValidator {
                 );
             }
 
-            this.checkItemsInTupleSchema(parents, repository, array, type);
+            await this.checkItemsInTupleSchema(parents, repository, array, type);
 
-            this.checkAdditionalItems(parents, schema, repository, array, type);
+            await this.checkAdditionalItems(parents, schema, repository, array, type);
         }
     }
 
-    private static checkItemsInTupleSchema(
+    private static async checkItemsInTupleSchema(
         parents: Schema[],
         repository: Repository<Schema> | undefined,
         array: any[],
@@ -178,7 +183,7 @@ export class ArrayValidator {
     ) {
         for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = SchemaValidator.validate(
+            let element: any = await SchemaValidator.validate(
                 newParents,
                 type.getTupleSchema()![i],
                 repository,
@@ -188,7 +193,7 @@ export class ArrayValidator {
         }
     }
 
-    private static checkAdditionalItems(
+    private static async checkAdditionalItems(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -209,7 +214,7 @@ export class ArrayValidator {
                         'No Additional Items are defined',
                     );
 
-                this.checkEachItemInAdditionalItems(
+                await this.checkEachItemInAdditionalItems(
                     parents,
                     schema,
                     repository,
@@ -219,7 +224,7 @@ export class ArrayValidator {
                 );
             } else if (additionalSchemaType?.getSchemaValue()) {
                 let schemaType = additionalSchemaType.getSchemaValue();
-                this.checkEachItemInAdditionalItems(
+                await this.checkEachItemInAdditionalItems(
                     parents,
                     schema,
                     repository,
@@ -231,7 +236,7 @@ export class ArrayValidator {
         }
     }
 
-    private static checkEachItemInAdditionalItems(
+    private static async checkEachItemInAdditionalItems(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -241,7 +246,7 @@ export class ArrayValidator {
     ) {
         for (let i = type.getTupleSchema()?.length!; i < array.length; i++) {
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = SchemaValidator.validate(
+            let element: any = await SchemaValidator.validate(
                 newParents,
                 schemaType!,
                 repository,

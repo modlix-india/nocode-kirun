@@ -2,7 +2,7 @@ import { KIRunSchemaRepository, SchemaValidator } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 
 const repo = new KIRunSchemaRepository();
-test('schemaArray With Single Test', () => {
+test('schemaArray With Single Test', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -25,10 +25,10 @@ test('schemaArray With Single Test', () => {
         'exampleString',
     ];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrow();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
-test('schemaArray With out Single fail Test', () => {
+test('schemaArray With out Single fail Test', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -50,10 +50,10 @@ test('schemaArray With out Single fail Test', () => {
         'exampleString',
     ];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrow();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
-test('schemaArrayWithSingle pass Test', () => {
+test('schemaArrayWithSingle pass Test', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -75,10 +75,10 @@ test('schemaArrayWithSingle pass Test', () => {
         },
     ];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
+    expect(await SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
 });
 
-test('schemaArray With Tuple Test ', () => {
+test('schemaArray With Tuple Test ', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: {
@@ -108,10 +108,10 @@ test('schemaArray With Tuple Test ', () => {
         'mla',
     ];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
+    expect(await SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
 });
 
-test('schemaArray With out Tuple Test ', () => {
+test('schemaArray With out Tuple Test ', async () => {
     let schema = Schema.from({
         type: 'ARRAY',
         items: [
@@ -137,5 +137,5 @@ test('schemaArray With out Tuple Test ', () => {
         true,
         false,
     ];
-    expect(SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
+    expect(await SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
 });

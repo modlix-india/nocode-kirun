@@ -8,7 +8,7 @@ import { MapUtil } from '../../../../../src/engine/util/MapUtil';
 const stringRepo = new StringFunctionRepository();
 
 test('StringRepo - contains', async () => {
-    let fun = stringRepo.find(Namespaces.STRING, 'Contains');
+    let fun = await stringRepo.find(Namespaces.STRING, 'Contains');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
@@ -82,7 +82,7 @@ test('StringRepo - contains', async () => {
 });
 
 test('string function repo 2', async () => {
-    let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
+    let fun = await stringRepo.find(Namespaces.STRING, 'EndsWith');
 
     if (!fun) {
         throw new Error('Function not available');
@@ -141,7 +141,7 @@ test('string function repo 2', async () => {
 });
 
 test('string function repo 3', async () => {
-    let fun = stringRepo.find(Namespaces.STRING, 'EndsWith');
+    let fun = await stringRepo.find(Namespaces.STRING, 'EndsWith');
 
     if (!fun) {
         throw new Error('Function not available');

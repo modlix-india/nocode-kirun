@@ -72,17 +72,19 @@ export class ArrayFunctionRepository implements Repository<Function> {
         ArrayFunctionRepository.repoMap.values(),
     ).map((e) => e.getSignature().getFullName());
 
-    public find(namespace: string, name: string): Function | undefined {
+    public async find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.SYSTEM_ARRAY) {
-            return undefined;
+            return Promise.resolve(undefined);
         }
 
-        return ArrayFunctionRepository.repoMap.get(name);
+        return Promise.resolve(ArrayFunctionRepository.repoMap.get(name));
     }
 
-    public filter(name: string): string[] {
-        return ArrayFunctionRepository.filterableNames.filter(
-            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+    public async filter(name: string): Promise<string[]> {
+        return Promise.resolve(
+            ArrayFunctionRepository.filterableNames.filter(
+                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+            ),
         );
     }
 }

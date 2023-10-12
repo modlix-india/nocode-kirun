@@ -143,16 +143,20 @@ test('KIRuntime Function in Function', async () => {
     );
 
     class InternalRepository implements Repository<Function> {
-        find(namespace: string, name: string): Function | undefined {
-            if (namespace !== 'Internal') return;
+        async find(namespace: string, name: string): Promise<Function | undefined> {
+            if (namespace !== 'Internal') return Promise.resolve(undefined);
 
-            if (name === 'Third') return third;
-            if (name === 'Second') return second;
+            if (name === 'Third') return Promise.resolve(third);
+            if (name === 'Second') return Promise.resolve(second);
+
+            return Promise.resolve(undefined);
         }
 
-        filter(name: string): string[] {
-            return [third.getSignature().getFullName(), second.getSignature().getFullName()].filter(
-                (e) => e.toLowerCase().includes(name.toLowerCase()),
+        async filter(name: string): Promise<string[]> {
+            return Promise.resolve(
+                [third.getSignature().getFullName(), second.getSignature().getFullName()].filter(
+                    (e) => e.toLowerCase().includes(name.toLowerCase()),
+                ),
             );
         }
     }

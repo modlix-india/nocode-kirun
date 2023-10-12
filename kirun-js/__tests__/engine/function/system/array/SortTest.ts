@@ -53,9 +53,9 @@ test('sort test 2', async () => {
 
     let res: any[] = [];
     res.push(12);
-    res.push(1);
-    res.push(15);
     res.push(98);
+    res.push(15);
+    res.push(1);
 
     expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
 });
@@ -72,10 +72,10 @@ test('sort test 3', async () => {
     let res: any[] = [];
     res.push(12);
     res.push(15);
-    res.push('sure');
-    res.push('c');
-    res.push(98);
     res.push(1);
+    res.push(98);
+    res.push('c');
+    res.push('sure');
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
@@ -121,7 +121,7 @@ test('sort test 4', async () => {
         new Map<string, any>([
             [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
             [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
-            [Sort.PARAMETER_BOOLEAN_ASCENDING.getParameterName(), true],
+            [Sort.PARAMETER_BOOLEAN_ASCENDING.getParameterName(), false],
         ]),
     );
 
@@ -142,5 +142,102 @@ test('sort test 5', async () => {
         ]),
     );
     let res: any[] = ['Banana', 'Apple', 'Mango', 'Orange'];
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
+});
+
+test('sort test 6', async () => {
+    let arr: any[] = [
+        { order: 13 },
+        { order: 3 },
+        { order: 130 },
+        { order: 10 },
+        { order: 21 },
+        { order: 1 },
+    ];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
+        new Map<string, any>([
+            [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
+            [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
+            [Sort.PARAMETER_INT_LENGTH.getParameterName(), arr.length],
+            [Sort.PARAMETER_KEY_PATH.getParameterName(), 'order'],
+        ]),
+    );
+    let res: any[] = [
+        { order: 1 },
+        { order: 3 },
+        { order: 10 },
+        { order: 13 },
+        { order: 21 },
+        { order: 130 },
+    ];
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
+});
+
+test('sort test 7', async () => {
+    let arr: any[] = [
+        { order: { order: 13 } },
+        { order: { order: 3 } },
+        { order: { order: 130 } },
+        { order: { order: 10 } },
+        { order: { order: 21 } },
+        { order: { order: 1 } },
+    ];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
+        new Map<string, any>([
+            [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
+            [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
+            [Sort.PARAMETER_INT_LENGTH.getParameterName(), arr.length],
+            [Sort.PARAMETER_KEY_PATH.getParameterName(), 'order.order'],
+        ]),
+    );
+    let res: any[] = [
+        { order: { order: 1 } },
+        { order: { order: 3 } },
+        { order: { order: 10 } },
+        { order: { order: 13 } },
+        { order: { order: 21 } },
+        { order: { order: 130 } },
+    ];
+    expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
+});
+
+test('sort test 8', async () => {
+    let arr: any[] = [
+        { order: { order: 13 } },
+        { order: { order: 3 } },
+        { order: { order: 130 } },
+        { order: { order: 10 } },
+        { order: { order: 21 } },
+        { order: { order: 1 } },
+    ];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
+        new Map<string, any>([
+            [Sort.PARAMETER_ARRAY_SOURCE_PRIMITIVE.getParameterName(), arr],
+            [Sort.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
+            [Sort.PARAMETER_INT_LENGTH.getParameterName(), arr.length],
+            [Sort.PARAMETER_KEY_PATH.getParameterName(), 'order.order'],
+            [Sort.PARAMETER_BOOLEAN_ASCENDING.getParameterName(), false],
+        ]),
+    );
+    let res: any[] = [
+        { order: { order: 130 } },
+        { order: { order: 21 } },
+        { order: { order: 13 } },
+        { order: { order: 10 } },
+        { order: { order: 3 } },
+        { order: { order: 1 } },
+    ];
     expect((await sort.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res);
 });

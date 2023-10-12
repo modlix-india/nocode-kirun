@@ -9,7 +9,7 @@ import {
 
 const repo = new KIRunSchemaRepository();
 
-test('schema array validator test for single', () => {
+test('schema array validator test for single', async () => {
     let ast = new ArraySchemaType();
     ast.setSingleSchema(Schema.ofInteger('ast'));
 
@@ -17,10 +17,10 @@ test('schema array validator test for single', () => {
 
     let arr = [12, 23, 54, 45];
 
-    expect(ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
+    expect(await ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
 });
 
-test('schema array validator test for tuple', () => {
+test('schema array validator test for tuple', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -34,10 +34,10 @@ test('schema array validator test for tuple', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }];
 
-    expect(ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
+    expect(await ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
 });
 
-test('schema array validator test for single', () => {
+test('schema array validator test for single', async () => {
     let ast = new ArraySchemaType();
     ast.setSingleSchema(Schema.ofInteger('ast'));
 
@@ -47,10 +47,10 @@ test('schema array validator test for single', () => {
 
     let arr = [12, 23, 54, 45];
 
-    expect(ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
+    expect(await ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
 });
 
-test('schema array validator test for tuple', () => {
+test('schema array validator test for tuple', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -66,10 +66,10 @@ test('schema array validator test for tuple', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }, 1, 2, 4];
 
-    expect(ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
+    expect(await ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
 });
 
-test('schema array validator test for tuple with add schema', () => {
+test('schema array validator test for tuple with add schema', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -85,10 +85,10 @@ test('schema array validator test for tuple with add schema', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }, 1, 2];
 
-    expect(ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
+    expect(await ArrayValidator.validate([], schema, repo, arr)).toStrictEqual(arr);
 });
 
-test('schema array validator test for tuple with add schema fail', () => {
+test('schema array validator test for tuple with add schema fail', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -104,10 +104,10 @@ test('schema array validator test for tuple with add schema fail', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }, 1, 2, 4, 'surendhar'];
 
-    expect(() => ArrayValidator.validate([], schema, repo, arr)).toThrow();
+    expect(ArrayValidator.validate([], schema, repo, arr)).rejects.toThrow();
 });
 
-test('schema array validator test for tuple with add schema fail', () => {
+test('schema array validator test for tuple with add schema fail', async () => {
     let tupleS: Schema[] = [Schema.ofInteger('item1'), Schema.ofString('item2')];
 
     let ast = new ArraySchemaType();
@@ -119,10 +119,10 @@ test('schema array validator test for tuple with add schema fail', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }, 1, 2, 4, ['ve', 23, 'ctor']];
 
-    expect(() => ArrayValidator.validate([], schema, repo, arr)).toThrow();
+    expect(ArrayValidator.validate([], schema, repo, arr)).rejects.toThrow();
 });
 
-test('schema array validator test for single with additional', () => {
+test('schema array validator test for single with additional', async () => {
     let ast = new ArraySchemaType();
     ast.setSingleSchema(Schema.ofInteger('ast'));
 
@@ -132,10 +132,10 @@ test('schema array validator test for single with additional', () => {
 
     let arr = [12, 23, 54, 45, 'abcd', 'df'];
 
-    expect(() => ArrayValidator.validate([], schema, repo, arr)).toThrow();
+    expect(ArrayValidator.validate([], schema, repo, arr)).rejects.toThrow();
 });
 
-test('schema array validator test for tuple without additional', () => {
+test('schema array validator test for tuple without additional', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -149,10 +149,10 @@ test('schema array validator test for tuple without additional', () => {
 
     let arr = [12, 'surendhar', { a: 'val1', b: 'val2' }, 'add'];
 
-    expect(() => ArrayValidator.validate([], schema, repo, arr)).toThrow();
+    expect(ArrayValidator.validate([], schema, repo, arr)).rejects.toThrow();
 });
 
-test('schema array validator tuple schema with json object', () => {
+test('schema array validator tuple schema with json object', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -166,10 +166,10 @@ test('schema array validator tuple schema with json object', () => {
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });
 
-test('schema array validator tuple schema similar to json object', () => {
+test('schema array validator tuple schema similar to json object', async () => {
     let tupleS: Schema[] = [
         Schema.ofInteger('item1'),
         Schema.ofString('item2'),
@@ -187,5 +187,5 @@ test('schema array validator tuple schema similar to json object', () => {
 
     let obj = [1, 'asd', true, { val: 'stringtype' }, false];
 
-    expect(() => SchemaValidator.validate([], schema, repo, obj)).toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
 });

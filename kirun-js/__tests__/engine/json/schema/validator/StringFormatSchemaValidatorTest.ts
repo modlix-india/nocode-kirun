@@ -10,10 +10,10 @@ import {
 
 const repo = new KIRunSchemaRepository();
 
-test('Schema Validator fail with date test', () => {
+test('Schema Validator fail with date test', async () => {
     let schema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER));
 
-    expect(SchemaValidator.validate([], schema, repo, 2)).toBe(2);
+    expect(await SchemaValidator.validate([], schema, repo, 2)).toBe(2);
 
     let obj = { name: 'shagil' };
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -25,17 +25,17 @@ test('Schema Validator fail with date test', () => {
         )
         .setRequired(['name', 'date']);
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, obj)).toThrow('date is mandatory');
+    expect(SchemaValidator.validate([], objSchema, repo, obj)).rejects.toThrow('date is mandatory');
     const dateObj = { name: 'surendhar.s', date: '1999-13-12' };
     const errorMsg =
         'Value {"name":"surendhar.s","date":"1999-13-12"} is not of valid type(s)' +
         '\n' +
         'Type is missing in schema for declared DATE format.';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, dateObj)).toThrow(errorMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, dateObj)).rejects.toThrow(errorMsg);
 });
 
-test('Schema Validator pass with date test ', () => {
+test('Schema Validator pass with date test ', async () => {
     let intSchema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER)).setMinimum(100);
 
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -55,10 +55,10 @@ test('Schema Validator pass with date test ', () => {
 
     const dateObj = { intSchema: 1231, date: '1999-09-12' };
 
-    expect(SchemaValidator.validate([], objSchema, repo, dateObj)).toBe(dateObj);
+    expect(await SchemaValidator.validate([], objSchema, repo, dateObj)).toBe(dateObj);
 });
 
-test('Schema Validator fail with time string type missing test ', () => {
+test('Schema Validator fail with time string type missing test ', async () => {
     let intSchema: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.INTEGER))
         .setMaximum(100)
@@ -80,10 +80,10 @@ test('Schema Validator fail with time string type missing test ', () => {
         'Value {"intSchema":95,"time":"22:23:61","name":"s.surendhar"} is not of valid type(s)\n' +
         'Type is missing in schema for declared TIME format.';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, timeObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, timeObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator fail with time test ', () => {
+test('Schema Validator fail with time test ', async () => {
     let intSchema: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.INTEGER))
         .setMaximum(100)
@@ -111,10 +111,10 @@ test('Schema Validator fail with time test ', () => {
         'Value "22:23:61" is not of valid type(s)\n' +
         '22:23:61 is not matched with the time pattern';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, timeObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, timeObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator pass with time test ', () => {
+test('Schema Validator pass with time test ', async () => {
     let intSchema: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.INTEGER))
         .setMaximum(100)
@@ -137,10 +137,10 @@ test('Schema Validator pass with time test ', () => {
 
     const timeObj = { intSchema: 95, time: '22:23:24', name: 's.surendhar' };
 
-    expect(SchemaValidator.validate([], objSchema, repo, timeObj)).toBe(timeObj);
+    expect(await SchemaValidator.validate([], objSchema, repo, timeObj)).toBe(timeObj);
 });
 
-test('Schema Validator fail with email string type missing test ', () => {
+test('Schema Validator fail with email string type missing test ', async () => {
     let intSchema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER)).setMaximum(100);
 
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -159,10 +159,10 @@ test('Schema Validator fail with email string type missing test ', () => {
         'Value {"intSchema":95,"email":"iosdjfdf123--@gmail.com","name":"s.surendhar"} is not of valid type(s)\n' +
         'Type is missing in schema for declared EMAIL format.';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, emailObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator fail with email test ', () => {
+test('Schema Validator fail with email test ', async () => {
     let intSchema: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.INTEGER))
         .setMaximum(3)
@@ -190,10 +190,10 @@ test('Schema Validator fail with email test ', () => {
         'Value "asdasdf@@*.com" is not of valid type(s)\n' +
         'asdasdf@@*.com is not matched with the email pattern';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, emailObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator pass with time test ', () => {
+test('Schema Validator pass with time test ', async () => {
     let intSchema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER));
 
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -213,10 +213,10 @@ test('Schema Validator pass with time test ', () => {
 
     const emailObj = { intSchema: 95, email: 'surendhar.s@finc.c', name: 's.surendhar' };
 
-    expect(SchemaValidator.validate([], objSchema, repo, emailObj)).toBe(emailObj);
+    expect(await SchemaValidator.validate([], objSchema, repo, emailObj)).toBe(emailObj);
 });
 
-test('Schema Validator fail with dateTime string type missing test ', () => {
+test('Schema Validator fail with dateTime string type missing test ', async () => {
     let intSchema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER)).setMaximum(100);
 
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -235,10 +235,10 @@ test('Schema Validator fail with dateTime string type missing test ', () => {
         'Value {"intSchema":95,"dateTime":"2023-08-21T07:56:45+12:12","name":"s.surendhar"} is not of valid type(s)\n' +
         'Type is missing in schema for declared DATETIME format.';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, emailObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator fail with dateTime test ', () => {
+test('Schema Validator fail with dateTime test ', async () => {
     let intSchema: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.INTEGER))
         .setMaximum(3)
@@ -266,10 +266,10 @@ test('Schema Validator fail with dateTime test ', () => {
         'Value "2023-08-221T07:56:45+12:12" is not of valid type(s)\n' +
         '2023-08-221T07:56:45+12:12 is not matched with the date time pattern';
 
-    expect(() => SchemaValidator.validate([], objSchema, repo, dateTimeObj)).toThrow(errMsg);
+    expect(SchemaValidator.validate([], objSchema, repo, dateTimeObj)).rejects.toThrow(errMsg);
 });
 
-test('Schema Validator pass with time test ', () => {
+test('Schema Validator pass with time test ', async () => {
     let intSchema: Schema = new Schema().setType(TypeUtil.of(SchemaType.INTEGER));
 
     let objSchema: Schema = Schema.ofObject('testObj')
@@ -293,7 +293,7 @@ test('Schema Validator pass with time test ', () => {
         name: 's.surendhar',
     };
 
-    expect(SchemaValidator.validate([], objSchema, repo, dateTimeObj)).toBe(dateTimeObj);
+    expect(await SchemaValidator.validate([], objSchema, repo, dateTimeObj)).toBe(dateTimeObj);
 });
 
 const dateTimeObj = { dateTime: '2023-08-21T07:56:45+12:12' };

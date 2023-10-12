@@ -11,13 +11,13 @@ import { SchemaValidator } from './SchemaValidator';
 import { StringValidator } from './StringValidator';
 
 export class TypeValidator {
-    public static validate(
+    public static async validate(
         parents: Schema[],
         type: SchemaType,
         schema: Schema,
-        repository: Repository<Schema> |undefined,
+        repository: Repository<Schema> | undefined,
         element: any,
-    ): any {
+    ): Promise<any> {
         if (type == SchemaType.STRING) {
             StringValidator.validate(parents, schema, element);
         } else if (
@@ -30,9 +30,9 @@ export class TypeValidator {
         } else if (type == SchemaType.BOOLEAN) {
             BooleanValidator.validate(parents, schema, element);
         } else if (type == SchemaType.OBJECT) {
-            ObjectValidator.validate(parents, schema, repository, element);
+            await ObjectValidator.validate(parents, schema, repository, element);
         } else if (type == SchemaType.ARRAY) {
-            ArrayValidator.validate(parents, schema, repository, element);
+            await ArrayValidator.validate(parents, schema, repository, element);
         } else if (type == SchemaType.NULL) {
             NullValidator.validate(parents, schema, element);
         } else {

@@ -8,7 +8,7 @@ import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../s
 const stringRepo = new StringFunctionRepository();
 
 test('StringRepo3 - EqualsIgnoreCase', async () => {
-    let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
+    let fun = await stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
@@ -51,7 +51,7 @@ test('StringRepo3 - EqualsIgnoreCase', async () => {
 });
 
 test('StringRepo3 - EqualsIgnoreCase', async () => {
-    let fun = stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
+    let fun = await stringRepo.find(Namespaces.STRING, 'EqualsIgnoreCase');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
