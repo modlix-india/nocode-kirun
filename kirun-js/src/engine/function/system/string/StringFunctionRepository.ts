@@ -54,7 +54,7 @@ export class StringFunctionRepository implements Repository<Function> {
             (a, b, c) => a.lastIndexOf(b, c),
         ),
         AbstractStringFunction.ofEntryAsStringStringStringStringOutput('Replace', (a, b, c) => {
-            return a;
+            return a.replaceAll(b, c);
         }),
         AbstractStringFunction.ofEntryAsStringStringStringStringOutput('ReplaceFirst', (a, b, c) =>
             a.replace(b, c),
