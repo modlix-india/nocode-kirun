@@ -7,6 +7,7 @@ export class Namespaces {
 
     public static readonly MATH: string = 'System.Math';
     public static readonly STRING: string = 'System.String';
+    public static readonly DATE: string = 'System.Date';
 
     private constructor() {}
 }

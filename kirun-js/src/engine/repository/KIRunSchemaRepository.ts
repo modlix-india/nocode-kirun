@@ -15,13 +15,15 @@ const map: Map<string, Schema> = new Map([
     [Parameter.EXPRESSION.getName()!, Parameter.EXPRESSION],
     [Schema.NULL.getName()!, Schema.NULL],
     [Schema.SCHEMA.getName()!, Schema.SCHEMA],
+    ['Date.timeStamp', Schema.ofString('timeStamp').setNamespace(Namespaces.DATE)],
 ]);
 
 const filterableNames = Array.from(map.values()).map((e) => e.getFullName());
 
 export class KIRunSchemaRepository implements Repository<Schema> {
     public async find(namespace: string, name: string): Promise<Schema | undefined> {
-        if (Namespaces.SYSTEM != namespace) return Promise.resolve(undefined);
+        if (Namespaces.SYSTEM != namespace && Namespaces.DATE != namespace)
+            return Promise.resolve(undefined);
 
         return Promise.resolve(map.get(name));
     }
