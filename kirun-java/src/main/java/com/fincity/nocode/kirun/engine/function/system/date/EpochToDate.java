@@ -21,8 +21,6 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-//check wheher is it possible to improve program
-
 public class EpochToDate extends AbstractReactiveFunction {
 
     private static final String EPOCH = "epoch";
@@ -46,7 +44,7 @@ public class EpochToDate extends AbstractReactiveFunction {
                                                 Schema.ofLong(EPOCH),
                                                 Schema.ofString(EPOCH))))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
-                        Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + "timestamp")))));
+                        Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + "timeStamp")))));
 
     }
 

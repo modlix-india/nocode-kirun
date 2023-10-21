@@ -1,12 +1,9 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import static com.fincity.nocode.kirun.engine.util.date.IsValidIsoDateTime.dateTimePattern;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -71,9 +68,10 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
         return signature;
     }
 
-    public static Entry<String, ReactiveFunction> ofEntryDate(final String name, UnaryOperator<String> ufunction) {
+    public static Entry<String, ReactiveFunction> ofEntryDateWithOutputName(final String name, String output,
+            Function<String, Number> ufunction, SchemaType... schemaType) {
 
-        return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name) {
+        return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
 
             @Override
             protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
@@ -83,12 +81,10 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         .getAsString();
 
                 if (!IsValidIsoDateTime.checkValidity(date))
-                    throw new KIRuntimeException("Please provide the valid iso date. ");
-
-                System.err.println("input date " + date);
+                    throw new KIRuntimeException("Please provide the valid iso date.");
 
                 return Mono.just(new FunctionOutput(
-                        List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(date))))));
+                        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
             }
         });
     }

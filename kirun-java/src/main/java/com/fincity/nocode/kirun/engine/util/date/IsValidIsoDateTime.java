@@ -17,11 +17,11 @@ public class IsValidIsoDateTime {
 
     public static boolean checkValidity(String input) {
 
-        Pattern isoPattern = dateTimePattern;
-
-        Matcher matcher = isoPattern.matcher(input);
-
-        return matcher.find();
+        return getMatcher(input).find();
     }
 
+    public static Matcher getMatcher(String input) {
+
+        return dateTimePattern.matcher(input);
+    }
 }

@@ -63,4 +63,13 @@ describe('testing GetDateFunction', () => {
 
         expect((await getDay.execute(fep)).allResults()[0].getResult().get('day')).toBe(2);
     });
+
+    test('Test 6', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['isodate', '2053-10-04T14:10:50.70000+00:00']]));
+
+        expect((await getDay.execute(fep)).allResults()[0].getResult().get('day')).toBe(6);
+    });
 });
