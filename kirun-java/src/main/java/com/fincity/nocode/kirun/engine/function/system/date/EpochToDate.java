@@ -44,7 +44,7 @@ public class EpochToDate extends AbstractReactiveFunction {
                                                 Schema.ofLong(EPOCH),
                                                 Schema.ofString(EPOCH))))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
-                        Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + "timeStamp")))));
+                        Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + ".timeStamp")))));
 
     }
 
