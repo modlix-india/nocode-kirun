@@ -1,11 +1,10 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -45,22 +44,11 @@ public class GetTimeZone extends AbstractReactiveFunction {
         if (!IsValidIsoDateTime.checkValidity(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        ZoneId presentZone = ZonedDateTime.parse(inputDate).getZone();
 
-        try {
-
-            df.parse(inputDate);
-
-            String timeZone = df.getTimeZone().getDisplayName();
-
-            System.out.println(timeZone);
-
-            return Mono.just(
-                    new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(timeZone))))));
-
-        } catch (ParseException e) {
-            throw new KIRuntimeException("Please provide valid ISO date");
-        }
+        return Mono
+                .just(new FunctionOutput(List.of(EventResult
+                        .outputOf(Map.of(OUTPUT, new JsonPrimitive(TimeZone.getTimeZone(presentZone).getID()))))));
 
     }
 

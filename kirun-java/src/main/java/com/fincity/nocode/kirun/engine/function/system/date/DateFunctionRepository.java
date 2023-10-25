@@ -43,6 +43,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                     Calendar cal = Calendar.getInstance();
                     cal.setTimeZone(TimeZone.getTimeZone("UTC"));
                     cal.setTime(dt);
+                    System.out.println(cal.get(Calendar.DAY_OF_WEEK));
                     return cal.get(Calendar.DAY_OF_WEEK) - 1;
                 } catch (ParseException e) {
                     e.printStackTrace();

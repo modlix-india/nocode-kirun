@@ -148,7 +148,7 @@ class GetDayTest {
                 .verifyComplete();
 
     }
-    
+
     @Test
     void dateSuccessTest7() {
 
@@ -172,6 +172,20 @@ class GetDayTest {
                 .flatMap(e -> e.execute(fep)))
                 .expectError()
                 .verify();
+
+    }
+
+    @Test
+    void dateSuccessTest8() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1300-10-25T05:42:10.435Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDay")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "day").getAsInt() == 0)
+                .verifyComplete();
 
     }
 }

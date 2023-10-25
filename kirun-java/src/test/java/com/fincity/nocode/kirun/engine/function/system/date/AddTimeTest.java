@@ -11,20 +11,23 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class GetTimeZoneTest {
+class AddTimeTest {
 
-    GetTimeZone gt = new GetTimeZone();
+    AddTime at = new AddTime();
+
     ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
     @Test
     void test() {
 
-        rfep.setArguments(Map.of("isodate", new JsonPrimitive("1994-10-24T02:10:30.700+05:00")));
+        rfep.setArguments(Map.of("isodate", new JsonPrimitive("1994-10-24T14:05:30.406+00:00"), "add",
+                new JsonPrimitive(1020L), "timeunit",
+                new JsonPrimitive("SECONDS")));
 
-        StepVerifier.create(gt.execute(rfep))
+        StepVerifier.create(at.execute(rfep))
                 .expectNextMatches(
-                        r -> r.allResults().get(0).getResult().get("timeZone").getAsString().equals("GMT+05:00"))
+                        r -> r.next().getResult().get("date").getAsString() == "1994-10-24T14:22s:30.406+00:00")
                 .verifyComplete();
 
     }
@@ -32,10 +35,13 @@ class GetTimeZoneTest {
     @Test
     void test2() {
 
-        rfep.setArguments(Map.of("isodate", new JsonPrimitive("1994-10-24T02:10:30.70Z")));
+        rfep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-04T11:45:38.939Z"), "add",
+                new JsonPrimitive(100L), "timeunit",
+                new JsonPrimitive("MINUTES")));
 
-        StepVerifier.create(gt.execute(rfep))
-                .expectNextMatches(r -> r.allResults().get(0).getResult().get("timeZone").getAsString().equals("UTC"))
+        StepVerifier.create(at.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("date").getAsString() == "2023-10-04T13:25:38.939Z")
                 .verifyComplete();
 
     }
