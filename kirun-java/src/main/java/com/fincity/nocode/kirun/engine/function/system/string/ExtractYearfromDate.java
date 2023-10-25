@@ -46,15 +46,12 @@ protected static final String PARAMETER_STRING_NAME = "dateinput";
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-		// TODO Auto-generated method stub
-
-		String dateinput = context.getArguments()
+				String dateinput = context.getArguments()
 		        .get(PARAMETER_STRING_NAME)
 		        .getAsString();
 		
 		String date = extractYearFromDate(dateinput);
 		
-
 		 JsonElement datejson = new JsonPrimitive(date.toString());
 
 	    return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, datejson)))));
@@ -63,10 +60,8 @@ protected static final String PARAMETER_STRING_NAME = "dateinput";
 	private String extractYearFromDate(String dateInput) {
 	    if (dateInput != null) {
 	        DateTimeFormatter[] formatters = {
-	            DateTimeFormatter.ofPattern("yyyy-MMMM-dd'T'HH:mm:ss"),
-	            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
-	            DateTimeFormatter.ofPattern("MM-dd-yyyy"),
-	           
+	            DateTimeFormatter.ISO_INSTANT,
+	            DateTimeFormatter.ISO_OFFSET_DATE_TIME
 	           
 	        };
 
@@ -74,10 +69,6 @@ protected static final String PARAMETER_STRING_NAME = "dateinput";
 	            try {
 	                LocalDateTime localDateTime = LocalDateTime.parse(dateInput, formatter);
 	                int year = localDateTime.getYear();
-	                
-	                System.out.println("Parsed date: " + localDateTime);
-	                System.out.println("Used formatter: " + formatter);
-	                
 	                return String.valueOf(year);
 	            } catch (Exception e) {
 	              

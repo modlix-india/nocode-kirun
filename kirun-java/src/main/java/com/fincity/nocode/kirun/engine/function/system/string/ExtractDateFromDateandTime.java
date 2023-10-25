@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine.function.system.string;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,7 +44,6 @@ public class ExtractDateFromDateandTime extends AbstractReactiveFunction {
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-		// TODO Auto-generated method stub
 
 		String datetimeinput = context.getArguments()
 		        .get(PARAMETER_STRING_NAME)
@@ -61,19 +59,27 @@ public class ExtractDateFromDateandTime extends AbstractReactiveFunction {
 
 	    private String extractDateFromDatetime(String datetimeinput) {
 	    	 if (datetimeinput != null) {
-	          
-	    			        LocalDateTime localDateTime = LocalDateTime.parse(datetimeinput, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-         			        LocalDate date = localDateTime.toLocalDate();
-	    			         String dateoutput = date.toString();	    			        
-	    			        return dateoutput;
-	    			        
-	    			    }
-			return datetimeinput;
+	    		 DateTimeFormatter[] formatters = {
+	    		            DateTimeFormatter.ISO_INSTANT,
+	    		            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+	    		           
+	    		        };
 
-			
+	    		        for (DateTimeFormatter formatter : formatters) {
+	    		            try {
+	    		                LocalDateTime localDateTime = LocalDateTime.parse(datetimeinput, formatter);
+	    		                int date = localDateTime.getDayOfMonth();
+	    		                return String.valueOf(date);
+	    		            } catch (Exception e) {
+	    		              
+	    		            }
+	    		        }
+	    		    }
+	    		    return datetimeinput;
+	    		}
 
 }
 			
-}
+
 	              
 	    
