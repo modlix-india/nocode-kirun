@@ -59,4 +59,15 @@ describe('testing IsValidZuluDateFunction', () => {
             false,
         );
     });
+
+    test('Test 6', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['isodate', '2023-10-4T14:10:30.700+56:70']]));
+
+        expect((await isValidISODate.execute(fep)).allResults()[0].getResult().get('output')).toBe(
+            false,
+        );
+    });
 });
