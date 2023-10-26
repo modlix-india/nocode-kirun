@@ -72,14 +72,20 @@ export class NumberValidator {
     }
 
     private static checkRange(parents: Schema[], schema: Schema, element: any, n: number) {
-        if (schema.getMinimum() && NumberValidator.numberCompare(n, schema.getMinimum()!) < 0) {
+        if (
+            !isNullValue(schema.getMinimum()) &&
+            NumberValidator.numberCompare(n, schema.getMinimum()!) < 0
+        ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' should be greater than or equal to ' + schema.getMinimum(),
             );
         }
 
-        if (schema.getMaximum() && NumberValidator.numberCompare(n, schema.getMaximum()!) > 0) {
+        if (
+            !isNullValue(schema.getMaximum()) &&
+            NumberValidator.numberCompare(n, schema.getMaximum()!) > 0
+        ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
                 element.toString() + ' should be less than or equal to ' + schema.getMaximum(),
@@ -87,7 +93,7 @@ export class NumberValidator {
         }
 
         if (
-            schema.getExclusiveMinimum() &&
+            !isNullValue(schema.getExclusiveMinimum()) &&
             NumberValidator.numberCompare(n, schema.getExclusiveMinimum()!) <= 0
         ) {
             throw new SchemaValidationException(
@@ -97,7 +103,7 @@ export class NumberValidator {
         }
 
         if (
-            schema.getExclusiveMaximum() &&
+            !isNullValue(schema.getExclusiveMaximum()) &&
             NumberValidator.numberCompare(n, schema.getExclusiveMaximum()!) > 0
         ) {
             throw new SchemaValidationException(
