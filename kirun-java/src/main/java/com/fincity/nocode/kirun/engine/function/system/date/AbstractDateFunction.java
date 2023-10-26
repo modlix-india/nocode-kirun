@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -68,7 +69,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
         return signature;
     }
 
-    public static Entry<String, ReactiveFunction> ofEntryDateWithOutputName(final String name, String output,
+    public static Entry<String, ReactiveFunction> ofEntryDateAndStringWithOutputName(final String name, String output,
             Function<String, Number> ufunction, SchemaType... schemaType) {
 
         return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
@@ -85,6 +86,27 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                 return Mono.just(new FunctionOutput(
                         List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
+            }
+        });
+    }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateAndBooleanWithOutputName(final String name, String output,
+            Predicate<String> ufunction, SchemaType... schemaType) {
+
+        return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
+
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                String date = context.getArguments()
+                        .get(VALUE)
+                        .getAsString();
+
+                if (!IsValidIsoDateTime.checkValidity(date))
+                    throw new KIRuntimeException("Please provide the valid iso date.");
+
+                return Mono.just(new FunctionOutput(
+                        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.test(date)))))));
             }
         });
     }

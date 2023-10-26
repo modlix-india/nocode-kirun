@@ -4,6 +4,8 @@ import static com.fincity.nocode.kirun.engine.util.date.IsValidIsoDateTime.dateT
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +27,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
     private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetDate",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetDate",
                     "date",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
@@ -33,7 +35,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         return Integer.parseInt(matcher.group(3));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetDay", "day", inputDate -> {
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetDay", "day", inputDate -> {
                 Matcher matcher = dateTimePattern.matcher(inputDate);
                 matcher.matches();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -52,42 +54,42 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
             }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetFullYear", "year",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetFullYear", "year",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
                         return Integer.parseInt(matcher.group(1));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetHours", "hours",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetHours", "hours",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
                         return Integer.parseInt(matcher.group(4));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetMinutes", "minutes",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetMinutes", "minutes",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
                         return Integer.parseInt(matcher.group(5));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetSeconds", "seconds",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetSeconds", "seconds",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
                         return Integer.parseInt(matcher.group(6));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetMilliSeconds", "milliSeconds",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetMilliSeconds", "milliSeconds",
                     inputDate -> {
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
                         return Integer.parseInt(matcher.group(7).substring(1));
                     }, SchemaType.INTEGER),
 
-            AbstractDateFunction.ofEntryDateWithOutputName("GetTime", "time",
+            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetTime", "time",
                     inputDate -> {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -96,13 +98,32 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                             return Long.valueOf(dt.getTime());
 
                         } catch (ParseException e) {
-                            e.printStackTrace();
+                            throw new KIRuntimeException("Please provide the valid iso date.");
                         }
-                        throw new KIRuntimeException("Please provide the valid iso date.");
 
-                    }, SchemaType.LONG)
+                    }, SchemaType.LONG),
 
-    );
+            AbstractDateFunction.ofEntryDateAndBooleanWithOutputName("IsDST", "dst",
+
+                    inputDate -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return false;
+
+                    }, SchemaType.BOOLEAN),
+
+            AbstractDateFunction.ofEntryDateAndBooleanWithOutputName("IsLeapYear", "leap",
+
+                    inputDate -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return false;
+
+                    }, SchemaType.BOOLEAN));
 
     private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
             .stream()
