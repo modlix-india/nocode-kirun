@@ -91,7 +91,7 @@ test('Disjoint Test 2', async () => {
         ]),
     );
 
-    await expect(dis.execute(fep)).rejects.toThrow;
+    expect(dis.execute(fep)).rejects.toThrowError();
 });
 
 test('Disjoint test 3', async () => {
