@@ -97,6 +97,7 @@ public class GetMaximumTimestamp extends AbstractReactiveFunction {
     }
 
     public String compare(String maxDate, String currentDate) {
+        
         return ZonedDateTime.parse(maxDate).toEpochSecond() >= ZonedDateTime.parse(currentDate).toEpochSecond()
                 ? maxDate
                 : currentDate;

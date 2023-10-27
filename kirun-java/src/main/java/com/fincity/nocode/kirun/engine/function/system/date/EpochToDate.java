@@ -1,11 +1,11 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -53,36 +53,26 @@ public class EpochToDate extends AbstractReactiveFunction {
 
         var epochIp = context.getArguments().get(EPOCH);
 
-        try {
-            if (epochIp.isJsonPrimitive()) {
-
-                JsonPrimitive epochPrimitive = epochIp.getAsJsonPrimitive();
-
-                if (epochPrimitive.isBoolean())
-                    throw new KIRuntimeException(ERROR_MSG);
-
-                Long longDate = epochPrimitive.isNumber() ? epochPrimitive.getAsLong()
-                        : Long.parseLong(epochPrimitive.getAsString());
-
-                Date dt = longDate > 999999999999L ? new Date(longDate) : new Date(longDate * 1000);
-
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                TimeZone tz = TimeZone.getTimeZone("UTC");
-                df.setTimeZone(tz);
-
-                return Mono.just(
-                        new FunctionOutput(
-                                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(df.format(dt)))))));
-
-            }
-
+        if (!epochIp.isJsonPrimitive())
             throw new KIRuntimeException(ERROR_MSG);
 
-        } catch (NumberFormatException nfe) {
+        JsonPrimitive epochPrimitive = epochIp.getAsJsonPrimitive();
 
+        if (epochPrimitive.isBoolean())
             throw new KIRuntimeException(ERROR_MSG);
 
-        }
+        Long longDate = epochPrimitive.isNumber() ? epochPrimitive.getAsLong()
+                : Long.parseLong(epochPrimitive.getAsString());
+
+        Long updatedValue = longDate > 999999999999L ? longDate : longDate * 1000;
+
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(updatedValue), ZoneId.of("UTC"));
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+        return Mono.just(
+                new FunctionOutput(
+                        List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(dtf.format(zdt)))))));
 
     }
 

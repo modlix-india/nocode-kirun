@@ -33,6 +33,19 @@ class GetDateTest {
     }
 
     @Test
+    void dateSuccessTest5() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-32T07:35:17.000Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("date").getAsInt() == 31)
+                .verifyComplete();
+
+    }
+
+    @Test
     void dateFailTest1() {
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-7T07:35:17.000Z")));

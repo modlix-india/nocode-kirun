@@ -20,7 +20,7 @@ class GetMinutesTest {
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
     @Test
-    void dateSuccessTest1() {
+    void minutesSuccessTest1() {
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-07T17:35:17.000Z")));
 
@@ -30,22 +30,13 @@ class GetMinutesTest {
                         res -> res.next().getResult().get("minutes").getAsInt() == 35)
                 .verifyComplete();
 
-    }
-
-    @Test
-    void dateFailTest1() {
-
-        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-7T07:35:17.000Z")));
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T06:44:11.615Z")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
-                .verify();
-
-    }
-
-    @Test
-    void dateSuccessTest2() {
+                .expectNextMatches(
+                        res -> res.next().getResult().get("minutes").getAsInt() == 44)
+                .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T15:58:57.561Z")));
 
@@ -55,23 +46,41 @@ class GetMinutesTest {
                         res -> res.next().getResult().get("minutes").getAsInt() == 58)
                 .verifyComplete();
 
-    }
-
-    @Test
-    void dateSuccessTest3() {
-
-        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T06:44:11.615Z")));
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2507-08-08T11:41:50.000+00:00")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("minutes").getAsInt() == 44)
+                        res -> res.next().getResult().get("minutes").getAsInt() == 41)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T15:13:51.001+12:01")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("minutes").getAsInt() == 12)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T15:13:51.200-12:01")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("minutes").getAsInt() == 14)
                 .verifyComplete();
 
     }
 
     @Test
-    void dateFailTest2() {
+    void minutesFailTest1() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-7T07:35:17.000Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage("Please provide the valid iso date.")
+                .verify();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive(false)));
 
@@ -80,30 +89,12 @@ class GetMinutesTest {
                 .expectError()
                 .verify();
 
-    }
-
-    @Test
-    void dateFailTest3() {
-
-        fep.setArguments(Map.of("isodate", new JsonPrimitive("abcd")));
-
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
-                .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
-                .verify();
-
-    }
-
-    @Test
-    void dateFailTest4() {
-
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T23:84:11.615Z")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
                 .flatMap(e -> e.execute(fep)))
                 .expectErrorMessage("Please provide the valid iso date.")
                 .verify();
-
     }
 
 }

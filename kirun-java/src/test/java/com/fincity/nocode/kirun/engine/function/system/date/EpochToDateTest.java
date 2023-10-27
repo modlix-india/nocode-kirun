@@ -108,4 +108,24 @@ class EpochToDateTest {
                 .verify();
     }
 
+    @Test
+    void dateTest() {
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive(1653171L)));
+
+        StepVerifier.create(etd.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("date").getAsString().equals("1970-01-20T03:12:51.000Z"))
+                .verifyComplete();
+    }
+
+    @Test
+    void dateTest2() {
+        rfep.setArguments(Map.of("epoch", new JsonPrimitive(1696431L)));
+
+        StepVerifier.create(etd.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("date").getAsString().equals("1970-01-20T15:13:51.000Z"))
+                .verifyComplete();
+    }
+
 }

@@ -30,12 +30,28 @@ class GetYearTest {
                         res -> res.next().getResult().get("year").getAsInt() == 2023)
                 .verifyComplete();
 
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1975-11-20T03:12:51.000Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("year").getAsInt() == 1975)
+                .verifyComplete();
+
     }
 
     @Test
     void dateFailTest1() {
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2099-12-7T07:35:17.000Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE,
+                "GetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage("Please provide the valid iso date.")
+                .verify();
+        
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2099-12-17T07:35:17.00Z")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE,
                 "GetFullYear")

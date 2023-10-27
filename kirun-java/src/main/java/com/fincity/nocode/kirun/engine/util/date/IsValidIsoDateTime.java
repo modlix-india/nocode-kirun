@@ -11,7 +11,7 @@ public class IsValidIsoDateTime {
 
     public static final Pattern dateTimePattern = Pattern.compile(
             "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\\d|3[0-1])T"
-                    + "([0-1]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)(\\.\\d+)?"
+                    + "([0-1]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)(Z|\\.\\d{3})"
                     + "(Z|([+-]([01]\\d|2[0-3]):([0-5]\\d)))?$"); // NO SONAR // Required for evaluating date time
                                                                   // object
 

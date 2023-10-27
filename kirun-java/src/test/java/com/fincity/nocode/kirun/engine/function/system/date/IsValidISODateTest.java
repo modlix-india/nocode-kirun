@@ -85,10 +85,36 @@ class IsValidISODateTest {
 
         ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(Map.of("isodate", new JsonPrimitive("2023-10-10T10:02:54.959-34:12")));
+                .setArguments(Map.of("isodate", new JsonPrimitive("2023-10-10T10:02:54.99-34:12")));
 
         StepVerifier.create(validDate.execute(rfep))
                 .expectNextMatches(r -> !r.next().getResult().get("output").getAsBoolean())
+                .verifyComplete();
+
+    }
+
+    @Test
+    void test7() {
+
+        ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                .setArguments(Map.of("isodate", new JsonPrimitive("2023-10-10T10:02:54.99Z")));
+
+        StepVerifier.create(validDate.execute(rfep))
+                .expectNextMatches(r -> !r.next().getResult().get("output").getAsBoolean())
+                .verifyComplete();
+
+    }
+    
+    @Test
+    void test8() {
+
+        ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                .setArguments(Map.of("isodate", new JsonPrimitive("2023-10-10T10:02:54Z")));
+
+        StepVerifier.create(validDate.execute(rfep))
+                .expectNextMatches(r -> r.next().getResult().get("output").getAsBoolean())
                 .verifyComplete();
 
     }
