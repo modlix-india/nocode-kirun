@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -18,30 +17,29 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class GetCurrentTime extends AbstractReactiveFunction {
+public class GetCurrentTimeStamp extends AbstractReactiveFunction {
 
     private static final String OUTPUT = "time";
 
     @Override
     public FunctionSignature getSignature() {
 
-        return new FunctionSignature().setName("GetCurrentTime")
+        return new FunctionSignature().setName("GetCurrentTimeStamp")
                 .setNamespace(Namespaces.DATE)
                 .setParameters(Map.of())
                 .setEvents(Map.ofEntries(
                         Event.eventMapEntry(
-                                OUTPUT, Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + ".timeStamp")))));
+                                OUTPUT, Map.of(OUTPUT, Schema.ofLong(OUTPUT)))));
+
     }
 
     @Override
     protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-        Date currentDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        
         return Mono.just(new FunctionOutput(
-                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(sdf.format(currentDate)))))));
+                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(cal.getTimeInMillis()))))));
     }
 
 }

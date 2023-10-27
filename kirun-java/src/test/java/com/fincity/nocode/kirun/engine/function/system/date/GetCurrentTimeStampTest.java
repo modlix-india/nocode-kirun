@@ -1,8 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,24 +10,20 @@ import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutio
 
 import reactor.test.StepVerifier;
 
-class GetCurrentTimeTest {
+class GetCurrentTimeStampTest {
 
-    GetCurrentTime gct = new GetCurrentTime();
+    GetCurrentTimeStamp gct = new GetCurrentTimeStamp();
     ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    Date d = new Date();
 
     @Test
     void test() {
 
-        Date currentDate = new Date();
-
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         StepVerifier.create(gct.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("time").getAsString() != sdf.format(currentDate);
+                    return r.next().getResult().get("time").getAsLong() != d.getTime();
                 })
                 .verifyComplete();
     }
@@ -37,13 +31,9 @@ class GetCurrentTimeTest {
     @Test
     void test2() {
 
-        Date currentDate = new Date();
-
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         StepVerifier.create(gct.execute(rfep))
                 .expectNextMatches(r -> {
-                    return r.next().getResult().get("time").getAsString() != sdf.format(currentDate);
+                    return r.next().getResult().get("time").getAsLong() != d.getTime();
                 })
                 .verifyComplete();
     }
