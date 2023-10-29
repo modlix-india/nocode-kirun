@@ -13,6 +13,6 @@ public class GetTimeInMillisUtil {
 
         DateTimeFormatter dtf = DateTimePatternUtil.getPattern(inputDate);
         return ZonedDateTime.parse(inputDate, dtf).toInstant().toEpochMilli();
-        
+
     }
 }

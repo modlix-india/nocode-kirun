@@ -32,13 +32,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
 
-                        Date updatedDate = new Date(getEpochTime(inputDate));
-
-                        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-                        cal.setTime(updatedDate);
-
-                        return cal.get(Calendar.DATE);
+                        return getRequiredField(inputDate, Calendar.DATE);
 
                     }, SchemaType.INTEGER),
 
@@ -136,8 +130,6 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
 
-                        Calendar cal = Calendar.getInstance();
-
                         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
                         sdf.format(new Date());
@@ -145,6 +137,97 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         return 0;
 
                     }, SchemaType.LONG),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetDate", "dateValue", "date",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.DATE, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetFullYear", "yearValue", "year",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.YEAR, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetMonth", "monthValue", "month",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+                        return setAndFetchCalendarField(inputDate, Calendar.MONTH, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetHours", "hourValue", "hour",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.HOUR_OF_DAY, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetMinutes", "minuteValue", "minute",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.MINUTE, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetSeconds", "secondValue", "second",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.SECOND, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetMilliSeconds", "milliSecondValue",
+                    "milliSecond",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        return setAndFetchCalendarField(inputDate, Calendar.MILLISECOND, value.intValue());
+
+                    },
+
+                    SchemaType.INTEGER, SchemaType.INTEGER),
 
             AbstractDateFunction.ofEntryDateAndBooleanWithOutputName("IsDST", "dst",
 
@@ -168,13 +251,20 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     }, SchemaType.BOOLEAN));
 
+    private static int setAndFetchCalendarField(String inputDate, int field, int value) {
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(new Date(getEpochTime(inputDate)));
+        cal.set(field, value);
+
+        return cal.get(field);
+    }
+
     private static int getRequiredField(String inputDate, int field) {
 
-        Date updatedDate = new Date(getEpochTime(inputDate));
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.setTime(updatedDate);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date(getEpochTime(inputDate)));
         return cal.get(field);
-
     }
 
     private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()

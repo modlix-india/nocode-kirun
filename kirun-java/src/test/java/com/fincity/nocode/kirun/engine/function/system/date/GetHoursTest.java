@@ -27,7 +27,7 @@ class GetHoursTest {
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("hours").getAsInt() == 17)
+                        res -> res.next().getResult().get("hours").getAsInt() == 23)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T15:13:51.001+12:01")));
@@ -35,15 +35,15 @@ class GetHoursTest {
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("hours").getAsInt() == 3)
+                        res -> res.next().getResult().get("hours").getAsInt() == 8)
                 .verifyComplete();
 
-        fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T23:13:51.001Z")));
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1970-01-20T23:13:51.001-11:00")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("hours").getAsInt() == 23)
+                        res -> res.next().getResult().get("hours").getAsInt() == 15)
                 .verifyComplete();
 
     }
@@ -68,7 +68,7 @@ class GetHoursTest {
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("hours").getAsInt() == 15)
+                        res -> res.next().getResult().get("hours").getAsInt() == 21)
                 .verifyComplete();
 
     }
@@ -76,12 +76,12 @@ class GetHoursTest {
     @Test
     void dateSuccessTest3() {
 
-        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T06:44:11.615Z")));
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T06:44:11.615-14:00")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("hours").getAsInt() == 06)
+                        res -> res.next().getResult().get("hours").getAsInt() == 2)
                 .verifyComplete();
 
     }

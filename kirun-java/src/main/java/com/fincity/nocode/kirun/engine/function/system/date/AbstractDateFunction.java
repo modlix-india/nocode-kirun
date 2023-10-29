@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.function.system.date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -26,27 +27,11 @@ import reactor.core.publisher.Mono;
 
 public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
-    static final String VALUE = "isodate";
+    private static final String VALUE = "isodate";
 
-    static final String OUTPUT = "result";
+    private static final String ERROR_MSG = "Please provide the valid iso date.";
 
     private final FunctionSignature signature;
-
-    protected AbstractDateFunction(String namespace, String functionName, SchemaType... schemaType) {
-
-        if (schemaType == null || schemaType.length == 0) {
-            schemaType = new SchemaType[] { SchemaType.DOUBLE };
-        }
-
-        signature = new FunctionSignature()
-                .setName(functionName)
-                .setNamespace(namespace)
-                .setParameters(Map.of(VALUE,
-                        new Parameter().setParameterName(VALUE).setSchema(Schema.ofRef(Namespaces.DATE
-                                + ".timeStamp"))))
-                .setEvents(Map.ofEntries(Event.outputEventMapEntry(
-                        Map.of(OUTPUT, new Schema().setName(OUTPUT).setType(Type.of(schemaType))))));
-    }
 
     protected AbstractDateFunction(String namespace, String functionName, String output, SchemaType... schemaType) {
 
@@ -61,7 +46,27 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         new Parameter().setParameterName(VALUE).setSchema(Schema.ofRef(Namespaces.DATE
                                 + ".timeStamp"))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
-                        Map.of(output, new Schema().setName(output).setType(Type.of(schemaType))))));
+                        Map.of(output, new Schema().setName(output).setType(Type.of(schemaType[0]))))));
+    }
+
+    protected AbstractDateFunction(String secondName, String namespace, String functionName, String output,
+            SchemaType... schemaType) {
+
+        if (schemaType == null || schemaType.length == 0) {
+            schemaType = new SchemaType[] { SchemaType.INTEGER, SchemaType.INTEGER };
+        }
+
+        signature = new FunctionSignature()
+                .setName(functionName)
+                .setNamespace(namespace)
+                .setParameters(Map.of(VALUE,
+                        new Parameter().setParameterName(VALUE).setSchema(Schema.ofRef(Namespaces.DATE
+                                + ".timeStamp")),
+                        secondName,
+                        new Parameter().setParameterName(secondName)
+                                .setSchema(new Schema().setType(Type.of(schemaType[0])))))
+                .setEvents(Map.ofEntries(Event.outputEventMapEntry(
+                        Map.of(output, new Schema().setName(output).setType(Type.of(schemaType[1]))))));
     }
 
     @Override
@@ -82,12 +87,38 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         .getAsString();
 
                 if (!IsValidIsoDateTime.checkValidity(date))
-                    throw new KIRuntimeException("Please provide the valid iso date.");
+                    throw new KIRuntimeException(ERROR_MSG);
 
                 return Mono.just(new FunctionOutput(
                         List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
             }
         });
+    }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerWithOutputInteger(final String functionName,
+            String secondName, String output, BiFunction<String, Number, Number> bifunction,
+            SchemaType... schemaType) {
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(secondName, Namespaces.DATE, functionName, output, schemaType) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String inputDate = context.getArguments()
+                                .get(VALUE)
+                                .getAsString();
+
+                        if (!IsValidIsoDateTime.checkValidity(inputDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        Number addValue = context.getArguments().get(secondName).getAsNumber();
+
+                        return Mono.just(new FunctionOutput(List.of(EventResult
+                                .outputOf(Map.of(output,
+                                        new JsonPrimitive(bifunction.apply(inputDate, addValue.intValue())))))));
+                    }
+                });
     }
 
     public static Entry<String, ReactiveFunction> ofEntryDateAndBooleanWithOutputName(final String name, String output,
@@ -103,7 +134,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         .getAsString();
 
                 if (!IsValidIsoDateTime.checkValidity(date))
-                    throw new KIRuntimeException("Please provide the valid iso date.");
+                    throw new KIRuntimeException(ERROR_MSG);
 
                 return Mono.just(new FunctionOutput(
                         List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.test(date)))))));

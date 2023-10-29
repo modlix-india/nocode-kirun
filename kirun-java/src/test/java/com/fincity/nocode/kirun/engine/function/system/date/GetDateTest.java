@@ -30,6 +30,22 @@ class GetDateTest {
                         res -> res.next().getResult().get("date").getAsInt() == 7)
                 .verifyComplete();
 
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-12-31T07:35:17.000-12:00")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("date").getAsInt() == 1)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-07T17:35:17.123-11:00")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("date").getAsInt() == 8)
+                .verifyComplete();
+
     }
 
     @Test
@@ -39,9 +55,8 @@ class GetDateTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
                 .flatMap(e -> e.execute(fep)))
-                .expectNextMatches(
-                        res -> res.next().getResult().get("date").getAsInt() == 31)
-                .verifyComplete();
+                .expectError()
+                .verify();
 
     }
 
