@@ -1,10 +1,12 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import static com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil.getEpochTime;
+
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,13 +29,19 @@ import reactor.core.publisher.Mono;
 
 public class AddTime extends AbstractReactiveFunction {
 
+    private String functionName;
+
+    private String methodName;
+
     private static final String ISO_DATE = "isodate";
 
-    private static final String ADD = "add";
+    private static final String TIME_UNIT = "unit";
 
-    private static final String TIME_UNIT = "timeunit";
+    private static final String OUTPUT = "dateTime";
 
-    private static final String OUTPUT = "date";
+    private static final String YEARS = "YEARS";
+
+    private static final String MONTHS = "MONTHS";
 
     private static final String DAYS = "DAYS";
 
@@ -43,29 +51,36 @@ public class AddTime extends AbstractReactiveFunction {
 
     private static final String SECONDS = "SECONDS";
 
-    private static final String MILLISECONDS = "MILLISECONDS";
+    private static final String MILLIS = "MILLIS";
 
-    private static final String MICROSECONDS = "MICROSECONDS";
+    public AddTime() {
+        this.functionName = "AddTime";
+        this.methodName = "add";
+    }
 
-    private static final String NANOSECONDS = "NANOSECONDS";
+    public AddTime(String functionName, String methodName) {
+        this.functionName = functionName;
+        this.methodName = methodName;
+    }
 
     @Override
     public FunctionSignature getSignature() {
 
-        return new FunctionSignature().setName("AddTime")
+        return new FunctionSignature().setName(functionName)
                 .setNamespace(Namespaces.DATE)
                 .setParameters(
                         Map.ofEntries(
                                 Parameter.ofEntry(ISO_DATE, Schema.ofRef(Namespaces.DATE + ".timeStamp")),
-                                Parameter.ofEntry(ADD, Schema.ofLong(ADD)),
+                                Parameter.ofEntry(methodName, Schema.ofInteger(methodName)),
                                 Parameter.ofEntry(TIME_UNIT, Schema.ofString(TIME_UNIT)
-                                        .setEnums(List.of(new JsonPrimitive(DAYS),
+                                        .setEnums(List.of(
+                                                new JsonPrimitive(YEARS),
+                                                new JsonPrimitive(MONTHS),
+                                                new JsonPrimitive(DAYS),
                                                 new JsonPrimitive(HOURS),
                                                 new JsonPrimitive(MINUTES),
                                                 new JsonPrimitive(SECONDS),
-                                                new JsonPrimitive(MILLISECONDS),
-                                                new JsonPrimitive(MICROSECONDS),
-                                                new JsonPrimitive(NANOSECONDS))))))
+                                                new JsonPrimitive(MILLIS))))))
                 .setEvents(Map.ofEntries(
                         Event.outputEventMapEntry(
                                 Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + ".timeStamp")))));
@@ -79,48 +94,57 @@ public class AddTime extends AbstractReactiveFunction {
         if (!IsValidIsoDateTime.checkValidity(inputDate))
             throw new KIRuntimeException("Please provide the valid ISO date");
 
-        long span = context.getArguments().get(ADD).getAsLong();
+        int span = context.getArguments().get(methodName).getAsInt();
 
         String unit = context.getArguments().get(TIME_UNIT).getAsString();
 
-        // call add function if exists
+        switch (unit) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            case YEARS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.YEAR, span));
 
-        try {
+            case MONTHS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.MONTH, span));
 
-            Instant instant = sdf.parse(inputDate).toInstant();
+            case DAYS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.DAY_OF_MONTH, span));
 
-            Instant updatedInstant = instant.plus(span, ChronoUnit.valueOf(unit));
+            case HOURS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.HOUR_OF_DAY, span));
 
-            DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
+            case MINUTES:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.MINUTE, span));
 
-            if (inputDate.contains("+")) {
-                
-                sdf.applyPattern(unit);
+            case SECONDS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.SECOND, span));
 
-                dtf = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-                System.out.println(dtf.format(updatedInstant));
+            case MILLIS:
+                return Mono.just(setAndFetchCalendarField(inputDate, Calendar.MILLISECOND, span));
 
-                return Mono.just(new FunctionOutput(
-                        List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(dtf.format(updatedInstant)))))));
-            }
-
-            sdf.applyPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-            String updatedDate = sdf.format(new Date(updatedInstant.toEpochMilli()));
-
-            System.out.println(updatedDate);
-
-            return Mono.just(new FunctionOutput(
-                    List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(updatedDate))))));
-
-        } catch (ParseException e) {
-
-            throw new KIRuntimeException("Please provide the valid ISO date");
+            default:
+                throw new KIRuntimeException("Please select valid unit");
         }
 
+    }
+
+    private FunctionOutput setAndFetchCalendarField(String inputDate, int field, int value) {
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.setTime(new Date(getEpochTime(inputDate)));
+
+        cal.set(field, setFunction(cal.get(field), value));
+
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(cal.getTimeInMillis()), ZoneId.of("UTC"));
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+        return new FunctionOutput(
+                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(dtf.format(zdt))))));
+
+    }
+
+    public int setFunction(int actual, int addValue) {
+        return actual + addValue;
     }
 
 }

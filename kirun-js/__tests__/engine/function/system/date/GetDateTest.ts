@@ -62,4 +62,26 @@ describe('testing GetDateFunction', () => {
 
         expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(24);
     });
+
+    test('Test 6', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['isodate', '2023-02-31T07:35:17.000Z']]));
+
+        expect(
+            (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+        ).rejects.toThrowError('Please provide a valid value for epoch');
+    });
+
+    test('Test 7', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([['isodate', '2023-02-35T07:35:17.000Z']]));
+
+        expect(
+            (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
+    });
 });
