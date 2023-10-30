@@ -19,11 +19,12 @@ import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutio
 import com.fincity.nocode.kirun.engine.util.date.DurationUtil;
 import com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil;
 import com.fincity.nocode.kirun.engine.util.date.IsValidIsoDateTime;
+
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class FromNow extends AbstractReactiveFunction {
+public class ToNow extends AbstractReactiveFunction {
 
     private static final String DATE = "isodate";
 
@@ -34,7 +35,7 @@ public class FromNow extends AbstractReactiveFunction {
     @Override
     public FunctionSignature getSignature() {
 
-        return new FunctionSignature().setName("FromNow")
+        return new FunctionSignature().setName("ToNow")
                 .setNamespace(Namespaces.DATE)
                 .setParameters(Map.of(DATE, new Parameter().setParameterName(DATE)
                         .setSchema(Schema.ofRef(Namespaces.DATE + ".timeStamp")),
@@ -63,7 +64,7 @@ public class FromNow extends AbstractReactiveFunction {
         String output = DurationUtil.getDuration(dur.toDays(), dur.toHours(), dur.toMinutes(), dur.toSeconds());
 
         return Mono.just(new FunctionOutput(
-                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(suffix ? output : output + " ago"))))));
+                List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(suffix ? output : "In " + output))))));
 
     }
 

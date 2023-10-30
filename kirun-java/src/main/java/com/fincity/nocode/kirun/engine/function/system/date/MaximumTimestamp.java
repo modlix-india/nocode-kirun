@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.ZonedDateTime;
+import static com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil.getEpochTime;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class GetMaximumTimestamp extends AbstractReactiveFunction {
+public class MaximumTimestamp extends AbstractReactiveFunction {
 
     private static final String ISO_DATES = "isodates";
 
@@ -32,12 +33,12 @@ public class GetMaximumTimestamp extends AbstractReactiveFunction {
 
     private String outputName;
 
-    public GetMaximumTimestamp() {
-        this.functionName = "GetMaximumTimestamp";
+    public MaximumTimestamp() {
+        this.functionName = "MaximumTimestamp";
         this.outputName = "maximum";
     }
 
-    protected GetMaximumTimestamp(String name, String outputName) {
+    protected MaximumTimestamp(String name, String outputName) {
         this.functionName = name;
         this.outputName = outputName;
     }
@@ -97,10 +98,8 @@ public class GetMaximumTimestamp extends AbstractReactiveFunction {
     }
 
     public String compare(String maxDate, String currentDate) {
-        
-        return ZonedDateTime.parse(maxDate).toEpochSecond() >= ZonedDateTime.parse(currentDate).toEpochSecond()
-                ? maxDate
-                : currentDate;
+
+        return getEpochTime(maxDate) >= getEpochTime(currentDate) ? maxDate : currentDate;
     }
 
 }

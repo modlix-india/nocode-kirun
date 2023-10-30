@@ -11,9 +11,9 @@ import com.google.gson.JsonArray;
 
 import reactor.test.StepVerifier;
 
-class GetMaximumTimestampTest {
+class MaximumTimestampTest {
 
-    GetMaximumTimestamp gmt = new GetMaximumTimestamp();
+    MaximumTimestamp gmt = new MaximumTimestamp();
 
     ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
@@ -35,6 +35,7 @@ class GetMaximumTimestampTest {
                 .expectNextMatches(r -> {
                     return r.next().getResult().get("maximum").getAsString() == "2023-10-25T19:30:04.970Z";
                 }).verifyComplete();
+
     }
 
     @Test
@@ -89,6 +90,29 @@ class GetMaximumTimestampTest {
         StepVerifier.create(gmt.execute(rfep))
                 .expectNextMatches(r -> {
                     return r.next().getResult().get("maximum").getAsString() == "2023-10-25T12:30:04.970-11:00";
+                }).verifyComplete();
+    }
+
+    @Test
+    void test5() {
+
+        JsonArray arr = new JsonArray();
+
+        arr.add("2023-10-25T13:30:04.100+07:00");
+
+        arr.add("2023-10-25T13:30:04.101+07:00");
+
+        arr.add("2023-10-25T13:30:04.102+07:00");
+
+        arr.add("2023-10-25T13:30:04.103+07:00");
+
+        arr.add("2023-10-25T13:30:04.104+07:00");
+
+        rfep.setArguments(Map.of("isodates", arr));
+
+        StepVerifier.create(gmt.execute(rfep))
+                .expectNextMatches(r -> {
+                    return r.next().getResult().get("maximum").getAsString() == "2023-10-25T13:30:04.104+07:00";
                 }).verifyComplete();
     }
 

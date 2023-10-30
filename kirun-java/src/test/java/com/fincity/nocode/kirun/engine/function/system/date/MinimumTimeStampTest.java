@@ -11,9 +11,9 @@ import com.google.gson.JsonArray;
 
 import reactor.test.StepVerifier;
 
-class GetMinimumTimeStampTest {
+class MinimumTimeStampTest {
 
-    GetMinimumTimeStamp gmt = new GetMinimumTimeStamp();
+    MinimumTimeStamp gmt = new MinimumTimeStamp();
 
     ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
@@ -147,4 +147,28 @@ class GetMinimumTimeStampTest {
                     return r.next().getResult().get("minimum").getAsString() == "2023-10-25T13:30:04.970+07:00";
                 }).verifyComplete();
     }
+
+    @Test
+    void test7() {
+
+        JsonArray arr = new JsonArray();
+
+        arr.add("2023-10-25T13:30:04.100+07:00");
+
+        arr.add("2023-10-25T13:30:04.101+07:00");
+
+        arr.add("2023-10-25T13:30:04.102+07:00");
+
+        arr.add("2023-10-25T13:30:04.103+07:00");
+
+        arr.add("2023-10-25T13:30:04.104+07:00");
+
+        rfep.setArguments(Map.of("isodates", arr));
+
+        StepVerifier.create(gmt.execute(rfep))
+                .expectNextMatches(r -> {
+                    return r.next().getResult().get("minimum").getAsString() == "2023-10-25T13:30:04.100+07:00";
+                }).verifyComplete();
+    }
+
 }

@@ -12,7 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class GetTimeTest {
+class GetTimeZoneOffsetZoneOffsetTest {
 
     DateFunctionRepository dfr = new DateFunctionRepository();
 
@@ -20,18 +20,18 @@ class GetTimeTest {
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
     @Test
-    void timeFailTest2() {
+    void offsetFailTest() {
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive(false)));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectError()
                 .verify();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("abcd")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectErrorMessage("Please provide the valid iso date.")
                 .verify();
@@ -39,7 +39,7 @@ class GetTimeTest {
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-19T23:84:11.615Z")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE,
-                "GetTime")
+                "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectErrorMessage("Please provide the valid iso date.")
                 .verify();
@@ -47,55 +47,56 @@ class GetTimeTest {
     }
 
     @Test
-    void timeSuccessTest1() {
+    void offsetSuccessTest1() {
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-04T11:45:38.939Z")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time").getAsLong() == 1696419938939L)
+                        res -> res.next().getResult().get("timeZoneOffset").getAsLong() == -330L)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("7765-04-20T14:48:20.000Z")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time")
+                        res -> res.next().getResult().get("timeZoneOffset")
                                 .getAsLong() == 182882069300000L)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("1994-10-24T02:10:30.700+00:00")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time").getAsLong() == 782964630700L)
+                        res -> res.next().getResult().get("timeZoneOffset").getAsLong() == 782964630700L)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("7765-04-20T14:48:20.000Z")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time").getAsLong() == 182882069300000L)
+                        res -> res.next().getResult().get("timeZoneOffset").getAsLong() == 182882069300000L)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("1975-01-20T15:13:51.200-12:01")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time").getAsLong() == 159506091200L)
+                        res -> res.next().getResult().get("timeZoneOffset").getAsLong() == 159506091200L)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isodate", new JsonPrimitive("1979-11-30T12:13:51.200-12:01")));
 
-        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTime")
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetTimeZoneOffset")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("time").getAsLong() == 312855291200L)
+                        res -> res.next().getResult().get(
+                                "timeZoneOffset").getAsLong() == 312855291200L)
                 .verifyComplete();
 
     }
