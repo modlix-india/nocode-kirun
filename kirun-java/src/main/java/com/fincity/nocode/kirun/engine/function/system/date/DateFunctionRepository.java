@@ -159,7 +159,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     }, SchemaType.BOOLEAN));
 
-    private static int getRequiredField(String inputDate, int field) {
+    static int getRequiredField(String inputDate, int field) {
 
         Date updatedDate = new Date(DateFunctionRepository.getEpochFromDateTime(inputDate));
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -168,7 +168,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
         
     }
 
-    private static long getEpochFromDateTime(String inputDate) {
+     static long getEpochFromDateTime(String inputDate) {
 
         DateTimeFormatter dtf = DateTimePatternUtil.getPattern(inputDate);
         return ZonedDateTime.parse(inputDate, dtf).toInstant().toEpochMilli();
