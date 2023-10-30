@@ -95,6 +95,32 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
         });
     }
 
+    public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerWithOutputDate(final String functionName,
+            String secondName, String output, BiFunction<String, Number, String> bifunction,
+            SchemaType... schemaType) {
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(secondName, Namespaces.DATE, functionName, output, schemaType) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String inputDate = context.getArguments()
+                                .get(VALUE)
+                                .getAsString();
+
+                        if (!IsValidIsoDateTime.checkValidity(inputDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        Number addValue = context.getArguments().get(secondName).getAsNumber();
+
+                        return Mono.just(new FunctionOutput(List.of(EventResult
+                                .outputOf(Map.of(output,
+                                        new JsonPrimitive(bifunction.apply(inputDate, addValue.intValue())))))));
+                    }
+                });
+    }
+
     public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerWithOutputInteger(final String functionName,
             String secondName, String output, BiFunction<String, Number, Number> bifunction,
             SchemaType... schemaType) {

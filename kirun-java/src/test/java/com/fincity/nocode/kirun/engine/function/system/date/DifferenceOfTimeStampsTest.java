@@ -1,11 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,21 +39,11 @@ class DifferenceOfTimeStampsTest {
                 .expectError()
                 .verify();
 
-    }
-
-    @Test
-    void test3() {
-
         rfep.setArguments(Map.of("datetwo", new JsonPrimitive("2023-10-25T13:30:04.970+07:00")));
 
         StepVerifier.create(dfts.execute(rfep))
                 .expectError()
                 .verify();
-
-    }
-
-    @Test
-    void test4() {
 
         rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-25T13:30:04.970+07:00"),
                 "datetwo", new JsonPrimitive("2023-10-25T19:30:94.970+01:30")));
@@ -85,10 +70,10 @@ class DifferenceOfTimeStampsTest {
     void test6() {
 
         rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-26T06:40:33.807Z"),
-                "datetwo", new JsonPrimitive("2023-10-26T06:40:33Z")));
+                "datetwo", new JsonPrimitive("2023-10-26T06:40:12.334Z")));
 
         StepVerifier.create(dfts.execute(rfep))
-                .expectNextMatches(r -> r.next().getResult().get("difference").getAsLong() == 0L)
+                .expectNextMatches(r -> r.next().getResult().get("difference").getAsLong() == 21473L)
                 .verifyComplete();
 
     }
@@ -100,11 +85,7 @@ class DifferenceOfTimeStampsTest {
                 "datetwo", new JsonPrimitive("2023-10-26T06:40:33.100Z")));
 
         StepVerifier.create(dfts.execute(rfep))
-                .expectNextMatches(r -> {
-                    System.out.println(r.next().getResult().get("difference").getAsLong());
-
-                    return true;
-                })
+                .expectNextMatches(r -> r.next().getResult().get("difference").getAsLong() == 707)
                 .verifyComplete();
 
     }
@@ -116,28 +97,22 @@ class DifferenceOfTimeStampsTest {
 
         String b = "2023-10-25T19:30:54.970+01:30";
 
-        String c = "2023-10-26T06:40:33Z";
+        String c = "2023-10-26T06:40:333Z";
 
         String d = "2023-10-26T19:30:54.975+01:30";
 
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS[xx][XXX]");
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive(a),
+                "datetwo", new JsonPrimitive(b)));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+        StepVerifier.create(dfts.execute(rfep))
+                .expectNextMatches(r -> r.next().getResult().get("difference").getAsLong() == 45578837L)
+                .verifyComplete();
 
-        System.out.println(parser.parse(a));
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive(c),
+                "datetwo", new JsonPrimitive(d)));
 
-        System.out.println(parser.parse(b));
-        System.out.println(formatter.parse(c));
-
-        System.out.println(parser.parse(d));
-
-        System.out.println(ZonedDateTime.parse(a, parser).toInstant().toEpochMilli());
-
-        System.out.println(ZonedDateTime.parse(b, parser).toInstant().toEpochMilli());
-
-        System.out.println(ZonedDateTime.parse(c, formatter).toInstant().toEpochMilli());
-
-        System.out.println(ZonedDateTime.parse(d, parser).toInstant().toEpochMilli());
+        StepVerifier.create(dfts.execute(rfep))
+                .expectError().verify();
 
     }
 

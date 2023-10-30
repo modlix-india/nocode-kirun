@@ -5,6 +5,8 @@ import static com.fincity.nocode.kirun.engine.util.date.IsValidIsoDateTime.dateT
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -138,6 +140,22 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     }, SchemaType.LONG),
 
+            AbstractDateFunction.ofEntryDateAndIntegerWithOutputDate("SetTime", "timeValue", "date",
+
+                    (inputDate, value) -> {
+
+                        Matcher matcher = dateTimePattern.matcher(inputDate);
+                        matcher.matches();
+
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+                        System.out
+                                .println(dtf.format(Instant.ofEpochMilli(getEpochTime(inputDate) + value.longValue())));
+
+                        return dtf.format(Instant.ofEpochMilli(getEpochTime(inputDate) + value.longValue()));
+
+                    }, SchemaType.LONG, SchemaType.STRING),
+
             AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetDate", "dateValue", "date",
 
                     (inputDate, value) -> {
@@ -153,7 +171,9 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
             AbstractDateFunction.ofEntryDateAndIntegerWithOutputInteger("SetFullYear", "yearValue", "year",
 
-                    (inputDate, value) -> {
+                    (inputDate, value) ->
+
+                    {
 
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
@@ -247,7 +267,9 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         Matcher matcher = dateTimePattern.matcher(inputDate);
                         matcher.matches();
 
-                        return false;
+                        int year = getRequiredField(inputDate, Calendar.YEAR);
+
+                        return ( year%4 == 0 && year%100 != 0) || year%400 == 0;
 
                     }, SchemaType.BOOLEAN));
 

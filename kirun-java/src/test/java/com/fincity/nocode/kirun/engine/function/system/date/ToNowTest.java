@@ -11,9 +11,9 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class FromNowTest {
+class ToNowTest {
 
-    FromNow fn = new FromNow();
+    ToNow tn = new ToNow();
 
     ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
@@ -21,12 +21,12 @@ class FromNowTest {
     @Test
     void test() {
 
-        rfep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-25T19:30:04.970+01:30"), "suffixReq",
-                new JsonPrimitive(true)));
+        rfep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-25T19:30:04.970+01:30")));
 
-        StepVerifier.create(fn.execute(rfep))
-                .expectNextMatches(r -> r.next().getResult().get("result").getAsString().equals("4 days"))
+        StepVerifier.create(tn.execute(rfep))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsString().equals("In 4 days"))
                 .verifyComplete();
+
     }
 
 }
