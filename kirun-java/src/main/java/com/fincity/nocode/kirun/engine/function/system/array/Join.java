@@ -33,7 +33,6 @@ public class Join extends AbstractArrayFunction {
 
 		var result = StreamSupport.stream(source.spliterator(), false).filter(e -> !e.isJsonNull()).map(e -> e.getAsString())
 				.collect(Collectors.joining(delimiter));
-		System.out.println(result);
 		return Mono.just(new FunctionOutput(
 				List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(result))))));
 	}
