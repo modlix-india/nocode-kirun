@@ -39,10 +39,17 @@ export class FromNow extends AbstractFunction {
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
 
+        const output = DurationUtils.getDuration(
+            Math.abs(days),
+            Math.abs(hours),
+            Math.abs(minutes),
+            Math.abs(seconds),
+        );
+
         return new FunctionOutput([
             EventResult.outputOf(
                 new Map([
-                    [OUTPUT, DurationUtils.getDuration(days, hours, minutes, seconds) + ' ago'],
+                    [OUTPUT, differenceInMilliseconds > 0 ? output + ' ago' : 'In ' + output],
                 ]),
             ),
         ]);
