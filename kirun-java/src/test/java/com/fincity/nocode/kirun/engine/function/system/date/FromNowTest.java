@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
@@ -13,20 +14,31 @@ import reactor.test.StepVerifier;
 
 class FromNowTest {
 
-    FromNow fn = new FromNow();
+    DateFunctionRepository dfr = new DateFunctionRepository();
 
-    ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
+    ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
     @Test
-    void test() {
+    void fromNowTest1() {
 
-        rfep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-25T19:30:04.970+01:30"), "suffixReq",
-                new JsonPrimitive(true)));
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-07T07:35:17.000Z"), "suffix",
+                new JsonPrimitive(false)));
 
-        StepVerifier.create(fn.execute(rfep))
-                .expectNextMatches(r -> r.next().getResult().get("result").getAsString().equals("4 days"))
+        StepVerifier.create(dfr.find(Namespaces.DATE, "FromNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("1 month ago"))
                 .verifyComplete();
-    }
 
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-11-01T07:35:17.000Z"), "suffix",
+                new JsonPrimitive(false)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "FromNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("In 1 days"))
+                .verifyComplete();
+
+    }
 }

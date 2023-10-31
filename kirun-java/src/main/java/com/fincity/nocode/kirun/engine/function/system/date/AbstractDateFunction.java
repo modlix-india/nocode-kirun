@@ -29,6 +29,8 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
     private static final String VALUE = "isodate";
 
+    private static final String OUTPUT = "result";
+
     private static final String ERROR_MSG = "Please provide the valid iso date.";
 
     private final FunctionSignature signature;
@@ -67,6 +69,20 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                                 .setSchema(new Schema().setType(Type.of(schemaType[0])))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
                         Map.of(output, new Schema().setName(output).setType(Type.of(schemaType[1]))))));
+    }
+
+    protected AbstractDateFunction(String secondName, String namespace, String functionName) {
+
+        signature = new FunctionSignature()
+                .setName(functionName)
+                .setNamespace(namespace)
+                .setParameters(Map.of(VALUE,
+                        new Parameter().setParameterName(VALUE).setSchema(Schema.ofRef(Namespaces.DATE
+                                + ".timeStamp")),
+                        secondName,
+                        new Parameter().setParameterName(secondName)
+                                .setSchema(Schema.ofBoolean(secondName))))
+                .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(OUTPUT, Schema.ofString(OUTPUT)))));
     }
 
     @Override
@@ -167,4 +183,30 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
             }
         });
     }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateAndBooleanSuffixWithStringOutput(final String functionName,
+            String secondName, BiFunction<String, Boolean, String> bifunction) {
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(secondName, Namespaces.DATE, functionName) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String inputDate = context.getArguments()
+                                .get(VALUE)
+                                .getAsString();
+
+                        if (!IsValidIsoDateTime.checkValidity(inputDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        Boolean suffix = context.getArguments().get(secondName).getAsBoolean();
+
+                        return Mono.just(new FunctionOutput(List.of(EventResult
+                                .outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(bifunction.apply(inputDate, suffix)))))));
+                    }
+                });
+    }
+
 }

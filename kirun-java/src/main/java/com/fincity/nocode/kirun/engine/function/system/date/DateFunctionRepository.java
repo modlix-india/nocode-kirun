@@ -5,6 +5,7 @@ import static com.fincity.nocode.kirun.engine.util.date.IsValidIsoDateTime.dateT
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -19,6 +20,8 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.fincity.nocode.kirun.engine.util.date.DurationUtil;
+import com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -269,9 +272,23 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                         int year = getRequiredField(inputDate, Calendar.YEAR);
 
-                        return ( year%4 == 0 && year%100 != 0) || year%400 == 0;
+                        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
 
-                    }, SchemaType.BOOLEAN));
+                    }, SchemaType.BOOLEAN),
+
+            AbstractDateFunction.ofEntryDateAndBooleanSuffixWithStringOutput("FromNow", "suffix",
+
+                    (inputDate, suffix) -> fetchDuration(inputDate, suffix, false)
+
+            ),
+
+            AbstractDateFunction.ofEntryDateAndBooleanSuffixWithStringOutput("ToNow", "suffix",
+
+                    (inputDate, suffix) -> fetchDuration(inputDate, suffix, true)
+
+            )
+
+    );
 
     private static int setAndFetchCalendarField(String inputDate, int field, int value) {
 
@@ -287,6 +304,25 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(getEpochTime(inputDate)));
         return cal.get(field);
+    }
+
+    private static String fetchDuration(String date, boolean suffix, boolean toNow) {
+
+        Duration dur = Duration.between(
+                Instant.ofEpochMilli(GetTimeInMillisUtil.getEpochTime(date)),
+                Instant.ofEpochMilli(Calendar.getInstance().getTimeInMillis()));
+
+        String output = DurationUtil.getDuration(Math.abs(dur.toDays()), Math.abs(dur.toHours()),
+                Math.abs(dur.toMinutes()),
+                Math.abs(dur.toSeconds()));
+
+        if (suffix)
+            return output;
+
+        if (toNow)
+            return dur.isNegative() ? output + " ago" : "In " + output;
+
+        return dur.isNegative() ? "In " + output : output + " ago";
     }
 
     private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
