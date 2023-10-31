@@ -1,10 +1,12 @@
 package com.fincity.nocode.kirun.engine.util.date;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.WeekFields;
+import java.time.temporal.TemporalAdjusters;
 import java.util.TimeZone;
 
 public class AdjustTimeStampUtil {
@@ -32,12 +34,12 @@ public class AdjustTimeStampUtil {
 
                 int quarterMonth = utcTime.getMonth().firstMonthOfQuarter().getValue();
 
-                return utcTime.withDayOfMonth(quarterMonth).with(ChronoField.HOUR_OF_DAY, 0L)
-                        .truncatedTo(ChronoUnit.HOURS);
+                return utcTime.withDayOfMonth(quarterMonth).with(TemporalAdjusters.firstDayOfMonth())
+                        .truncatedTo(ChronoUnit.DAYS);
 
             case "week":
 
-                return utcTime.with(WeekFields.ISO.getFirstDayOfWeek()).truncatedTo(ChronoUnit.DAYS);
+                return utcTime.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).truncatedTo(ChronoUnit.DAYS);
 
             case "day":
 
@@ -62,5 +64,76 @@ public class AdjustTimeStampUtil {
             default:
                 return utcTime;
         }
+    }
+
+    public static ZonedDateTime getEndWithGivenField(Instant instant, String fieldName) {
+
+        ZonedDateTime utcTime = ZonedDateTime.ofInstant(instant,
+                TimeZone.getTimeZone("UTC").toZoneId());
+
+        switch (fieldName) {
+
+            case "year":
+
+                return utcTime.with(TemporalAdjusters.lastDayOfYear()).with(ChronoField.HOUR_OF_DAY, 23L)
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "month":
+
+                return utcTime.with(TemporalAdjusters.lastDayOfMonth()).with(ChronoField.HOUR_OF_DAY, 23L)
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "quarter":
+
+                int quarterMonth = utcTime.getMonth().getValue() / 3;
+
+                LocalDate ld = LocalDate.of(utcTime.getYear(), quarterMonth * 4, utcTime.getDayOfMonth());
+                int day = ld.with(TemporalAdjusters.lastDayOfMonth()).get(ChronoField.DAY_OF_MONTH);
+
+                return utcTime
+                        .with(ChronoField.MONTH_OF_YEAR, ld.getMonthValue())
+                        .with(ChronoField.DAY_OF_MONTH, day)
+                        .with(ChronoField.HOUR_OF_DAY, 23L)
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "week":
+
+                return utcTime.with(TemporalAdjusters.next(DayOfWeek.SUNDAY)).with(ChronoField.HOUR_OF_DAY, 23L)
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "day":
+
+                return utcTime
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "date":
+
+                return utcTime
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "hour":
+
+                return utcTime.with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "minute":
+
+                return utcTime.with(ChronoField.SECOND_OF_MINUTE, 59L)
+                        .with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            case "second":
+
+                return utcTime.with(ChronoField.MILLI_OF_SECOND, 999L);
+
+            default:
+                return utcTime;
+        }
+
     }
 }

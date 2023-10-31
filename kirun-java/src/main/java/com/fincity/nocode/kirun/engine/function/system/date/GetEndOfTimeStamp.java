@@ -21,13 +21,12 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil;
-import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
 import com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class GetStartOfTimeStamp extends AbstractReactiveFunction {
+public class GetEndOfTimeStamp extends AbstractReactiveFunction {
 
     private static final String DATE = "isodate";
 
@@ -37,7 +36,7 @@ public class GetStartOfTimeStamp extends AbstractReactiveFunction {
 
     @Override
     public FunctionSignature getSignature() {
-        return new FunctionSignature().setName("GetStartOfTimeStamp")
+        return new FunctionSignature().setName("GetEndOfTimeStamp")
                 .setNamespace(Namespaces.DATE)
                 .setParameters(Map.ofEntries(
                         Parameter.ofEntry(DATE, Schema.ofRef(Namespaces.DATE + ".timeStamp")),
@@ -46,7 +45,7 @@ public class GetStartOfTimeStamp extends AbstractReactiveFunction {
                                         new JsonPrimitive("year"),
                                         new JsonPrimitive("month"),
                                         new JsonPrimitive("quarter"),
-                                        new JsonPrimitive("week"), // check for also isoweek
+                                        new JsonPrimitive("week"),
                                         new JsonPrimitive("day"),
                                         new JsonPrimitive("date"),
                                         new JsonPrimitive("hour"),
@@ -70,7 +69,7 @@ public class GetStartOfTimeStamp extends AbstractReactiveFunction {
 
         String givenUnit = context.getArguments().get(TIME_UNIT).getAsString();
 
-        ZonedDateTime zdt = AdjustTimeStampUtil.getStartWithGivenField(
+        ZonedDateTime zdt = AdjustTimeStampUtil.getEndWithGivenField(
                 Instant.ofEpochMilli(GetTimeInMillisUtil.getEpochTime(inputDate)),
                 givenUnit);
 
@@ -79,4 +78,5 @@ public class GetStartOfTimeStamp extends AbstractReactiveFunction {
         return Mono.just(
                 new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(zdt.format(df)))))));
     }
+
 }
