@@ -37,9 +37,99 @@ class ToNowTest {
         StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
-                        res -> res.next().getResult().get("result").equals("a day ago"))
+                        res -> res.next().getResult().get("result").getAsString().equals("a day ago"))
                 .verifyComplete();
 
     }
+    
+    @Test
+    void toNowTest2() {
 
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-25T19:30:04.970+01:30"), "suffix",
+                new JsonPrimitive(false)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("In 5 days"))
+                .verifyComplete();
+    }
+    
+    @Test
+    void toNowTest3() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2022-10-25T19:30:04.970+01:30"), "suffix",
+                new JsonPrimitive(false)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("In a year"))
+                .verifyComplete();
+    }
+
+    @Test
+    void toNowTest4() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-09-25T19:30:04.970+01:30"), "suffix",
+                new JsonPrimitive(true)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("a month"))
+                .verifyComplete();
+    }
+    
+    @Test
+    void toNowTest5() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-10-31T12:03:00.970+05:30"), "suffix",
+                new JsonPrimitive(false)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("In a few seconds"))
+                .verifyComplete();
+    }
+    
+    @Test
+    void toNowTest6() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("1990-10-31T12:03:00.970+05:30"), "suffix",
+                new JsonPrimitive(true)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("33 years"))
+                .verifyComplete();
+    }
+    
+    @Test
+    void toNowTest7() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2023-12-31T12:03:00Z"), "suffix",
+                new JsonPrimitive(true)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("1 month"))
+                .verifyComplete();
+    }
+    
+    @Test
+    void toNowTest8() {
+
+        fep.setArguments(Map.of("isodate", new JsonPrimitive("2024-10-31T12:03:00Z"), "suffix",
+                new JsonPrimitive(false)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "ToNow")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsString().equals("a year ago"))
+                .verifyComplete();
+    }
 }
