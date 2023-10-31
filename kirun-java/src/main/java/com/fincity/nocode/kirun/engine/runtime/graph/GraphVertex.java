@@ -66,8 +66,12 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 	public ExecutionGraph<K, T> getSubGraphOfType(String type) {
 
 		ExecutionGraph<K, T> subGraph = new ExecutionGraph<>(true);
+		
+		Set<GraphVertex<K, T>> set = outVertices.get(type);
+		
+		if (set == null) return subGraph;
 
-		var typeVertices = new LinkedList<>(outVertices.get(type));
+		var typeVertices = new LinkedList<>(set);
 
 		typeVertices.stream()
 		        .map(GraphVertex::getData)
