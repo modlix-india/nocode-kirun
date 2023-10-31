@@ -275,4 +275,25 @@ class ExpressionEvaluatorTest {
 		assertEquals(new JsonPrimitive(8), ev.evaluate(valuesMap));
 
 	}
+	
+	@Test
+	void testEmptyStringwithNULLs() {
+		
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive(""), "b", new JsonPrimitive("Kiran")));
+		
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+		
+		var ev = new ExpressionEvaluator("Arguments.a = ''");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+		
+		ev = new ExpressionEvaluator("Arguments.a != ''");
+		assertEquals(new JsonPrimitive(false), ev.evaluate(valuesMap));
+		
+		ev = new ExpressionEvaluator("Arguments.b != ''");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+		
+		ev = new ExpressionEvaluator("Arguments.b = ''");
+		assertEquals(new JsonPrimitive(false), ev.evaluate(valuesMap));
+	}
 }
