@@ -34,12 +34,12 @@ public class AdjustTimeStampUtil {
 
                 int quarterMonth = utcTime.getMonth().firstMonthOfQuarter().getValue();
 
-                return utcTime.withDayOfMonth(quarterMonth).with(TemporalAdjusters.firstDayOfMonth())
+                return utcTime.with(ChronoField.MONTH_OF_YEAR, quarterMonth).with(TemporalAdjusters.firstDayOfMonth())
                         .truncatedTo(ChronoUnit.DAYS);
 
             case "week":
 
-                return utcTime.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).truncatedTo(ChronoUnit.DAYS);
+                return utcTime.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).truncatedTo(ChronoUnit.DAYS);
 
             case "day":
 

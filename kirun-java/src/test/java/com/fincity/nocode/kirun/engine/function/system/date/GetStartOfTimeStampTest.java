@@ -29,7 +29,6 @@ class GetStartOfTimeStampTest {
                 .verifyComplete();
     }
 
-
     @Test
     void yearTest2() {
         rfep.setArguments(
@@ -40,7 +39,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("1999-01-01T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void yearTest3() {
         rfep.setArguments(
@@ -51,22 +50,19 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("1999-01-01T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void yearTest4() {
         rfep.setArguments(
-                Map.of("isodate", new JsonPrimitive("1999-09-31T00:00:00.000+09:00"), "unit", new JsonPrimitive("year")));
+                Map.of("isodate", new JsonPrimitive("1999-09-31T00:00:00.000+09:00"), "unit",
+                        new JsonPrimitive("year")));
 
         StepVerifier.create(gst.execute(rfep))
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("1999-01-01T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
-    
-    
-    
-    
+
     @Test
     void monthTest() {
         rfep.setArguments(
@@ -78,7 +74,6 @@ class GetStartOfTimeStampTest {
                 .verifyComplete();
     }
 
-
     @Test
     void monthTest2() {
         rfep.setArguments(
@@ -89,7 +84,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2023-01-01T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void monthTest3() {
         rfep.setArguments(
@@ -100,9 +95,10 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2023-01-01T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void quarterTest() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-10-31T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
 
@@ -110,22 +106,15 @@ class GetStartOfTimeStampTest {
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-10-01T00:00:00.000Z"))
                 .verifyComplete();
-    }
 
-    @Test
-    void quarterTest2() {
         rfep.setArguments(
-                Map.of("isodate", new JsonPrimitive("2023-01-31T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
+                Map.of("isodate", new JsonPrimitive("2023-03-31T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
 
         StepVerifier.create(gst.execute(rfep))
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-01-01T00:00:00.000Z"))
                 .verifyComplete();
-    }
-    
-    
-    @Test
-    void quarterTest3() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-08-31T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
 
@@ -133,11 +122,20 @@ class GetStartOfTimeStampTest {
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-07-01T00:00:00.000Z"))
                 .verifyComplete();
+
+        rfep.setArguments(
+                Map.of("isodate", new JsonPrimitive("2023-11-30T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
+
+        StepVerifier.create(gst.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2023-10-01T00:00:00.000Z"))
+                .verifyComplete();
+
     }
-    
-    
+
     @Test
     void weekTest() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-10-31T15:13:51.123Z"), "unit", new JsonPrimitive("week")));
 
@@ -145,10 +143,7 @@ class GetStartOfTimeStampTest {
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-10-29T00:00:00.000Z"))
                 .verifyComplete();
-    }
 
-    @Test
-    void weekTest2() {
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-11-29T15:13:51.123Z"), "unit", new JsonPrimitive("week")));
 
@@ -156,10 +151,7 @@ class GetStartOfTimeStampTest {
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-11-26T00:00:00.000Z"))
                 .verifyComplete();
-    }
-    
-    @Test
-    void weekTest3() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-11-26T15:13:51.123Z"), "unit", new JsonPrimitive("week")));
 
@@ -168,7 +160,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2023-11-26T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void dateTest() {
         rfep.setArguments(
@@ -179,7 +171,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2023-10-31T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void dateTest2() {
         rfep.setArguments(
@@ -201,6 +193,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("1989-10-31T00:00:00.000Z"))
                 .verifyComplete();
     }
+
     @Test
     void dayTest() {
         rfep.setArguments(
@@ -215,14 +208,15 @@ class GetStartOfTimeStampTest {
     @Test
     void dayTest2() {
         rfep.setArguments(
-                Map.of("isodate", new JsonPrimitive("2023-10-30T15:13:51.123+14:00"), "unit", new JsonPrimitive("day")));
+                Map.of("isodate", new JsonPrimitive("2023-10-30T15:13:51.123+14:00"), "unit",
+                        new JsonPrimitive("day")));
 
         StepVerifier.create(gst.execute(rfep))
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-10-30T00:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void hourTest() {
         rfep.setArguments(
@@ -255,7 +249,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2000-10-31T23:00:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void minuteTest() {
         rfep.setArguments(
@@ -266,7 +260,7 @@ class GetStartOfTimeStampTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2023-10-31T15:13:00.000Z"))
                 .verifyComplete();
     }
-    
+
     @Test
     void minuteTest2() {
         rfep.setArguments(
