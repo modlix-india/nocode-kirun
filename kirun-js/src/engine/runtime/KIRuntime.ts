@@ -248,6 +248,12 @@ export class KIRuntime extends AbstractFunction {
         let nextOutput: EventResult | undefined = undefined;
 
         do {
+            branch
+                .getT1()
+                .getVerticesData()
+                .map((e) => e.getStatement().getStatementName())
+                .forEach((e) => inContext.getSteps()?.delete(e));
+
             await this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
 
