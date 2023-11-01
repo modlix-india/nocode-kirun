@@ -87,9 +87,9 @@ public class AdjustTimeStampUtil {
 
             case "quarter":
 
-                int quarterMonth = utcTime.getMonth().getValue() / 3;
+                int quarterMonth = (utcTime.getMonthValue() / 3) + 1;
 
-                LocalDate ld = LocalDate.of(utcTime.getYear(), quarterMonth * 4, utcTime.getDayOfMonth());
+                LocalDate ld = LocalDate.of(utcTime.getYear(), quarterMonth * 3, utcTime.getDayOfMonth());
                 int day = ld.with(TemporalAdjusters.lastDayOfMonth()).get(ChronoField.DAY_OF_MONTH);
 
                 return utcTime
@@ -101,25 +101,29 @@ public class AdjustTimeStampUtil {
 
             case "week":
 
-                return utcTime.with(TemporalAdjusters.next(DayOfWeek.SUNDAY)).with(ChronoField.HOUR_OF_DAY, 23L)
+                return utcTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY)).with(ChronoField.HOUR_OF_DAY, 23L)
                         .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
                         .with(ChronoField.MILLI_OF_SECOND, 999L);
 
             case "day":
 
                 return utcTime
+                        .with(ChronoField.HOUR_OF_DAY, 23L)
                         .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
                         .with(ChronoField.MILLI_OF_SECOND, 999L);
 
             case "date":
 
                 return utcTime
+                        .with(ChronoField.HOUR_OF_DAY, 23L)
                         .with(ChronoField.MINUTE_OF_HOUR, 59L).with(ChronoField.SECOND_OF_MINUTE, 59L)
                         .with(ChronoField.MILLI_OF_SECOND, 999L);
 
             case "hour":
 
-                return utcTime.with(ChronoField.SECOND_OF_MINUTE, 59L)
+                return utcTime
+                        .with(ChronoField.MINUTE_OF_HOUR, 59L)
+                        .with(ChronoField.SECOND_OF_MINUTE, 59L)
                         .with(ChronoField.MILLI_OF_SECOND, 999L);
 
             case "minute":

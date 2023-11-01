@@ -20,6 +20,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.fincity.nocode.kirun.engine.util.date.DateCompareUtil;
 import com.fincity.nocode.kirun.engine.util.date.DurationUtil;
 import com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil;
 
@@ -286,7 +287,28 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     (inputDate, suffix) -> fetchDuration(inputDate, suffix, true)
 
-            )
+            ),
+
+            AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput("IsSame",
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "same", fields)
+
+            ),
+
+            AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput("IsBefore",
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "before", fields)
+
+            ),
+
+            AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput("IsAfter",
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "after", fields)
+
+            ),
+
+            AbstractCompareDateFunction.ofEntryThreeDateAndBooleanOutput("InBetween", "betweenDate",
+                    DateCompareUtil::inBetween)
 
     );
 

@@ -31,6 +31,7 @@ class GetEndOfTimeStampTest {
 
     @Test
     void weekTest() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-10-18T15:13:51.123Z"), "unit", new JsonPrimitive("week")));
 
@@ -42,6 +43,7 @@ class GetEndOfTimeStampTest {
 
     @Test
     void quarterTest() {
+
         rfep.setArguments(
                 Map.of("isodate", new JsonPrimitive("2023-10-18T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
 
@@ -49,6 +51,33 @@ class GetEndOfTimeStampTest {
                 .expectNextMatches(
                         r -> r.next().getResult().get("result").getAsString().equals("2023-12-31T23:59:59.999Z"))
                 .verifyComplete();
+
+        rfep.setArguments(
+                Map.of("isodate", new JsonPrimitive("2023-05-18T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
+
+        StepVerifier.create(get.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2023-06-30T23:59:59.999Z"))
+                .verifyComplete();
+
+        rfep.setArguments(
+                Map.of("isodate", new JsonPrimitive("2023-07-18T15:13:51.123Z"), "unit", new JsonPrimitive("quarter")));
+
+        StepVerifier.create(get.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2023-09-30T23:59:59.999Z"))
+                .verifyComplete();
     }
 
+    @Test
+    void dateTest() {
+
+        rfep.setArguments(
+                Map.of("isodate", new JsonPrimitive("2023-10-18T15:13:51.123Z"), "unit", new JsonPrimitive("date")));
+
+        StepVerifier.create(get.execute(rfep))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2023-10-18T23:59:59.999Z"))
+                .verifyComplete();
+    }
 }
