@@ -93,19 +93,43 @@ public class DateCompareUtil {
 
         int equalLength = 0;
 
-        for (int i = 0; i < fieldsLength; i++) {
+        for (int i = 0, firstDateTotal = 0, secondDateTotal = 0; i < fieldsLength; i++) {
 
-            if (checkEquality(firstDate, secondDate, operationName, fields[i]))
+            firstDateTotal += firstDate.get(fields[i]) * (i + 1);
+
+            secondDateTotal += secondDate.get(fields[i]) * (i + 1);
+
+            if ((i < fieldsLength - 1) && checkEquality(firstDateTotal, secondDateTotal, operationName)
+                    || (i == fieldsLength - 1)
+                            && checkEqualityForLastField(firstDate, secondDate, operationName, fields[i]))
+
                 equalLength++;
 
             else
-                return false;
+                break;
+
         }
 
         return equalLength == fieldsLength;
     }
 
-    private static boolean checkEquality(Calendar firstDate, Calendar secondDate, String operation, int field) {
+    private static boolean checkEquality(int firstDateTotal, int secondDateTotal, String operation) {
+
+        if (operation.equals("same"))
+            return firstDateTotal == secondDateTotal;
+
+        else if (operation.equals("before"))
+            return firstDateTotal <= secondDateTotal;
+
+        else if (operation.equals("after"))
+            return firstDateTotal >= secondDateTotal;
+
+        return false;
+
+    }
+
+    private static boolean checkEqualityForLastField(Calendar firstDate, Calendar secondDate, String operation,
+            int field) {
 
         if (operation.equals("same"))
             return firstDate.get(field) == secondDate.get(field);

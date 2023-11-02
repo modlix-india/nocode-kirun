@@ -15,85 +15,86 @@ import reactor.test.StepVerifier;
 
 class IsAfterTest {
 
-	 DateFunctionRepository dfr = new DateFunctionRepository();
+    DateFunctionRepository dfr = new DateFunctionRepository();
 
-	    ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
-	            new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
-	    @Test
-	    void yearTest() {
+    ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
+            new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-	        JsonArray arr = new JsonArray();
+    @Test
+    void yearTest() {
 
-	        arr.add("year");
-	      
-	        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
-	                new JsonPrimitive("2023-10-31T17:14:20.789Z"), "unit", arr));
+        JsonArray arr = new JsonArray();
 
-	        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
-	                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
-	                .verifyComplete();
-	    }
-	    
-	    @Test
-	    void yearTest2() {
+        arr.add("year");
 
-	        JsonArray arr = new JsonArray();
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2023-10-31T17:14:20.789Z"), "unit", arr));
 
-	        arr.add("year");
-	      
-	        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
-	                new JsonPrimitive("2000-10-31T17:14:20.789Z"), "unit", arr));
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
 
-	        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
-	                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
-	                .verifyComplete();
-	    }
-	    
-	    @Test
-	    void yearTest3() {
+    @Test
+    void yearTest2() {
 
-	        JsonArray arr = new JsonArray();
+        JsonArray arr = new JsonArray();
 
-	        arr.add("year");
-	      
-	        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
-	                new JsonPrimitive("2024-10-31T17:14:20.789Z"), "unit", arr));
+        arr.add("year");
 
-	        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
-	                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
-	                .verifyComplete();
-	    }
-	    
-	    @Test
-	    void monthTest() {
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2000-10-31T17:14:20.789Z"), "unit", arr));
 
-	        JsonArray arr = new JsonArray();
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
 
-	        arr.add("year");
-	        arr.add("month");
+    @Test
+    void yearTest3() {
 
-	        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
-	                new JsonPrimitive("2000-09-30T17:14:20.789Z"), "unit", arr));
+        JsonArray arr = new JsonArray();
 
-	        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
-	                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
-	                .verifyComplete();
-	    }
-	    
-	    @Test
-	    void monthTest2() {
+        arr.add("year");
 
-	        JsonArray arr = new JsonArray();
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2024-10-31T17:14:20.789Z"), "unit", arr));
 
-	        arr.add("year");
-	        arr.add("month");
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
 
-	        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
-	                new JsonPrimitive("2023-09-30T17:14:20.789Z"), "unit", arr));
+    @Test
+    void monthTest() {
 
-	        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
-	                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
-	                .verifyComplete();
-	    }
-	    
+        JsonArray arr = new JsonArray();
+
+        arr.add("year");
+        arr.add("month");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2000-09-30T17:14:20.789Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+
+    @Test
+    void monthTest2() {
+
+        JsonArray arr = new JsonArray();
+
+        arr.add("year");
+        arr.add("minute");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2023-09-30T17:14:20.789Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsAfter").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+
 }
