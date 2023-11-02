@@ -37,8 +37,6 @@ public abstract class AbstractCompareDateFunction extends AbstractReactiveFuncti
 
     protected static final String ISO_DATE2 = "datetwo";
 
-    protected static final String ISO_DATE3 = "datethree";
-
     protected static final String TIME_UNIT = "unit";
 
     protected static final String OUTPUT = "result";

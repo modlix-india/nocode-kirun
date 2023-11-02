@@ -113,6 +113,21 @@ class IsBeforeTest {
     }
 
     @Test
+    void daytest2() {
+
+        JsonArray arr = new JsonArray();
+
+        arr.add("day");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-03T17:14:21.798Z"), "datetwo",
+                new JsonPrimitive("2023-10-03T17:14:20.789Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+    
+    @Test
     void secondtest1() {
 
         JsonArray arr = new JsonArray();
@@ -125,6 +140,70 @@ class IsBeforeTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
                 .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+    
+    @Test
+    void secondtest2() {
+
+        JsonArray arr = new JsonArray();
+
+        
+        arr.add("second");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "datetwo",
+                new JsonPrimitive("2023-10-05T17:14:22.800Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+    
+    @Test
+    void minutetest1() {
+
+        JsonArray arr = new JsonArray();
+
+        
+        arr.add("minute");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "datetwo",
+                new JsonPrimitive("2023-10-05T17:14:22.800Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> !r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+    
+    @Test
+    void minutetest2() {
+
+        JsonArray arr = new JsonArray();
+
+        
+        arr.add("minute");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "datetwo",
+                new JsonPrimitive("2023-10-05T17:17:22.800Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
+                .verifyComplete();
+    }
+    
+    @Test
+    void hourtest() {
+
+        JsonArray arr = new JsonArray();
+
+        
+        arr.add("hour");
+
+        rfep.setArguments(Map.of("dateone", new JsonPrimitive("2023-10-05T16:14:20.788Z"), "datetwo",
+                new JsonPrimitive("2023-10-05T17:17:22.800Z"), "unit", arr));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "IsBefore").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsBoolean())
                 .verifyComplete();
     }
 }
