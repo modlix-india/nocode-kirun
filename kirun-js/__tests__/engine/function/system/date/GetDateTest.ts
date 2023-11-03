@@ -26,17 +26,17 @@ test('testing GetDateFunction', async () => {
 
     expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(4);
 
-    // fep.setArguments(new Map([['isodate', 'abc']]));
+    fep.setArguments(new Map([['isodate', 'abc']]));
 
-    // expect(
-    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
-    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
+    expect(async () =>
+        (await getDate?.execute(fep))?.allResults()[0]?.getResult()?.get('date'),
+    ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-    // fep.setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
+    fep.setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
 
-    // expect(
-    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
-    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
+    expect(async () =>
+        (await getDate?.execute(fep))?.allResults()[0]?.getResult()?.get('date'),
+    ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
     fep.setArguments(new Map([['isodate', '2023-04-20T14:48:20.000Z']]));
 

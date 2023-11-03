@@ -7,141 +7,138 @@ import com.google.gson.JsonArray;
 
 public class DateCompareUtil {
 
-    public static final String YEAR = "year";
+	public static final String YEAR = "year";
 
-    public static final String MONTH = "month";
+	public static final String MONTH = "month";
 
-    public static final String DAY = "day";
+	public static final String DAY = "day";
 
-    public static final String HOUR = "hour";
+	public static final String HOUR = "hour";
 
-    public static final String MINUTE = "minute";
+	public static final String MINUTE = "minute";
 
-    public static final String SECOND = "second";
+	public static final String SECOND = "second";
 
-    private DateCompareUtil() {
+	private DateCompareUtil() {
 
-    }
+	}
 
-    public static boolean inBetween(String firstDate, String secondDate, String thirdDate, JsonArray fields) {
+	public static boolean inBetween(String firstDate, String secondDate, String thirdDate, JsonArray fields) {
 
-        return compare(firstDate, thirdDate, "before", fields) && compare(secondDate, thirdDate, "after", fields);
-    }
+		return compare(firstDate, thirdDate, "before", fields) && compare(secondDate, thirdDate, "after", fields);
+	}
 
-    public static boolean compare(String firstDate, String secondDate, String operationName, JsonArray fields) {
+	public static boolean compare(String firstDate, String secondDate, String operationName, JsonArray fields) {
 
-        Calendar firstCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		Calendar firstCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
-        firstCal.setTimeInMillis(GetTimeInMillisUtil.getEpochTime(firstDate));
+		firstCal.setTimeInMillis(GetTimeInMillisUtil.getEpochTime(firstDate));
 
-        Calendar secondCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		Calendar secondCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
-        secondCal.setTimeInMillis(GetTimeInMillisUtil.getEpochTime(secondDate));
+		secondCal.setTimeInMillis(GetTimeInMillisUtil.getEpochTime(secondDate));
 
-        boolean equal = true;
+		boolean equal = true;
 
-        for (int i = 0; i < fields.size(); i++) {
+		for (int i = 0; i < fields.size(); i++) {
 
-            equal = equal && compare(firstCal, secondCal, operationName, fields.get(i).getAsString());
-        }
+			equal = equal && compare(firstCal, secondCal, operationName, fields.get(i).getAsString());
+		}
 
-        return equal;
+		return equal;
 
-    }
+	}
 
-    private static boolean compare(Calendar firstDate, Calendar secondDate, String operationName, String fieldName) {
+	private static boolean compare(Calendar firstDate, Calendar secondDate, String operationName, String fieldName) {
 
-        switch (fieldName) {
+		switch (fieldName) {
 
-            case YEAR:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR);
+		case YEAR:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR);
 
-            case MONTH:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH);
+		case MONTH:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH);
 
-            case DAY:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
-                        Calendar.DAY_OF_MONTH);
+		case DAY:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
+					Calendar.DAY_OF_MONTH);
 
-            case HOUR:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
-                        Calendar.DAY_OF_MONTH,
-                        Calendar.HOUR_OF_DAY);
+		case HOUR:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
+					Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY);
 
-            case MINUTE:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
-                        Calendar.DAY_OF_MONTH,
-                        Calendar.HOUR_OF_DAY, Calendar.MINUTE);
+		case MINUTE:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
+					Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE);
 
-            case SECOND:
-                return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
-                        Calendar.DAY_OF_MONTH,
-                        Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND);
+		case SECOND:
+			return checkFields(firstDate, secondDate, operationName, Calendar.YEAR, Calendar.MONTH,
+					Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND);
 
-            default:
-                return false;
-        }
+		default:
+			return false;
+		}
 
-    }
+	}
 
-    private static boolean checkFields(Calendar firstDate, Calendar secondDate, String operationName, int... fields) {
+	private static boolean checkFields(Calendar firstDate, Calendar secondDate, String operationName, int... fields) {
 
-        int fieldsLength = fields.length;
+		int fieldsLength = fields.length;
 
-        if (fieldsLength == 0)
-            return false;
+		if (fieldsLength == 0)
+			return false;
 
-        int equalLength = 0;
+		int equalLength = 0;
 
-        for (int i = 0, firstDateTotal = 0, secondDateTotal = 0; i < fieldsLength; i++) {
+		for (int i = 0, firstDateTotal = 0, secondDateTotal = 0; i < fieldsLength; i++) {
 
-            firstDateTotal += firstDate.get(fields[i]) * (i + 1);
+			firstDateTotal += firstDate.get(fields[i]) * (i + 1);
 
-            secondDateTotal += secondDate.get(fields[i]) * (i + 1);
+			secondDateTotal += secondDate.get(fields[i]) * (i + 1);
 
-            if ((i < fieldsLength - 1) && checkEquality(firstDateTotal, secondDateTotal, operationName)
-                    || (i == fieldsLength - 1)
-                            && checkEqualityForLastField(firstDate, secondDate, operationName, fields[i]))
+			if ((i < fieldsLength - 1) && checkEquality(firstDateTotal, secondDateTotal, operationName)
+					|| (i == fieldsLength - 1)
+							&& checkEqualityForLastField(firstDate, secondDate, operationName, fields[i]))
 
-                equalLength++;
+				equalLength++;
 
-            else
-                break;
+			else
+				break;
 
-        }
+		}
 
-        return equalLength == fieldsLength;
-    }
+		return equalLength == fieldsLength;
+	}
 
-    private static boolean checkEquality(int firstDateTotal, int secondDateTotal, String operation) {
+	private static boolean checkEquality(int firstDateTotal, int secondDateTotal, String operation) {
 
-        if (operation.equals("same"))
-            return firstDateTotal == secondDateTotal;
+		if (operation.equals("same"))
+			return firstDateTotal == secondDateTotal;
 
-        else if (operation.equals("before"))
-            return firstDateTotal <= secondDateTotal;
+		else if (operation.equals("before"))
+			return firstDateTotal <= secondDateTotal;
 
-        else if (operation.equals("after"))
-            return firstDateTotal >= secondDateTotal;
+		else if (operation.equals("after"))
+			return firstDateTotal >= secondDateTotal;
 
-        return false;
+		return false;
 
-    }
+	}
 
-    private static boolean checkEqualityForLastField(Calendar firstDate, Calendar secondDate, String operation,
-            int field) {
+	private static boolean checkEqualityForLastField(Calendar firstDate, Calendar secondDate, String operation,
+			int field) {
 
-        if (operation.equals("same"))
-            return firstDate.get(field) == secondDate.get(field);
+		if (operation.equals("same"))
+			return firstDate.get(field) == secondDate.get(field);
 
-        else if (operation.equals("before"))
-            return firstDate.get(field) < secondDate.get(field);
+		else if (operation.equals("before"))
+			return firstDate.get(field) < secondDate.get(field);
 
-        else if (operation.equals("after"))
-            return firstDate.get(field) > secondDate.get(field);
+		else if (operation.equals("after"))
+			return firstDate.get(field) > secondDate.get(field);
 
-        return false;
+		return false;
 
-    }
+	}
 
 }
