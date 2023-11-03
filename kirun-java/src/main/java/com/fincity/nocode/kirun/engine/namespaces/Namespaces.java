@@ -10,6 +10,8 @@ public class Namespaces {
 
 	public static final String MATH = "System.Math";
 	public static final String STRING = "System.String";
+	public static final String DATE = "System.Date";
+
 
 	private Namespaces() {
 	}

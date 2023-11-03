@@ -30,6 +30,8 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 	        .setNamespace(Namespaces.SYSTEM);
 	private static final Schema STRING = Schema.ofString("string")
 	        .setNamespace(Namespaces.SYSTEM);
+    private static final Schema TIMESTAMP = Schema.ofString("timeStamp")
+            .setNamespace(Namespaces.DATE);
 
 	private Map<String, Schema> map = new HashMap<>();
 
@@ -45,6 +47,7 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 		map.put(LONG.getName(), LONG);
 		map.put(NUMBER.getName(), NUMBER);
 		map.put(STRING.getName(), STRING);
+        map.put("Date." + TIMESTAMP.getName(), TIMESTAMP);
 		map.put(Parameter.EXPRESSION.getName(), Parameter.EXPRESSION);
 		map.put(Schema.NULL.getName(), Schema.NULL);
 		map.put(Schema.SCHEMA.getName(), Schema.SCHEMA);
@@ -58,8 +61,8 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 	@Override
 	public Mono<Schema> find(String namespace, String name) {
 
-		if (!Namespaces.SYSTEM.equals(namespace))
-			return Mono.empty();
+        if (!Namespaces.SYSTEM.equals(namespace) && !Namespaces.DATE.equals(namespace))
+            return Mono.empty();
 
 		return Mono.just(map.get(name));
 	}
