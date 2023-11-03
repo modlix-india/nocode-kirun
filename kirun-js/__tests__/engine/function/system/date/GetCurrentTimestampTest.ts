@@ -1,6 +1,5 @@
 import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { GetCurrentTimestamp } from '../../../../../src/engine/function/system/date/GetCurrentTimestamp';
-import { GetTime } from '../../../../../src/engine/function/system/date/GetTime';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 const getCurrentTimeStamp: GetCurrentTimestamp = new GetCurrentTimestamp();

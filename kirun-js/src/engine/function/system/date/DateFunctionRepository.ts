@@ -96,14 +96,83 @@ export class DateFunctionRepository implements Repository<Function> {
             },
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setDate',
             'dateValue',
             'date',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setDate(value);
-                console.log(newDate);
-                return newDate;
+                let newDate = new Date(inputDate).setUTCDate(value);
+                return new Date(newDate).getUTCDate();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
+            'setTime',
+            'timeValue',
+            'time',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setTime(value);
+                return new Date(newDate).toString();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setFullYear',
+            'yearValue',
+            'year',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCFullYear(value);
+                return new Date(newDate).getUTCFullYear();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setMonth',
+            'monthValue',
+            'month',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCMonth(value);
+                return new Date(newDate).getUTCMonth();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setHours',
+            'hoursValue',
+            'hours',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCHours(value);
+                return new Date(newDate).getUTCHours();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setMinutes',
+            'minutesValue',
+            'minutes',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCMinutes(value);
+                return new Date(newDate).getUTCMinutes();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setSeconds',
+            'secondsValue',
+            'seconds',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCSeconds(value);
+                return new Date(newDate).getUTCSeconds();
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setMilliSeconds',
+            'milliSecondsValue',
+            'milliSeconds',
+            (inputDate, value) => {
+                let newDate = new Date(inputDate).setUTCMilliseconds(value);
+                return new Date(newDate).getUTCMilliseconds();
             },
         ),
     );

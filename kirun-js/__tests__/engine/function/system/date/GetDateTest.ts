@@ -5,7 +5,6 @@ import {
     Namespaces,
 } from '../../../../../src';
 import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
-import { GetDate } from '../../../../../src/engine/function/system/date/GetDate';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 // const getDate: GetDate = new GetDate();

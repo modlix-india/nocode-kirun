@@ -19,7 +19,6 @@ export abstract class AbstractFunction implements Function {
         statementExecution: StatementExecution | undefined,
     ): Promise<Map<string, any>> {
         const retmap = new Map<string, any>();
-
         for (let e of Array.from(this.getSignature().getParameters().entries())) {
             let param: Parameter = e[1];
             try {
@@ -34,7 +33,6 @@ export abstract class AbstractFunction implements Function {
                 );
             }
         }
-
         return retmap;
     }
 
@@ -46,6 +44,8 @@ export abstract class AbstractFunction implements Function {
     ): Promise<Tuple2<string, any>> {
         let key: string = e[0];
         let jsonElement: any = args.get(e[0]);
+
+        // console.log('get([0])', e);
 
         if (isNullValue(jsonElement) && !param.isVariableArgument()) {
             return new Tuple2(

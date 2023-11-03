@@ -1,6 +1,5 @@
 import { KIRunFunctionRepository, KIRunSchemaRepository, Namespaces } from '../../../../../src';
 import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
-import { GetTime } from '../../../../../src/engine/function/system/date/GetTime';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 const dateFunctionRepo = new DateFunctionRepository();

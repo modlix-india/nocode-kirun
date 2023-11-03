@@ -5,77 +5,77 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 const dateFunctionRepo = new DateFunctionRepository();
 
-test('testing SetDateFunction', async () => {
-    let setDate = await dateFunctionRepo.find(Namespaces.DATE, 'setDate');
+test('testing SetFullYearFunction', async () => {
+    let setFullYear = await dateFunctionRepo.find(Namespaces.DATE, 'setFullYear');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     );
 
-    if (!setDate) {
+    if (!setFullYear) {
         throw new Error('Function not available');
     }
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-10-04T11:45:38.939Z'],
-            ['dateValue', 12],
+            ['yearValue', 8347],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(12);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(8347);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-09-03T17:35:17.000Z'],
-            ['dateValue', 18],
+            ['yearValue', 1209],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(18);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1209);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1970-01-20T15:58:57.561Z'],
-            ['dateValue', 31],
+            ['yearValue', 1997],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(31);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1997);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-10-19T06:44:11.615Z'],
-            ['dateValue', 32],
+            ['yearValue', 2030],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(1);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(2030);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-10-24T14:10:30.700+12:00'],
-            ['dateValue', 40],
+            ['yearValue', 9999],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(9);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(9999);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1994-10-24T14:05:30.406-18:00'],
-            ['dateValue', 76],
+            ['yearValue', 8575],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(15);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(8575);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1300-10-25T05:42:10.435+14:00'],
-            ['dateValue', 130],
+            ['yearValue', 1998],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(7);
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1998);
 });

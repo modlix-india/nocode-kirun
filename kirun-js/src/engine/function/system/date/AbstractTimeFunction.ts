@@ -55,10 +55,48 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
                             ),
                         ]),
                     );
-            }
+            } else {
+                if (isNullValue(schemaType) || schemaType.length === 0)
+                    schemaType = [SchemaType.INTEGER, SchemaType.INTEGER];
 
+                this.signature = new FunctionSignature(functionName)
+                    .setNamespace(namespace)
+                    .setParameters(
+                        new Map([
+                            [
+                                this.VALUE,
+                                new Parameter(
+                                    this.VALUE,
+                                    Schema.ofRef(`${Namespaces.DATE}.timeStamp`),
+                                ),
+                            ],
+                            [
+                                secondName,
+                                new Parameter(
+                                    secondName,
+                                    new Schema().setType(TypeUtil.of(schemaType[0])),
+                                ),
+                            ],
+                        ]),
+                    )
+                    .setEvents(
+                        new Map([
+                            Event.outputEventMapEntry(
+                                new Map([
+                                    [
+                                        output,
+                                        new Schema()
+                                            .setType(TypeUtil.of(schemaType[1]))
+                                            .setName(output),
+                                    ],
+                                ]),
+                            ),
+                        ]),
+                    );
+            }
+        } else {
             if (isNullValue(schemaType) || schemaType.length === 0)
-                schemaType = [SchemaType.INTEGER, SchemaType.INTEGER];
+                schemaType = [SchemaType.DOUBLE];
 
             this.signature = new FunctionSignature(functionName)
                 .setNamespace(namespace)
@@ -67,13 +105,6 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
                         [
                             this.VALUE,
                             new Parameter(this.VALUE, Schema.ofRef(`${Namespaces.DATE}.timeStamp`)),
-                        ],
-                        [
-                            secondName,
-                            new Parameter(
-                                secondName,
-                                new Schema().setType(TypeUtil.of(schemaType[0])),
-                            ),
                         ],
                     ]),
                 )
@@ -84,7 +115,7 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
                                 [
                                     output,
                                     new Schema()
-                                        .setType(TypeUtil.of(schemaType[1]))
+                                        .setType(TypeUtil.of(schemaType[0]))
                                         .setName(output),
                                 ],
                             ]),
@@ -92,31 +123,6 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
                     ]),
                 );
         }
-
-        if (isNullValue(schemaType) || schemaType.length === 0) schemaType = [SchemaType.DOUBLE];
-
-        this.signature = new FunctionSignature(functionName)
-            .setNamespace(namespace)
-            .setParameters(
-                new Map([
-                    [
-                        this.VALUE,
-                        new Parameter(this.VALUE, Schema.ofRef(`${Namespaces.DATE}.timeStamp`)),
-                    ],
-                ]),
-            )
-            .setEvents(
-                new Map([
-                    Event.outputEventMapEntry(
-                        new Map([
-                            [
-                                output,
-                                new Schema().setType(TypeUtil.of(schemaType[0])).setName(output),
-                            ],
-                        ]),
-                    ),
-                ]),
-            );
     }
 
     public getSignature(): FunctionSignature {
@@ -161,47 +167,6 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
         functionName: string,
         secondName: string,
         output: string,
-        bifunction: (a: string, b: number) => number,
-        ...schemaType: SchemaType[]
-    ): [string, Function] {
-        return [
-            functionName,
-            new (class extends AbstractTimeFunction {
-                constructor(
-                    secondName: string,
-                    namespace: string,
-                    name: string,
-                    output: string,
-                    ...schemaType: SchemaType[]
-                ) {
-                    super(secondName, namespace, name, output, ...schemaType);
-                }
-
-                protected async internalExecute(
-                    context: FunctionExecutionParameters,
-                ): Promise<FunctionOutput> {
-
-                    let inputDate = context?.getArguments()?.get(this.VALUE);
-
-                    if (!isValidZuluDate(inputDate))
-                        throw new KIRuntimeException(`Please provide the valid iso date.`);
-
-                    let addValue: number = context?.getArguments()?.get(secondName);
-
-                    console.log(context?.getArguments());
-
-                    return new FunctionOutput([
-                        EventResult.outputOf(MapUtil.of(output, bifunction(inputDate, addValue))),
-                    ]);
-                }
-            })(secondName, Namespaces.DATE, functionName, output, ...schemaType),
-        ];
-    }
-
-    public static ofEntryDateAndIntegerWithOutputInteger(
-        functionName: string,
-        secondName: string,
-        output: string,
         bifunction: (a: string, b: number) => string,
         ...schemaType: SchemaType[]
     ): [string, Function] {
@@ -215,7 +180,45 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
                     output: string,
                     ...schemaType: SchemaType[]
                 ) {
-                    super(secondName, namespace, name, output, ...schemaType);
+                    super(namespace, name, output, secondName, ...schemaType);
+                }
+
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
+                    let inputDate = context?.getArguments()?.get(this.VALUE);
+
+                    if (!isValidZuluDate(inputDate))
+                        throw new KIRuntimeException(`Please provide the valid iso date.`);
+
+                    let addValue: number = context?.getArguments()?.get(secondName);
+
+                    return new FunctionOutput([
+                        EventResult.outputOf(MapUtil.of(output, bifunction(inputDate, addValue))),
+                    ]);
+                }
+            })(secondName, Namespaces.DATE, functionName, output, ...schemaType),
+        ];
+    }
+
+    public static ofEntryDateAndIntegerWithOutputInteger(
+        functionName: string,
+        secondName: string,
+        output: string,
+        bifunction: (a: string, b: number) => number,
+        ...schemaType: SchemaType[]
+    ): [string, Function] {
+        return [
+            functionName,
+            new (class extends AbstractTimeFunction {
+                constructor(
+                    secondName: string,
+                    namespace: string,
+                    name: string,
+                    output: string,
+                    ...schemaType: SchemaType[]
+                ) {
+                    super(namespace, name, output, secondName, ...schemaType);
                 }
 
                 protected async internalExecute(

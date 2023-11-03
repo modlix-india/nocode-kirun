@@ -5,77 +5,77 @@ import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/F
 
 const dateFunctionRepo = new DateFunctionRepository();
 
-test('testing SetDateFunction', async () => {
-    let setDate = await dateFunctionRepo.find(Namespaces.DATE, 'setDate');
+test('testing SetMinutesFunction', async () => {
+    let setMinutes = await dateFunctionRepo.find(Namespaces.DATE, 'setMinutes');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     );
 
-    if (!setDate) {
+    if (!setMinutes) {
         throw new Error('Function not available');
     }
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-10-04T11:45:38.939Z'],
-            ['dateValue', 12],
+            ['isodate', '2023-09-07T17:35:17.123Z'],
+            ['minutesValue', 68],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(12);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(8);
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-09-03T17:35:17.000Z'],
-            ['dateValue', 18],
+            ['isodate', '2023-09-03T17:35:17.980Z'],
+            ['minutesValue', 100],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(18);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(40);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1970-01-20T15:58:57.561Z'],
-            ['dateValue', 31],
+            ['minutesValue', 1000],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(31);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(40);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-10-19T06:44:11.615Z'],
-            ['dateValue', 32],
+            ['minutesValue', 10000],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(1);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(40);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '2023-10-24T14:10:30.700+12:00'],
-            ['dateValue', 40],
+            ['minutesValue', 100],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(9);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(40);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1994-10-24T14:05:30.406-18:00'],
-            ['dateValue', 76],
+            ['minutesValue', -100],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(15);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(20);
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1300-10-25T05:42:10.435+14:00'],
-            ['dateValue', 130],
+            ['minutesValue', -10000],
         ]),
     );
 
-    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(7);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(20);
 });
