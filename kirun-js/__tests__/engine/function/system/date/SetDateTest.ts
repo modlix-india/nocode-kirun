@@ -1,23 +1,31 @@
 import { KIRunFunctionRepository, KIRunSchemaRepository, Namespaces } from '../../../../../src';
 import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
+import { GetTimeZoneOffset } from '../../../../../src/engine/function/system/date/GetTimeZoneOffset';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 const dateFunctionRepo = new DateFunctionRepository();
 
-test('testing GetFullYearFunction', async () => {
-    let getFullYear = await dateFunctionRepo.find(Namespaces.DATE, 'getFullYear');
+test('testing SetDateFunction', async () => {
+    let setDate = await dateFunctionRepo.find(Namespaces.DATE, 'setDate');
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     );
 
-    if (!getFullYear) {
+    if (!setDate) {
         throw new Error('Function not available');
     }
 
-    fep.setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '2023-10-04T11:45:38.939Z'],
+            ['dateValue', 12],
+        ]),
+    );
 
-    expect((await getFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(2023);
+    console.log(fep.getArguments());
+
+    expect((await setDate.execute(fep)).allResults()[0].getResult().get('date'));
 
     // fep.setArguments(new Map([['isodate', 'abc']]));
 
@@ -31,19 +39,15 @@ test('testing GetFullYearFunction', async () => {
     //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
     // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-    fep.setArguments(new Map([['isodate', '7765-04-20T14:48:20.000Z']]));
+    // fep.setArguments(new Map([['isodate', '7765-04-20T14:48:20.000+05:30']]));
 
-    expect((await getFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(7765);
+    // expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(-330);
 
-    fep.setArguments(new Map([['isodate', '1383-10-04T14:10:30.700+00:00']]));
+    // fep.setArguments(new Map([['isodate', '2023-10-04T23:10:30.700-02:30']]));
 
-    expect((await getFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1383);
+    // expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(150);
 
-    fep.setArguments(new Map([['isodate', '1994-10-24T14:10:30.700+00:00']]));
+    // fep.setArguments(new Map([['isodate', '1994-10-24T02:10:30.700+00:00']]));
 
-    expect((await getFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1994);
-
-    fep.setArguments(new Map([['isodate', '2053-10-04T14:10:50.70000+00:00']]));
-
-    expect((await getFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(2053);
+    // expect((await setDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(0);
 });

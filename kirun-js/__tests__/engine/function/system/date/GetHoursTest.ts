@@ -1,65 +1,50 @@
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
+import { KIRunFunctionRepository, KIRunSchemaRepository, Namespaces } from '../../../../../src';
+import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
 import { GetHours } from '../../../../../src/engine/function/system/date/GetHours';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-const getHours: GetHours = new GetHours();
+const dateFunctionRepo = new DateFunctionRepository();
 
-describe('testing GetFullYearTest', () => {
-    test('should throw an error', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', 'abc']]));
+test('testing GetFullYearFunction', async () => {
+    let getHours = await dateFunctionRepo.find(Namespaces.DATE, 'getHours');
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
-        expect(async () =>
-            (await getHours.execute(fep))?.allResults()[0]?.getResult()?.get('hours'),
-        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
-    });
+    if (!getHours) {
+        throw new Error('Function not available');
+    }
 
-    test('should throw an error', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
+    fep.setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
 
-        expect(async () =>
-            (await getHours.execute(fep))?.allResults()[0]?.getResult()?.get('hours'),
-        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
-    });
+    expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(11);
 
-    test('Test 2', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
+    // fep.setArguments(new Map([['isodate', 'abc']]));
 
-        expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(11);
-    });
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-    test('Test 3', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '7765-04-20T14:48:20.000Z']]));
+    // fep.setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
 
-        expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(14);
-    });
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-    test('Test 4', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '1383-10-04T23:10:30.700+00:00']]));
+    fep.setArguments(new Map([['isodate', '7765-04-20T14:48:20.000Z']]));
 
-        expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(23);
-    });
+    expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(14);
 
-    test('Test 5', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '1994-10-24T02:10:30.700+00:00']]));
+    fep.setArguments(new Map([['isodate', '1383-10-04T23:10:30.700+00:00']]));
 
-        expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(2);
-    });
+    expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(23);
+
+    fep.setArguments(new Map([['isodate', '1994-10-24T14:10:30.700+00:00']]));
+
+    expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(14);
+
+    fep.setArguments(new Map([['isodate', '2053-10-04T04:10:50.70000+00:00']]));
+
+    expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(4);
 });

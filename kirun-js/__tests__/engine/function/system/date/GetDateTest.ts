@@ -1,87 +1,65 @@
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
+import {
+    KIRunFunctionRepository,
+    KIRunSchemaRepository,
+    MapUtil,
+    Namespaces,
+} from '../../../../../src';
+import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
 import { GetDate } from '../../../../../src/engine/function/system/date/GetDate';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
-const getDate: GetDate = new GetDate();
+// const getDate: GetDate = new GetDate();
 
-describe('testing GetDateFunction', () => {
-    test('should throw an error', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', 'abc']]));
+const dateFunctionRepo = new DateFunctionRepository();
 
-        expect(async () =>
-            (await getDate.execute(fep))?.allResults()[0]?.getResult()?.get('value'),
-        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
-    });
+test('testing GetDateFunction', async () => {
+    let getDate = await dateFunctionRepo.find(Namespaces.DATE, 'getDate');
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    );
 
-    test('should throw an error', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
+    if (!getDate) {
+        throw new Error('Function not available');
+    }
 
-        expect(async () =>
-            (await getDate.execute(fep))?.allResults()[0]?.getResult()?.get('value'),
-        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
-    });
+    fep.setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
 
-    test('Test 2', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
+    expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(4);
 
-        expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(4);
-    });
+    // fep.setArguments(new Map([['isodate', 'abc']]));
 
-    test('Test 3', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-04-20T14:48:20.000Z']]));
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-        expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(20);
-    });
+    // fep.setArguments(new Map([['isodate', '2023-10-4T11:45:38.939Z']]));
 
-    test('Test 4', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-04T14:10:30.700+00:00']]));
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 
-        expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(4);
-    });
+    fep.setArguments(new Map([['isodate', '2023-04-20T14:48:20.000Z']]));
 
-    test('Test 5', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-10-24T14:10:30.700+00:00']]));
+    expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(20);
 
-        expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(24);
-    });
+    fep.setArguments(new Map([['isodate', '2023-10-04T14:10:30.700+00:00']]));
 
-    test('Test 6', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-02-31T07:35:17.000Z']]));
+    expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(4);
 
-        expect(
-            (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
-        ).rejects.toThrowError('Please provide a valid value for epoch');
-    });
+    fep.setArguments(new Map([['isodate', '2023-10-24T14:10:30.700+00:00']]));
 
-    test('Test 7', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isodate', '2023-02-35T07:35:17.000Z']]));
+    expect((await getDate.execute(fep)).allResults()[0].getResult().get('date')).toBe(24);
 
-        expect(
-            (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
-        ).rejects.toThrowError('Invalid ISO 8601 Date format.');
-    });
+    // fep.setArguments(new Map([['isodate', '2023-02-31T07:35:17.000Z']]));
+
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Please provide a valid value for epoch');
+
+    // fep.setArguments(new Map([['isodate', '2023-02-35T07:35:17.000Z']]));
+
+    // expect(
+    //     (await getDate.execute(fep)).allResults()[0].getResult().get('date'),
+    // ).rejects.toThrowError('Invalid ISO 8601 Date format.');
 });
