@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -21,6 +24,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 import com.google.gson.JsonArray;
@@ -34,17 +38,19 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
     private static final String OUTPUT = "result";
 
-    public static final String YEAR = "year";
+    public static final String YEAR = "years";
 
-    public static final String MONTH = "month";
+    public static final String MONTH = "months";
 
-    public static final String DAY = "day";
+    public static final String DAY = "days";
 
-    public static final String HOUR = "hour";
+    public static final String HOUR = "hours";
 
-    public static final String MINUTE = "minute";
+    public static final String MINUTE = "minutes";
 
-    public static final String SECOND = "second";
+    public static final String SECOND = "seconds";
+
+    public static final String MILLIS = "millis";
 
     private static final String TIME_STAMP = ".timeStamp";
 
@@ -107,6 +113,32 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
         });
     }
 
+    public static Entry<String, ReactiveFunction> ofEntryDateWithOutputBoolean(final String functionName,
+            String firstParam, Predicate<String> function) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)) };
+
+        Event event = new Event().setName(OUTPUT)
+                .setParameters(Map.of(OUTPUT, Schema.ofBoolean(OUTPUT)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String firstDate = context.getArguments().get(firstParam).getAsString();
+
+                        if (!checkValidity(firstDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(function.test(firstDate)))))));
+                    }
+                });
+    }
+
     public static Entry<String, ReactiveFunction> ofEntryDateWithLongOutput(final String functionName,
             String firstParam, ToLongFunction<String> function) {
 
@@ -132,13 +164,44 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                 });
     }
 
+    public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerAndIntegerOutput(final String functionName,
+            String firstParam, String secondParam,
+            BiFunction<String, Integer, Integer> biFunction) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(secondParam, Schema.ofInteger(secondParam)),
+        };
+
+        Event event = new Event().setName(OUTPUT)
+                .setParameters(Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + TIME_STAMP)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String firstDate = context.getArguments().get(firstParam).getAsString();
+
+                        if (!checkValidity(firstDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        int amount = context.getArguments().get(secondParam).getAsInt();
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(biFunction.apply(firstDate, amount)))))));
+                    }
+                });
+    }
+
     public static Entry<String, ReactiveFunction> ofEntryTwoDateAndBooleanOutput(final String functionName,
             String firstParam, String secondParam, String thirdParam,
             TriFunction<String, String, JsonArray, Boolean> triFunction) {
 
         Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
                 Parameter.of(secondParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
-                Parameter.of(thirdParam, new Schema().setEnums(List.of(
+                Parameter.of(thirdParam, Schema.ofString(thirdParam).setEnums(List.of(
                         new JsonPrimitive(YEAR),
                         new JsonPrimitive(MONTH),
                         new JsonPrimitive(DAY),
@@ -175,6 +238,87 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         return Mono.just(new FunctionOutput(
                                 List.of(EventResult.outputOf(Map.of(OUTPUT,
                                         new JsonPrimitive(triFunction.apply(firstDate, secondDate, arr)))))));
+                    }
+                });
+    }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateAndUnitAndDateOutput(final String functionName,
+            String firstParam, String secondParam,
+            BinaryOperator<String> bifunction) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+
+                Parameter.of(secondParam, Schema.ofString(secondParam).setEnums(List.of(
+                        new JsonPrimitive(YEAR),
+                        new JsonPrimitive(MONTH),
+                        new JsonPrimitive(DAY),
+                        new JsonPrimitive(HOUR),
+                        new JsonPrimitive(MINUTE),
+                        new JsonPrimitive(SECOND),
+                        new JsonPrimitive(MILLIS))))
+        };
+
+        Event event = new Event().setName(OUTPUT)
+                .setParameters(Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + TIME_STAMP)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String date = context.getArguments().get(firstParam).getAsString();
+
+                        if (!checkValidity(date))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        String unit = context.getArguments().get(secondParam).getAsString();
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(bifunction.apply(date, unit)))))));
+                    }
+                });
+    }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateAndLongAndUnitAndDateOutput(final String functionName,
+            String firstParam, String secondParam,
+            String thirdParam,
+            TriFunction<String, Long, String, String> triFunction) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(secondParam, Schema.ofLong(secondParam)),
+                Parameter.of(thirdParam, Schema.ofString(thirdParam).setEnums(List.of(
+                        new JsonPrimitive(YEAR),
+                        new JsonPrimitive(MONTH),
+                        new JsonPrimitive(DAY),
+                        new JsonPrimitive(HOUR),
+                        new JsonPrimitive(MINUTE),
+                        new JsonPrimitive(SECOND),
+                        new JsonPrimitive(MILLIS))))
+        };
+
+        Event event = new Event().setName(OUTPUT)
+                .setParameters(Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + TIME_STAMP)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String firstDate = context.getArguments().get(firstParam).getAsString();
+
+                        if (!checkValidity(firstDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        long amount = context.getArguments().get(secondParam).getAsLong();
+
+                        String unit = context.getArguments().get(thirdParam).getAsString();
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(triFunction.apply(firstDate, amount, unit)))))));
                     }
                 });
     }

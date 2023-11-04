@@ -10,6 +10,6 @@ public class DateTimePatternUtil {
 
     public static DateTimeFormatter getPattern() {
 
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][xx][XXX]");
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
     }
 }
