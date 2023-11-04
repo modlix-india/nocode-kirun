@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
@@ -30,7 +31,35 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                         System.out.println(zdt);
                         return zdt.getDayOfMonth();
 
-                    }, SchemaType.INTEGER));
+                    }, SchemaType.INTEGER),
+
+            AbstractDateFunction.ofEntryDateWithLongOutput("GetTime", "isoDate",
+
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).toInstant()
+                            .toEpochMilli()
+
+            ),
+
+            AbstractDateFunction.ofEntryTwoDateAndBooleanOutput("IsBefore", "isoDate1", "isoDate2", "unit",
+
+                    (firstDate, secondDate, units) -> {
+
+                        ZonedDateTime zdt = ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern());
+
+                        System.out.println(ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern()));
+                        System.err.println(ZonedDateTime.parse(secondDate, DateTimePatternUtil.getPattern()));
+
+                        boolean result = zdt
+                                .isBefore(ZonedDateTime.parse(secondDate, DateTimePatternUtil.getPattern()));
+
+                        System.out.println(result);
+
+                        return true;
+                    }
+
+            )
+
+    );
 
     private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
             .stream()
