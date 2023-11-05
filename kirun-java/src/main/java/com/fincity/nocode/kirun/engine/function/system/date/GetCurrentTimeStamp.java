@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +12,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
+
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -36,11 +35,11 @@ public class GetCurrentTimeStamp extends AbstractReactiveFunction {
     @Override
     protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-        ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("UTC"));
+        Date d = new Date();
 
         return Mono.just(
                 new FunctionOutput(List.of(EventResult
-                        .outputOf(Map.of(OUTPUT, new JsonPrimitive(zdt.format(DateTimePatternUtil.getPattern())))))));
+                        .outputOf(Map.of(OUTPUT, new JsonPrimitive(d.getTime()))))));
     }
 
 }

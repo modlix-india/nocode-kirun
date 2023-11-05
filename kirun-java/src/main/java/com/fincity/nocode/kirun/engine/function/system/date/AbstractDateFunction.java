@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -24,8 +24,8 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
-
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.stream.QuadFunction;
 import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
@@ -34,7 +34,11 @@ import reactor.core.publisher.Mono;
 
 public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
-    private static final String ISO_DATE = "isoDate";
+    public static final String ISO_DATE = "isoDate";
+
+    public static final String ISO_DATE1 = "isoDate1";
+
+    public static final String ISO_DATE2 = "isoDate2";
 
     private static final String OUTPUT = "result";
 
@@ -52,9 +56,13 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
     public static final String MILLIS = "millis";
 
+    public static final String QUARTER = "quarters";
+
+    public static final String WEEK = "weeks";
+
     private static final String TIME_STAMP = ".timeStamp";
 
-    private static final String ERROR_MSG = "Please provide the valid iso date.";
+    private static final String ERROR_MSG = "Invalid ISO 8601 Date format.";
 
     private final FunctionSignature signature;
 
@@ -92,27 +100,6 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
         return signature;
     }
 
-    public static Entry<String, ReactiveFunction> ofEntryDateAndStringWithOutputName(final String name, String output,
-            Function<String, Number> ufunction, SchemaType... schemaType) {
-
-        return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
-
-            @Override
-            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-
-                String date = context.getArguments()
-                        .get(ISO_DATE)
-                        .getAsString();
-
-                if (!checkValidity(date))
-                    throw new KIRuntimeException(ERROR_MSG);
-
-                return Mono.just(new FunctionOutput(
-                        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
-            }
-        });
-    }
-
     public static Entry<String, ReactiveFunction> ofEntryDateWithOutputBoolean(final String functionName,
             String firstParam, Predicate<String> function) {
 
@@ -138,6 +125,55 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                     }
                 });
     }
+
+    public static Entry<String, ReactiveFunction> ofEntryDateWithIntegerOutput(final String functionName,
+            String firstParam, ToIntFunction<String> function) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)) };
+
+        Event event = new Event().setName(OUTPUT).setParameters(Map.of(OUTPUT, Schema.ofInteger(OUTPUT)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String date = context.getArguments().get(firstParam).getAsString();
+
+                        if (!checkValidity(date))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(function.applyAsInt(date)))))));
+                    }
+                });
+    }
+
+//    public static Entry<String, ReactiveFunction> ofEntryDateWithStringOutput(final String functionName,
+//            String paramName, UnaryOperator<String> function) {
+//
+//        Parameter[] params = { Parameter.of(paramName, Schema.ofRef(Namespaces.DATE + TIME_STAMP)) };
+//
+//        Event event = new Event().setName(OUTPUT).setParameters(Map.of(OUTPUT, Schema.ofString(OUTPUT)));
+//
+//        return Map.entry(functionName, new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+//
+//            @Override
+//            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+//
+//                String date = context.getArguments().get(paramName).getAsString();
+//
+//                if (!checkValidity(date))
+//                    throw new KIRuntimeException(ERROR_MSG);
+//
+//                return Mono.just(new FunctionOutput(
+//                        List.of(EventResult.outputOf(Map.of(OUTPUT,
+//                                new JsonPrimitive(function.apply(date)))))));
+//            }
+//        });
+//    }
 
     public static Entry<String, ReactiveFunction> ofEntryDateWithLongOutput(final String functionName,
             String firstParam, ToLongFunction<String> function) {
@@ -207,7 +243,8 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         new JsonPrimitive(DAY),
                         new JsonPrimitive(HOUR),
                         new JsonPrimitive(MINUTE),
-                        new JsonPrimitive(SECOND))), true)
+                        new JsonPrimitive(SECOND),
+                        new JsonPrimitive(MILLIS))), true)
         };
 
         Event event = new Event().setName(OUTPUT).setParameters(Map.of(OUTPUT, Schema.ofBoolean(OUTPUT)));
@@ -242,6 +279,61 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                 });
     }
 
+    public static Entry<String, ReactiveFunction> ofEntryThreeDateAndBooleanOutput(final String functionName,
+            String firstParam, String secondParam, String thirdParam, String fourthParam,
+            QuadFunction<String, String, String, JsonArray, Boolean> quadFunction) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(secondParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(thirdParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(fourthParam, Schema.ofString(fourthParam).setEnums(List.of(
+                        new JsonPrimitive(YEAR),
+                        new JsonPrimitive(MONTH),
+                        new JsonPrimitive(DAY),
+                        new JsonPrimitive(HOUR),
+                        new JsonPrimitive(MINUTE),
+                        new JsonPrimitive(SECOND),
+                        new JsonPrimitive(MILLIS))), true)
+        };
+
+        Event event = new Event().setName(OUTPUT).setParameters(Map.of(OUTPUT, Schema.ofBoolean(OUTPUT)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String firstDate = context.getArguments().get(firstParam).getAsString();
+
+                        String secondDate = context.getArguments().get(secondParam).getAsString();
+
+                        String betweenDate = context.getArguments().get(thirdParam).getAsString();
+
+                        if (!checkValidity(firstDate))
+                            throw new KIRuntimeException("Please provide the valid ISO date for " + firstParam);
+
+                        if (!checkValidity(secondDate))
+                            throw new KIRuntimeException("Please provide the valid ISO date for " + secondParam);
+
+                        if (!checkValidity(betweenDate))
+                            throw new KIRuntimeException("Please provide the valid ISO date for " + secondParam);
+
+                        JsonArray arr = context.getArguments().get(fourthParam).getAsJsonArray();
+
+                        int size = arr.size();
+
+                        if (size == 0)
+                            throw new KIRuntimeException("Please provide a unit for checking");
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(
+                                                quadFunction.apply(firstDate, secondDate, betweenDate, arr)))))));
+                    }
+                });
+    }
+
     public static Entry<String, ReactiveFunction> ofEntryDateAndUnitAndDateOutput(final String functionName,
             String firstParam, String secondParam,
             BinaryOperator<String> bifunction) {
@@ -255,7 +347,9 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         new JsonPrimitive(HOUR),
                         new JsonPrimitive(MINUTE),
                         new JsonPrimitive(SECOND),
-                        new JsonPrimitive(MILLIS))))
+                        new JsonPrimitive(MILLIS),
+                        new JsonPrimitive(WEEK),
+                        new JsonPrimitive(QUARTER))))
         };
 
         Event event = new Event().setName(OUTPUT)

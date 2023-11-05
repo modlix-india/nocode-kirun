@@ -5,7 +5,6 @@ import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.check
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Event;
@@ -39,14 +38,11 @@ public class IsValidISODate extends AbstractReactiveFunction {
     @Override
     protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-        var date = context.getArguments().get(ISO_DATE);
-
-        if (!date.isJsonPrimitive())
-            throw new KIRuntimeException("Please provide date type as input.");
+        String date = context.getArguments().get(ISO_DATE).getAsString();
 
         return Mono.just(new FunctionOutput(
                 List.of(EventResult.of(OUTPUT, Map.of(OUTPUT,
-                        new JsonPrimitive(checkValidity(date.getAsString())))))));
+                        new JsonPrimitive(checkValidity(date)))))));
     }
 
 }

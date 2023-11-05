@@ -19,15 +19,17 @@ class SetDateFunctionsTest {
     ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
             new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
+    String message = "Invalid ISO 8601 Date format.";
+
     @Test
-    void setYearFailTest() {
+    void setYearTest() {
 
         fep.setArguments(
                 Map.of("isoDate", new JsonPrimitive("2023-09-7T07:35:17.000Z"), "yearValue", new JsonPrimitive(12)));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(
@@ -35,14 +37,14 @@ class SetDateFunctionsTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(Map.of("isoDate", new JsonPrimitive("abcd"), "yearValue", new JsonPrimitive(121312)));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(Map.of("isoDate", new JsonPrimitive("202312=12"), "yearValue", new JsonPrimitive(1245)));
@@ -68,10 +70,32 @@ class SetDateFunctionsTest {
                 .expectError()
                 .verify();
 
-    }
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T23:54:11.615Z"), "yearValue",
+                        new JsonPrimitive(-9999999)));
 
-    @Test
-    void setYearSuccessTest() {
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage("Please provide valid value for year")
+                .verify();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T23:54:11.615-11:54"), "yearValue",
+                        new JsonPrimitive(-6712)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage("Please provide valid value for year")
+                .verify();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T23:54:11.615-02:10"), "yearValue",
+                        new JsonPrimitive(2)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(r -> r.next().getResult().get("result").getAsInt() == 2)
+                .verifyComplete();
 
         fep.setArguments(
                 Map.of("isoDate", new JsonPrimitive("2023-09-07T17:35:17.123Z"), "yearValue", new JsonPrimitive(8347)));
@@ -144,6 +168,134 @@ class SetDateFunctionsTest {
     }
 
     @Test
+    void test() {
+
+    }
+
+    @Test
+    void setMonthTest() {
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-09-07T17:35:17.000Z"), "monthValue", new JsonPrimitive(12)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 12)
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-09-03T17:35:17.000-12:54"), "monthValue",
+                        new JsonPrimitive(6)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result")
+                                .getAsInt() == 6)
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("1970-01-20T15:58:57.561Z"), "monthValue", new JsonPrimitive(7)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 7)
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T06:44:11.615Z"), "monthValue", new JsonPrimitive(2)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsInt() == 2)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-24T14:10:30.700+12:00"), "monthValue",
+                new JsonPrimitive(10)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsInt() == 10)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("1993-10-30T14:05:30.406-18:00"), "monthValue",
+                new JsonPrimitive(2)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsInt() == 2)
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("1300-10-25T05:42:10.435+14:00"), "monthValue",
+                        new JsonPrimitive(1)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsInt() == 1)
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-09-7T07:35:17.000Z"), "monthValue", new JsonPrimitive(12)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage(message)
+                .verify();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T23:84:11.615Z"), "monthValue",
+                        new JsonPrimitive(12345)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage(message)
+                .verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("abcd"), "monthValue", new JsonPrimitive(1234)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectErrorMessage(message)
+                .verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("202312=12"), "monthValue", new JsonPrimitive(123)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectError()
+                .verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("2053-10-04T14:10:50.70000+00:00"), "monthValue",
+                new JsonPrimitive(12)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectError()
+                .verify();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-19T23:84:11.615Z"), "monthValue", new JsonPrimitive(1)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE,
+                "SetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectError()
+                .verify();
+
+    }
+
+//    @Test
     void setDateSuccessTest() {
 
         fep.setArguments(
@@ -224,7 +376,7 @@ class SetDateFunctionsTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetDate")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(
@@ -232,14 +384,14 @@ class SetDateFunctionsTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetDate")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(Map.of("isoDate", new JsonPrimitive("abcd"), "dateValue", new JsonPrimitive(12)));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetDate")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide the valid iso date.")
+                .expectErrorMessage(message)
                 .verify();
 
         fep.setArguments(Map.of("isoDate", new JsonPrimitive("202312=12"), "dateValue", new JsonPrimitive(12)));

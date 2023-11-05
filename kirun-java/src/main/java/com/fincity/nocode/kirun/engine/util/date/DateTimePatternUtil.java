@@ -12,4 +12,10 @@ public class DateTimePatternUtil {
 
         return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
     }
+
+    public static DateTimeFormatter getPattern(String date) {
+        return DateTimeFormatter
+                .ofPattern(date.contains(".") && !date.contains("Z") ? "yyyy-MM-dd'T'HH:mm:ss.SSS[XXX]"
+                        : "yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
+    }
 }

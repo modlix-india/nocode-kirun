@@ -21,6 +21,15 @@ class GetStartOfTimeStampTest {
 
     @Test
     void yeartest() {
+        
+        rfep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("2023-10-31T15:13:51Z"), "unit", new JsonPrimitive("years")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetStartOfTimeStamp").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2023-01-01T00:00:00.000Z"))
+                .verifyComplete();
+
 
         rfep.setArguments(
                 Map.of("isoDate", new JsonPrimitive("2023-10-31T15:13:51.123Z"), "unit", new JsonPrimitive("years")));
@@ -31,7 +40,7 @@ class GetStartOfTimeStampTest {
                 .verifyComplete();
 
         rfep.setArguments(
-                Map.of("isoDate", new JsonPrimitive("1999-09-31T00:00:00.000Z"), "unit", new JsonPrimitive("years")));
+                Map.of("isoDate", new JsonPrimitive("1999-09-30T00:00:00.001Z"), "unit", new JsonPrimitive("years")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetStartOfTimeStamp").flatMap(e -> e.execute(rfep)))
                 .expectNextMatches(
@@ -39,7 +48,7 @@ class GetStartOfTimeStampTest {
                 .verifyComplete();
 
         rfep.setArguments(
-                Map.of("isoDate", new JsonPrimitive("1999-09-31T00:00:00Z"), "unit", new JsonPrimitive("years")));
+                Map.of("isoDate", new JsonPrimitive("1999-09-30T00:00:00Z"), "unit", new JsonPrimitive("years")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetStartOfTimeStamp").flatMap(e -> e.execute(rfep)))
                 .expectNextMatches(
@@ -47,7 +56,7 @@ class GetStartOfTimeStampTest {
                 .verifyComplete();
 
         rfep.setArguments(
-                Map.of("isoDate", new JsonPrimitive("1999-09-31T00:00:00.000+09:00"), "unit",
+                Map.of("isoDate", new JsonPrimitive("1999-09-30T00:00:00.000+09:00"), "unit",
                         new JsonPrimitive("years")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetStartOfTimeStamp").flatMap(e -> e.execute(rfep)))
@@ -212,7 +221,7 @@ class GetStartOfTimeStampTest {
     }
 
     @Test
-    void milliSecondTest() { // need to test
+    void milliSecondTest() {
 
         rfep.setArguments(
                 Map.of("isoDate", new JsonPrimitive("2023-10-31T15:13:51.123Z"), "unit", new JsonPrimitive("millis")));

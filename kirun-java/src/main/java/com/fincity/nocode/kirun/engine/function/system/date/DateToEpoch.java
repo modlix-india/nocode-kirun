@@ -29,7 +29,7 @@ public class DateToEpoch extends AbstractReactiveFunction {
 
     private static final String OUTPUT = "epoch";
 
-    private static final String ERROR_MSG = "Please provide the valid iso format";
+    private static final String ERROR_MSG = "Invalid ISO 8601 Date format.";
 
     @Override
     public FunctionSignature getSignature() {

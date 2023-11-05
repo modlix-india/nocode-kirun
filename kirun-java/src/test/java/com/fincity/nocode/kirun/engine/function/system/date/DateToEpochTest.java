@@ -98,6 +98,20 @@ class DateToEpochTest {
 
         StepVerifier.create(dte.execute(rfep))
                 .expectError().verify();
+
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-02-29T12:13:41.189-12:01")));
+
+        StepVerifier.create(dte.execute(rfep))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("epoch").getAsLong() == 1709252081189L)
+                .verifyComplete();
+
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2028-02-29T12:13:49.200+02:01")));
+
+        StepVerifier.create(dte.execute(rfep))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("epoch").getAsLong() == 1835431969200L)
+                .verifyComplete();
     }
 
 }

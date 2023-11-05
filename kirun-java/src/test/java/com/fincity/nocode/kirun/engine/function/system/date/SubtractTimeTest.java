@@ -108,6 +108,24 @@ class SubtractTimeTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2024-10-10T00:34:57.960Z"))
                 .verifyComplete();
 
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00.000+01:00"), "subtract",
+                new JsonPrimitive(4L), "unit",
+                new JsonPrimitive("years")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SubtractTime").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2020-10-10T00:35:00.000+01:00"))
+                .verifyComplete();
+
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00Z"), "subtract",
+                new JsonPrimitive(4L), "unit",
+                new JsonPrimitive("months")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SubtractTime").flatMap(e -> e.execute(rfep)))
+                .expectNextMatches(
+                        r -> r.next().getResult().get("result").getAsString().equals("2024-06-10T00:35:00.000Z"))
+                .verifyComplete();
+
     }
 
     @Test

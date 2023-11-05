@@ -18,11 +18,10 @@ class GetCurrentTimeStampTest {
     @Test
     void test() {
 
+        
+
         StepVerifier.create(gct.execute(rfep))
-                .expectNextMatches(r -> {
-                    System.out.println(r.next().getResult().get("timeStamp"));
-                    return true;
-                })
+                .expectNextMatches(r -> r.next().getResult().get("timeStamp").getAsLong() > 0)
                 .verifyComplete();
 
     }

@@ -41,7 +41,8 @@ public class EpochToDate extends AbstractReactiveFunction {
 
                                 new Schema()
                                         .setOneOf(List.of(
-                                                Schema.ofLong(EPOCH),
+                                                new Schema().setAnyOf(
+                                                        List.of(Schema.ofLong(EPOCH), Schema.ofInteger(EPOCH))),
                                                 Schema.ofString(EPOCH))))))
                 .setEvents(Map.ofEntries(Event.outputEventMapEntry(
                         Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + ".timeStamp")))));

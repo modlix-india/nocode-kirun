@@ -44,20 +44,20 @@ class DifferenceOfTimeStampTest {
                 "isoDate2", new JsonPrimitive("2023-10-25T19:30:94.970+01:30")));
 
         StepVerifier.create(dfts.execute(rfep))
-                .expectErrorMessage("Please provide the valid ISO date for isoDate2")
+                .expectErrorMessage("Invalid ISO 8601 Date format for isoDate2")
                 .verify();
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-25T73:30:04.970+07:00"),
                 "isoDate2", new JsonPrimitive("2023-10-25T19:30:54.970+01:30")));
 
         StepVerifier.create(dfts.execute(rfep))
-                .expectErrorMessage("Please provide the valid ISO date for isoDate1")
+                .expectErrorMessage("Invalid ISO 8601 Date format for isoDate1")
                 .verify();
     }
 
     @Test
     void test2() {
-        
+
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-26T06:40:33.807Z"),
                 "isoDate2", new JsonPrimitive("2023-10-26T06:40:12.334Z")));
 

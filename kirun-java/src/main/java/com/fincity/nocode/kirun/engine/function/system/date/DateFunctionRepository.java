@@ -7,50 +7,85 @@ import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateF
 import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateFunction.MONTH;
 import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateFunction.SECOND;
 import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateFunction.YEAR;
+import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.endOfGivenField;
+import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.startOfTimeStamp;
 
+import java.time.DateTimeException;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.fincity.nocode.kirun.engine.util.date.DateCompareUtil;
 import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
+import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class DateFunctionRepository implements ReactiveRepository<ReactiveFunction> {
 
+    private static final String UNIT = "unit";
+
     private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 
-            AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetDate",
-                    "date",
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetDay", AbstractDateFunction.ISO_DATE,
 
-                    (inputDate) -> {
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getDayOfWeek()
+                            .getValue() % 7 // Sunday - 0 to Saturday - 6 to match with javascript
 
-                        DateTimeFormatter dtf = DateTimePatternUtil.getPattern();
-                        ZonedDateTime zdt = ZonedDateTime.parse(inputDate, dtf);
+            ),
 
-                        System.out.println(zdt);
-                        return zdt.getDayOfMonth();
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetFullYear", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getFullYear
 
-                    }, SchemaType.INTEGER),
+            ),
 
-            AbstractDateFunction.ofEntryDateWithLongOutput("GetTime", "isoDate",
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMonth", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getMonth
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetDate", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getDate
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetHours", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getHours
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMinutes", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getMinutes
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetSeconds", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getSeconds
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMilliSeconds", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::getMillis
+
+            ),
+
+            AbstractDateFunction.ofEntryDateWithLongOutput("GetTime", AbstractDateFunction.ISO_DATE,
 
                     inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).toInstant()
                             .toEpochMilli()
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndLongAndUnitAndDateOutput("AddTime", "isoDate", "add", "unit",
+            AbstractDateFunction.ofEntryDateAndLongAndUnitAndDateOutput("AddTime", AbstractDateFunction.ISO_DATE, "add",
+                    UNIT,
 
                     (inputDate, amount, unit) -> {
 
@@ -58,13 +93,12 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                         zdt = addUnit(zdt, unit, amount);
 
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
-
-                        return zdt.format(formatter);
+                        return zdt.format(DateTimePatternUtil.getPattern());
                     }
 
             ),
-            AbstractDateFunction.ofEntryDateAndLongAndUnitAndDateOutput("SubtractTime", "isoDate", "subtract", "unit",
+            AbstractDateFunction.ofEntryDateAndLongAndUnitAndDateOutput("SubtractTime", AbstractDateFunction.ISO_DATE,
+                    "subtract", UNIT,
 
                     (inputDate, amount, unit) -> {
 
@@ -72,16 +106,20 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                         zdt = subtractUnit(zdt, unit, amount);
 
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
-
-                        return zdt.format(formatter);
+                        return zdt.format(DateTimePatternUtil.getPattern());
                     }
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetFullYear", "isoDate", "yearValue",
+            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetFullYear", AbstractDateFunction.ISO_DATE,
+                    "yearValue",
 
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, YEAR, amount)
+                    (inputDate, amount) -> {
+
+                        String s = String.valueOf(amount);
+
+                        return IsValidISODateUtil.setYear(inputDate, amount);
+                    }
 
             ),
 
@@ -117,50 +155,56 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
             ),
 
-            AbstractDateFunction.ofEntryDateWithOutputBoolean("IsLeapYear", "isoDate",
-                    inputDate -> {
-
-                        ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
-                        int year = zdt.getYear();
-
-                        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-
-                    }
+            AbstractDateFunction.ofEntryDateWithOutputBoolean("IsLeapYear", AbstractDateFunction.ISO_DATE,
+                    IsValidISODateUtil::isLeapYear
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndUnitAndDateOutput("GetStartOfTimeStamp", "isoDate", "unit",
+            AbstractDateFunction.ofEntryDateAndUnitAndDateOutput("GetStartOfTimeStamp", "isoDate", UNIT,
 
                     (inputDate, unit) -> {
 
                         ZonedDateTime zdt = startOfTimeStamp(inputDate, unit);
 
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]");
-
-                        System.out.println(zdt.format(formatter));
-                        return zdt.format(formatter);
+                        return zdt.format(DateTimePatternUtil.getPattern());
                     }
 
             ),
 
-            AbstractDateFunction.ofEntryTwoDateAndBooleanOutput("IsBefore", "isoDate1", "isoDate2", "unit",
+            AbstractDateFunction.ofEntryDateAndUnitAndDateOutput("GetEndOfTimeStamp", "isoDate", UNIT,
 
-                    (firstDate, secondDate, units) -> {
+                    (inputDate, unit) -> {
 
-                        ZonedDateTime zdt = ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern());
+                        ZonedDateTime zdt = endOfGivenField(inputDate, unit);
 
-                        System.out.println(ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern()));
-                        System.err.println(ZonedDateTime.parse(secondDate, DateTimePatternUtil.getPattern()));
-
-                        boolean result = zdt
-                                .isBefore(ZonedDateTime.parse(secondDate, DateTimePatternUtil.getPattern()));
-
-                        System.out.println(result);
-
-                        return true;
+                        return zdt.format(DateTimePatternUtil.getPattern());
                     }
 
-            )
+            ),
+
+            AbstractDateFunction.ofEntryTwoDateAndBooleanOutput("IsAfter", AbstractDateFunction.ISO_DATE1,
+                    AbstractDateFunction.ISO_DATE2, UNIT,
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "after", fields)
+
+            ),
+
+            AbstractDateFunction.ofEntryTwoDateAndBooleanOutput("IsBefore", AbstractDateFunction.ISO_DATE1,
+                    AbstractDateFunction.ISO_DATE2, UNIT,
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "before", fields)
+
+            ),
+
+            AbstractDateFunction.ofEntryTwoDateAndBooleanOutput("IsSame", AbstractDateFunction.ISO_DATE1,
+                    AbstractDateFunction.ISO_DATE2, UNIT,
+
+                    (firstDate, secondDate, fields) -> DateCompareUtil.compare(firstDate, secondDate, "same", fields)
+
+            ),
+
+            AbstractDateFunction.ofEntryThreeDateAndBooleanOutput("InBetween", AbstractDateFunction.ISO_DATE1,
+                    AbstractDateFunction.ISO_DATE2, "betweenDate", UNIT, DateCompareUtil::inBetween)
 
     );
 
@@ -171,13 +215,56 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
         switch (unit) {
 
             case YEAR:
-                return zdt.withYear(amount).getYear();
+
+                try {
+
+                    zdt = zdt.withYear(amount);
+
+                    if (amount > 0 && IsValidISODateUtil
+                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern())))
+
+                        return zdt.getYear();
+
+                    throw new KIRuntimeException("Please provide a valid year number");
+
+                } catch (DateTimeException ex) {
+
+                    throw new KIRuntimeException("Please provide a valid year number");
+                }
 
             case MONTH:
-                return zdt.withMonth(amount).getMonthValue();
+
+                try {
+                    zdt = zdt.withMonth(amount);
+
+                    if (IsValidISODateUtil
+                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
+
+                        return zdt.getMonthValue();
+
+                    throw new KIRuntimeException("Please provide a valid month number");
+
+                } catch (DateTimeException ex) {
+
+                    throw new KIRuntimeException("Please provide a valid month number");
+                }
 
             case DAY:
-                return zdt.withDayOfMonth(amount).getDayOfMonth();
+
+                try {
+                    zdt = zdt.withDayOfMonth(amount);
+
+                    if (IsValidISODateUtil
+                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
+
+                        return zdt.getDayOfMonth();
+
+                    throw new KIRuntimeException("Please provide a valid month number");
+
+                } catch (DateTimeException ex) {
+
+                    throw new KIRuntimeException("Please provide a valid month number");
+                }
 
             case HOUR:
                 return zdt.withHour(amount).getHour();
@@ -253,40 +340,6 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
             case MILLIS:
                 return zdt.minus(amount, ChronoUnit.MILLIS);
-
-            default:
-                return zdt;
-        }
-
-    }
-
-    private static final ZonedDateTime startOfTimeStamp(String inputDate, String unit) {
-
-        ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
-
-        switch (unit) {
-
-            case YEAR:
-
-                return zdt.withDayOfYear(1).with(ChronoField.HOUR_OF_DAY, 0L).truncatedTo(ChronoUnit.HOURS);
-
-            case MONTH:
-                return zdt.withDayOfMonth(1).with(ChronoField.HOUR_OF_DAY, 0L).truncatedTo(ChronoUnit.HOURS);
-
-            case DAY:
-                return zdt.truncatedTo(ChronoUnit.DAYS);
-
-            case HOUR:
-                return zdt.truncatedTo(ChronoUnit.HOURS);
-
-            case MINUTE:
-                return zdt.truncatedTo(ChronoUnit.MINUTES);
-
-            case SECOND:
-                return zdt.truncatedTo(ChronoUnit.SECONDS);
-
-            case MILLIS:
-                return zdt.truncatedTo(ChronoUnit.MILLIS);
 
             default:
                 return zdt;

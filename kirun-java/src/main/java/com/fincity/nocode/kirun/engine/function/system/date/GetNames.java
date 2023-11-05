@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -12,12 +11,11 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
 import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 
 import reactor.core.publisher.Mono;
 
-public class GetTimeAsObject extends AbstractReactiveFunction {
+public class GetNames extends AbstractReactiveFunction {
 
     private static final String ISO_DATE = "isoDate";
 
@@ -25,11 +23,13 @@ public class GetTimeAsObject extends AbstractReactiveFunction {
 
     @Override
     public FunctionSignature getSignature() {
-        return new FunctionSignature().setName("GetTimeAsObject")
+        return new FunctionSignature()
+                .setName("GetNames")
                 .setNamespace(Namespaces.DATE)
                 .setParameters(
                         Map.ofEntries(Parameter.ofEntry(ISO_DATE, Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
-                .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(OUTPUT, Schema.ofObject(OUTPUT)))));
+                .setEvents(Map.ofEntries(
+                        Event.outputEventMapEntry(Map.of(OUTPUT, Schema.ofArray(OUTPUT, Schema.ofString(OUTPUT))))));
     }
 
     @Override
@@ -39,10 +39,6 @@ public class GetTimeAsObject extends AbstractReactiveFunction {
 
         if (!IsValidISODateUtil.checkValidity(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
-
-        ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
-
-        
 
         return null;
     }

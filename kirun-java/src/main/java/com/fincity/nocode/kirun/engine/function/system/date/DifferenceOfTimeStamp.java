@@ -26,6 +26,8 @@ public class DifferenceOfTimeStamp extends AbstractReactiveFunction {
     private static final String ISO_DATE_1 = "isoDate1";
     private static final String ISO_DATE_2 = "isoDate2";
 
+    private static final String ERROR_MSG = "Invalid ISO 8601 Date format for ";
+
     private static final String OUTPUT = "result";
 
     @Override
@@ -47,10 +49,10 @@ public class DifferenceOfTimeStamp extends AbstractReactiveFunction {
         String secondDate = context.getArguments().get(ISO_DATE_2).getAsString();
 
         if (!checkValidity(firstDate))
-            throw new KIRuntimeException("Please provide the valid ISO date for " + ISO_DATE_1);
+            throw new KIRuntimeException(ERROR_MSG + ISO_DATE_1);
 
         if (!checkValidity(secondDate))
-            throw new KIRuntimeException("Please provide the valid ISO date for " + ISO_DATE_2);
+            throw new KIRuntimeException(ERROR_MSG + ISO_DATE_2);
 
         ZonedDateTime zdt1 = ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern());
 
