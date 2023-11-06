@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.date.GetTimeZoneOffsetUtil;
 import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 import com.google.gson.JsonPrimitive;
 
@@ -43,21 +44,9 @@ public class GetTimeZoneOffset extends AbstractReactiveFunction {
         if (!IsValidISODateUtil.checkValidity(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
 
-        if (inputDate.contains("Z") || inputDate.contains("+00:00") || inputDate.contains("-00:00"))
 
-            return Mono
-                    .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(0))))));
-
-        else {
-
-            String[] hourMinutes = inputDate.contains("+")
-                    ? inputDate.substring(inputDate.lastIndexOf("+") + 1).split(":")
-                    : inputDate.substring(inputDate.lastIndexOf("-") + 1).split(":");
-
-            int offset = inputDate.contains("+")
-                    ? -1 * (Integer.parseInt(hourMinutes[0]) * 60 + Integer.parseInt(hourMinutes[1]))
-                    : 1 * (Integer.parseInt(hourMinutes[0]) * 60 + Integer.parseInt(hourMinutes[1]));
-
+        int offset = GetTimeZoneOffsetUtil.getOffset(inputDate);
+  
             return Mono
                     .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(offset))))));
 
@@ -65,4 +54,4 @@ public class GetTimeZoneOffset extends AbstractReactiveFunction {
 
     }
 
-}
+
