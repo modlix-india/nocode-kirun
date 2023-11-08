@@ -7,8 +7,8 @@ import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { DurationUtils } from '../../../util/DurationUtil';
-import isValidZuluDate from '../../../util/isValidISODate';
+import { DurationUtils } from '../../../util/date/DurationUtil';
+import isValidZuluDate from '../../../util/date/isValidISODate';
 import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'isodate';

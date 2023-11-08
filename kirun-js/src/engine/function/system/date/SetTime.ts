@@ -7,7 +7,7 @@ import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { AbstractFunction } from '../../AbstractFunction';
-import isValidZuluDate from '../../../util/isValidISODate';
+import isValidZuluDate from '../../../util/date/isValidISODate';
 import { EventResult } from '../../../model/EventResult';
 
 const VALUE = 'isodate';

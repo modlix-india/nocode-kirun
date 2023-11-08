@@ -14,7 +14,7 @@ import addMinutes from '../../../util/addMinutes';
 import addMonths from '../../../util/addMonths';
 import addSeconds from '../../../util/addSeconds';
 import addYears from '../../../util/addYears';
-import isValidISO8601DateTime from '../../../util/isValidISODate';
+import isValidISO8601DateTime from '../../../util/date/isValidISODate';
 import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'isodate';

@@ -2,16 +2,22 @@ import { Repository } from '../../../Repository';
 import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { MapUtil } from '../../../util/MapUtil';
+import isValidISO8601DateTime from '../../../util/date/isValidISODate';
 import { Function } from '../../Function';
 import { AbstractTimeFunction } from './AbstractTimeFunction';
 
 const iso8601Pattern =
-    /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d+)?(Z|([+-]\d{2}:\d{2}))?$/;
+    /^([+-]?\d{6}|\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d+)?(Z|([+-]\d{2}:\d{2}))?$/;
 
 export class DateFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<String, Function> = MapUtil.ofArrayEntries(
         AbstractTimeFunction.ofEntryDateAndStringWithOutputName('getDate', 'date', (inputDate) => {
-            return new Date(inputDate).getDate();
+            const match = isValidISO8601DateTime(inputDate);
+            const date = new Date(inputDate);
+            if (match && date.toString() != 'Invalid Date') {
+                return date.getDate();
+            }
+            throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
         }),
 
         AbstractTimeFunction.ofEntryDateAndStringWithOutputName('getDay', 'day', (inputDate) => {
@@ -101,8 +107,16 @@ export class DateFunctionRepository implements Repository<Function> {
             'dateValue',
             'date',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCDate(value);
-                return new Date(newDate).getUTCDate();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCDate(value);
+                inputDate = new Date(newDate).toISOString().slice(0, 23) + offsetString;
+                console.log(inputDate);
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[3]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -111,8 +125,17 @@ export class DateFunctionRepository implements Repository<Function> {
             'timeValue',
             'time',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setTime(value);
-                return new Date(newDate).toString();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setTime(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                console.log(inputDate);
+                return inputDate;
             },
         ),
 
@@ -121,8 +144,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'yearValue',
             'year',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCFullYear(value);
-                return new Date(newDate).getUTCFullYear();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCFullYear(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[1]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -131,8 +166,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'monthValue',
             'month',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCMonth(value);
-                return new Date(newDate).getUTCMonth();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCMonth(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[2]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -141,8 +188,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'hoursValue',
             'hours',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCHours(value);
-                return new Date(newDate).getUTCHours();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCHours(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[4]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -151,8 +210,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'minutesValue',
             'minutes',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCMinutes(value);
-                return new Date(newDate).getUTCMinutes();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCMinutes(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[5]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -161,8 +232,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'secondsValue',
             'seconds',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCSeconds(value);
-                return new Date(newDate).getUTCSeconds();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCSeconds(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[6]);
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
 
@@ -171,8 +254,20 @@ export class DateFunctionRepository implements Repository<Function> {
             'milliSecondsValue',
             'milliSeconds',
             (inputDate, value) => {
-                let newDate = new Date(inputDate).setUTCMilliseconds(value);
-                return new Date(newDate).getUTCMilliseconds();
+                const offsetString = inputDate.slice(23);
+                let modifyString = inputDate.slice(0, 23) + 'Z';
+                const newDate = new Date(modifyString).setUTCMilliseconds(value);
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    return parseInt(match[7].slice(1));
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
             },
         ),
     );

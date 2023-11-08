@@ -8,8 +8,8 @@ import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { isNullValue } from '../../../util/NullCheck';
-import getTimezoneOffset from '../../../util/getTimeZoneOffset';
-import isValidZuluDate from '../../../util/isValidISODate';
+import getTimezoneOffset from '../../../util/date/getTimeZoneOffset';
+import isValidZuluDate from '../../../util/date/isValidISODate';
 import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'isodate';

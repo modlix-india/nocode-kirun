@@ -3,7 +3,6 @@ export default function getTimezoneOffset(input: string): number | null {
         /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d+)?(Z|([+-]\d{2}:\d{2}))?$/;
     const match = input.match(iso8601Pattern);
     if (match) {
-        console.log(match);
         const timezoneOffsetString = match[8];
         if (
             timezoneOffsetString === 'Z' ||

@@ -10,7 +10,7 @@ import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { isNullValue } from '../../../util/NullCheck';
 import { AbstractFunction } from '../../AbstractFunction';
-import isValidZuluDate from '../../../util/isValidISODate';
+import isValidZuluDate from '../../../util/date/isValidISODate';
 import { EventResult } from '../../../model/EventResult';
 import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';

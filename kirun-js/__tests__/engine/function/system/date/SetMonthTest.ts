@@ -23,7 +23,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(0);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(1);
 
     fep.setArguments(
         new Map<string, any>([
@@ -32,7 +32,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(6);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(7);
 
     fep.setArguments(
         new Map<string, any>([
@@ -41,7 +41,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(7);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(8);
 
     fep.setArguments(
         new Map<string, any>([
@@ -50,16 +50,16 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-10-24T14:10:30.700+12:00'],
+            ['isodate', '2023-10-24T14:10:30.700+15:02'],
             ['monthValue', 1000],
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
 
     fep.setArguments(
         new Map<string, any>([
@@ -68,7 +68,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
 
     fep.setArguments(
         new Map<string, any>([
@@ -77,5 +77,5 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(0);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(1);
 });

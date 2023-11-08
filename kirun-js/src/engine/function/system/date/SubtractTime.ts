@@ -7,8 +7,8 @@ import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import isValidISO8601DateTime from '../../../util/isValidISODate';
-import subtractDateTime from '../../../util/subtractDateTime';
+import isValidISO8601DateTime from '../../../util/date/isValidISODate';
+import subtractDateTime from '../../../util/date/subtractDateTime';
 import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'isodate';
