@@ -35,7 +35,7 @@ test('testing GetMinutesFunction', async () => {
 
     expect((await getMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(48);
 
-    fep.setArguments(new Map([['isodate', '1383-10-04T14:33:30.700+00:00']]));
+    fep.setArguments(new Map([['isodate', '1383-10-04T14:33:30.700+00:20']]));
 
     expect((await getMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(33);
 

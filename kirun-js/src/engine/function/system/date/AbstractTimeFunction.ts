@@ -238,4 +238,38 @@ export abstract class AbstractTimeFunction extends AbstractFunction {
             })(secondName, Namespaces.DATE, functionName, output, ...schemaType),
         ];
     }
+
+    public static ofEntryDateAndBooleanWithOutputName(
+        name: string,
+        output: string,
+        ufunction: (a: string) => boolean,
+        ...schemaType: SchemaType[]
+    ): [string, Function] {
+        return [
+            name,
+            new (class extends AbstractTimeFunction {
+                constructor(
+                    namespace: string,
+                    name: string,
+                    output: string,
+                    ...schemaType: SchemaType[]
+                ) {
+                    super(Namespaces.DATE, name, output, ...schemaType);
+                }
+
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
+                    let inputDate = context?.getArguments()?.get(this.VALUE);
+
+                    if (!isValidZuluDate(inputDate))
+                        throw new KIRuntimeException(`Please provide the valid iso date.`);
+
+                    return new FunctionOutput([
+                        EventResult.outputOf(MapUtil.of(output, ufunction(inputDate))),
+                    ]);
+                }
+            })(Namespaces.DATE, name, output, ...schemaType),
+        ];
+    }
 }

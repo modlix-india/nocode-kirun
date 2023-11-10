@@ -2,8 +2,10 @@ import { Repository } from '../../../Repository';
 import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { MapUtil } from '../../../util/MapUtil';
+import { DateCompareUtil } from '../../../util/date/DateCompareUtil';
 import isValidISO8601DateTime from '../../../util/date/isValidISODate';
 import { Function } from '../../Function';
+import { AbstractCompareDateFunction } from './AbstractCompareDateFunction';
 import { AbstractTimeFunction } from './AbstractTimeFunction';
 
 const iso8601Pattern =
@@ -44,7 +46,13 @@ export class DateFunctionRepository implements Repository<Function> {
             'getHours',
             'hours',
             (inputDate) => {
-                return new Date(inputDate).getUTCHours();
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
+                return new Date(modifyString).getUTCHours();
             },
         ),
 
@@ -52,7 +60,13 @@ export class DateFunctionRepository implements Repository<Function> {
             'getMinutes',
             'minutes',
             (inputDate) => {
-                return new Date(inputDate).getUTCMinutes();
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
+                return new Date(modifyString).getUTCMinutes();
             },
         ),
 
@@ -107,10 +121,22 @@ export class DateFunctionRepository implements Repository<Function> {
             'dateValue',
             'date',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCDate(value);
-                inputDate = new Date(newDate).toISOString().slice(0, 23) + offsetString;
+                inputDate = new Date(newDate).toISOString();
+                if (inputDate.length > 24) {
+                    inputDate = inputDate.slice(0, 26) + offsetString;
+                } else {
+                    inputDate = inputDate.slice(0, 23) + offsetString;
+                }
                 console.log(inputDate);
                 const match = inputDate.match(iso8601Pattern);
                 if (match) {
@@ -125,8 +151,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'timeValue',
             'time',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setTime(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -144,8 +177,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'yearValue',
             'year',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCFullYear(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -166,8 +206,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'monthValue',
             'month',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCMonth(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -188,8 +235,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'hoursValue',
             'hours',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCHours(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -210,8 +264,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'minutesValue',
             'minutes',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCMinutes(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -232,8 +293,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'secondsValue',
             'seconds',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCSeconds(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -254,8 +322,15 @@ export class DateFunctionRepository implements Repository<Function> {
             'milliSecondsValue',
             'milliSeconds',
             (inputDate, value) => {
-                const offsetString = inputDate.slice(23);
-                let modifyString = inputDate.slice(0, 23) + 'Z';
+                let offsetString;
+                let modifyString = inputDate;
+                if (inputDate.length == 29 || inputDate.length == 24) {
+                    offsetString = inputDate.slice(23);
+                    modifyString = inputDate.slice(0, 23) + 'Z';
+                } else {
+                    offsetString = inputDate.slice(26);
+                    modifyString = inputDate.slice(0, 26) + 'Z';
+                }
                 const newDate = new Date(modifyString).setUTCMilliseconds(value);
                 inputDate = new Date(newDate).toISOString();
                 if (inputDate.length > 24) {
@@ -265,9 +340,56 @@ export class DateFunctionRepository implements Repository<Function> {
                 }
                 const match = inputDate.match(iso8601Pattern);
                 if (match) {
+                    console.log(match);
                     return parseInt(match[7].slice(1));
                 }
                 throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
+            },
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndBooleanWithOutputName(
+            'IsLeapYear',
+            'leap',
+            (inputDate) => {
+                const match = inputDate.match(iso8601Pattern);
+                if (match) {
+                    const year = parseInt(match[1]);
+                    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+                }
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
+            },
+        ),
+
+        AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput(
+            'IsSame',
+            (firstDate, secondDate, fields) => {
+                const dateCompareUtil = new DateCompareUtil();
+                return dateCompareUtil.compareFields(firstDate, secondDate, 'same', fields);
+            },
+        ),
+
+        AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput(
+            'IsBefore',
+            (firstDate, secondDate, fields) => {
+                const dateCompareUtil = new DateCompareUtil();
+                return dateCompareUtil.compareFields(firstDate, secondDate, 'before', fields);
+            },
+        ),
+
+        AbstractCompareDateFunction.ofEntryTwoDateAndBooleanOutput(
+            'IsAfter',
+            (firstDate, secondDate, fields) => {
+                const dateCompareUtil = new DateCompareUtil();
+                return dateCompareUtil.compareFields(firstDate, secondDate, 'after', fields);
+            },
+        ),
+
+        AbstractCompareDateFunction.ofEntryThreeDateAndBooleanOutput(
+            'InBetween',
+            'betweenDate',
+            (firstDate, secondDate, thirdDate, fields) => {
+                const dateCompareUtil = new DateCompareUtil();
+                return dateCompareUtil.inBetween(firstDate, secondDate, thirdDate, fields);
             },
         ),
     );

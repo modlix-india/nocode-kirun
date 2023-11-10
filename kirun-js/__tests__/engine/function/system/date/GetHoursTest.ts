@@ -39,11 +39,11 @@ test('testing GetFullYearFunction', async () => {
 
     expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(23);
 
-    fep.setArguments(new Map([['isodate', '1994-10-24T14:10:30.700+00:00']]));
+    fep.setArguments(new Map([['isodate', '1994-10-24T14:10:30.700+05:00']]));
 
     expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(14);
 
-    fep.setArguments(new Map([['isodate', '2053-10-04T04:10:50.70000+00:00']]));
+    fep.setArguments(new Map([['isodate', '2053-10-04T04:10:50.700+00:00']]));
 
     expect((await getHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(4);
 });

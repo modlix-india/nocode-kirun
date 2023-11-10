@@ -18,7 +18,7 @@ test('testing SetDateFunction', async () => {
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-10-04T11:45:38.939Z'],
+            ['isodate', '-092023-10-04T11:45:38.939-04:00'],
             ['dateValue', 12],
         ]),
     );

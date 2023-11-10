@@ -27,7 +27,7 @@ test('testing SetFullYearFunction', async () => {
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-09-03T17:35:17.000Z'],
+            ['isodate', '-002023-09-03T17:35:17.000Z'],
             ['yearValue', -10],
         ]),
     );
