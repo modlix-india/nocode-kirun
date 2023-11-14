@@ -23,7 +23,9 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(11);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
 
     fep.setArguments(
         new Map<string, any>([
@@ -32,7 +34,9 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(4);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
 
     fep.setArguments(
         new Map<string, any>([
@@ -41,7 +45,9 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(16);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
 
     fep.setArguments(
         new Map<string, any>([
@@ -59,7 +65,9 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(4);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
 
     fep.setArguments(
         new Map<string, any>([
@@ -68,7 +76,9 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(20);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
 
     fep.setArguments(
         new Map<string, any>([
@@ -77,5 +87,16 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(8);
+    expect(async () =>
+        (await setHours?.execute(fep))?.allResults()[0].getResult().get('hour'),
+    ).rejects.toThrowError('Hours should be in the range of 0 and 23');
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1994-10-24T14:05:30.406-18:00'],
+            ['hoursValue', 10],
+        ]),
+    );
+
+    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(10);
 });

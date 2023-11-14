@@ -7,6 +7,16 @@ import isValidISO8601DateTime from '../../../util/date/isValidISODate';
 import { Function } from '../../Function';
 import { AbstractCompareDateFunction } from './AbstractCompareDateFunction';
 import { AbstractTimeFunction } from './AbstractTimeFunction';
+import {
+    setDate,
+    setFullYear,
+    setHours,
+    setMilliSeconds,
+    setMinutes,
+    setMonth,
+    setSeconds,
+} from '../../../util/date/SetDateFunctionsUtil';
+import addYears from '../../../util/addYears';
 
 const iso8601Pattern =
     /^([+-]?\d{6}|\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d+)?(Z|([+-]\d{2}:\d{2}))?$/;
@@ -38,7 +48,7 @@ export class DateFunctionRepository implements Repository<Function> {
             'getMonth',
             'month',
             (inputDate) => {
-                return new Date(inputDate).getUTCMonth() + 1;
+                return new Date(inputDate).getUTCMonth();
             },
         ),
 
@@ -116,36 +126,6 @@ export class DateFunctionRepository implements Repository<Function> {
             },
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
-            'setDate',
-            'dateValue',
-            'date',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCDate(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                console.log(inputDate);
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[3]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
-        ),
-
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setTime',
             'timeValue',
@@ -167,7 +147,7 @@ export class DateFunctionRepository implements Repository<Function> {
                 } else {
                     inputDate = inputDate.slice(0, 23) + offsetString;
                 }
-                console.log(inputDate);
+
                 return inputDate;
             },
         ),
@@ -176,175 +156,49 @@ export class DateFunctionRepository implements Repository<Function> {
             'setFullYear',
             'yearValue',
             'year',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCFullYear(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[1]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setFullYear(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setMonth',
             'monthValue',
             'month',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCMonth(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[2]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setMonth(inputDate, value),
+        ),
+
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+            'setDate',
+            'dateValue',
+            'date',
+            (inputDate, value) => setDate(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setHours',
             'hoursValue',
             'hours',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCHours(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[4]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setHours(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setMinutes',
             'minutesValue',
             'minutes',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCMinutes(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[5]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setMinutes(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setSeconds',
             'secondsValue',
             'seconds',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCSeconds(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    return parseInt(match[6]);
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setSeconds(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
             'setMilliSeconds',
             'milliSecondsValue',
             'milliSeconds',
-            (inputDate, value) => {
-                let offsetString;
-                let modifyString = inputDate;
-                if (inputDate.length == 29 || inputDate.length == 24) {
-                    offsetString = inputDate.slice(23);
-                    modifyString = inputDate.slice(0, 23) + 'Z';
-                } else {
-                    offsetString = inputDate.slice(26);
-                    modifyString = inputDate.slice(0, 26) + 'Z';
-                }
-                const newDate = new Date(modifyString).setUTCMilliseconds(value);
-                inputDate = new Date(newDate).toISOString();
-                if (inputDate.length > 24) {
-                    inputDate = inputDate.slice(0, 26) + offsetString;
-                } else {
-                    inputDate = inputDate.slice(0, 23) + offsetString;
-                }
-                const match = inputDate.match(iso8601Pattern);
-                if (match) {
-                    console.log(match);
-                    return parseInt(match[7].slice(1));
-                }
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-            },
+            (inputDate, value) => setMilliSeconds(inputDate, value),
         ),
 
         AbstractTimeFunction.ofEntryDateAndBooleanWithOutputName(

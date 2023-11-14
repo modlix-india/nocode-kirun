@@ -78,4 +78,42 @@ test('testing SetFullYearFunction', async () => {
     );
 
     expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1998);
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1200-02-29T05:42:10.435+14:00'],
+            ['yearValue', 1201],
+        ]),
+    );
+
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1201);
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1200-12-31T05:42:10.435+14:00'],
+            ['yearValue', 1204],
+        ]),
+    );
+
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(1204);
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1200-12-31T05:42:10.435+14:00'],
+            ['yearValue', 275764],
+        ]),
+    );
+
+    expect(async () =>
+        (await setFullYear?.execute(fep))?.allResults()[0].getResult().get('year'),
+    ).rejects.toThrowError('Given year cannot be set to year as it out of bounds');
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1200-12-31T05:42:10.435+14:00'],
+            ['yearValue', -27576],
+        ]),
+    );
+
+    expect((await setFullYear.execute(fep)).allResults()[0].getResult().get('year')).toBe(-27576);
 });

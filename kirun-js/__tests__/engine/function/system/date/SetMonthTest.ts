@@ -23,7 +23,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(1);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(0);
 
     fep.setArguments(
         new Map<string, any>([
@@ -32,7 +32,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(7);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(6);
 
     fep.setArguments(
         new Map<string, any>([
@@ -41,7 +41,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(8);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(7);
 
     fep.setArguments(
         new Map<string, any>([
@@ -50,7 +50,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
 
     fep.setArguments(
         new Map<string, any>([
@@ -59,7 +59,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
 
     fep.setArguments(
         new Map<string, any>([
@@ -68,7 +68,7 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(5);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
 
     fep.setArguments(
         new Map<string, any>([
@@ -77,5 +77,5 @@ test('testing SetDateFunction', async () => {
         ]),
     );
 
-    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(1);
+    expect((await setMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(0);
 });

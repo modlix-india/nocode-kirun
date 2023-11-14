@@ -17,7 +17,7 @@ test('testing GetDateFunction', async () => {
 
     fep.setArguments(new Map([['isodate', '2023-10-04T11:45:38.939Z']]));
 
-    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(10);
+    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(9);
 
     // fep.setArguments(new Map([['isodate', 'abc']]));
 
@@ -33,13 +33,13 @@ test('testing GetDateFunction', async () => {
 
     fep.setArguments(new Map([['isodate', '7765-04-20T14:48:20.000Z']]));
 
-    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(4);
+    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(3);
 
     fep.setArguments(new Map([['isodate', '1383-10-04T14:10:30.700+00:00']]));
 
-    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(10);
+    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(9);
 
     fep.setArguments(new Map([['isodate', '1994-12-24T14:10:30.700+00:00']]));
 
-    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(12);
+    expect((await getMonth.execute(fep)).allResults()[0].getResult().get('month')).toBe(11);
 });

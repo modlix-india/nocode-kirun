@@ -1,9 +1,6 @@
 import { KIRuntimeException } from '../../exception/KIRuntimeException';
 import { isNullValue } from '../NullCheck';
 
-const dateRegex =
-    /^([+-]?\d{6}|\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d{3})?(Z|([+-]([01]\d|2[0-3]):([0-5]\d)))?$/;
-
 const nonLeap = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const leap = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -15,13 +12,37 @@ function checkLeapYear(year: number): boolean {
     } else return year % 400 === 0;
 }
 
-export function setYear(inputDate: string, year: number) {
-    if (year >= 275761 || year <= -271821) return;
+function splitIntoDateAndOffset(inputDate: string): string[] {
+    let offsetString;
+    let modifyString = inputDate;
+    if (inputDate.length == 29 || inputDate.length == 24) {
+        offsetString = inputDate.slice(23);
+        modifyString = inputDate.slice(0, 23) + 'Z';
+    } else {
+        offsetString = inputDate.slice(26);
+        modifyString = inputDate.slice(0, 26) + 'Z';
+    }
 
-    const parts = inputDate.match(dateRegex);
+    return [modifyString, offsetString];
+}
+
+function getParts(inputDate: string): string[] | null {
+    const dateRegex =
+        /^([+-]?\d{6}|\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d{3})?(Z|([+-]([01]\d|2[0-3]):([0-5]\d)))?$/;
+
+    return inputDate.match(dateRegex);
+}
+
+export function setFullYear(inputDate: string, year: number): number {
+    const offsetDate = splitIntoDateAndOffset(inputDate);
+
+    if (year >= 275761 || year <= -271821)
+        throw new KIRuntimeException('Given year cannot be set to year as it out of bounds');
+
+    const parts = getParts(offsetDate[0]);
 
     if (parts === null || isNullValue(parts))
-        throw new KIRuntimeException('Please provide date for processing.');
+        throw new KIRuntimeException('Please provide valid date for processing.');
 
     if (+parts[2] === 2 && +parts[3] === 29 && checkLeapYear(parseInt(parts[1]))) {
         parts[2] = '03';
@@ -35,16 +56,14 @@ export function setYear(inputDate: string, year: number) {
                 ? `+${(year + '').padStart(6, '0')}`
                 : `-${(year * -1 + '').padStart(6, '0')}`;
 
-    return parts;
+    return parseInt(parts[1]);
 }
 
-export function setMonth(inputDate: string, addMonth: number) {
-    const parts = inputDate.match(dateRegex);
+export function setMonth(inputDate: string, addMonth: number): number {
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
-        throw new KIRuntimeException('Please provide date for processing.');
-
-    // let months: number  = parseInt(parts[2]);
+        throw new KIRuntimeException('Please provide valid date for processing.');
 
     let convertedMonths: number = absMonthValue(addMonth % 12) + 1;
     let extraYears: number = absFloor(addMonth / 12);
@@ -77,19 +96,27 @@ export function setMonth(inputDate: string, addMonth: number) {
 
     if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
         updateTimeStamp =
-            inputDate.substring(0, 8) + updateMonth + '-' + date + inputDate.substring(13);
+            inputDate.substring(0, 8) +
+            convertToString(updateMonth) +
+            '-' +
+            convertToString(date) +
+            inputDate.substring(13);
     else
         updateTimeStamp =
-            inputDate.substring(0, 5) + updateMonth + '-' + date + inputDate.substring(10);
+            inputDate.substring(0, 5) +
+            convertToString(updateMonth) +
+            '-' +
+            convertToString(date) +
+            inputDate.substring(10);
 
-    return setYear(updateTimeStamp, years);
+    return parseInt(parts[2]);
 }
 
-export function setDate(inputDate: string, addDays: number) {
-    const parts = inputDate.match(dateRegex);
+export function setDate(inputDate: string, addDays: number): number {
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
-        throw new KIRuntimeException('Please provide date for processing.');
+        throw new KIRuntimeException('Please provide valid date for processing.');
 
     let year: number = parseInt(parts[1]);
     let month: number = parseInt(parts[2]);
@@ -104,22 +131,24 @@ export function setDate(inputDate: string, addDays: number) {
     }
 
     //for zero value
-    if (addDays === 0) return [day, month, year];
+    if (addDays === 0) {
+        return day;
+    }
 
     // for neagtive within the previous month
     if (addDays < 0) flag = true;
 
     if (flag && daysInMonth[month - 1] >= addDays * -1) {
-        console.log(day);
-        return [day + addDays, month, year];
+        return day + addDays;
     }
 
     //positive within the month
-    if (!flag && addDays <= daysInMonth[month - 1]) return [addDays, month, year];
+    if (!flag && addDays <= daysInMonth[month - 1]) {
+        return addDays;
+    }
 
     if (!flag) {
         while (addDays > daysInMonth[month - 1]) {
-            console.log(`${addDays - daysInMonth[month - 1]}, ${year}, ${month}`);
             addDays -= daysInMonth[month - 1];
             month++;
             if (month - 1 > 11) {
@@ -130,7 +159,6 @@ export function setDate(inputDate: string, addDays: number) {
         }
     } else {
         while (addDays * -1 > daysInMonth[month - 1]) {
-            //         console.log(`${addDays - daysInMonth[month-1]}, ${year}, ${month}`);
             addDays += daysInMonth[month - 1];
             month--;
             if (month - 1 < 0) {
@@ -141,89 +169,66 @@ export function setDate(inputDate: string, addDays: number) {
         }
     }
 
-    return [addDays < 0 ? daysInMonth[month - 1] + addDays : addDays, month, year];
+    if (addDays < 0) return daysInMonth[month - 1] + addDays;
+    else return addDays;
 }
 
-export function setHours(inputDate: string, addHours: number) {
-    const parts = inputDate.match(dateRegex);
+export function setHours(inputDate: string, addHours: number): number {
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
         throw new KIRuntimeException('Please provide date for processing.');
 
     if (addHours < 0 || addHours > 24)
-        throw new KIRuntimeException('Hours should be in the range of 0 to 23');
+        throw new KIRuntimeException('Hours should be in the range of 0 and 23');
 
-    let hours: string = convertToString(addHours);
-
-    let updateTimeStamp: string = parts[0];
-
-    if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
-        updateTimeStamp = inputDate.substring(0, 14) + hours + inputDate.substring(16);
-    else updateTimeStamp = inputDate.substring(0, 11) + hours + inputDate.substring(13);
+    return addHours === 0 ? 0 : addHours;
 }
 
-export function setMinutes(inputDate: string, addMinutes: number) {
-    const parts = inputDate.match(dateRegex);
+export function setMinutes(inputDate: string, addMinutes: number): number {
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
         throw new KIRuntimeException('Please provide date for processing.');
 
     if (addMinutes < 0 || addMinutes > 59)
-        throw new KIRuntimeException('Minutes should be in the range of 0 to 59');
+        throw new KIRuntimeException('Minutes should be in the range of 0 and 59');
 
-    let minutes: string = convertToString(addMinutes);
-
-    let updateTimeStamp: string = parts[0];
-
-    if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
-        updateTimeStamp = inputDate.substring(0, 17) + minutes + inputDate.substring(19);
-    else updateTimeStamp = inputDate.substring(0, 13) + minutes + inputDate.substring(16);
+    return addMinutes === 0 ? 0 : addMinutes;
 }
 
-export function setSeconds(inputDate: string, addSeconds: number) {
-    const parts = inputDate.match(dateRegex);
+export function setSeconds(inputDate: string, addSeconds: number): number {
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
         throw new KIRuntimeException('Please provide date for processing.');
 
     if (addSeconds < 0 || addSeconds > 59)
-        throw new KIRuntimeException('Seconds should be in the range of 0 to 59');
+        throw new KIRuntimeException('Seconds should be in the range of 0 and 59');
 
-    let seconds: string = convertToString(addSeconds);
-
-    let updateTimeStamp: string = parts[0];
-
-    if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
-        updateTimeStamp = inputDate.substring(0, 20) + seconds + inputDate.substring(22);
-    else updateTimeStamp = inputDate.substring(0, 17) + seconds + inputDate.substring(19);
+    return addSeconds === 0 ? 0 : addSeconds;
 }
 
 export function setMilliSeconds(inputDate: string, addMillis: number) {
-    const parts = inputDate.match(dateRegex);
+    const parts = getParts(inputDate);
 
     if (parts === null || isNullValue(parts))
         throw new KIRuntimeException('Please provide date for processing.');
 
     if (addMillis < 0 || addMillis > 999)
-        throw new KIRuntimeException('Milliseconds should be in the range of 0 to 999');
+        throw new KIRuntimeException('Milliseconds should be in the range of 0 and 999');
 
-    let millis: string = convertToString(addMillis);
-
-    let updateTimeStamp: string = parts[0];
-
-    if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
-        updateTimeStamp = inputDate.substring(0, 22) + millis + inputDate.substring(25);
-    else updateTimeStamp = inputDate.substring(0, 17) + millis + inputDate.substring(20);
+    return addMillis === 0 ? 0 : addMillis;
 }
 
-function convertToString(val: number) {
+function convertToString(val: number): string {
     return val < 10 ? 0 + val.toString() : val.toString();
 }
 
-function absMonthValue(val: number) {
+function absMonthValue(val: number): number {
     return val < 0 ? 12 - Math.abs(val) : val;
 }
 
-function absFloor(val: number) {
+function absFloor(val: number): number {
     return Math.floor(val);
 }
