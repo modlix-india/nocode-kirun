@@ -76,7 +76,7 @@ class SetDateFunctionsTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide valid value for year")
+                .expectErrorMessage("Please provide valid value for year.")
                 .verify();
 
         fep.setArguments(
@@ -85,7 +85,7 @@ class SetDateFunctionsTest {
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
                 .flatMap(e -> e.execute(fep)))
-                .expectErrorMessage("Please provide valid value for year")
+                .expectErrorMessage("Please provide valid value for year.")
                 .verify();
 
         fep.setArguments(
@@ -170,6 +170,16 @@ class SetDateFunctionsTest {
     @Test
     void test() {
 
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("1300-10-25T05:42:10Z"), "yearValue",
+                        new JsonPrimitive(1997)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsInt() == 1997)
+                .verifyComplete();
     }
 
     @Test

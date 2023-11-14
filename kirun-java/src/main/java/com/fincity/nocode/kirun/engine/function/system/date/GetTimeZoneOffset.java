@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +16,6 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.date.GetTimeZoneOffsetUtil;
-import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -41,17 +42,14 @@ public class GetTimeZoneOffset extends AbstractReactiveFunction {
 
         String inputDate = context.getArguments().get(ISO_DATE).getAsString();
 
-        if (!IsValidISODateUtil.checkValidity(inputDate))
+        if (!validate(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
 
-
         int offset = GetTimeZoneOffsetUtil.getOffset(inputDate);
-  
-            return Mono
-                    .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(offset))))));
 
-        }
+        return Mono
+                .just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(offset))))));
 
     }
 
-
+}

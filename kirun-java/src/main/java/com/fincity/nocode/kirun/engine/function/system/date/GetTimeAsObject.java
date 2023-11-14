@@ -1,5 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,7 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
 import com.fincity.nocode.kirun.engine.util.date.GetTimeZoneOffsetUtil;
-import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
+
 import com.google.gson.JsonObject;
 
 import reactor.core.publisher.Mono;
@@ -41,25 +42,23 @@ public class GetTimeAsObject extends AbstractReactiveFunction {
 
         String inputDate = context.getArguments().get(ISO_DATE).getAsString();
 
-        if (!IsValidISODateUtil.checkValidity(inputDate))
+        if (!validate(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
 
         ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
 
-       
         JsonObject dateTimeObject = new JsonObject();
         dateTimeObject.addProperty("year", zdt.getYear());
         dateTimeObject.addProperty("month", zdt.getMonthValue());
         dateTimeObject.addProperty("day", zdt.getDayOfMonth());
-        dateTimeObject.addProperty("hours",zdt.getHour());
-        dateTimeObject.addProperty("minutes",zdt.getMinute());
+        dateTimeObject.addProperty("hours", zdt.getHour());
+        dateTimeObject.addProperty("minutes", zdt.getMinute());
         dateTimeObject.addProperty("seconds", zdt.getSecond());
         dateTimeObject.addProperty("milli", zdt.getNano() / 1000000);
-        dateTimeObject.addProperty("offset", GetTimeZoneOffsetUtil.getOffset(inputDate) );
+        dateTimeObject.addProperty("offset", GetTimeZoneOffsetUtil.getOffset(inputDate));
 
-    	System.out.println(dateTimeObject);
-		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, dateTimeObject)))));
-		
+        return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, dateTimeObject)))));
+
     }
 
 }

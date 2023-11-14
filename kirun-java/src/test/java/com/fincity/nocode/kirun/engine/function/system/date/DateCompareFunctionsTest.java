@@ -25,7 +25,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("year");
+        arr.add("years");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2023-10-31T17:14:20.789Z"), "unit", arr));
@@ -40,7 +40,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("year");
+        arr.add("years");
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2025-10-31T17:14:20.789Z"), "unit", arr));
 
@@ -54,8 +54,8 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("year");
-        arr.add("day");
+        arr.add("years");
+        arr.add("days");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2000-10-31T17:14:20.789Z"), "unit", arr));
@@ -70,8 +70,8 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("year");
-        arr.add("month");
+        arr.add("years");
+        arr.add("months");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2025-09-30T17:14:20.789Z"), "unit", arr));
@@ -86,8 +86,8 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("year");
-        arr.add("month");
+        arr.add("years");
+        arr.add("months");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2024-10-30T17:14:20.789Z"), "unit", arr));
@@ -102,7 +102,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("day");
+        arr.add("days");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-03T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2023-10-05T17:14:20.789Z"), "unit", arr));
@@ -117,7 +117,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("day");
+        arr.add("days");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-03T17:14:21.798Z"), "isoDate2",
                 new JsonPrimitive("2023-10-03T17:14:20.789Z"), "unit", arr));
@@ -132,8 +132,8 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("day");
-        arr.add("second");
+        arr.add("days");
+        arr.add("seconds");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "isoDate2",
                 new JsonPrimitive("2023-10-05T17:14:20.789Z"), "unit", arr));
@@ -148,7 +148,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("second");
+        arr.add("seconds");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "isoDate2",
                 new JsonPrimitive("2023-10-05T17:14:22.800Z"), "unit", arr));
@@ -163,7 +163,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("minute");
+        arr.add("minutes");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "isoDate2",
                 new JsonPrimitive("2023-10-05T17:14:22.800Z"), "unit", arr));
@@ -178,7 +178,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("minute");
+        arr.add("minutes");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T17:14:20.788Z"), "isoDate2",
                 new JsonPrimitive("2023-10-05T17:17:22.800Z"), "unit", arr));
@@ -193,7 +193,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("hour");
+        arr.add("hours");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T16:14:20.788Z"),
                 "isoDate2",
@@ -209,7 +209,7 @@ class DateCompareFunctionsTest {
 
         JsonArray arr = new JsonArray();
 
-        arr.add("second");
+        arr.add("seconds");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-05T16:14:20.788+02:01"),
                 "isoDate2",

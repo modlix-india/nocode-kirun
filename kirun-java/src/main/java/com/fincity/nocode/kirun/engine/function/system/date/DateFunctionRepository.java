@@ -24,7 +24,6 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.util.date.DateCompareUtil;
 import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
-import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,37 +42,38 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetFullYear", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getFullYear
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getYear()
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMonth", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getMonth
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getMonthValue() - 1
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetDate", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getDate
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getDayOfMonth()
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetHours", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getHours
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getHour()
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMinutes", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getMinutes
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getMinute()
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetSeconds", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getSeconds
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getSecond()
 
             ),
 
             AbstractDateFunction.ofEntryDateWithIntegerOutput("GetMilliSeconds", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::getMillis
+                    inputDate -> ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern())
+                            .get(ChronoField.MILLI_OF_SECOND)
 
             ),
 
@@ -116,9 +116,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     (inputDate, amount) -> {
 
-                        String s = String.valueOf(amount);
-
-                        return IsValidISODateUtil.setYear(inputDate, amount);
+                        return setMethodAndGetValue(inputDate, "years", amount);
                     }
 
             ),
@@ -220,16 +218,16 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     zdt = zdt.withYear(amount);
 
-                    if (amount > 0 && IsValidISODateUtil
+                    if (IsValidISODateUtil
                             .checkValidity(zdt.format(DateTimePatternUtil.getPattern())))
 
                         return zdt.getYear();
 
-                    throw new KIRuntimeException("Please provide a valid year number");
+                    throw new KIRuntimeException("Please provide valid value for year.");
 
                 } catch (DateTimeException ex) {
 
-                    throw new KIRuntimeException("Please provide a valid year number");
+                    throw new KIRuntimeException("Please provide valid value for year.");
                 }
 
             case MONTH:

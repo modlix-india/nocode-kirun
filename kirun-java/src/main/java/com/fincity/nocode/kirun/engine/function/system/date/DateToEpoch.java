@@ -1,9 +1,10 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -16,9 +17,6 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
-
-import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.isoPattern;
-
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -49,9 +47,7 @@ public class DateToEpoch extends AbstractReactiveFunction {
 
         String inputDate = context.getArguments().get(ISO_DATE).getAsString();
 
-        Matcher matcher = isoPattern.matcher(inputDate);
-
-        if (!matcher.find())
+        if (!validate(inputDate))
             throw new KIRuntimeException(ERROR_MSG);
 
         return Mono.just(new FunctionOutput(List.of(EventResult

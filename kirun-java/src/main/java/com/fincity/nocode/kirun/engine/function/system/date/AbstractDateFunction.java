@@ -1,7 +1,5 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.checkValidity;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +23,13 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
 import com.fincity.nocode.kirun.engine.util.stream.QuadFunction;
 import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 
 import reactor.core.publisher.Mono;
 
@@ -116,7 +117,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String firstDate = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         return Mono.just(new FunctionOutput(
@@ -141,7 +142,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String date = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(date))
+                        if (!ValidDateTimeUtil.validate(date))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         return Mono.just(new FunctionOutput(
@@ -150,30 +151,6 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                     }
                 });
     }
-
-//    public static Entry<String, ReactiveFunction> ofEntryDateWithStringOutput(final String functionName,
-//            String paramName, UnaryOperator<String> function) {
-//
-//        Parameter[] params = { Parameter.of(paramName, Schema.ofRef(Namespaces.DATE + TIME_STAMP)) };
-//
-//        Event event = new Event().setName(OUTPUT).setParameters(Map.of(OUTPUT, Schema.ofString(OUTPUT)));
-//
-//        return Map.entry(functionName, new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
-//
-//            @Override
-//            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-//
-//                String date = context.getArguments().get(paramName).getAsString();
-//
-//                if (!checkValidity(date))
-//                    throw new KIRuntimeException(ERROR_MSG);
-//
-//                return Mono.just(new FunctionOutput(
-//                        List.of(EventResult.outputOf(Map.of(OUTPUT,
-//                                new JsonPrimitive(function.apply(date)))))));
-//            }
-//        });
-//    }
 
     public static Entry<String, ReactiveFunction> ofEntryDateWithLongOutput(final String functionName,
             String firstParam, ToLongFunction<String> function) {
@@ -190,7 +167,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String firstDate = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         return Mono.just(new FunctionOutput(
@@ -219,7 +196,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String firstDate = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         int amount = context.getArguments().get(secondParam).getAsInt();
@@ -259,10 +236,10 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String secondDate = context.getArguments().get(secondParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException("Please provide the valid ISO date for " + firstParam);
 
-                        if (!checkValidity(secondDate))
+                        if (!validate(secondDate))
                             throw new KIRuntimeException("Please provide the valid ISO date for " + secondParam);
 
                         JsonArray arr = context.getArguments().get(thirdParam).getAsJsonArray();
@@ -310,13 +287,13 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String betweenDate = context.getArguments().get(thirdParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException("Please provide the valid ISO date for " + firstParam);
 
-                        if (!checkValidity(secondDate))
+                        if (!validate(secondDate))
                             throw new KIRuntimeException("Please provide the valid ISO date for " + secondParam);
 
-                        if (!checkValidity(betweenDate))
+                        if (!validate(betweenDate))
                             throw new KIRuntimeException("Please provide the valid ISO date for " + secondParam);
 
                         JsonArray arr = context.getArguments().get(fourthParam).getAsJsonArray();
@@ -363,7 +340,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String date = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(date))
+                        if (!validate(date))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         String unit = context.getArguments().get(secondParam).getAsString();
@@ -403,7 +380,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
                         String firstDate = context.getArguments().get(firstParam).getAsString();
 
-                        if (!checkValidity(firstDate))
+                        if (!validate(firstDate))
                             throw new KIRuntimeException(ERROR_MSG);
 
                         long amount = context.getArguments().get(secondParam).getAsLong();

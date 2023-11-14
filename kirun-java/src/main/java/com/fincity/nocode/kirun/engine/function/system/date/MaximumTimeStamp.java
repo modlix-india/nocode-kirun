@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.checkValidity;
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +67,7 @@ public class MaximumTimeStamp extends AbstractReactiveFunction {
 
             String firstDate = dates.get(0).getAsString();
 
-            if (!checkValidity(firstDate))
+            if (!validate(firstDate))
 
                 throw new KIRuntimeException(ERROR_MSG);
 
@@ -78,7 +78,7 @@ public class MaximumTimeStamp extends AbstractReactiveFunction {
 
         String max = dates.get(0).getAsString();
 
-        if (!checkValidity(max))
+        if (!validate(max))
 
             throw new KIRuntimeException(ERROR_MSG);
 
@@ -90,7 +90,7 @@ public class MaximumTimeStamp extends AbstractReactiveFunction {
 
             String currentDate = dates.get(i).getAsString();
 
-            if (!checkValidity(currentDate))
+            if (!validate(currentDate))
 
                 throw new KIRuntimeException(ERROR_MSG);
 

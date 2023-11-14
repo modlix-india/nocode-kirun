@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
+
 import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -11,7 +13,6 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil;
 
 import reactor.core.publisher.Mono;
 
@@ -37,7 +38,7 @@ public class GetNames extends AbstractReactiveFunction {
 
         String inputDate = context.getArguments().get(ISO_DATE).getAsString();
 
-        if (!IsValidISODateUtil.checkValidity(inputDate))
+        if (!validate(inputDate))
             throw new KIRuntimeException("Please provide valid ISO date");
 
         return null;

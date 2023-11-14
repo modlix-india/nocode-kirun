@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.checkValidity;
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -48,10 +48,10 @@ public class DifferenceOfTimeStamp extends AbstractReactiveFunction {
 
         String secondDate = context.getArguments().get(ISO_DATE_2).getAsString();
 
-        if (!checkValidity(firstDate))
+        if (!validate(firstDate))
             throw new KIRuntimeException(ERROR_MSG + ISO_DATE_1);
 
-        if (!checkValidity(secondDate))
+        if (!validate(secondDate))
             throw new KIRuntimeException(ERROR_MSG + ISO_DATE_2);
 
         ZonedDateTime zdt1 = ZonedDateTime.parse(firstDate, DateTimePatternUtil.getPattern());

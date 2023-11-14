@@ -1,7 +1,5 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import static com.fincity.nocode.kirun.engine.util.date.IsValidISODateUtil.checkValidity;
-
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +10,7 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
@@ -42,7 +41,7 @@ public class IsValidISODate extends AbstractReactiveFunction {
 
         return Mono.just(new FunctionOutput(
                 List.of(EventResult.of(OUTPUT, Map.of(OUTPUT,
-                        new JsonPrimitive(checkValidity(date)))))));
+                        new JsonPrimitive(ValidDateTimeUtil.validate(date)))))));
     }
 
 }

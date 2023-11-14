@@ -92,6 +92,26 @@ class GetDateFunctionsTest {
                 .expectErrorMessage(message)
                 .verify();
 
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 19)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123129-02-29T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-11924-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetDate")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
+
     }
 
     @Test
@@ -143,6 +163,14 @@ class GetDateFunctionsTest {
                 .flatMap(e -> e.execute(fep)))
                 .expectNextMatches(
                         res -> res.next().getResult().get("result").getAsInt() == 9999)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == -123124)
                 .verifyComplete();
 
         fep.setArguments(Map.of("isoDate", new JsonPrimitive(false)));
@@ -265,6 +293,20 @@ class GetDateFunctionsTest {
                 .flatMap(e -> e.execute(fep)))
                 .expectError()
                 .verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 9)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-1124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMonth")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
     }
 
     @Test
@@ -351,6 +393,25 @@ class GetDateFunctionsTest {
                 .expectErrorMessage(message)
                 .verify();
 
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 6)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123129-02-29T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-11924-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetHours")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
     }
 
     @Test
@@ -439,6 +500,26 @@ class GetDateFunctionsTest {
                 .expectNextMatches(
                         res -> res.next().getResult().get("result").getAsInt() == 13)
                 .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 44)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123129-02-29T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-11924-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetMinutes")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
     }
 
     @Test
@@ -543,6 +624,26 @@ class GetDateFunctionsTest {
                 .expectNextMatches(
                         res -> res.next().getResult().get("result").getAsInt() == 49)
                 .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123124-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetSeconds")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get("result").getAsInt() == 11)
+                .verifyComplete();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-123129-03-29T06:44:88.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetSeconds")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
+
+        fep.setArguments(Map.of("isoDate", new JsonPrimitive("-11924-10-19T06:44:11.615Z")));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "GetSeconds")
+                .flatMap(e -> e.execute(fep)))
+                .expectError().verify();
     }
 
     @Test
