@@ -48,13 +48,13 @@ class AddTimeTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2028-10-10T00:35:00.000+01:00"))
                 .verifyComplete();
 
-        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00Z"), "add",
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00.123Z"), "add",
                 new JsonPrimitive(4L), "unit",
                 new JsonPrimitive("months")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "AddTime").flatMap(e -> e.execute(rfep)))
                 .expectNextMatches(
-                        r -> r.next().getResult().get("result").getAsString().equals("2025-02-10T00:35:00.000Z"))
+                        r -> r.next().getResult().get("result").getAsString().equals("2025-02-10T00:35:00.123Z"))
                 .verifyComplete();
 
         rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00.000Z"), "add",

@@ -31,7 +31,7 @@ class GetTimeZoneOffsetTest {
     @Test
     void test2() {
 
-        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-24T14:20:30Z")));
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-24T14:20:30.000Z")));
 
         StepVerifier.create(gt.execute(rfep))
                 .expectNextMatches(r -> r.next().getResult().get("result").getAsInt() == 0)

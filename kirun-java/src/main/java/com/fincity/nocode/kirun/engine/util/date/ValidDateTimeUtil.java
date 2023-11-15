@@ -15,7 +15,7 @@ public class ValidDateTimeUtil {
     }
 
     public static boolean validMonthRange(int month) {
-        return month < 12 && month >= 0;
+        return month <= 12 && month > 0;
     }
 
     public static boolean validDate(int year, int month, int date) {
@@ -24,11 +24,11 @@ public class ValidDateTimeUtil {
             return false;
 
         switch (month) {
-            case 1:
+            case 2:
                 return validYearRange(year) && validMonthRange(month) && (isLeapYear(year) && date < 30)
                         || (!isLeapYear(year) && date < 29);
 
-            case 3, 5, 8, 10:
+            case 4, 6, 9, 11:
                 return validYearRange(year) && validMonthRange(month) && date <= 30;
 
             default:
@@ -51,10 +51,8 @@ public class ValidDateTimeUtil {
 
     public static boolean validateWithOptionalMillis(String portion) {
 
-        return portion.charAt(0) == '.'
-                ? validMilliSecondRange(convertToInt(portion.substring(1, 4)))
-                        && validateLocalTime(portion.substring(4))
-                : validateLocalTime(portion);
+        return validMilliSecondRange(convertToInt(portion.substring(1, 4)))
+                && validateLocalTime(portion.substring(4));
     }
 
     public static boolean validateLocalTime(String offset) {
@@ -71,6 +69,17 @@ public class ValidDateTimeUtil {
                         && validMinuteSecondRange(convertToInt(offset.substring(4, offset.length() - 1))));
     }
 
+    public int getYear(String date) {
+        
+        char first = date.charAt(0);
+        if (first == '+' || first == '-') {
+            int year = convertToInt(date.substring(1, 7));
+            return first == '-' ? year * -1 : year;
+        }
+
+        return convertToInt(date.substring(0, 4));
+    }
+
     public static boolean validate(String date) {
 
         if (date.length() < 20 || date.length() > 32)
@@ -82,7 +91,7 @@ public class ValidDateTimeUtil {
         if (first == '+' || first == '-') {
 
             boolean a = date.charAt(7) == '-' && date.charAt(10) == '-' && date.charAt(13) == 'T' &&
-                    date.charAt(16) == ':' && date.charAt(19) == ':';
+                    date.charAt(16) == ':' && date.charAt(19) == ':' && date.charAt(22) == '.';
 
             return a && validDate(convertToInt(date.substring(1, 7)), convertToInt(date.substring(8, 10)),
                     convertToInt(date.substring(11, 13)))
@@ -93,7 +102,7 @@ public class ValidDateTimeUtil {
         } else {
 
             boolean a = date.charAt(4) == '-' && date.charAt(7) == '-' && date.charAt(10) == 'T' &&
-                    date.charAt(13) == ':' && date.charAt(16) == ':';
+                    date.charAt(13) == ':' && date.charAt(16) == ':' && date.charAt(19) == '.';
 
             return a && validDate(convertToInt(date.substring(0, 4)), convertToInt(date.substring(5, 7)),
                     convertToInt(date.substring(8, 10)))

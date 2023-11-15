@@ -59,7 +59,6 @@ public class GetTimeAsArray extends AbstractReactiveFunction {
         dateArray.add(new JsonPrimitive(zdt.getNano() / 1000000));
         dateArray.add(new JsonPrimitive(GetTimeZoneOffsetUtil.getOffset(inputDate)));
 
-        System.out.println(dateArray);
         return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, dateArray)))));
 
     }

@@ -77,8 +77,7 @@ class IsSameTest {
         arr.add("years");
         arr.add("days");
         arr.add("hours");
-        ;
-        arr.add("minute");
+        arr.add("minutes");
 
         rfep.setArguments(Map.of("isoDate1", new JsonPrimitive("2023-10-31T17:19:21.798Z"), "isoDate2",
                 new JsonPrimitive("2023-10-31T17:14:20.789Z"), "unit", arr));

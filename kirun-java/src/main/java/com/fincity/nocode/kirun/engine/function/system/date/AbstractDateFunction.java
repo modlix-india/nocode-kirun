@@ -208,6 +208,37 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                 });
     }
 
+    public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerAndStringOutput(final String functionName,
+            String firstParam, String secondParam,
+            BiFunction<String, Integer, String> biFunction) {
+
+        Parameter[] params = { Parameter.of(firstParam, Schema.ofRef(Namespaces.DATE + TIME_STAMP)),
+                Parameter.of(secondParam, Schema.ofInteger(secondParam)),
+        };
+
+        Event event = new Event().setName(OUTPUT)
+                .setParameters(Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + TIME_STAMP)));
+
+        return Map.entry(functionName,
+                new AbstractDateFunction(Namespaces.DATE, functionName, event, params) {
+
+                    @Override
+                    protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+                        String firstDate = context.getArguments().get(firstParam).getAsString();
+
+                        if (!validate(firstDate))
+                            throw new KIRuntimeException(ERROR_MSG);
+
+                        int amount = context.getArguments().get(secondParam).getAsInt();
+
+                        return Mono.just(new FunctionOutput(
+                                List.of(EventResult.outputOf(Map.of(OUTPUT,
+                                        new JsonPrimitive(biFunction.apply(firstDate, amount)))))));
+                    }
+                });
+    }
+
     public static Entry<String, ReactiveFunction> ofEntryTwoDateAndBooleanOutput(final String functionName,
             String firstParam, String secondParam, String thirdParam,
             TriFunction<String, String, JsonArray, Boolean> triFunction) {

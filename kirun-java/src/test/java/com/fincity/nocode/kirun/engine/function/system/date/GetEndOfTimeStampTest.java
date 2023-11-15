@@ -110,7 +110,7 @@ class GetEndOfTimeStampTest {
     @Test
     void yearTest3() {
         rfep.setArguments(
-                Map.of("isoDate", new JsonPrimitive("1999-09-30T00:00:00Z"), "unit", new JsonPrimitive("years")));
+                Map.of("isoDate", new JsonPrimitive("1999-09-30T00:00:00.012Z"), "unit", new JsonPrimitive("years")));
 
         StepVerifier.create(dfr.find(Namespaces.DATE, "GetEndOfTimeStamp").flatMap(e -> e.execute(rfep)))
                 .expectNextMatches(

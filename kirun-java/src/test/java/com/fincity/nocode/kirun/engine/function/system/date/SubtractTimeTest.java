@@ -117,7 +117,7 @@ class SubtractTimeTest {
                         r -> r.next().getResult().get("result").getAsString().equals("2020-10-10T00:35:00.000+01:00"))
                 .verifyComplete();
 
-        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00Z"), "subtract",
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-10-10T00:35:00.000Z"), "subtract",
                 new JsonPrimitive(4L), "unit",
                 new JsonPrimitive("months")));
 

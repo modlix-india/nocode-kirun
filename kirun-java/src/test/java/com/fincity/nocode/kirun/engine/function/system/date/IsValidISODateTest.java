@@ -61,7 +61,7 @@ class IsValidISODateTest {
                 .expectNextMatches(r -> !r.next().getResult().get("output").getAsBoolean())
                 .verifyComplete();
 
-        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-10T10:02:54Z")));
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-10T10:02:54.000Z")));
 
         StepVerifier.create(validDate.execute(rfep))
                 .expectNextMatches(r -> r.next().getResult().get("output").getAsBoolean())

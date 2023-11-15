@@ -9,6 +9,7 @@ import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateF
 import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateFunction.YEAR;
 import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.endOfGivenField;
 import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.startOfTimeStamp;
+import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 
 import java.time.DateTimeException;
 import java.time.ZonedDateTime;
@@ -24,6 +25,8 @@ import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.util.date.DateCompareUtil;
 import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
+import com.fincity.nocode.kirun.engine.util.date.SetDateFunctionsUtil;
+import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -111,12 +114,14 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetFullYear", AbstractDateFunction.ISO_DATE,
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetFullYear", AbstractDateFunction.ISO_DATE,
                     "yearValue",
 
-                    (inputDate, amount) -> {
+                    (inputDate, year) -> {
 
-                        return setMethodAndGetValue(inputDate, "years", amount);
+                        String ou = SetDateFunctionsUtil.setFullYear(inputDate, year);
+                        System.out.println(ou);
+                        return ou;
                     }
 
             ),
@@ -154,9 +159,13 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
             ),
 
             AbstractDateFunction.ofEntryDateWithOutputBoolean("IsLeapYear", AbstractDateFunction.ISO_DATE,
-                    IsValidISODateUtil::isLeapYear
+                    inputDate -> {
 
-            ),
+                        int year = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern()).getYear();
+                        return ValidDateTimeUtil.isLeapYear(year);
+                    }
+
+            ), // check leap year
 
             AbstractDateFunction.ofEntryDateAndUnitAndDateOutput("GetStartOfTimeStamp", "isoDate", UNIT,
 
@@ -218,8 +227,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
                     zdt = zdt.withYear(amount);
 
-                    if (IsValidISODateUtil
-                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern())))
+                    if (validate(zdt.format(DateTimePatternUtil.getPattern())))
 
                         return zdt.getYear();
 
@@ -235,8 +243,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                 try {
                     zdt = zdt.withMonth(amount);
 
-                    if (IsValidISODateUtil
-                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
+                    if (validate(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
 
                         return zdt.getMonthValue();
 
@@ -252,8 +259,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                 try {
                     zdt = zdt.withDayOfMonth(amount);
 
-                    if (IsValidISODateUtil
-                            .checkValidity(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
+                    if (validate(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
 
                         return zdt.getDayOfMonth();
 
