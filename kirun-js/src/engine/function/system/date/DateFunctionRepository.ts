@@ -152,49 +152,49 @@ export class DateFunctionRepository implements Repository<Function> {
             },
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setFullYear',
             'yearValue',
             'year',
             (inputDate, value) => setFullYear(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setMonth',
             'monthValue',
             'month',
             (inputDate, value) => setMonth(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setDate',
             'dateValue',
             'date',
             (inputDate, value) => setDate(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setHours',
             'hoursValue',
             'hours',
             (inputDate, value) => setHours(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setMinutes',
             'minutesValue',
             'minutes',
             (inputDate, value) => setMinutes(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setSeconds',
             'secondsValue',
             'seconds',
             (inputDate, value) => setSeconds(inputDate, value),
         ),
 
-        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputInteger(
+        AbstractTimeFunction.ofEntryDateAndIntegerWithOutputDate(
             'setMilliSeconds',
             'milliSecondsValue',
             'milliSeconds',

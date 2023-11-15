@@ -51,12 +51,14 @@ test('testing SetHoursFunction', async () => {
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '2023-10-19T06:44:11.615Z'],
+            ['isodate', '2023-10-19T06:44:11.615-11:11'],
             ['hoursValue', -0],
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(0);
+    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(
+        '2023-10-19T00:44:11.615-11:11',
+    );
 
     fep.setArguments(
         new Map<string, any>([
@@ -98,5 +100,29 @@ test('testing SetHoursFunction', async () => {
         ]),
     );
 
-    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(10);
+    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(
+        '1994-10-24T10:05:30.406-18:00',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '-011994-10-24T14:05:30.406-18:00'],
+            ['hoursValue', 17],
+        ]),
+    );
+
+    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(
+        '-011994-10-24T17:05:30.406-18:00',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '+071994-10-24T14:05:30.406+18:00'],
+            ['hoursValue', 18],
+        ]),
+    );
+
+    expect((await setHours.execute(fep)).allResults()[0].getResult().get('hours')).toBe(
+        '+071994-10-24T18:05:30.406+18:00',
+    );
 });

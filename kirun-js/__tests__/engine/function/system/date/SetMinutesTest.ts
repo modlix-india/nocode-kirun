@@ -100,14 +100,29 @@ test('testing SetMinutesFunction', async () => {
         ]),
     );
 
-    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(20);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(
+        '1300-10-25T05:20:10.435+14:00',
+    );
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '1300-10-25T05:42:10.435+14:00'],
+            ['isodate', '1300-10-25T05:42:10.435Z'],
             ['minutesValue', 59],
         ]),
     );
 
-    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(59);
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(
+        '1300-10-25T05:59:10.435Z',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1300-10-25T05:42:10.435-13:12'],
+            ['minutesValue', 43],
+        ]),
+    );
+
+    expect((await setMinutes.execute(fep)).allResults()[0].getResult().get('minutes')).toBe(
+        '1300-10-25T05:43:10.435-13:12',
+    );
 });
