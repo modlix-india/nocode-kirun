@@ -66,8 +66,6 @@ public class GetEndOfTimeStamp extends AbstractReactiveFunction {
 
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
-		System.out.println(zdt.format(df));
-
 		return Mono.just(
 				new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(zdt.format(df)))))));
 	}

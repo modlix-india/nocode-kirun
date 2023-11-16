@@ -16,7 +16,7 @@ describe('testing GetStartOfTimestamp', () => {
             new KIRunSchemaRepository(),
         ).setArguments(
             new Map<string, any>([
-                ['isodate', '2023-11-14T02:35:56.125+06:31'],
+                ['isodate', '2023-03-01T02:35:56.125+06:31'],
                 ['unit', 'week'],
             ]),
         );

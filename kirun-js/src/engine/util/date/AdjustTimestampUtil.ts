@@ -52,6 +52,17 @@ export class AdjustTimestamp {
 
                     const endDate = parseInt(match[3]) - currDay;
 
+                    if (endDate < 0) {
+                        return (
+                            `${match[1]}-${(parseInt(match[2]) - 1).toString().padStart(2, '0')}-${(
+                                parseInt(monthArray[parseInt(match[2])-2]) + endDate
+                            )
+                                .toString()
+                                .padStart(2, '0')}T${match[4]}:${match[5]}:${match[6]}${match[7]}` +
+                            match[8]
+                        );
+                    }
+
                     return (
                         `${match[1]}-${match[2]}-${endDate.toString().padStart(2, '0')}T${
                             match[4]
