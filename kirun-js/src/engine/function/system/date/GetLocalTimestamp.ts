@@ -39,12 +39,32 @@ export class GetLocalTimestamp extends AbstractFunction {
         if (!isValidZuluDate(inputDate))
             throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
 
-        const date = new Date(inputDate);
+        let date = new Date(inputDate);
 
-        const utcTime = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
+        const currDate = new Date();
 
-        console.log(date, utcTime);
+        date = new Date(date.getTime() - currDate.getTimezoneOffset() * 60000);
 
-        return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, '']]))]);
+        let LocalOffsetValue;
+
+        if (currDate.getTimezoneOffset() < 0) {
+            LocalOffsetValue = `+${Math.abs(Math.ceil(currDate.getTimezoneOffset() / 60))
+                .toString()
+                .padStart(2, '0')}:${Math.abs(currDate.getTimezoneOffset() % 60)
+                .toString()
+                .padStart(2, '0')}`;
+        } else {
+            LocalOffsetValue = `-${Math.abs(Math.ceil(currDate.getTimezoneOffset() / 60))
+                .toString()
+                .padStart(2, '0')}:${Math.abs(currDate.getTimezoneOffset() % 60)
+                .toString()
+                .padStart(2, '0')}`;
+        }
+
+        return new FunctionOutput([
+            EventResult.outputOf(
+                new Map([[OUTPUT, date.toISOString().slice(0, -1) + LocalOffsetValue]]),
+            ),
+        ]);
     }
 }
