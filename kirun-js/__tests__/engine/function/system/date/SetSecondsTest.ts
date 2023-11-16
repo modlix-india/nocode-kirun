@@ -23,7 +23,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(20);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -32,7 +34,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(40);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -41,7 +45,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(40);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -50,7 +56,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(40);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -59,7 +67,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(40);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -68,7 +78,9 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(20);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
 
     fep.setArguments(
         new Map<string, any>([
@@ -77,5 +89,73 @@ test('testing SetSecondsFunction', async () => {
         ]),
     );
 
-    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(20);
+    expect(async () =>
+        (await setSeconds?.execute(fep))?.allResults()[0].getResult().get('seconds'),
+    ).rejects.toThrowError('Seconds should be in the range of 0 and 59');
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1300-10-25T05:42:13.435+14:00'],
+            ['secondsValue', 10],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '1300-10-25T05:42:10.435+14:00',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1300-10-25T05:42:10.435+14:00'],
+            ['secondsValue', 59],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '1300-10-25T05:42:59.435+14:00',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1300-10-25T05:42:10.435Z'],
+            ['secondsValue', 34],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '1300-10-25T05:42:34.435Z',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '1300-10-25T05:42:10.435Z'],
+            ['secondsValue', 34],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '1300-10-25T05:42:34.435Z',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '-011300-10-25T05:42:10.435Z'],
+            ['secondsValue', 34],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '-011300-10-25T05:42:34.435Z',
+    );
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '-011300-10-25T05:42:10.435+12:11'],
+            ['secondsValue', 56],
+        ]),
+    );
+
+    expect((await setSeconds.execute(fep)).allResults()[0].getResult().get('seconds')).toBe(
+        '-011300-10-25T05:42:56.435+12:11',
+    );
 });

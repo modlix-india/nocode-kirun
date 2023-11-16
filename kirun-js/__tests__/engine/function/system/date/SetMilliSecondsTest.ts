@@ -1,6 +1,5 @@
 import { KIRunFunctionRepository, KIRunSchemaRepository, Namespaces } from '../../../../../src';
 import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
-import { GetTimeZoneOffset } from '../../../../../src/engine/function/system/date/GetTimeZoneOffset';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
 
 const dateFunctionRepo = new DateFunctionRepository();
@@ -23,9 +22,9 @@ test('testing SetMilliSecondsFunction', async () => {
         ]),
     );
 
-    expect(
-        (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(0);
+    expect(async () =>
+        (await setMilliSeconds?.execute(fep))?.allResults()[0].getResult().get('milliSeconds'),
+    ).rejects.toThrowError('Milliseconds should be in the range of 0 and 999');
 
     fep.setArguments(
         new Map<string, any>([
@@ -36,7 +35,7 @@ test('testing SetMilliSecondsFunction', async () => {
 
     expect(
         (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(100);
+    ).toBe('2023-09-03T17:35:17.100Z');
 
     fep.setArguments(
         new Map<string, any>([
@@ -45,9 +44,9 @@ test('testing SetMilliSecondsFunction', async () => {
         ]),
     );
 
-    expect(
-        (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(0);
+    expect(async () =>
+        (await setMilliSeconds?.execute(fep))?.allResults()[0].getResult().get('milliSeconds'),
+    ).rejects.toThrowError('Milliseconds should be in the range of 0 and 999');
 
     fep.setArguments(
         new Map<string, any>([
@@ -56,9 +55,9 @@ test('testing SetMilliSecondsFunction', async () => {
         ]),
     );
 
-    expect(
-        (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(0);
+    expect(async () =>
+        (await setMilliSeconds?.execute(fep))?.allResults()[0].getResult().get('milliSeconds'),
+    ).rejects.toThrowError('Milliseconds should be in the range of 0 and 999');
 
     fep.setArguments(
         new Map<string, any>([
@@ -69,27 +68,38 @@ test('testing SetMilliSecondsFunction', async () => {
 
     expect(
         (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(100);
+    ).toBe('2023-10-24T14:10:30.100+12:00');
 
     fep.setArguments(
         new Map<string, any>([
             ['isodate', '1994-10-24T14:05:30.406-18:00'],
-            ['milliSecondsValue', -100],
+            ['milliSecondsValue', 546],
         ]),
     );
 
     expect(
         (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(900);
+    ).toBe('1994-10-24T14:05:30.546-18:00');
 
     fep.setArguments(
         new Map<string, any>([
-            ['isodate', '1300-10-25T05:42:10.435+14:00'],
-            ['milliSecondsValue', -10000],
+            ['isodate', '-121300-10-25T05:42:10.435+14:00'],
+            ['milliSecondsValue', 123],
         ]),
     );
 
     expect(
         (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
-    ).toBe(0);
+    ).toBe('-121300-10-25T05:42:10.123+14:00');
+
+    fep.setArguments(
+        new Map<string, any>([
+            ['isodate', '+001300-10-25T05:42:10.435+14:00'],
+            ['milliSecondsValue', 456],
+        ]),
+    );
+
+    expect(
+        (await setMilliSeconds.execute(fep)).allResults()[0].getResult().get('milliSeconds'),
+    ).toBe('+001300-10-25T05:42:10.456+14:00');
 });
