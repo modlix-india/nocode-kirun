@@ -38,6 +38,7 @@ export class FromNow extends AbstractFunction {
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let dates = context.getArguments()?.get(VALUE);
+        let key = context.getArguments()?.get(KEY);
 
         if (dates.length == 1) {
             if (!isValidZuluDate(dates[0]))
@@ -54,6 +55,8 @@ export class FromNow extends AbstractFunction {
             const days = Math.floor(hours / 24);
 
             const output = DurationUtils.getDuration(
+                differenceInMilliseconds,
+                key,
                 Math.abs(days),
                 Math.abs(hours),
                 Math.abs(minutes),
@@ -62,7 +65,7 @@ export class FromNow extends AbstractFunction {
             return new FunctionOutput([
                 EventResult.outputOf(
                     new Map([
-                        [OUTPUT, differenceInMilliseconds > 0 ? output + ' ago' : 'In ' + output],
+                        [OUTPUT, output],
                     ]),
                 ),
             ]);
@@ -81,18 +84,14 @@ export class FromNow extends AbstractFunction {
             const days = Math.floor(hours / 24);
 
             const output = DurationUtils.getDuration(
+                differenceInMilliseconds,
+                key,
                 Math.abs(days),
                 Math.abs(hours),
                 Math.abs(minutes),
                 Math.abs(seconds),
             );
-            return new FunctionOutput([
-                EventResult.outputOf(
-                    new Map([
-                        [OUTPUT, differenceInMilliseconds > 0 ? output + ' ago' : 'In ' + output],
-                    ]),
-                ),
-            ]);
+            return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
         }
         throw new KIRuntimeException(`Please provide valid dates.`);
     }
