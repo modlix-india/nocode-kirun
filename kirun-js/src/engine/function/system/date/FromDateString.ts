@@ -22,7 +22,7 @@ const signature: FunctionSignature = new FunctionSignature('FromDateString')
             [DATE_FORMAT, new Parameter(DATE_FORMAT, Schema.ofString(DATE_FORMAT))],
         ]),
     )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT, Schema.ofString(OUTPUT)]]))]));
+    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT,  Schema.ofRef(`${Namespaces.DATE}.timeStamp`)]]))]));
 
 export class FromDateString extends AbstractFunction {
     public getSignature(): FunctionSignature {
@@ -34,9 +34,7 @@ export class FromDateString extends AbstractFunction {
         let format = context.getArguments()?.get(DATE_FORMAT);
         if (isNullValue(formattedDate) || isNullValue(format))
             throw new KIRuntimeException('Please provide values in the date and format');
-
         const date = dateFromFormatttedString(formattedDate, format);
-
         return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, date]]))]);
     }
 }
