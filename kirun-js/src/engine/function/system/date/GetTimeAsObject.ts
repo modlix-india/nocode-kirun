@@ -14,15 +14,15 @@ const iso8601Pattern =
     /^([+-]?\d{6}|\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])T([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d{3})?(Z|([+-]([01]\d|2[0-3]):([0-5]\d)))?$/;
 
 const VALUE = 'isodate';
-const OUTPUT = 'zoneId';
-const SIGNATURE = new FunctionSignature('getTimeZone')
+const OUTPUT = 'result';
+const SIGNATURE = new FunctionSignature('TimeAsObject')
     .setNamespace(Namespaces.DATE)
     .setParameters(
         new Map([[VALUE, new Parameter(VALUE, Schema.ofRef(`${Namespaces.DATE}.timeStamp`))]]),
     )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT, Schema.ofString(OUTPUT)]]))]));
+    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT, Schema.ofObject(OUTPUT)]]))]));
 
-export class GetTimeZone extends AbstractFunction {
+export class GetTimeAsObject extends AbstractFunction {
     public getSignature(): FunctionSignature {
         return SIGNATURE;
     }
@@ -37,7 +37,20 @@ export class GetTimeZone extends AbstractFunction {
         if (match) {
             return new FunctionOutput([
                 EventResult.outputOf(
-                    new Map([[OUTPUT, match[8] === 'Z' ? 'UTC' : `GMT${match[8]}`]]),
+                    new Map([
+                        [
+                            OUTPUT,
+                            {
+                                year: parseInt(match[1]),
+                                month: parseInt(match[2]),
+                                date: parseInt(match[3]),
+                                hours: parseInt(match[4]),
+                                minutes: parseInt(match[5]),
+                                seconds: parseInt(match[6]),
+                                milliseconds: parseInt(match[7].slice(1)),
+                            },
+                        ],
+                    ]),
                 ),
             ]);
         }

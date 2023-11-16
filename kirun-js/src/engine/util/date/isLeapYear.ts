@@ -8,23 +8,9 @@ export default function isLeapYear(timeStamp: string): boolean {
     if (match) {
         let year = parseInt(match[1]);
         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-            if (match[2] == '02') {
-                if (parseInt(match[3]) <= 29) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+            return true;
         } else {
-            if (match[2] == '02') {
-                if (parseInt(match[3]) <= 28) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return true;
-            }
+            return false;
         }
     }
     throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
