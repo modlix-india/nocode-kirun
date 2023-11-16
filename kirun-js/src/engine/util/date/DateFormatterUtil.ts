@@ -27,7 +27,6 @@ export interface TimeStampObject {
 
 export function formattedStringFromDate(date: Date, pattern: string): string {
     let patterns: Array<string> = patternSplitting(pattern);
-
     const formattedDate = patterns
         .map((pattern, ind) => {
             if (ind % 2 === 1) return pattern;
@@ -43,7 +42,6 @@ export function formattedStringFromDate(date: Date, pattern: string): string {
                     pattern = pattern.slice(1);
                 }
             }
-
             return str;
         })
         .join('');
@@ -62,9 +60,11 @@ const TOKEN_FUNCTION: any = {
         } else if (pattern.startsWith('Mth')) {
             let num = date.getMonth() + 1;
             str += numberToOrdinal(num);
+            return { str , pattern: pattern.slice(3) }
         } else if (pattern.startsWith('MTH')) {
             let num = date.getMonth() + 1;
             str += numberToOrdinal(num).toUpperCase();
+            return { str , pattern: pattern.slice(3) }
         } else if (pattern.startsWith('MM')) {
             str += (date.getMonth() + 1).toString().padStart(2, '0');
             return { str, pattern: pattern.slice(2) };
@@ -165,18 +165,18 @@ const TOKEN_FUNCTION: any = {
     y: justYear,
     N: (str: string, pattern: string, date: Date) => {
         if (pattern.startsWith('NNNN')) {
-            str += date.getFullYear() < 0 ? 'Before Christ' : 'Anno Domini';
+            str += date.getFullYear() < 0 ? 'Before Common Era' : 'After Common Era';
             return { str, pattern: pattern.slice(4) };
         }
         if (pattern.startsWith('NNN')) {
-            str += date.getFullYear() < 0 ? 'BC' : 'AD';
+            str += date.getFullYear() < 0 ? 'BCE' : 'CE';
             return { str, pattern: pattern.slice(3) };
         }
         if (pattern.startsWith('NN')) {
-            str += date.getFullYear() < 0 ? 'BC' : 'AD';
+            str += date.getFullYear() < 0 ? 'BCE' : 'CE';
             return { str, pattern: pattern.slice(2) };
         }
-        str += date.getFullYear() < 0 ? 'BC' : 'AD';
+        str += date.getFullYear() < 0 ? 'BCE' : 'CE';
         return { str, pattern: pattern.slice(1) };
     },
     A: (str: string, pattern: string, date: Date) => {
@@ -323,12 +323,13 @@ function justYear(str: string, pattern: string, date: Date) {
     }
 
     if (pattern.toUpperCase().startsWith('YY')) {
-        str += date.getFullYear().toString().slice(2);
-        return { str, pattern: pattern.slice(2) };
+        let year = date.getFullYear();
+        str += year < 0 ? '-' + year.toString().slice(-2) : year.toString().slice(-2) ;
+        return { str, pattern: pattern.slice(2)};
     }
 
     str += date.getFullYear();
-    return { str, pattern: pattern.slice(1) };
+    return {str, pattern: pattern.slice(1)};
 }
 
 function weekOfTheYear(str: string, pattern: string, date: Date) {
@@ -356,10 +357,12 @@ function weekOfTheYear(str: string, pattern: string, date: Date) {
     return { str: str + weekOfTheYear, pattern: pattern.slice(1) };
 }
 
+
 function numberToOrdinal(num: number): string {
-    if (num % 10 > 3) return num + DAYS_OF_MONTH_SUFFIX[0];
-    else if ((num % 100) - (num % 10) !== 10) return num + DAYS_OF_MONTH_SUFFIX[0];
-    else return num + DAYS_OF_MONTH_SUFFIX[num % 10];
+    if( (num % 10 > 3) || num % 100 >= 11 && num % 100 <= 13) 
+        return num + DAYS_OF_MONTH_SUFFIX[0];
+
+    return num + DAYS_OF_MONTH_SUFFIX[num % 10];
 }
 
 export function patternSplitting(str: string): string[] {
@@ -644,7 +647,7 @@ const VALUE_TOKEN_RULES: any = {
     N: [
         {
             key: 'NNNN',
-            values: ['BEFORE COMMON ERA', 'COMMON ERA'],
+            values: ['BEFORE COMMON ERA', 'AFTER COMMON ERA'],
             caseInsensitive: true,
             notInteger: true,
             resultKey: 'era',
@@ -660,7 +663,7 @@ const VALUE_TOKEN_RULES: any = {
         },
         {
             key: 'NN',
-            values: ['BC', 'AD'],
+            values: ['BCE', 'CE'],
             caseInsensitive: true,
             notInteger: true,
             resultKey: 'era',
@@ -1032,8 +1035,11 @@ function parseWithRules(
                 dateString,
             };
 
+        let value = x;
+        if (rule.logic !== undefined) value = rule.logic(x);
+
         return {
-            date: { ...date, [rule.resultKey]: x },
+            date: { ...date, [rule.resultKey]: value },
             pattern,
             dateString: dateString.slice(rule.values[x].length),
         };
@@ -1089,7 +1095,6 @@ function parseWithRules(
         };
 
     if (rule.logic !== undefined) value = rule.logic(value);
-
     return {
         date: { ...date, [rule.resultKey]: value },
         pattern,
@@ -1111,7 +1116,7 @@ export function dateFromFormatttedString(dateString: string, formatString: strin
         }
 
         while (pattern.length) {
-            const funArray = VALUE_TOKEN_RULES[pattern[0]];
+            const funArray = VALUE_TOKEN_RULES[pattern[0]];    
             if (!funArray) {
                 pattern = pattern.slice(1);
                 dateString = dateString.slice(1);
@@ -1123,6 +1128,7 @@ export function dateFromFormatttedString(dateString: string, formatString: strin
                     ? funArray(dateString, pattern, date)
                     : parseWithRules(dateString, pattern, date, VALUE_TOKEN_RULES[pattern[0]]));
         }
+       
     }
 
     return processParsedDate(date);
