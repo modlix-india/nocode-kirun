@@ -230,11 +230,14 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
                         if (!validate(firstDate))
                             throw new KIRuntimeException(ERROR_MSG);
 
-                        int amount = context.getArguments().get(secondParam).getAsInt();
+                        var value = context.getArguments().get(secondParam);
+
+                        if (!value.isJsonPrimitive())
+                            throw new KIRuntimeException("Please provide a valid value for " + secondParam);
 
                         return Mono.just(new FunctionOutput(
                                 List.of(EventResult.outputOf(Map.of(OUTPUT,
-                                        new JsonPrimitive(biFunction.apply(firstDate, amount)))))));
+                                        new JsonPrimitive(biFunction.apply(firstDate, value.getAsInt())))))));
                     }
                 });
     }

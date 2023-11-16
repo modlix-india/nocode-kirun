@@ -21,7 +21,7 @@ class SetFullYearTest {
 
     String message = "Invalid ISO 8601 Date format.";
 
-//    @Test
+    @Test
     void failTest() {
 
         fep.setArguments(
@@ -154,6 +154,30 @@ class SetFullYearTest {
                         res -> res.next().getResult().get(
                                 "result").getAsString()
                                 .equals("+010000-10-24T14:10:30.700+12:00"))
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("-012036-02-29T14:10:30.700+12:00"), "yearValue",
+                        new JsonPrimitive(1231)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsString()
+                                .equals("1231-03-01T14:10:30.700+12:00"))
+                .verifyComplete();
+
+        fep.setArguments(
+                Map.of("isoDate", new JsonPrimitive("-012036-02-28T14:10:30.700+12:00"), "yearValue",
+                        new JsonPrimitive(1231)));
+
+        StepVerifier.create(dfr.find(Namespaces.DATE, "SetFullYear")
+                .flatMap(e -> e.execute(fep)))
+                .expectNextMatches(
+                        res -> res.next().getResult().get(
+                                "result").getAsString()
+                                .equals("1231-02-28T14:10:30.700+12:00"))
                 .verifyComplete();
 
     }

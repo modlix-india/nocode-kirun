@@ -9,16 +9,13 @@ import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateF
 import static com.fincity.nocode.kirun.engine.function.system.date.AbstractDateFunction.YEAR;
 import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.endOfGivenField;
 import static com.fincity.nocode.kirun.engine.util.date.AdjustTimeStampUtil.startOfTimeStamp;
-import static com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil.validate;
 
-import java.time.DateTimeException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
@@ -117,44 +114,49 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
             AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetFullYear", AbstractDateFunction.ISO_DATE,
                     "yearValue",
 
-                    (inputDate, year) -> {
-
-                        String ou = SetDateFunctionsUtil.setFullYear(inputDate, year);
-                        System.out.println(ou);
-                        return ou;
-                    }
+                    SetDateFunctionsUtil::setFullYear
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetDate", "isoDate", "dateValue",
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetMonth", AbstractDateFunction.ISO_DATE,
+                    "monthValue",
 
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, DAY, amount)
-
-            ),
-
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetMonth", "isoDate", "monthValue",
-
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, MONTH, amount)),
-
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetHours", "isoDate", "hourValue",
-
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, HOUR, amount)
+                    SetDateFunctionsUtil::setMonth
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetMinutes", "isoDate", "minuteValue",
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetDate", AbstractDateFunction.ISO_DATE,
+                    "dateValue",
 
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, MINUTE, amount)
+                    SetDateFunctionsUtil::setDate
 
             ),
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetSeconds", "isoDate", "secondValue",
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetHours", AbstractDateFunction.ISO_DATE,
+                    "hourValue",
 
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, SECOND, amount)),
+                    SetDateFunctionsUtil::setHours
 
-            AbstractDateFunction.ofEntryDateAndIntegerAndIntegerOutput("SetMilliSeconds", "isoDate", "milliValue",
+            ),
 
-                    (inputDate, amount) -> setMethodAndGetValue(inputDate, MILLIS, amount)
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetMinutes", AbstractDateFunction.ISO_DATE,
+                    "minuteValue",
+
+                    SetDateFunctionsUtil::setMinutes
+
+            ),
+
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetSeconds", AbstractDateFunction.ISO_DATE,
+                    "secondValue",
+
+                    SetDateFunctionsUtil::setSeconds
+
+            ),
+
+            AbstractDateFunction.ofEntryDateAndIntegerAndStringOutput("SetMilliSeconds", AbstractDateFunction.ISO_DATE,
+                    "milliValue",
+
+                    SetDateFunctionsUtil::setMilliSeconds
 
             ),
 
@@ -214,80 +216,6 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
                     AbstractDateFunction.ISO_DATE2, "betweenDate", UNIT, DateCompareUtil::inBetween)
 
     );
-
-    private static final int setMethodAndGetValue(String inputDate, String unit, int amount) {
-
-        ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
-
-        switch (unit) {
-
-            case YEAR:
-
-                try {
-
-                    zdt = zdt.withYear(amount);
-
-                    if (validate(zdt.format(DateTimePatternUtil.getPattern())))
-
-                        return zdt.getYear();
-
-                    throw new KIRuntimeException("Please provide valid value for year.");
-
-                } catch (DateTimeException ex) {
-
-                    throw new KIRuntimeException("Please provide valid value for year.");
-                }
-
-            case MONTH:
-
-                try {
-                    zdt = zdt.withMonth(amount);
-
-                    if (validate(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
-
-                        return zdt.getMonthValue();
-
-                    throw new KIRuntimeException("Please provide a valid month number");
-
-                } catch (DateTimeException ex) {
-
-                    throw new KIRuntimeException("Please provide a valid month number");
-                }
-
-            case DAY:
-
-                try {
-                    zdt = zdt.withDayOfMonth(amount);
-
-                    if (validate(zdt.format(DateTimePatternUtil.getPattern(inputDate))))
-
-                        return zdt.getDayOfMonth();
-
-                    throw new KIRuntimeException("Please provide a valid month number");
-
-                } catch (DateTimeException ex) {
-
-                    throw new KIRuntimeException("Please provide a valid month number");
-                }
-
-            case HOUR:
-                return zdt.withHour(amount).getHour();
-
-            case MINUTE:
-                return zdt.withMinute(amount).getMinute();
-
-            case SECOND:
-                return zdt.withSecond(amount).getSecond();
-
-            case MILLIS:
-                return zdt.with(ChronoField.MILLI_OF_SECOND, amount).get(ChronoField.MILLI_OF_SECOND);
-
-            default:
-                return -1;
-
-        }
-
-    }
 
     private static final ZonedDateTime addUnit(ZonedDateTime zdt, String unit, Long amount) {
 

@@ -34,7 +34,41 @@ public class SetDateFunctionsUtil {
         return year % 400 == 0;
     }
 
-    public static String setFullYear(String inputDate, int year) {
+    private static String updateDateForMonth(String inputDate, int month, int day) {
+
+        if (checkFirstChar(inputDate)) {
+            return inputDate.substring(0, 8) + convertToString(month) + "-" + convertToString(day)
+                    + inputDate.substring(13);
+        }
+
+        return inputDate.substring(0, 5) + convertToString(month) + "-" + convertToString(day)
+                + inputDate.substring(10);
+    }
+
+    private static String dateFromDifferentParts(String inputDate, int year, int month, int day) {
+
+        if (year >= 275761 || year <= -271821)
+            throw new KIRuntimeException("Given year cannot be set to year as it out of bounds");
+
+        StringBuilder sb = new StringBuilder();
+
+        boolean hasSign = checkFirstChar(inputDate);
+        String yearString = String.valueOf(Math.abs(year));
+        if (year >= 0 && year <= 9999) {
+            sb.append(yearOffset[yearString.length() - 1]);
+        } else {
+            sb.append(year < 0 ? "-" : "+");
+            sb.append(expandedYearOffset[yearString.length() - 1]);
+        }
+
+        sb.append(yearString + "-" + convertToString(month) + "-" + convertToString(day)
+                + (hasSign ? inputDate.substring(13) : inputDate.substring(10)));
+
+        return sb.toString();
+
+    }
+
+    public static String setFullYear(String inputDate, Integer year) {
 
         if (year >= 275761 || year <= -271821)
             throw new KIRuntimeException("Given year cannot be set to year as it out of bounds");
@@ -45,73 +79,46 @@ public class SetDateFunctionsUtil {
         int monthFromDate = zdt.getMonthValue();
         int date = zdt.getDayOfMonth();
 
-        boolean hasSign = checkFirstChar(inputDate);
-        String yearString = String.valueOf(year < 0 ? year * -1 : year);
-
         if (monthFromDate == 2 && date == 29 && checkLeapYear(yearFromDate))
-            return year + inputDate;
-        else if (year >= 0 && year <= 9999)
-            return yearOffset[yearString.length() - 1] + yearString + inputDate.substring(hasSign ? 7 : 4);
+            return dateFromDifferentParts(inputDate, year, 3, 1);
 
-        StringBuilder buf = new StringBuilder(year > 9999 ? "+" : "-");
-        buf.append(expandedYearOffset[yearString.length() - 1]);
-        buf.append(yearString);
-        buf.append(inputDate.substring(hasSign ? 7 : 4));
-
-        return buf.toString();
-
+        return dateFromDifferentParts(inputDate, year, monthFromDate, date);
     }
 
-    public static String setMonth(String inputDate, int addMonth) {
+    public static String setMonth(String inputDate, Integer addMonth) {
 
         ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
 
         int convertedMonths = absMonthValue(addMonth % 12) + 1;
-        int extraYears = absFloor(addMonth / 12);
+        int extraYears = absFloor(addMonth / 12f);
         int yearFromDate = zdt.getYear();
         int years = yearFromDate + extraYears;
         int date = zdt.getDayOfMonth();
-        int updateMonth = convertedMonths;
 
         switch (convertedMonths) {
 
             case 2:
+
                 if (date >= 28) {
                     date = checkLeapYear(yearFromDate) ? date - 29 : date - 28;
-                    updateMonth = convertedMonths + 1;
+                    return setFullYear(updateDateForMonth(inputDate, convertedMonths + 1, date), years);
                 }
-                break;
+
+                return setFullYear(updateDateForMonth(inputDate, convertedMonths, date), years);
 
             case 4, 6, 9, 11:
 
-                if (date == 31) {
-                    updateMonth = convertedMonths + 1;
-                    date = 1;
-                }
+                return setFullYear(updateDateForMonth(inputDate, date == 31 ? convertedMonths + 1 : convertedMonths,
+                        date == 31 ? 1 : date), years);
+
+            default:
+                return setFullYear(updateDateForMonth(inputDate, convertedMonths, date), years);
+
         }
 
-        // check month with possible dates
-//        let updateTimeStamp = parts[0];
-//
-//        if (updateTimeStamp.charAt(0) === '+' || updateTimeStamp.charAt(0) === '-')
-//            updateTimeStamp =
-//                inputDate.substring(0, 8) +
-//                convertToString(updateMonth) +
-//                '-' +
-//                convertToString(date) +
-//                inputDate.substring(13);
-//        else
-//            updateTimeStamp =
-//                inputDate.substring(0, 5) +
-//                convertToString(updateMonth) +
-//                '-' +
-//                convertToString(date) +
-//                inputDate.substring(10);
-
-        return setFullYear(inputDate, years);
     }
 
-    public static int setDate(String inputDate, int addDays) {
+    public static String setDate(String inputDate, Integer addDays) { // NOSONAR
 
         ZonedDateTime zdt = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern());
 
@@ -127,22 +134,20 @@ public class SetDateFunctionsUtil {
             year = month - 1 < 1 ? year - 1 : year;
         }
 
-        // for zero value
         if (addDays == 0) {
-            return day;
+
+            return dateFromDifferentParts(inputDate, year, month, day);
         }
 
-        // for negative within the previous month
         if (addDays < 0)
             flag = true;
 
         if (flag && daysInMonth[month - 1] >= addDays * -1) {
-            return day + addDays;
+            return dateFromDifferentParts(inputDate, year, month, day + addDays);
         }
 
-        // positive within the month
         if (!flag && addDays <= daysInMonth[month - 1]) {
-            return addDays;
+            return dateFromDifferentParts(inputDate, year, month, addDays);
         }
 
         if (!flag) {
@@ -168,14 +173,14 @@ public class SetDateFunctionsUtil {
         }
 
         if (addDays < 0)
-            return daysInMonth[month - 1] + addDays;
-        else
-            return addDays;
+            return dateFromDifferentParts(inputDate, year, month, daysInMonth[month - 1] + addDays);
+
+        return dateFromDifferentParts(inputDate, year, month, addDays);
     }
 
-    public static String setHours(String inputDate, int addHours) {
+    public static String setHours(String inputDate, Integer addHours) {
 
-        if (addHours < 0 || addHours > 24)
+        if (addHours < 0 || addHours > 23)
             throw new KIRuntimeException("Hours should be in the range of 0 and 23");
 
         String hours = convertToString(addHours);
@@ -186,7 +191,7 @@ public class SetDateFunctionsUtil {
         return inputDate.substring(0, 11) + hours + inputDate.substring(13);
     }
 
-    public static String setMinutes(String inputDate, int addMinutes) {
+    public static String setMinutes(String inputDate, Integer addMinutes) {
 
         if (addMinutes < 0 || addMinutes > 59)
             throw new KIRuntimeException("Minutes should be in the range of 0 and 59");
@@ -199,7 +204,7 @@ public class SetDateFunctionsUtil {
         return inputDate.substring(0, 14) + minutes + inputDate.substring(16);
     }
 
-    public static String setSeconds(String inputDate, int addSeconds) {
+    public static String setSeconds(String inputDate, Integer addSeconds) {
 
         if (addSeconds < 0 || addSeconds > 59)
             throw new KIRuntimeException("Seconds should be in the range of 0 and 59");
@@ -212,7 +217,7 @@ public class SetDateFunctionsUtil {
         return inputDate.substring(0, 17) + seconds + inputDate.substring(19);
     }
 
-    public static String setMilliSeconds(String inputDate, int addMillis) {
+    public static String setMilliSeconds(String inputDate, Integer addMillis) {
 
         if (addMillis < 0 || addMillis > 999)
             throw new KIRuntimeException("Milliseconds should be in the range of 0 and 999");
