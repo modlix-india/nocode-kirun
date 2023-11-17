@@ -40,59 +40,32 @@ export class FromNow extends AbstractFunction {
         let dates = context.getArguments()?.get(VALUE);
         let key = context.getArguments()?.get(KEY);
 
-        if (dates.length == 1) {
+        if (dates.length == 2) {
             if (!isValidZuluDate(dates[0]))
                 throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
 
-            const currentDate = new Date();
+            const splitDateAndOffset1 = getOffsetAndDateString(dates[0]);
 
-            const differenceInMilliseconds =
-                currentDate.getTime() - Date.parse(getOffsetAndDateString(dates[0])[0]);
-
-            const seconds = Math.floor(differenceInMilliseconds / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
+            const splitDateAndOffset2 = getOffsetAndDateString(dates[1]);
 
             const output = DurationUtils.getDuration(
-                differenceInMilliseconds,
+                new Date(splitDateAndOffset1[0]),
+                new Date(splitDateAndOffset2[0]),
                 key,
-                Math.abs(days),
-                Math.abs(hours),
-                Math.abs(minutes),
-                Math.abs(seconds),
-            );
-            return new FunctionOutput([
-                EventResult.outputOf(
-                    new Map([
-                        [OUTPUT, output],
-                    ]),
-                ),
-            ]);
-        }
-        if (dates.length == 2) {
-            if (!isValidZuluDate(dates[0]) || !isValidZuluDate(dates[1]))
-                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
-
-            const differenceInMilliseconds =
-                Date.parse(getOffsetAndDateString(dates[1])[0]) -
-                Date.parse(getOffsetAndDateString(dates[0])[0]);
-
-            const seconds = Math.floor(differenceInMilliseconds / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-
-            const output = DurationUtils.getDuration(
-                differenceInMilliseconds,
-                key,
-                Math.abs(days),
-                Math.abs(hours),
-                Math.abs(minutes),
-                Math.abs(seconds),
             );
             return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
         }
+        // if (dates.length == 2) {
+        //     if (!isValidZuluDate(dates[0]) || !isValidZuluDate(dates[1]))
+        //         throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
+
+        //     const differenceInMilliseconds =
+        //         Date.parse(getOffsetAndDateString(dates[1])[0]) -
+        //         Date.parse(getOffsetAndDateString(dates[0])[0]);
+
+        //     const output = DurationUtils.getDuration(differenceInMilliseconds, key);
+        //     return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
+        // }
         throw new KIRuntimeException(`Please provide valid dates.`);
     }
 }
