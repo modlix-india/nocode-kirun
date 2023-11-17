@@ -60,11 +60,11 @@ const TOKEN_FUNCTION: any = {
         } else if (pattern.startsWith('Mth')) {
             let num = date.getMonth() + 1;
             str += numberToOrdinal(num);
-            return { str , pattern: pattern.slice(3) }
+            return { str, pattern: pattern.slice(3) };
         } else if (pattern.startsWith('MTH')) {
             let num = date.getMonth() + 1;
             str += numberToOrdinal(num).toUpperCase();
-            return { str , pattern: pattern.slice(3) }
+            return { str, pattern: pattern.slice(3) };
         } else if (pattern.startsWith('MM')) {
             str += (date.getMonth() + 1).toString().padStart(2, '0');
             return { str, pattern: pattern.slice(2) };
@@ -324,12 +324,12 @@ function justYear(str: string, pattern: string, date: Date) {
 
     if (pattern.toUpperCase().startsWith('YY')) {
         let year = date.getFullYear();
-        str += year < 0 ? '-' + year.toString().slice(-2) : year.toString().slice(-2) ;
-        return { str, pattern: pattern.slice(2)};
+        str += year < 0 ? '-' + year.toString().slice(-2) : year.toString().slice(-2);
+        return { str, pattern: pattern.slice(2) };
     }
 
     str += date.getFullYear();
-    return {str, pattern: pattern.slice(1)};
+    return { str, pattern: pattern.slice(1) };
 }
 
 function weekOfTheYear(str: string, pattern: string, date: Date) {
@@ -357,10 +357,8 @@ function weekOfTheYear(str: string, pattern: string, date: Date) {
     return { str: str + weekOfTheYear, pattern: pattern.slice(1) };
 }
 
-
 function numberToOrdinal(num: number): string {
-    if( (num % 10 > 3) || num % 100 >= 11 && num % 100 <= 13) 
-        return num + DAYS_OF_MONTH_SUFFIX[0];
+    if (num % 10 > 3 || (num % 100 >= 11 && num % 100 <= 13)) return num + DAYS_OF_MONTH_SUFFIX[0];
 
     return num + DAYS_OF_MONTH_SUFFIX[num % 10];
 }
@@ -1064,6 +1062,7 @@ function parseWithRules(
                 dateString,
             };
         stringValue = match[1];
+        dateString = dateString.substring(2);
     } else {
         const match = dateString.match(/^\d+/);
         if (!match?.length)
@@ -1116,7 +1115,7 @@ export function dateFromFormatttedString(dateString: string, formatString: strin
         }
 
         while (pattern.length) {
-            const funArray = VALUE_TOKEN_RULES[pattern[0]];    
+            const funArray = VALUE_TOKEN_RULES[pattern[0]];
             if (!funArray) {
                 pattern = pattern.slice(1);
                 dateString = dateString.slice(1);
@@ -1128,7 +1127,6 @@ export function dateFromFormatttedString(dateString: string, formatString: strin
                     ? funArray(dateString, pattern, date)
                     : parseWithRules(dateString, pattern, date, VALUE_TOKEN_RULES[pattern[0]]));
         }
-       
     }
 
     return processParsedDate(date);
