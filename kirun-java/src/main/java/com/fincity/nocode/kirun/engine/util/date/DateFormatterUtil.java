@@ -1,19 +1,82 @@
 package com.fincity.nocode.kirun.engine.util.date;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
 public class DateFormatterUtil {
 
     private DateFormatterUtil() {
 
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class DateObject {
+        private Long epoch;
+        private Integer year;
+        private Integer monthIndex;
+        private Integer quarterIndex;
+        private Integer date;
+        private String dateOfTheYear;
+        private String weekOfTheYear;
+        private Integer era;
+        private Integer hours;
+        private Boolean k;
+        private Boolean h;
+        private Integer amOrPm;
+        private Integer offset;
+        private String resultKey;
+        private Integer minutes;
+        private Integer seconds;
+        private Integer millis;
+
+        public DateObject(DateObject dateObject) {
+
+            this.epoch = dateObject.epoch == null ? null : dateObject.epoch;
+            this.year = dateObject.year == null ? null : dateObject.year;
+            this.monthIndex = dateObject.monthIndex == null ? null : dateObject.monthIndex;
+            this.quarterIndex = dateObject.quarterIndex == null ? null : dateObject.quarterIndex;
+            this.date = dateObject.date == null ? null : dateObject.date;
+            this.dateOfTheYear = dateObject.dateOfTheYear == null ? null : dateObject.dateOfTheYear;
+            this.weekOfTheYear = dateObject.weekOfTheYear == null ? null : dateObject.weekOfTheYear;
+            this.era = dateObject.era == null ? null : dateObject.era;
+            this.hours = dateObject.hours == null ? null : dateObject.hours;
+            this.k = dateObject.k == null ? null : dateObject.k;
+            this.h = dateObject.h == null ? null : dateObject.h;
+            this.amOrPm = dateObject.amOrPm == null ? null : dateObject.amOrPm;
+            this.offset = dateObject.offset == null ? null : dateObject.offset;
+            this.resultKey = dateObject.resultKey == null ? null : dateObject.resultKey;
+            this.minutes = dateObject.minutes == null ? null : dateObject.minutes;
+            this.seconds = dateObject.seconds == null ? null : dateObject.seconds;
+            this.millis = dateObject.millis == null ? null : dateObject.millis;
+
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class FormattedDateObject {
+        private DateObject date;
+        private String pattern;
+        private String dateString;
     }
 
     public static class PatternObject {
@@ -33,6 +96,24 @@ public class DateFormatterUtil {
         public String getPattern() {
             return this.pattern;
         }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @Accessors(chain = true)
+    public static class Rules {
+
+        String key;
+        List<String> values;
+        Boolean caseInsensitive;
+        Boolean notInteger;
+        String resultKey;
+        Integer length;
+        Boolean hasTh;
+        List<Integer> range;
+        Integer subtract;
+        Function<Integer, Integer> logic;
+
     }
 
     private static final String[] DAYS_OF_WEEK = {
@@ -107,7 +188,91 @@ public class DateFormatterUtil {
 
             );
 
-    private static final Map<String, String> value_token_rules = Map.ofEntries();
+    private static Map<String, Rules[]> valueTokenRules = Map.ofEntries(
+            Map.entry("M", createRules('M')),
+            Map.entry("Q", createRules('Q')),
+            Map.entry("D", createRules('D')),
+            Map.entry("d", createRules('d')),
+            Map.entry("W", createRules('W')),
+            Map.entry("w", createRules('w')),
+            Map.entry("Y", createRules('Y')),
+            Map.entry("y", createRules('y')),
+            Map.entry("N", createRules('N')),
+            Map.entry("A", createRules('A')),
+            Map.entry("a", createRules('a')),
+            Map.entry("h", createRules('h')),
+            Map.entry("H", createRules('H')),
+            Map.entry("k", createRules('k')),
+            Map.entry("m", createRules('m')),
+            Map.entry("s", createRules('s')),
+            Map.entry("S", createRules('S'))
+
+    );
+
+    private static Map<String, TriFunction<String, String, DateObject, FormattedDateObject>> valueTokenFunctions = Map
+            .ofEntries(
+                    Map.entry("Z", (dateString, pattern, date) -> {
+
+                        Matcher x;
+
+                        if (pattern.startsWith("ZZ")) {
+                            x = Pattern.compile("^([+-])(\\d{2})(\\d{2})").matcher(dateString);
+                            pattern = pattern.substring(2);
+                        } else {
+                            x = Pattern.compile("^([+-])(\\d{2}):(\\d{2})").matcher(dateString);
+                            pattern = pattern.substring(1);
+                        }
+
+                        if (x == null || !x.find())
+                            return new FormattedDateObject(date, pattern.substring(1), dateString);
+
+                        boolean isNegative = x.group(1).equals("-");
+
+                        int hours = Integer.parseInt(x.group(2));
+                        int minutes = Integer.parseInt(x.group(3));
+
+                        int offset = hours * 60 + minutes;
+
+                        if (isNegative)
+
+                            offset = offset * -1;
+
+                        date.setOffset(offset);
+
+                        System.out.println(date);
+
+                        return new FormattedDateObject(date, pattern.substring(1),
+                                dateString.substring(x.group(0).length()));
+                    }),
+
+                    Map.entry("x", (dateString, pattern, date) -> {
+
+                        Matcher x = Pattern.compile("^-?\\d+").matcher(dateString);
+
+                        if (!x.find())
+                            return new FormattedDateObject(date, pattern.substring(1), dateString);
+
+                        DateObject d = new DateObject(date);
+                        d.setEpoch(Long.parseLong(x.group(0)) * 1000);
+
+                        return new FormattedDateObject(d, pattern.substring(1),
+                                dateString.substring(x.group(0).length()));
+
+                    }),
+
+                    Map.entry("X", (dateString, pattern, date) -> {
+
+                        Matcher matcher = Pattern.compile("^-?\\d+").matcher(dateString);
+
+                        if (!matcher.find())
+                            return new FormattedDateObject(date, pattern.substring(1), dateString);
+
+                        DateObject d = new DateObject(date);
+                        d.setEpoch(Long.valueOf(matcher.group(0)));
+
+                        return new FormattedDateObject(d, pattern.substring(1),
+                                dateString.substring(matcher.group(0).length()));
+                    }));
 
     public static String formattedStringFromDate(Calendar cal, String pattern) {
 
@@ -558,7 +723,7 @@ public class DateFormatterUtil {
         return num + DAYS_OF_MONTH_SUFFIX[num % 10];
     }
 
-    private static List<String> patternSplitting(String str) {
+    private static List<String> patternSplitting(String str) { // NOSONAR
 
         List<String> arr = new ArrayList<>();
 
@@ -602,11 +767,802 @@ public class DateFormatterUtil {
         return arr;
     }
 
-    public static void dateFromFormattedString(String dateString, String formatString) {
+    private static Rules[] createRules(char ch) { // NOSONAR
+
+        String hours = "hours";
+
+        switch (ch) {
+            case 'M': {
+
+                String monthIndex = "monthIndex";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("MMMM")
+                                .setValues(Arrays.stream(MONTHS_OF_YEAR).map(String::toUpperCase)
+                                        .toList())
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(monthIndex),
+
+                        new Rules().setKey("MMM")
+                                .setLength(3)
+                                .setValues(Arrays.stream(MONTHS_OF_YEAR).map(e -> e.substring(0, 3).toUpperCase())
+                                        .toList())
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(monthIndex),
+
+                        new Rules().setKey("Mth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 12))
+                                .setSubtract(1)
+                                .setResultKey(monthIndex),
+
+                        new Rules().setKey("MTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 12))
+                                .setSubtract(1)
+                                .setResultKey(monthIndex),
+
+                        new Rules().setKey("MM")
+                                .setRange(List.of(1, 12))
+                                .setSubtract(1)
+                                .setResultKey(monthIndex),
+
+                        new Rules().setKey("M")
+                                .setRange(List.of(1, 12))
+                                .setSubtract(1)
+                                .setResultKey(monthIndex),
+
+                };
+                return rules;
+            }
+
+            case 'Q': {
+
+                String quarterIndex = "quarterIndex";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("QQ")
+                                .setRange(List.of(1, 4))
+                                .setSubtract(1)
+                                .setResultKey(quarterIndex)
+                                .setLength(2),
+
+                        new Rules().setKey("Qth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 4))
+                                .setSubtract(1)
+                                .setResultKey(quarterIndex),
+
+                        new Rules().setKey("QTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 4))
+                                .setSubtract(1)
+                                .setResultKey(quarterIndex),
+
+                        new Rules().setKey("Q")
+                                .setRange(List.of(1, 4))
+                                .setSubtract(1)
+                                .setResultKey(quarterIndex),
+
+                };
+                return rules;
+            }
+
+            case 'D': {
+
+                String dateOfTheYear = "dateOfTheYear";
+                String onlyDate = "date";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("DDDD")
+                                .setLength(3)
+                                .setRange(List.of(1, 366))
+                                .setResultKey(dateOfTheYear),
+
+                        new Rules().setKey("DDDth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 366))
+                                .setResultKey(dateOfTheYear),
+
+                        new Rules().setKey("DDDTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 366))
+                                .setResultKey(dateOfTheYear),
+
+                        new Rules().setKey("DDD")
+                                .setRange(List.of(1, 366))
+                                .setResultKey(dateOfTheYear),
+
+                        new Rules().setKey("DD")
+                                .setRange(List.of(1, 31))
+                                .setResultKey(dateOfTheYear)
+                                .setLength(2),
+
+                        new Rules().setKey("Dth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 35))
+                                .setResultKey(onlyDate),
+
+                        new Rules().setKey("DTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 35))
+                                .setResultKey(onlyDate),
+
+                        new Rules().setKey("D")
+                                .setRange(List.of(1, 31))
+                                .setResultKey(onlyDate),
+
+                };
+
+                return rules;
+            }
+
+            case 'd': {
+
+                String dayOfTheWeek = "dayOfTheWeek";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("dddd")
+                                .setValues(Arrays.stream(MONTHS_OF_YEAR).map(String::toUpperCase).toList())
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(dayOfTheWeek),
+
+                        new Rules().setKey("ddd")
+                                .setLength(3)
+                                .setValues(Arrays.stream(MONTHS_OF_YEAR).map(e -> e.substring(0, 3).toUpperCase())
+                                        .toList())
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(dayOfTheWeek),
+
+                        new Rules().setKey("dd")
+                                .setLength(2)
+                                .setValues(Arrays.stream(MONTHS_OF_YEAR).map(e -> e.substring(0, 2).toUpperCase())
+                                        .toList())
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(dayOfTheWeek),
+
+                        new Rules().setKey("dth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 7))
+                                .setSubtract(1)
+                                .setResultKey(dayOfTheWeek),
+
+                        new Rules().setKey("dTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 7))
+                                .setSubtract(1)
+                                .setResultKey(dayOfTheWeek),
+
+                        new Rules().setKey("d")
+                                .setRange(List.of(1, 7))
+                                .setSubtract(1)
+                                .setResultKey(dayOfTheWeek),
+
+                };
+
+                return rules;
+            }
+
+            case 'W': {
+
+                String weekOfTheYear = "weekOfTheYear";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("WW")
+                                .setRange(List.of(1, 53))
+                                .setLength(2)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("Wth")
+                                .setRange(List.of(1, 53))
+                                .setHasTh(true)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("WTH")
+                                .setRange(List.of(1, 53))
+                                .setHasTh(true)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("W")
+                                .setRange(List.of(1, 53))
+                                .setResultKey(weekOfTheYear),
+
+                };
+
+                return rules;
+            }
+
+            case 'w': {
+
+                String weekOfTheYear = "weekOfTheYear";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("ww")
+                                .setRange(List.of(1, 53))
+                                .setLength(2)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("wth")
+                                .setRange(List.of(1, 53))
+                                .setHasTh(true)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("wTH")
+                                .setRange(List.of(1, 53))
+                                .setHasTh(true)
+                                .setResultKey(weekOfTheYear),
+
+                        new Rules().setKey("w")
+                                .setRange(List.of(1, 53))
+                                .setResultKey(weekOfTheYear),
+
+                };
+
+                return rules;
+
+            }
+
+            case 'Y': {
+
+                String year = "year";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules()
+                                .setKey("YYYY")
+                                .setLength(4)
+                                .setResultKey(year),
+
+                        new Rules()
+                                .setKey("YY")
+                                .setLength(2)
+                                .setResultKey(year)
+                                .setLogic(num -> num >= 70 ? 1900 + num : 2000 + num),
+
+                        new Rules()
+                                .setKey("Y")
+                                .setResultKey(year)
+
+                };
+
+                return rules;
+            }
+
+            case 'y': {
+
+                String year = "year";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules()
+                                .setKey("yyyy")
+                                .setLength(4)
+                                .setResultKey(year),
+
+                        new Rules()
+                                .setKey("yy")
+                                .setLength(2)
+                                .setResultKey(year)
+                                .setLogic(num -> num >= 70 ? 1900 + num : 2000 + num),
+
+                        new Rules()
+                                .setKey("y")
+                                .setResultKey(year)
+
+                };
+
+                return rules;
+
+            }
+
+            case 'N': {
+
+                String era = "era";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("NNNN")
+                                .setValues(List.of("BEFORE COMMON ERA", "COMMON ERA"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(era)
+                                .setLogic(num -> num == 0 ? -1 : 1),
+
+                        new Rules().setKey("NNN")
+                                .setValues(List.of("BCE", "CE"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(era)
+                                .setLogic(num -> num == 0 ? -1 : 1),
+
+                        new Rules().setKey("NN")
+                                .setValues(List.of("BCE", "CE"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(era)
+                                .setLogic(num -> num == 0 ? -1 : 1),
+
+                        new Rules().setKey("N")
+                                .setValues(List.of("BCE", "CE"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey(era)
+                                .setLogic(num -> num == 0 ? -1 : 1),
+
+                };
+
+                return rules;
+
+            }
+
+            case 'A': {
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("A")
+                                .setValues(List.of("AM", "PM"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey("amOrPm")
+
+                };
+
+                return rules;
+            }
+
+            case 'a': {
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("a")
+                                .setValues(List.of("am", "pm"))
+                                .setCaseInsensitive(true)
+                                .setNotInteger(true)
+                                .setResultKey("amOrPm")
+
+                };
+
+                return rules;
+            }
+
+            case 'h': {
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("hh")
+                                .setRange(List.of(1, 12))
+                                .setLength(2)
+                                .setResultKey(hours),
+
+                        new Rules().setKey("hth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 12))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("hTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 12))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("h")
+                                .setRange(List.of(1, 12))
+                                .setResultKey(hours)
+
+                };
+
+                return rules;
+            }
+
+            case 'H': {
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("HH")
+                                .setRange(List.of(0, 24))
+                                .setLength(2)
+                                .setResultKey(hours),
+
+                        new Rules().setKey("Hth")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 23))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("HTH")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 23))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("H")
+                                .setRange(List.of(0, 23))
+                                .setResultKey(hours)
+
+                };
+
+                return rules;
+
+            }
+
+            case 'k': {
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("kk")
+                                .setRange(List.of(1, 24))
+                                .setLength(2)
+                                .setResultKey(hours),
+
+                        new Rules().setKey("kth")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 24))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("kTH")
+                                .setHasTh(true)
+                                .setRange(List.of(1, 24))
+                                .setResultKey(hours),
+
+                        new Rules().setKey("k")
+                                .setRange(List.of(1, 24))
+                                .setResultKey(hours)
+
+                };
+
+                return rules;
+
+            }
+
+            case 'm': {
+
+                String minutes = "minutes";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("mm")
+                                .setRange(List.of(0, 59))
+                                .setLength(2)
+                                .setResultKey(minutes),
+
+                        new Rules().setKey("mth")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 59))
+                                .setResultKey(minutes),
+
+                        new Rules().setKey("mTH")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 59))
+                                .setResultKey(minutes),
+
+                        new Rules().setKey("m")
+                                .setRange(List.of(0, 59))
+                                .setResultKey(minutes),
+
+                };
+
+                return rules;
+
+            }
+
+            case 's': {
+
+                String seconds = "seconds";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("ss")
+                                .setRange(List.of(0, 59))
+                                .setLength(2)
+                                .setResultKey(seconds),
+
+                        new Rules().setKey("sth")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 59))
+                                .setResultKey(seconds),
+
+                        new Rules().setKey("sTH")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 59))
+                                .setResultKey(seconds),
+
+                        new Rules().setKey("s")
+                                .setRange(List.of(0, 59))
+                                .setResultKey(seconds),
+
+                };
+
+                return rules;
+
+            }
+
+            case 'S': {
+
+                String millis = "millis";
+
+                Rules[] rules = { // NOSONAR
+
+                        new Rules().setKey("SSSSSSSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(9)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -4))),
+
+                        new Rules().setKey("SSSSSSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(8)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -5))),
+
+                        new Rules().setKey("SSSSSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(7)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -4))),
+
+                        new Rules().setKey("SSSSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(6)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -3))),
+
+                        new Rules().setKey("SSSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(5)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -2))),
+
+                        new Rules().setKey("SSSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(4)
+                                .setResultKey(millis)
+                                .setLogic(num -> (int) Math.round(num / Math.pow(10, -1))),
+
+                        new Rules().setKey("SSS")
+                                .setRange(List.of(0, 999))
+                                .setLength(3)
+                                .setResultKey(millis),
+
+                        new Rules().setKey("SS")
+                                .setRange(List.of(0, 999))
+                                .setLength(2)
+                                .setResultKey(millis)
+                                .setLogic(num -> num * 10),
+
+                        new Rules().setKey("Sth")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 999))
+                                .setResultKey(millis),
+
+                        new Rules().setKey("STH")
+                                .setHasTh(true)
+                                .setRange(List.of(0, 999))
+                                .setResultKey(millis),
+
+                        new Rules().setKey("S")
+                                .setRange(List.of(0, 999))
+                                .setLength(1)
+                                .setResultKey(millis)
+                                .setLogic(num -> num * 100)
+
+                };
+
+                return rules;
+
+            }
+
+            default:
+                return new Rules[0];
+        }
+
+    }
+
+    public static Date timeStampObjectToDate(DateObject obj) {
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, obj.getYear());
+        cal.set(Calendar.MONTH, obj.getMonthIndex());
+        cal.set(Calendar.DATE, obj.getDate());
+        cal.set(Calendar.HOUR_OF_DAY, obj.getHours() != null ? obj.getHours() : 0);
+        cal.set(Calendar.MINUTE, obj.getMinutes() != null ? obj.getMinutes() : 0);
+        cal.set(Calendar.SECOND, obj.getSeconds() != null ? obj.getSeconds() : 0);
+        cal.set(Calendar.MILLISECOND, obj.getMillis() != null ? obj.getMillis() : 0);
+
+        return cal.getTime();
+    }
+
+    private static Date processParsedDate(DateObject date) { // NOSONAR
+
+        if (date.getEpoch() != null)
+            return new Date(date.getEpoch());
+
+        Date currentDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+
+        if (date.getYear() == null)
+            date.setYear(cal.get(Calendar.YEAR));
+        if (date.getMonthIndex() == null) {
+            if (date.getQuarterIndex() != null)
+                date.setMonthIndex(date.getQuarterIndex() * 3);
+            else
+                date.setMonthIndex(cal.get(Calendar.MONTH));
+        }
+
+        if (date.getDate() == null) {
+            if (date.getDateOfTheYear() != null || date.getWeekOfTheYear() != null) {
+
+                int x = date.getDateOfTheYear() != null
+                        ? Integer.parseInt(date.getDateOfTheYear())
+                        : Integer.parseInt(date.getWeekOfTheYear()) * 7;
+
+                for (int i = 0; i < 12; i++) {
+                    int days = new Date(date.year, i + 1, 0).getDate();
+
+                    if (x <= days) {
+                        date.setMonthIndex(i);
+                        date.setDate(x);
+                        break;
+                    }
+                    x -= days;
+                }
+            }
+            if (date.getQuarterIndex() != null) {
+                date.setDate(1);
+            } else
+                date.setDate(currentDate.getDate());
+
+        }
+
+        if (date.getEra() != null && date.getEra() == -1 && date.getYear() > 0)
+            date.setYear(date.getYear() * -1);
+
+        if (date.getHours() == null)
+            date.setHours(0);
+
+        if (Boolean.TRUE.equals(date.k) && date.hours == 24)
+            date.setHours(0);
+
+        if (Boolean.TRUE.equals(date.h)) {
+            if (date.amOrPm == 1)
+                date.setHours(date.getHours() + 12);
+            if (date.amOrPm == 0 && date.hours == 12)
+                date.setHours(0);
+        }
+
+        Date dobj = timeStampObjectToDate(date);
+
+        if (date.offset == null)
+            return dobj;
+
+        if (date.offset * -1 == dobj.getTimezoneOffset())
+            return dobj;
+
+        int offset = date.offset * 60 * 1000 * -1;
+
+        return new Date(dobj.getTime() - dobj.getTimezoneOffset() * 60 * 1000 + offset);
+
+    }
+
+    private static FormattedDateObject parseWithRules(String dateString, String pattern, DateObject date, // NOSONAR
+            Rules... rules) {
+
+        final String refPattern = pattern;
+
+        if (pattern.isEmpty())
+            return new FormattedDateObject(date, pattern, dateString);
+
+        Optional<Rules> rule = Arrays.stream(rules).filter(e -> refPattern.startsWith(e.getKey())).findFirst();
+
+        if (rule.isEmpty())
+            return new FormattedDateObject(date, pattern, dateString);
+
+        Rules firstRule = rule.get();
+
+        if (firstRule.getKey().charAt(0) == 'h')
+            date.setH(true);
+
+        pattern = pattern.substring(firstRule.getKey().length());
+
+        if (firstRule.getNotInteger() != null) {
+
+            List<String> values = firstRule.getValues();
+
+            final String tempDateString = dateString;
+
+            OptionalInt ind = IntStream.range(0, values.size())
+                    .filter(e -> {
+
+                        String value = values.get(e);
+
+                        return firstRule.getCaseInsensitive() ? tempDateString.toUpperCase().startsWith(value)
+                                : tempDateString.startsWith(value);
+                    }).findFirst();
+
+            if (ind.isEmpty())
+                return new FormattedDateObject(date, pattern, dateString);
+
+            date.setResultKey(String.valueOf(ind.getAsInt()));
+
+            return new FormattedDateObject(date, pattern, dateString.substring(values.get(ind.getAsInt()).length()));
+
+        }
+
+        String stringValue;
+
+        if (firstRule.getLength() != null) {
+
+            stringValue = dateString.substring(0, firstRule.getLength());
+
+            if (stringValue.length() != firstRule.getLength())
+
+                return new FormattedDateObject(date, pattern, "");
+
+        }
+
+        else if (firstRule.getHasTh() != null) {
+
+            Pattern pat = Pattern.compile("^(\\d+)(th|st|nd|rd)", Pattern.CASE_INSENSITIVE);
+            Matcher match = pat.matcher(dateString);
+
+            if (!match.find())
+                return new FormattedDateObject(date, pattern, dateString);
+
+            stringValue = match.group(1);
+            dateString = dateString.substring(2);
+        }
+
+        else {
+
+            Pattern pat = Pattern.compile("^\\d+");
+            Matcher match = pat.matcher(dateString);
+
+            if (!match.find())
+                return new FormattedDateObject(date, pattern, dateString);
+
+            stringValue = match.group(0);
+
+        }
+
+        dateString = dateString.substring(stringValue.length());
+
+        Integer value = dateString.matches("\\d+") ? Integer.parseInt(stringValue) : -1;
+
+        if (value == -1)
+            return new FormattedDateObject(date, pattern, dateString);
+
+        if (firstRule.getSubtract() != null)
+            value -= firstRule.getSubtract();
+
+        if (firstRule.getRange() != null &&
+                (value < firstRule.getRange().get(0) || value > firstRule.getRange().get(1)))
+
+            return new FormattedDateObject(date, pattern, dateString);
+
+        if (firstRule.getLogic() != null)
+            value = firstRule.getLogic().apply(value);
+
+        date.setResultKey(value.toString());
+
+        return new FormattedDateObject(date, pattern, dateString);
+
+    }
+
+    public static Date dateFromFormattedString(String dateString, String formatString) {
 
         List<String> patterns = patternSplitting(formatString);
 
-//        let date: any = {};
+        DateObject date = new DateObject();
+
+        FormattedDateObject fdo = new FormattedDateObject(date, formatString, dateString);
 
         for (int i = 0; i < patterns.size(); i++) {
 
@@ -619,23 +1575,44 @@ public class DateFormatterUtil {
 
             while (pattern.length() != 0) {
 
-//              const funArray = VALUE_TOKEN_RULES[pattern[0]];
-//              if (!funArray) {
-//                pattern = pattern.slice(1);
-//                dateString = dateString.slice(1);
-//                continue;
-//              }
-//
-//              ({ date, pattern, dateString } =
-//                typeof funArray === "function"
-//                  ? funArray(dateString, pattern, date)
-//                  : parseWithRules(
-//                      dateString,
-//                      pattern,
-//                      date,
-//                      VALUE_TOKEN_RULES[pattern[0]]
-//                    ));
+                String firstchar = pattern.substring(0, 1);
+
+                boolean isDefinedRules = valueTokenRules.containsKey(firstchar);
+
+                boolean isDefinedFunction = valueTokenFunctions.containsKey(firstchar);
+
+                if (isDefinedRules) {
+
+                    FormattedDateObject output = parseWithRules(dateString, pattern, date,
+                            valueTokenRules.get(firstchar));
+
+                    fdo.setDate(output.getDate());
+                    fdo.setDateString(output.getDateString());
+                    fdo.setPattern(output.getPattern());
+
+                    date = output.getDate();
+                    dateString = output.getDateString();
+                    pattern = output.getPattern();
+                }
+
+                else if (isDefinedFunction) {
+
+                    FormattedDateObject output = valueTokenFunctions.get(firstchar).apply(dateString, pattern, date);
+                    fdo.setDate(output.getDate());
+                    fdo.setDateString(output.getDateString());
+                    fdo.setPattern(output.getPattern());
+
+                    date = output.getDate();
+                    dateString = output.getDateString();
+                    pattern = output.getPattern();
+                } else {
+                    pattern = pattern.substring(1);
+                    dateString = dateString.substring(1);
+                }
+
             }
         }
+
+        return processParsedDate(fdo.getDate());
     }
 }
