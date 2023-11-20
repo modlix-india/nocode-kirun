@@ -44,28 +44,16 @@ export class FromNow extends AbstractFunction {
             if (!isValidZuluDate(dates[0]))
                 throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
 
-            const splitDateAndOffset1 = getOffsetAndDateString(dates[0]);
-
-            const splitDateAndOffset2 = getOffsetAndDateString(dates[1]);
-
-            const output = DurationUtils.getDuration(
-                new Date(splitDateAndOffset1[0]),
-                new Date(splitDateAndOffset2[0]),
-                key,
-            );
+            const output = DurationUtils.getDuration(new Date(dates[0]), new Date(dates[1]), key);
             return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
         }
-        // if (dates.length == 2) {
-        //     if (!isValidZuluDate(dates[0]) || !isValidZuluDate(dates[1]))
-        //         throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
+        if (dates.length == 1) {
+            if (!isValidZuluDate(dates[0]))
+                throw new KIRuntimeException(`Invalid ISO 8601 Date format.`);
 
-        //     const differenceInMilliseconds =
-        //         Date.parse(getOffsetAndDateString(dates[1])[0]) -
-        //         Date.parse(getOffsetAndDateString(dates[0])[0]);
-
-        //     const output = DurationUtils.getDuration(differenceInMilliseconds, key);
-        //     return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
-        // }
+            const output = DurationUtils.getDuration(new Date(dates[0]), new Date(), key);
+            return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT, output]]))]);
+        }
         throw new KIRuntimeException(`Please provide valid dates.`);
     }
 }

@@ -58,8 +58,6 @@ export class DurationUtils {
         prefix: string,
         suffix: string,
     ) {
-        console.log(helperArray, key);
-
         let i;
         for (i = 0; i < helperArray.length; i++) {
             if (helperArray[i] != 0) {
