@@ -9,7 +9,7 @@ const fromNow: FromNow = new FromNow();
 
 describe('testing FromNow', () => {
     let arr = new Array();
-    arr.push('2023-11-16T23:33:04.970+01:30');
+    arr.push('2022-11-16T23:33:04.970+01:30');
     arr.push('2023-11-16T23:32:04.970+01:30');
 
     test('test1', async () => {

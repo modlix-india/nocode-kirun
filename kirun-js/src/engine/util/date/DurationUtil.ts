@@ -98,12 +98,12 @@ export class DurationUtils {
 
         const diffInMilli = firstDate.getTime() - secondDate.getTime();
 
-        this.weeks = diffInMilli / (1000 * 60 * 60 * 24 * 7);
+        this.weeks = Math.floor(Math.abs(diffInMilli / (1000 * 60 * 60 * 24 * 7)));
 
-        helperArray.push(firstDate.getFullYear() - secondDate.getFullYear());
-        helperArray.push(firstDate.getMonth() - secondDate.getMonth());
-        helperArray.push(firstDate.getDate() - secondDate.getDate());
-        helperArray.push(firstDate.getHours() - secondDate.getHours());
+        helperArray.push(Math.abs(firstDate.getFullYear() - secondDate.getFullYear()));
+        helperArray.push(Math.abs(firstDate.getMonth() - secondDate.getMonth()));
+        helperArray.push(Math.abs(firstDate.getDate() - secondDate.getDate()));
+        helperArray.push(Math.abs(firstDate.getHours() - secondDate.getHours()));
         helperArray.push(Math.abs(firstDate.getMinutes() - secondDate.getMinutes()));
         helperArray.push(Math.abs(firstDate.getSeconds() - secondDate.getSeconds()));
 
