@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
@@ -196,6 +197,56 @@ class FromNowTest {
 	}
 
 	@Test
+	void fromNowTestEN3() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-17T13:30:04.970Z");
+
+		arr.add("2023-12-19T15:32:04.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EN3"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("2 days 2 hours 2 minutes"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEA3() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-17T13:30:04.970Z");
+
+		arr.add("2023-12-19T15:32:04.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EA3"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("2 days 2 hours 2 minutes ago"))
+		        .verifyComplete();
+
+	}
+
+	@Test
 	void fromNowTestEA2() {
 
 		JsonArray arr = new JsonArray();
@@ -216,6 +267,31 @@ class FromNowTest {
 		                .get("result")
 		                .getAsString()
 		                .equals("after 3 days 2 hours"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEA4() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-17T13:30:04.970Z");
+
+		arr.add("2023-11-19T15:33:05.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EA4"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("after 1 month 2 days 2 hours 3 minutes"))
 		        .verifyComplete();
 
 	}
@@ -246,7 +322,7 @@ class FromNowTest {
 	}
 
 	@Test
-	void fromNowTestEN3() {
+	void fromNowTestEI3() {
 
 		JsonArray arr = new JsonArray();
 
@@ -271,11 +347,36 @@ class FromNowTest {
 	}
 
 	@Test
-	void fromNowTestEN4() {
+	void fromNowTestEA5() {
 
 		JsonArray arr = new JsonArray();
 
 		arr.add("2023-12-17T13:30:04.970Z");
+
+		arr.add("2023-11-19T15:30:04.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EA5"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("after 1 month 2 days 2 hours 0 minutes 0 seconds"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEN4() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-11T13:30:04.970Z");
 
 		arr.add("2023-12-14T15:29:05.970Z");
 
@@ -441,6 +542,79 @@ class FromNowTest {
 		                .get("result")
 		                .getAsString()
 		                .equals("2 months 0 days 3 hours 30 minutes 0 seconds"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEN5() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-11T13:30:04.970Z");
+
+		arr.add("2023-11-14T15:29:05.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EN5"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("1 month 3 days 1 hour 59 minutes 1 second"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEN52() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2023-12-11T13:30:04.970Z");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EN2"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("1 month 10 days"))
+		        .verifyComplete();
+
+	}
+
+	@Test
+	void fromNowTestEN51() {
+
+		JsonArray arr = new JsonArray();
+
+		arr.add("2022-03-01T03:50:04.199+12:00");
+
+		arr.add("1970-12-21T15:29:05.070+01:13");
+
+		Map<String, JsonElement> arguments = new HashMap<>();
+		arguments.put("isodates", arr);
+		arguments.put("key", new JsonPrimitive("EN5"));
+
+		fep.setArguments(arguments);
+
+		StepVerifier.create(fn.execute(fep))
+		        .expectNextMatches(res -> res.next()
+		                .getResult()
+		                .get("result")
+		                .getAsString()
+		                .equals("52 years 10 months 7 days 2 hours 26 minutes"))
 		        .verifyComplete();
 
 	}

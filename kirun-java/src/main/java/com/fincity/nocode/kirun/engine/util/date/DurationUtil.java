@@ -3,16 +3,17 @@ package com.fincity.nocode.kirun.engine.util.date;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+
 public class DurationUtil {
 
 	private DurationUtil() {
 
 	}
 
-	private static int weeks = 0;
 	private static final String[] stringArray = { "years", "months", "days", "hours", "minutes", "seconds" };
 
-	public static String getDifference(int[] helperArray, String key, String prefix, String suffix) {
+	public static String getDifference(int[] helperArray, String prefix, String suffix) {
 		int i;
 		for (i = 0; i < helperArray.length; i++) {
 			if (helperArray[i] != 0) {
@@ -21,28 +22,39 @@ public class DurationUtil {
 		}
 
 		if (i == 0) {
-			return helperArray[i] == 1 ? prefix + "a year" + suffix : prefix + helperArray[i] + " years" + suffix;
+			return formatResult(helperArray[i], prefix, suffix, "year", "years");
 		}
 		if (i == 1) {
-			return helperArray[i] == 1 ? prefix + "a month" + suffix : prefix + helperArray[i] + " months" + suffix;
+			return formatResult(helperArray[i], prefix, suffix, "a month", "months");
 		}
 		if (i == 2) {
-			return helperArray[i] == 1 ? prefix + "a day" + suffix : prefix + helperArray[i] + " days" + suffix;
+			return formatResult(helperArray[i], prefix, suffix, "a day", "days");
 		}
 		if (i == 3) {
-			return (helperArray[i] >= 1 && helperArray[i] <= 3) ? prefix + "few hours" + suffix
-			        : prefix + helperArray[i] + " hours" + suffix;
+
+			return formatResult2(helperArray[i], prefix, suffix, "hour", "hours", 1, 3);
 		}
 		if (i == 4) {
-			return (helperArray[i] >= 1 && helperArray[i] <= 15) ? prefix + "few minutes" + suffix
-			        : prefix + helperArray[i] + " minutes" + suffix;
+			return formatResult2(helperArray[i], prefix, suffix, "minute", "minutes", 1, 15);
 		}
 		if (i == 5) {
 			return (helperArray[i] <= 44) ? (helperArray[i] <= 2) ? "now" : prefix + "few seconds" + suffix
 			        : prefix + helperArray[i] + " seconds" + suffix;
+
 		}
 
 		return "now";
+	}
+
+	private static String formatResult(int value, String prefix, String suffix, String string, String string2) {
+		return (value == 1) ? prefix + string + suffix : prefix + value + string2 + suffix;
+	}
+
+	private static String formatResult2(int value, String prefix, String suffix, String string, String string2, int lb,
+	        int ub) {
+		String timeUnit = (value >= lb && value <= ub) ? "few " + string2
+		        : value + " " + (value == 1 ? string : string2);
+		return prefix + timeUnit + suffix;
 	}
 
 	public static String getExactDifference(int[] helperArray, String key, String prefix, String suffix) {
@@ -69,9 +81,23 @@ public class DurationUtil {
 				i++;
 			}
 			return prefix + finalString + suffix;
-		} else {
-			throw new RuntimeException("Please provide a valid key.");
 		}
+		throw new KIRuntimeException("Please provide a valid key.");
+
+	}
+
+	private static String getUnit(int diff, String suffix) {
+		StringBuilder sb = new StringBuilder(diff + " " + suffix);
+		return sb.append(diff == 1 ? "" : "s")
+		        .toString();
+	}
+
+	public static String getPrefix(long diff, String prefix) {
+		return diff < 0 ? prefix : "";
+	}
+
+	public static String getSuffix(long diff) {
+		return (diff > 0) ? " ago" : "";
 	}
 
 	public static String getDuration(LocalDateTime firstDate, LocalDateTime secondDate, String key) {
@@ -79,7 +105,7 @@ public class DurationUtil {
 		String suffix = "";
 
 		long diffInMilli = ChronoUnit.MILLIS.between(firstDate, secondDate);
-		weeks = (int) Math.floor(Math.abs(diffInMilli / (1000 * 60 * 60 * 24 * 7)));
+		long weeks = Math.abs(diffInMilli / (1000 * 60 * 60 * 24 * 7));
 
 		int[] helperArray = new int[6];
 		helperArray[0] = Math.abs(firstDate.getYear() - secondDate.getYear());
@@ -89,35 +115,28 @@ public class DurationUtil {
 		helperArray[4] = Math.abs(firstDate.getMinute() - secondDate.getMinute());
 		helperArray[5] = Math.abs(firstDate.getSecond() - secondDate.getSecond());
 
-		if ("EY".equals(key)) {
-			return helperArray[0] == 1 ? "1 year" : helperArray[0] + " years";
-		}
-
-		if ("EM".equals(key)) {
-			return helperArray[1] == 1 ? "1 month" : helperArray[1] + " months";
-		}
-
-		if ("EW".equals(key)) {
-			return weeks == 1 ? "1 week" : weeks + " weeks";
-		}
-
-		if ("ED".equals(key)) {
-			return helperArray[2] == 1 ? "1 day" : helperArray[2] + " days";
-		}
-		if ("EH".equals(key)) {
-			return helperArray[3] == 1 ? "1 hour" : helperArray[3] + " hours";
-		}
-		if ("ES".equals(key)) {
-			return helperArray[4] == 1 ? "1 second" : helperArray[4] + " seconds";
+		switch (key) {
+		case "EY":
+			return getUnit(helperArray[0], "year");
+		case "EM":
+			return getUnit(helperArray[1], "month");
+		case "EW":
+			return weeks == 1L ? "1 week" : weeks + " weeks";
+		case "ED":
+			return getUnit(helperArray[2], "day");
+		case "EH":
+			return getUnit(helperArray[3], "hour");
+		case "ES":
+			return getUnit(helperArray[4], "second");
 		}
 		if (key.equals("A") || (key.length() > 1 && key.charAt(1) == 'A')) {
-			prefix = (diffInMilli < 0) ? "after " : "";
-			suffix = (diffInMilli > 0) ? " ago" : "";
+			prefix = getPrefix(diffInMilli, "after ");
+			suffix = getSuffix(diffInMilli);
 		}
 
 		if (key.equals("I") || (key.length() > 1 && key.charAt(1) == 'I')) {
-			prefix = (diffInMilli < 0) ? "In " : "";
-			suffix = (diffInMilli > 0) ? " ago" : "";
+			prefix = getPrefix(diffInMilli, "In ");
+			suffix = getSuffix(diffInMilli);
 		}
 
 		if (key.equals("EN") || key.equals("EA") || key.equals("EI")) {
@@ -125,10 +144,10 @@ public class DurationUtil {
 		}
 
 		if (key.length() <= 2) {
-			return getDifference(helperArray, key, prefix, suffix);
-		} else {
-			return getExactDifference(helperArray, key, prefix, suffix);
+			return getDifference(helperArray, prefix, suffix);
 		}
+
+		return getExactDifference(helperArray, key, prefix, suffix);
 
 	}
 }
