@@ -12,7 +12,7 @@ export class IndexOf extends AbstractArrayFunction {
             'IndexOf',
             [
                 IndexOf.PARAMETER_ARRAY_SOURCE,
-                IndexOf.PARAMETER_ANY_NOT_NULL,
+                IndexOf.PARAMETER_ANY,
                 IndexOf.PARAMETER_INT_FIND_FROM,
             ],
             IndexOf.EVENT_RESULT_INTEGER,
@@ -24,7 +24,7 @@ export class IndexOf extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context?.getArguments()?.get(IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
+        var find = context?.getArguments()?.get(IndexOf.PARAMETER_ANY.getParameterName());
 
         let len: number = context
             ?.getArguments()

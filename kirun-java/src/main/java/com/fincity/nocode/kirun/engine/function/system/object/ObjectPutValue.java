@@ -39,7 +39,7 @@ public class ObjectPutValue extends AbstractReactiveFunction {
     private Parameter parameterValue = Parameter.of(VALUE, Schema.ofAny(VALUE));
 
     private Parameter parameterOverwrite = Parameter.of(OVERWRITE,
-            Schema.ofBoolean(OVERWRITE).setDefaultValue(new JsonPrimitive(false)));
+            Schema.ofBoolean(OVERWRITE).setDefaultValue(new JsonPrimitive(true)));
 
     private Parameter parameterDeleteKeyOnNull = Parameter.of(DELETE_KEY_ON_NULL,
             Schema.ofBoolean(DELETE_KEY_ON_NULL).setDefaultValue(new JsonPrimitive(false)));
@@ -78,7 +78,7 @@ public class ObjectPutValue extends AbstractReactiveFunction {
             return Mono.just(new FunctionOutput(List.of())); // change the output
 
         ObjectValueSetterExtractor ove = new ObjectValueSetterExtractor(source, DATA);
-        ove.setValue(key.getAsString(), value, overwrite.getAsBoolean(), deleteKeyOnNull.getAsBoolean());
+        ove.setValue(DATA+key.getAsString(), value, overwrite.getAsBoolean(), deleteKeyOnNull.getAsBoolean());
 
         return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, ove.getStore())))));
     }

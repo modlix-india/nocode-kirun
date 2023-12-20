@@ -4,6 +4,7 @@ import { duplicate } from '../../../util/duplicate';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { Expression } from '../Expression';
+import { ExpressionToken } from '../ExpressionToken';
 import { ExpressionTokenValue } from '../ExpressionTokenValue';
 import { Operation } from '../Operation';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
@@ -52,7 +53,8 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
         const ops = exp.getOperations();
 
         let op = ops.removeLast();
-        let token = tokens.removeLast();
+        let token = !tokens.isEmpty() ? tokens.removeLast() : new ExpressionToken(""); 
+        console.log(token);
         let mem =
             token instanceof ExpressionTokenValue
                 ? (token as ExpressionTokenValue).getElement()

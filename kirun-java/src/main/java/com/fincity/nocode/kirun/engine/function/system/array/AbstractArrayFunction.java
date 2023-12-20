@@ -41,8 +41,8 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	protected static final Event EVENT_RESULT_ANY = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME)));
 
-	protected static final Parameter PARAMETER_ROTATE_LENGTH = Parameter.of("rotateDistance",
-			Schema.ofInteger("rotateDistance").setDefaultValue(new JsonPrimitive(1)).setMinimum(1));
+	protected static final Parameter PARAMETER_ROTATE_LENGTH = Parameter.of("rotateLength",
+			Schema.ofInteger("rotateLength").setDefaultValue(new JsonPrimitive(1)).setMinimum(1));
 
 	protected static final Parameter PARAMETER_INT_LENGTH = Parameter.of("length",
 			Schema.ofInteger("length").setDefaultValue(new JsonPrimitive(-1)));
@@ -88,7 +88,7 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));
 
 	protected static final Parameter PARAMETER_ANY = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT));
-
+	
 	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT))
 			.setVariableArgument(true);
 

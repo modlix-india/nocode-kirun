@@ -27,7 +27,7 @@ export class RandomFloat extends AbstractFunction {
                 RandomFloat.MAX_VALUE,
                 Parameter.of(
                     RandomFloat.MAX_VALUE,
-                    Schema.ofFloat(RandomFloat.MAX_VALUE).setDefaultValue(2147483647),
+                    Schema.ofFloat(RandomFloat.MAX_VALUE).setDefaultValue(3.4028235E38),
                 ),
             ),
         )

@@ -25,14 +25,14 @@ test('Index of Test 1', async () => {
     array.push('developement');
 
     let find: string = 'with';
-
+   
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
         new KIRunSchemaRepository(),
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -71,7 +71,7 @@ test('Index of Test 2', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
@@ -81,7 +81,7 @@ test('Index of Test 2', async () => {
     fep.setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), []],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
@@ -120,7 +120,7 @@ test('Index of Test 3', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
         ]),
     );
@@ -213,7 +213,7 @@ test('Index of Test 4', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -265,7 +265,7 @@ test('indexof test 5', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
         ]),
     );
 
@@ -276,8 +276,50 @@ test('indexof test 5', async () => {
     fep.setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), null],
+            [IndexOf.PARAMETER_ANY.getParameterName(), null],
         ]),
     );
-    await expect(ind.execute(fep)).rejects.toThrow();
+    expect(
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
+    ).toBe(-1);
+});
+
+
+test('Index of Test 1', async () => {
+    let ind: IndexOf = new IndexOf();
+
+    let array: string[] = [];
+
+    array.push('test');
+    array.push('Driven');
+    array.push('developement');
+    array.push('I');
+    array.push('am');
+    array.push('using');
+    array.push('eclipse');
+    array.push('I');
+    array.push('to');
+    array.push('test');
+    array.push('the');
+    array.push('changes');
+    array.push('with');
+    array.push('test');
+    array.push('Driven');
+    array.push('developement');
+
+    let find =null;
+   
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    ).setArguments(
+        new Map<string, any>([
+            [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
+            [IndexOf.PARAMETER_ANY.getParameterName(), find],
+            [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
+        ]),
+    );
+    expect(
+        (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
+    ).toBe(-1);
 });

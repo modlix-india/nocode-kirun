@@ -296,4 +296,33 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("Arguments.b = ''");
 		assertEquals(new JsonPrimitive(false), ev.evaluate(valuesMap));
 	}
+	
+	
+	@Test
+	void testconsecutivenegatives() {
+		
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive("kirun"), "b", new JsonPrimitive(1),"b1",new JsonPrimitive(4),"b2",new JsonPrimitive(4)));
+		
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+		 ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.b - Arguments.b1 - Arguments.b2");
+	        JsonElement result = ev.evaluate(valuesMap);
+		assertEquals(new JsonPrimitive(-7),ev.evaluate(valuesMap));
+		
+	}
+	
+	@Test
+	void Expressionwithmultiplecoalesceoperator() {
+		
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+		        Map.of("a", new JsonPrimitive("kirun"), "b", new JsonPrimitive(1),"b1",new JsonPrimitive(4),"b2",new JsonPrimitive(4)));
+		
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atv.getPrefix(), atv);
+		 ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.b3 ?? (Arguments.b - 3) ?? Arguments.b5 ?? 4");
+	        JsonElement result = ev.evaluate(valuesMap);
+		assertEquals(new JsonPrimitive(-2),ev.evaluate(valuesMap));
+		
+	}
+	
+	
 }

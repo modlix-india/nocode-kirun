@@ -37,6 +37,7 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
     }
 
     public void setValue(String token, JsonElement value, Boolean overwrite, Boolean deleteOnNull) {
+  
         this.store = store.deepCopy();
         this.modifyStore(token, value, overwrite, deleteOnNull);
     }
@@ -53,20 +54,15 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
 
         overwrite = overwrite != null ? overwrite : true;
         deleteOnNull = deleteOnNull != null ? deleteOnNull : false;
-
         Expression exp = new Expression(stringToken);
         LinkedList<ExpressionToken> tokens = exp.getTokens();
-
         tokens.removeLast();
-
         LinkedList<Operation> ops = exp.getOperations();
-
         Operation op = ops.removeLast();
-        ExpressionToken token = tokens.removeLast();
+        ExpressionToken token = !tokens.isEmpty() ? tokens.removeLast() : new ExpressionToken("");   // made change here
         String mem = token instanceof ExpressionTokenValue tokenExp
                 ? tokenExp.getElement().getAsString()
                 : token.getExpression();
-
         JsonElement el = this.store;
 
         while (!ops.isEmpty()) {
@@ -114,7 +110,7 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
 
         JsonElement je = arr.get(index);
 
-        if (!je.isJsonNull()) {
+        if (je.isJsonNull()) {                                                                     //here//
             je = nextOp == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
             el.getAsJsonArray().set(index, je);
         }

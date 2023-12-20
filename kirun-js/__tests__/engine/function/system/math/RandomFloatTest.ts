@@ -45,7 +45,7 @@ test('rand Float 2', async () => {
 })
 
 test('rand Float 3', async () => {
-    let min = 1, max = 2147483647;
+    let min = 1, max = 3.4028235E38;
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository,

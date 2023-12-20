@@ -47,6 +47,7 @@ export class ObjectPutValue extends AbstractFunction {
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
+        console.log(context);
         let source = context.getArguments()?.get(SOURCE);
         let key = context.getArguments()?.get(KEY);
         let value = context.getArguments()?.get(VALUE);
@@ -54,8 +55,8 @@ export class ObjectPutValue extends AbstractFunction {
         let deleteKeyOnNull = context.getArguments()?.get(DELETE_KEY_ON_NULL);
 
         const ove = new ObjectValueSetterExtractor(source, 'Data.');
-        ove.setValue(key, value, overwrite, deleteKeyOnNull);
-
+        ove.setValue("Data."+key, value, overwrite, deleteKeyOnNull);
+        
         return new FunctionOutput([EventResult.outputOf(new Map([[VALUE, ove.getStore()]]))]);
     }
 }

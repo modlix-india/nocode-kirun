@@ -350,5 +350,46 @@ class IndexOfTest {
 		        .expectNext(new JsonPrimitive(-1))
 		        .verifyComplete();
 	}
+	
+	@Test
+	void nulltest() {
+		var array = new JsonArray();
+
+		array.add("test");
+		array.add("Driven");
+		array.add("developement");
+		array.add("I");
+		array.add("am");
+		array.add("using");
+		array.add("eclipse");
+		array.add("I");
+		array.add("to");
+		array.add("test");
+		array.add("the");
+		array.add("changes");
+		array.add("with");
+		array.add("test");
+		array.add("Driven");
+		array.add("developement");
+   
+		
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+		        .setArguments(Map.of("source", array, "element",JsonNull.INSTANCE , "findFrom",
+		                new JsonPrimitive(2)));
+
+		IndexOf ind = new IndexOf();
+
+		StepVerifier.create(ind.execute(fep))
+		        .expectNextMatches(result ->
+				{
+			        return result.next()
+			                .getResult()
+			                .get("result")
+			                .equals(new JsonPrimitive(-1));
+		        })
+		        .verifyComplete();
+
+	}
 
 }
