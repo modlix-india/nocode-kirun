@@ -112,7 +112,7 @@ export class Parameter {
         const paramSchema = Schema.from(json.schema);
         if (!paramSchema) throw new SchemaReferenceException('', 'Parameter requires Schema');
         return new Parameter(json.parameterName, paramSchema)
-            .setVariableArgument(!!json.variableArguments)
+            .setVariableArgument(!!json.variableArgument)
             .setType(json.type ?? ParameterType.EXPRESSION);
     }
 }
