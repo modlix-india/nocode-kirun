@@ -349,7 +349,9 @@ export class ExpressionEvaluator {
             (typv1 === 'object' || typv2 === 'object') &&
             operator !== Operation.EQUAL &&
             operator !== Operation.NOT_EQUAL &&
-            operator !== Operation.NULLISH_COALESCING_OPERATOR
+            operator !== Operation.NULLISH_COALESCING_OPERATOR &&
+            operator !== Operation.AND &&
+            operator !== Operation.OR
         )
             throw new ExpressionEvaluationException(
                 this.expression,
@@ -378,7 +380,11 @@ export class ExpressionEvaluator {
     private applyUnaryOperation(operator: Operation, value: any): ExpressionToken {
         let typv: string = typeof value;
 
-        if (typv === 'object' || Array.isArray(value))
+        if (
+            operator.getOperator() != Operation.NOT.getOperator() &&
+            operator.getOperator() != Operation.UNARY_LOGICAL_NOT.getOperator() &&
+            (typv === 'object' || Array.isArray(value))
+        )
             throw new ExpressionEvaluationException(
                 this.expression,
                 StringFormatter.format(
