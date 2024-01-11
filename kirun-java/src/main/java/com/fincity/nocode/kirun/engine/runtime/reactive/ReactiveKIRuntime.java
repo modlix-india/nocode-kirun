@@ -823,7 +823,8 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 							for (Entry<String, JsonElement> entry : e.getT2()
 									.getAsJsonObject()
 									.entrySet()) {
-								if (sch.getProperties() == null)
+								if (sch.getProperties() == null || !sch.getProperties()
+										.containsKey(entry.getKey()) || entry.getValue() == null)
 									continue;
 								paramElements.push(Tuples.of(sch.getProperties()
 										.get(entry.getKey()), entry.getValue()));
