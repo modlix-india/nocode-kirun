@@ -79,34 +79,34 @@ import reactor.util.function.Tuples;
 public class ExpressionEvaluator {
 
 	private static final Map<Operation, UnaryOperator> UNARY_OPERATORS_MAP = new EnumMap<>(Map.of(
-	        UNARY_BITWISE_COMPLEMENT, new BitwiseComplementOperator(), UNARY_LOGICAL_NOT, new LogicalNotOperator(),
-	        UNARY_MINUS, new ArithmeticUnaryMinusOperator(), UNARY_PLUS, new ArithmeticUnaryPlusOperator()));
+			UNARY_BITWISE_COMPLEMENT, new BitwiseComplementOperator(), UNARY_LOGICAL_NOT, new LogicalNotOperator(),
+			UNARY_MINUS, new ArithmeticUnaryMinusOperator(), UNARY_PLUS, new ArithmeticUnaryPlusOperator()));
 
 	private static final Map<Operation, BinaryOperator> BINARY_OPERATORS_MAP = new EnumMap<>(Map.ofEntries(
-	        Map.entry(ADDITION, new ArithmeticAdditionOperator()),
-	        Map.entry(DIVISION, new ArithmeticDivisionOperator()), Map.entry(MOD, new ArithmeticModulusOperator()),
-	        Map.entry(MULTIPLICATION, new ArithmeticMultiplicationOperator()),
-	        Map.entry(SUBTRACTION, new ArithmeticSubtractionOperator()),
+			Map.entry(ADDITION, new ArithmeticAdditionOperator()),
+			Map.entry(DIVISION, new ArithmeticDivisionOperator()), Map.entry(MOD, new ArithmeticModulusOperator()),
+			Map.entry(MULTIPLICATION, new ArithmeticMultiplicationOperator()),
+			Map.entry(SUBTRACTION, new ArithmeticSubtractionOperator()),
 
-	        Map.entry(BITWISE_AND, new BitwiseAndOperator()),
-	        Map.entry(BITWISE_LEFT_SHIFT, new BitwiseLeftShiftOperator()),
-	        Map.entry(BITWISE_OR, new BitwiseOrOperator()),
-	        Map.entry(BITWISE_RIGHT_SHIFT, new BitwiseRightShiftOperator()),
-	        Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, new BitwiseUnsignedRightShiftOperator()),
-	        Map.entry(BITWISE_XOR, new BitwiseXorOperator()),
+			Map.entry(BITWISE_AND, new BitwiseAndOperator()),
+			Map.entry(BITWISE_LEFT_SHIFT, new BitwiseLeftShiftOperator()),
+			Map.entry(BITWISE_OR, new BitwiseOrOperator()),
+			Map.entry(BITWISE_RIGHT_SHIFT, new BitwiseRightShiftOperator()),
+			Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, new BitwiseUnsignedRightShiftOperator()),
+			Map.entry(BITWISE_XOR, new BitwiseXorOperator()),
 
-	        Map.entry(AND, new LogicalAndOperator()), Map.entry(EQUAL, new LogicalEqualOperator()),
-	        Map.entry(GREATER_THAN, new LogicalGreaterThanOperator()),
-	        Map.entry(GREATER_THAN_EQUAL, new LogicalGreaterThanEqualOperator()),
-	        Map.entry(LESS_THAN, new LogicalLessThanOperator()),
-	        Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
-	        Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
-	        Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
+			Map.entry(AND, new LogicalAndOperator()), Map.entry(EQUAL, new LogicalEqualOperator()),
+			Map.entry(GREATER_THAN, new LogicalGreaterThanOperator()),
+			Map.entry(GREATER_THAN_EQUAL, new LogicalGreaterThanEqualOperator()),
+			Map.entry(LESS_THAN, new LogicalLessThanOperator()),
+			Map.entry(LESS_THAN_EQUAL, new LogicalLessThanEqualOperator()), Map.entry(OR, new LogicalOrOperator()),
+			Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
+			Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
 
-	        Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
+			Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
 
 	private static final Map<Operation, TernaryOperator> TERNARY_OPERATORS_MAP = new EnumMap<>(
-	        Map.ofEntries(Map.entry(CONDITIONAL_TERNARY_OPERATOR, new ConditionalTernaryOperator())));
+			Map.ofEntries(Map.entry(CONDITIONAL_TERNARY_OPERATOR, new ConditionalTernaryOperator())));
 
 	private static final Set<Operation> UNARY_OPERATORS_MAP_KEY_SET = UNARY_OPERATORS_MAP.keySet();
 
@@ -135,7 +135,7 @@ public class ExpressionEvaluator {
 	}
 
 	private Tuple2<String, Expression> processNestingExpression(String expression,
-	        Map<String, TokenValueExtractor> valuesMap) {
+			Map<String, TokenValueExtractor> valuesMap) {
 
 		int start = 0;
 		int i = 0;
@@ -156,13 +156,13 @@ public class ExpressionEvaluator {
 
 				if (start < 0)
 					throw new ExpressionEvaluationException(expression,
-					        "Expecting {{ nesting path operator to be started before closing");
+							"Expecting {{ nesting path operator to be started before closing");
 
 				if (start == 0) {
 
 					final int index = i;
 					tuples.push(tuples.pop()
-					        .mapT2(e -> index));
+							.mapT2(e -> index));
 				}
 				i++;
 			}
@@ -175,7 +175,7 @@ public class ExpressionEvaluator {
 	}
 
 	private String replaceNestingExpression(String expression, Map<String, TokenValueExtractor> valuesMap,
-	        LinkedList<Tuple2<Integer, Integer>> tuples) {
+			LinkedList<Tuple2<Integer, Integer>> tuples) {
 
 		String newExpression = expression;
 
@@ -185,11 +185,11 @@ public class ExpressionEvaluator {
 				throw new ExpressionEvaluationException(expression, "Expecting }} nesting path operator to be closed");
 
 			String expStr = (new ExpressionEvaluator(newExpression.substring(tuple.getT1(), tuple.getT2())))
-			        .evaluate(valuesMap)
-			        .getAsString();
+					.evaluate(valuesMap)
+					.getAsString();
 
 			newExpression = newExpression.substring(0, tuple.getT1() - 2) + expStr
-			        + newExpression.substring(tuple.getT2() + 2);
+					+ newExpression.substring(tuple.getT2() + 2);
 		}
 		return newExpression;
 	}
@@ -242,7 +242,7 @@ public class ExpressionEvaluator {
 
 		if (tokens.size() != 1)
 			throw new ExecutionException(
-			        StringFormatter.format("Expression : $ evaluated multiple values $", exp, tokens));
+					StringFormatter.format("Expression : $ evaluated multiple values $", exp, tokens));
 
 		ExpressionToken token = tokens.get(0);
 		if (token instanceof ExpressionTokenValue etv)
@@ -254,7 +254,7 @@ public class ExpressionEvaluator {
 	}
 
 	private void processObjectOrArrayOperator(Map<String, TokenValueExtractor> valuesMap, LinkedList<Operation> ops,
-	        LinkedList<ExpressionToken> tokens, Operation operator, ExpressionToken token) {
+			LinkedList<ExpressionToken> tokens, Operation operator, ExpressionToken token) {
 		LinkedList<ExpressionToken> objTokens = new LinkedList<>();
 		LinkedList<Operation> objOperations = new LinkedList<>();
 
@@ -279,23 +279,23 @@ public class ExpressionEvaluator {
 			ops.push(operator);
 
 		ExpressionToken objToken = objTokens.pop();
-		
+
 		if (objToken instanceof ExpressionTokenValue vtoken && !vtoken.getElement().isJsonPrimitive()) {
-			
-			final String key = System.nanoTime()+ "" + Math.round(Math.random() * 1000);
+
+			final String key = System.nanoTime() + "" + Math.round(Math.random() * 1000);
 			this.internalTokenValueExtractor.addValue(key, vtoken.getElement());
 			objToken = new ExpressionToken(ExpressionInternalValueExtractor.PREFIX + key);
 		}
-		
+
 		StringBuilder sb = new StringBuilder((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
-		        .getAsString() : objToken.toString()));
+				.getAsString() : objToken.toString()));
 
 		while (!objTokens.isEmpty()) {
 			objToken = objTokens.pop();
 			operator = objOperations.pop();
 			sb.append(operator.getOperator())
-			        .append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
-			                .getAsString() : objToken.toString()));
+					.append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
+							.getAsString() : objToken.toString()));
 			if (operator == ARRAY_OPERATOR)
 				sb.append(']');
 		}
@@ -328,7 +328,7 @@ public class ExpressionEvaluator {
 
 		if (op == null)
 			throw new ExpressionEvaluationException(this.expression,
-			        StringFormatter.format("No operator found to evaluate $ $ $", v1, operator.getOperator(), v2));
+					StringFormatter.format("No operator found to evaluate $ $ $", v1, operator.getOperator(), v2));
 
 		return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2, v3));
 	}
@@ -341,31 +341,33 @@ public class ExpressionEvaluator {
 			v2 = JsonNull.INSTANCE;
 
 		if ((v1 != JsonNull.INSTANCE && !v1.isJsonPrimitive()) && (v2 != JsonNull.INSTANCE && !v2.isJsonPrimitive())
-		        && operator != EQUAL && operator != NOT_EQUAL && operator != NULLISH_COALESCING_OPERATOR)
+				&& operator != EQUAL && operator != NOT_EQUAL && operator != NULLISH_COALESCING_OPERATOR
+				&& operator != AND && operator != OR)
 
 			throw new ExpressionEvaluationException(this.expression,
-			        StringFormatter.format("Cannot evaluate expression $ $ $", v1, operator.getOperator(), v2));
+					StringFormatter.format("Cannot evaluate expression $ $ $", v1, operator.getOperator(), v2));
 
 		BinaryOperator op = BINARY_OPERATORS_MAP.get(operator);
 
 		if (op == null)
 			throw new ExpressionEvaluationException(this.expression,
-			        StringFormatter.format("No operator found to evaluate $ $ $", v1, operator.getOperator(), v2));
+					StringFormatter.format("No operator found to evaluate $ $ $", v1, operator.getOperator(), v2));
 
 		return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2));
 	}
 
 	private ExpressionToken applyOperation(Operation operator, JsonElement value) {
 
-		if (value != null && (value != JsonNull.INSTANCE && !value.isJsonPrimitive()))
+		if (value != null && (value != JsonNull.INSTANCE && !value.isJsonPrimitive() && operator != Operation.NOT &&
+				operator != Operation.UNARY_LOGICAL_NOT))
 			throw new ExpressionEvaluationException(this.expression,
-			        StringFormatter.format("The operator $ cannot be applied to $", operator.getOperator(), value));
+					StringFormatter.format("The operator $ cannot be applied to $", operator.getOperator(), value));
 
 		UnaryOperator op = UNARY_OPERATORS_MAP.get(operator);
 
 		if (op == null)
 			throw new ExpressionEvaluationException(this.expression, StringFormatter
-			        .format("No Unary operator $ is found to apply on $", operator.getOperator(), value));
+					.format("No Unary operator $ is found to apply on $", operator.getOperator(), value));
 
 		return new ExpressionTokenValue(operator.toString(), op.apply(value));
 	}
@@ -387,6 +389,6 @@ public class ExpressionEvaluator {
 
 		String pathPrefix = path.substring(0, path.indexOf('.') + 1);
 		return valuesMap.getOrDefault(pathPrefix, LiteralTokenValueExtractor.INSTANCE)
-		        .getValue(path);
+				.getValue(path);
 	}
 }

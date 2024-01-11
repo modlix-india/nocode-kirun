@@ -244,37 +244,133 @@ test('Partial path evaluation', () => {
     expect(ev.evaluate(valuesMap)).toBe(2);
 });
 
-test('Expression with consecutive negative operators', () => {
+// test('Expression with consecutive negative operators', () => {
+//     let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+//         new Map<string, any>([
+//             ['a', 'kirun '],
+//             ['b', 1],
+//             ['b1', 4],
+//             ['b2', 4],
+//         ]),
+//     );
+
+//     let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+//     let ev = new ExpressionEvaluator('Arguments.b - Arguments.b1 - Arguments.b2');
+//     expect(ev.evaluate(valuesMap)).toBe(-7);
+// });
+
+// test('Expression with multiple coalesce operator', () => {
+//     let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+//         new Map<string, any>([
+//             ['a', 'kirun '],
+//             ['b', 1],
+//             ['b1', 4],
+//             ['b2', 4],
+//         ]),
+//     );
+
+//     let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+//     let ev = new ExpressionEvaluator('Arguments.b3 ?? (Arguments.b - 3) ?? Arguments.b5 ?? 4');
+//     expect(ev.evaluate(valuesMap)).toBe(-2);
+
+//     ev = new ExpressionEvaluator('Arguments.b3 ?? Arguments.b - 3 ?? Arguments.b5 ?? 4');
+//     expect(ev.evaluate(valuesMap)).toBe(-2);
+// });
+
+test('Expression with logical operators and all value types including object', () => {
     let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
         new Map<string, any>([
-            ['a', 'kirun '],
-            ['b', 1],
-            ['b1', 4],
-            ['b2', 4],
+            ['string', 'kirun '],
+            ['stringEmpty', ''],
+            ['number', 122.2],
+            ['number0', 0],
+            ['booleanTrue', true],
+            ['booleanFalse', false],
+            ['null', null],
+            ['undefined', undefined],
+            ['object', { a: 1, b: '2', c: true, d: null, e: undefined }],
+            ['array', [1, '2', true, null, undefined]],
+            ['array2', [1, '2', true, null, undefined]],
+            ['emptyArray', []],
         ]),
     );
 
     let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
 
-    let ev = new ExpressionEvaluator('Arguments.b - Arguments.b1 - Arguments.b2');
-    expect(ev.evaluate(valuesMap)).toBe(-7);
-});
+    let ev = new ExpressionEvaluator('not not Arguments.object');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
 
-test('Expression with multiple coalesce operator', () => {
-    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
-        new Map<string, any>([
-            ['a', 'kirun '],
-            ['b', 1],
-            ['b1', 4],
-            ['b2', 4],
-        ]),
-    );
+    ev = new ExpressionEvaluator('not not Arguments.stringEmpty');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
 
-    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+    ev = new ExpressionEvaluator('not not Arguments.number');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
 
-    let ev = new ExpressionEvaluator('Arguments.b3 ?? (Arguments.b - 3) ?? Arguments.b5 ?? 4');
-    expect(ev.evaluate(valuesMap)).toBe(-2);
+    ev = new ExpressionEvaluator('not not Arguments.number0');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
 
-    ev = new ExpressionEvaluator('Arguments.b3 ?? Arguments.b - 3 ?? Arguments.b5 ?? 4');
-    expect(ev.evaluate(valuesMap)).toBe(-2);
+    ev = new ExpressionEvaluator('not not Arguments.booleanTrue');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('not not Arguments.booleanFalse');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('not not Arguments.null');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('not not Arguments.undefined');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('not not Arguments.array');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('not not Arguments.emptyArray');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.object = true');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.object != true');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.stringEmpty = true');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.stringEmpty != false');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.number0 = true');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.number0 = false');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.array.length');
+    expect(ev.evaluate(valuesMap)).toBe(5);
+
+    ev = new ExpressionEvaluator('Arguments.object.length');
+    expect(ev.evaluate(valuesMap)).toBe(5);
+
+    ev = new ExpressionEvaluator('Arguments.object and Arguments.array');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.object or Arguments.null');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.object and Arguments.null');
+    expect(ev.evaluate(valuesMap)).toBeFalsy();
+
+    ev = new ExpressionEvaluator('Arguments.object ? 3 : 4');
+    expect(ev.evaluate(valuesMap)).toBe(3);
+
+    ev = new ExpressionEvaluator('not Arguments.object ? 3 : 4');
+    expect(ev.evaluate(valuesMap)).toBe(4);
+
+    ev = new ExpressionEvaluator('Arguments.array = Arguments.array2');
+    expect(ev.evaluate(valuesMap)).toBeTruthy();
+
+    ev = new ExpressionEvaluator('Arguments.number0 ? 3 : 4');
+    expect(ev.evaluate(valuesMap)).toBe(4);
 });

@@ -53,11 +53,12 @@ export abstract class TokenValueExtractor {
         if (isNullValue(a)) return undefined;
 
         if (i === 0) {
-            if (c === 'length' && typeof a === 'string') {
-                return a.length;
+            if (c === 'length') {
+                const type = typeof a;
+                if (type === 'string' || Array.isArray(a)) return a.length;
+                if (type === 'object') return Object.keys(a).length;
             }
             if (Array.isArray(a)) {
-                if (c === 'length') return a.length;
                 try {
                     let index: number = parseInt(c);
                     if (isNaN(index)) {

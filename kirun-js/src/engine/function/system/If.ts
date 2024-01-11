@@ -14,9 +14,7 @@ export class If extends AbstractFunction {
 
     private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('If')
         .setNamespace(Namespaces.SYSTEM)
-        .setParameters(
-            new Map([Parameter.ofEntry(If.CONDITION, Schema.of(If.CONDITION, SchemaType.BOOLEAN))]),
-        )
+        .setParameters(new Map([Parameter.ofEntry(If.CONDITION, Schema.ofAny(If.CONDITION))]))
         .setEvents(
             new Map([
                 Event.eventMapEntry(Event.TRUE, new Map()),
@@ -30,10 +28,12 @@ export class If extends AbstractFunction {
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        var condition = context.getArguments()?.get(If.CONDITION);
+        let condition = context.getArguments()?.get(If.CONDITION);
+
+        let conditionValue = !!condition || condition === '';
 
         return new FunctionOutput([
-            EventResult.of(condition ? Event.TRUE : Event.FALSE, new Map()),
+            EventResult.of(conditionValue ? Event.TRUE : Event.FALSE, new Map()),
             EventResult.outputOf(new Map()),
         ]);
     }
