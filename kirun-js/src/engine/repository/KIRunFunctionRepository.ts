@@ -13,6 +13,7 @@ import { MathFunctionRepository } from '../function/system/math/MathFunctionRepo
 import { ObjectFunctionRepository } from '../function/system/object/ObjectFunctionRepository';
 import { Print } from '../function/system/Print';
 import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
+import { Wait } from '../function/system/Wait';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
@@ -33,7 +34,12 @@ const map: Map<string, Map<string, Function>> = new Map([
     ],
     [
         Namespaces.SYSTEM,
-        new Map([mapEntry(new If()), mapEntry(new GenerateEvent()), mapEntry(new Print())]),
+        new Map([
+            mapEntry(new If()),
+            mapEntry(new GenerateEvent()),
+            mapEntry(new Print()),
+            mapEntry(new Wait()),
+        ]),
     ],
 ]);
 

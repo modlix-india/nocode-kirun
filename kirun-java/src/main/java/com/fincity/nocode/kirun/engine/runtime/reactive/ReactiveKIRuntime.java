@@ -68,7 +68,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	private static final String PARAMETER_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
 	private static final Pattern STEP_REGEX_PATTERN = Pattern
-	        .compile("Steps\\.([a-zA-Z0-9\\\\-]+)\\.([a-zA-Z0-9\\\\-]+)");
+			.compile("Steps\\.([a-zA-Z0-9\\\\-]+)\\.([a-zA-Z0-9\\\\-]+)");
 
 	private static final int VERSION = 1;
 
@@ -92,7 +92,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 		this.debugMode = debugMode;
 		if (this.fd.getVersion() > VERSION) {
 			throw new KIRuntimeException("Runtime is at a lower version " + VERSION
-			        + " and trying to run code from version " + this.fd.getVersion() + ".");
+					+ " and trying to run code from version " + this.fd.getVersion() + ".");
 		}
 	}
 
@@ -103,34 +103,32 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	public Mono<ExecutionGraph<String, StatementExecution>> getExecutionPlan(ReactiveRepository<ReactiveFunction> fRepo,
-	        ReactiveRepository<Schema> sRepo) {
+			ReactiveRepository<Schema> sRepo) {
 
 		return Flux.fromIterable(this.fd.getSteps()
-		        .values())
-		        .flatMap(e -> this.prepareStatementExecution(e, fRepo, sRepo))
-		        .collectList()
-		        .map(e ->
-				{
-			        ExecutionGraph<String, StatementExecution> g = new ExecutionGraph<>();
-			        for (var x : e)
-				        g.addVertex(x);
+				.values())
+				.flatMap(e -> this.prepareStatementExecution(e, fRepo, sRepo))
+				.collectList()
+				.map(e -> {
+					ExecutionGraph<String, StatementExecution> g = new ExecutionGraph<>();
+					for (var x : e)
+						g.addVertex(x);
 
-			        this.makeEdges(g)
-			                .getT2()
-			                .forEach((key, value) ->
-							{
-				                StatementExecution ex = g.getNodeMap()
-				                        .get(key)
-				                        .getData();
-				                if (ex == null)
-					                return;
-				                ex.addMessage(StatementMessageType.ERROR, value);
+					this.makeEdges(g)
+							.getT2()
+							.forEach((key, value) -> {
+								StatementExecution ex = g.getNodeMap()
+										.get(key)
+										.getData();
+								if (ex == null)
+									return;
+								ex.addMessage(StatementMessageType.ERROR, value);
 
-			                });
+							});
 
-			        return g;
-		        })
-		        .defaultIfEmpty(new ExecutionGraph<>());
+					return g;
+				})
+				.defaultIfEmpty(new ExecutionGraph<>());
 	}
 
 	@Override
@@ -146,113 +144,116 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 			inContext.setSteps(new ConcurrentHashMap<>());
 
 		inContext.addTokenValueExtractor(new ArgumentsTokenValueExtractor(
-		        inContext.getArguments() == null ? Map.of() : inContext.getArguments()));
+				inContext.getArguments() == null ? Map.of() : inContext.getArguments()));
 
 		if (this.debugMode) {
 
 			this.sb.append("Executing: ")
-			        .append(this.fd.getNamespace())
-			        .append('.')
-			        .append(this.fd.getName())
-			        .append("\n")
-			        .append("Parameters: ")
-			        .append(inContext)
-			        .append("\n");
+					.append(this.fd.getNamespace())
+					.append('.')
+					.append(this.fd.getName())
+					.append("\n")
+					.append("Parameters: ")
+					.append(inContext)
+					.append("\n");
 
 		}
 
 		Mono<ExecutionGraph<String, StatementExecution>> eGraph = this
-		        .getExecutionPlan(inContext.getFunctionRepository(), inContext.getSchemaRepository());
+				.getExecutionPlan(inContext.getFunctionRepository(), inContext.getSchemaRepository());
 
 		return eGraph.flatMap(g -> g.getVerticesDataFlux()
-		        .flatMap(e -> Flux.fromIterable(e.getMessages()))
-		        .collectList()
-		        .flatMap(msgs ->
-				{
-			        if (this.debugMode) {
-				        this.sb.append(g.toString())
-				                .append("\n");
-			        }
-			        if (logger.isDebugEnabled()) {
-				        logger.debug(
-				                StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
-				        logger.debug(eGraph.toString());
-			        }
+				.flatMap(e -> Flux.fromIterable(e.getMessages()))
+				.collectList()
+				.flatMap(msgs -> {
+					if (this.debugMode) {
+						this.sb.append(g.toString())
+								.append("\n");
+					}
+					if (logger.isDebugEnabled()) {
+						logger.debug(
+								StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
+						logger.debug(eGraph.toString());
+					}
 
-			        if (!msgs.isEmpty())
-				        return Mono.error(new KIRuntimeException(
-				                "Please fix the errors in the function definition before execution : \n" + msgs));
+					if (!msgs.isEmpty())
+						return Mono.error(new KIRuntimeException(
+								"Please fix the errors in the function definition before execution : \n" + msgs));
 
-			        return this.executeGraph(g, inContext);
-		        }));
+					return this.executeGraph(g, inContext);
+				}));
 	}
 
 	private Mono<FunctionOutput> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
-	        ReactiveFunctionExecutionParameters inContext) {
+			ReactiveFunctionExecutionParameters inContext) {
 		LinkedList<GraphVertex<String, StatementExecution>> eq = new LinkedList<>();
 		eq.addAll(eGraph.getVerticesWithNoIncomingEdges());
 
 		LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> bq = new LinkedList<>();
 
+		if (eGraph.isSubGraph()) {
+			for (StatementExecution x : eGraph
+					.getVerticesData()) {
+				inContext.getSteps().remove(x.getStatement().getStatementName());
+			}
+		}
+
 		return Mono.just(Tuples.of(eq, bq))
-		        .expandDeep(tup ->
-				{
-			        if ((tup.getT1()
-			                .isEmpty()
-			                && tup.getT2()
-			                        .isEmpty())
-			                || (inContext.getEvents()
-			                        .containsKey(Event.OUTPUT)))
-				        return Mono.empty();
+				.expandDeep(tup -> {
+					if ((tup.getT1()
+							.isEmpty()
+							&& tup.getT2()
+									.isEmpty())
+							|| (inContext.getEvents()
+									.containsKey(Event.OUTPUT)))
+						return Mono.empty();
 
-			        return this.processBranchQue(inContext, tup.getT1(), tup.getT2())
-			                .flatMap(e -> this.processExecutionQue(inContext, tup.getT1(), tup.getT2()))
-			                .flatMap(e ->
-							{
-				                inContext.setCount(inContext.getCount() + 1);
+					return this.processBranchQue(inContext, tup.getT1(), tup.getT2())
+							.flatMap(e -> this.processExecutionQue(inContext, tup.getT1(), tup.getT2()))
+							.flatMap(e -> {
+								inContext.setCount(inContext.getCount() + 1);
 
-				                if (inContext.getCount() == MAX_EXECUTION_ITERATIONS)
-					                return Mono.error(new KIRuntimeException("Execution locked in an infinite loop"));
+								if (inContext.getCount() == MAX_EXECUTION_ITERATIONS)
+									return Mono.error(new KIRuntimeException("Execution locked in an infinite loop"));
 
-				                return Mono.just(Tuples.of(tup.getT1(), tup.getT2()));
-			                });
-		        })
-		        .collectList()
-		        .flatMap(tups ->
-				{
+								return Mono.just(Tuples.of(tup.getT1(), tup.getT2()));
+							});
+				})
+				.collectList()
+				.flatMap(tups -> {
 
-			        if (!eGraph.isSubGraph() && inContext.getEvents()
-			                .isEmpty()) {
+					if (!eGraph.isSubGraph() && inContext.getEvents()
+							.isEmpty()) {
 
-				        var eventMap = this.getSignature()
-				                .getEvents();
-				        if (!eventMap.isEmpty() && eventMap.get(Event.OUTPUT)
-				                .getParameters() != null && !eventMap.get(Event.OUTPUT)
-				                        .getParameters()
-				                        .isEmpty())
-					        return Mono.error(new KIRuntimeException("No events raised"));
-			        }
+						var eventMap = this.getSignature()
+								.getEvents();
+						if (!eventMap.isEmpty() && eventMap.get(Event.OUTPUT)
+								.getParameters() != null && !eventMap.get(Event.OUTPUT)
+										.getParameters()
+										.isEmpty())
+							return Mono.error(new KIRuntimeException("No events raised"));
+					}
 
-			        List<EventResult> list = inContext.getEvents()
-			                .entrySet()
-			                .stream()
-			                .flatMap(e -> e.getValue()
-			                        .stream()
-			                        .map(v -> EventResult.of(e.getKey(), v)))
-			                .toList();
+					List<EventResult> list = inContext.getEvents()
+							.entrySet()
+							.stream()
+							.flatMap(e -> e.getValue()
+									.stream()
+									.map(v -> EventResult.of(e.getKey(), v)))
+							.toList();
 
-			        if (!eGraph.isSubGraph() && list.isEmpty()) {
-				        list = List.of(EventResult.outputOf(Map.of()));
-			        }
+					if (!eGraph.isSubGraph() && list.isEmpty()) {
+						list = List.of(EventResult.outputOf(Map.of()));
+					}
 
-			        return Mono.just(new FunctionOutput(list));
+					return Mono.just(new FunctionOutput(list));
 
-		        });
+				});
 	}
 
 	private Mono<Boolean> processExecutionQue(ReactiveFunctionExecutionParameters inContext,
-	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
+			LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+			LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
 
 		if (executionQue.isEmpty())
 			return Mono.just(false);
@@ -268,8 +269,8 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	private Mono<Boolean> processBranchQue(ReactiveFunctionExecutionParameters inContext,
-	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
+			LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+			LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue) {
 		if (branchQue.isEmpty())
 			return Mono.just(false);
 
@@ -284,140 +285,136 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	private Mono<Boolean> executeBranch(ReactiveFunctionExecutionParameters inContext,
-	        LinkedList<GraphVertex<String, StatementExecution>> executionQue,
-	        Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>> branch) {
+			LinkedList<GraphVertex<String, StatementExecution>> executionQue,
+			Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>> branch) {
 
 		return Mono.just(Tuples.of(branch.getT1(), inContext, Optional.<EventResult>empty()))
-		        .expandDeep(e ->
-				{
-			        if (e.getT3()
-			                .isPresent()
-			                && e.getT3()
-			                        .get()
-			                        .getName()
-			                        .equals(Event.OUTPUT)) {
-				        return Mono.empty();
-			        }
+				.expandDeep(e -> {
+					if (e.getT3()
+							.isPresent()
+							&& e.getT3()
+									.get()
+									.getName()
+									.equals(Event.OUTPUT)) {
+						return Mono.empty();
+					}
 
-			        return this.executeGraph(e.getT1(), e.getT2())
-			                .flatMap(funcOut ->
-							{
-				                GraphVertex<String, StatementExecution> vertex = branch.getT4();
+					return this.executeGraph(e.getT1(), e.getT2())
+							.flatMap(funcOut -> {
+								GraphVertex<String, StatementExecution> vertex = branch.getT4();
 
-				                EventResult nextOutput = branch.getT3()
-				                        .next();
+								EventResult nextOutput = branch.getT3()
+										.next();
 
-				                if (nextOutput != null) {
-					                inContext.getSteps()
-					                        .computeIfAbsent(vertex.getData()
-					                                .getStatement()
-					                                .getStatementName(), k -> new ConcurrentHashMap<>())
-					                        .put(nextOutput.getName(),
-					                                resolveInternalExpressions(nextOutput.getResult(), inContext));
+								if (nextOutput != null) {
+									inContext.getSteps()
+											.computeIfAbsent(vertex.getData()
+													.getStatement()
+													.getStatementName(), k -> new ConcurrentHashMap<>())
+											.put(nextOutput.getName(),
+													resolveInternalExpressions(nextOutput.getResult(), inContext));
 
-					                if (this.debugMode) {
-						                var s = vertex.getData()
-						                        .getStatement();
-						                this.sb.append(DEBUG_STEP)
-						                        .append(s.getStatementName())
-						                        .append(" => ")
-						                        .append(s.getNamespace())
-						                        .append('.')
-						                        .append(s.getName())
-						                        .append("\n");
-						                this.sb.append("Event : ")
-						                        .append(nextOutput.getName())
-						                        .append("\n")
-						                        .append(inContext.getSteps()
-						                                .get(s.getStatementName())
-						                                .get(nextOutput.getName()))
-						                        .append("\n");
+									if (this.debugMode) {
+										var s = vertex.getData()
+												.getStatement();
+										this.sb.append(DEBUG_STEP)
+												.append(s.getStatementName())
+												.append(" => ")
+												.append(s.getNamespace())
+												.append('.')
+												.append(s.getName())
+												.append("\n");
+										this.sb.append("Event : ")
+												.append(nextOutput.getName())
+												.append("\n")
+												.append(inContext.getSteps()
+														.get(s.getStatementName())
+														.get(nextOutput.getName()))
+												.append("\n");
 
-					                }
-				                }
+									}
+								}
 
-				                return Mono.just(Tuples.of(branch.getT1(), inContext, Optional.of(nextOutput)));
+								return Mono.just(Tuples.of(branch.getT1(), inContext, Optional.of(nextOutput)));
 
-			                });
-		        })
-		        .collectList()
-		        .map(e ->
-				{
+							});
+				})
+				.collectList()
+				.map(e -> {
 
-			        GraphVertex<String, StatementExecution> vertex = branch.getT4();
-			        EventResult nextOutput = e.isEmpty() ? null
-			                : e.get(e.size() - 1)
-			                        .getT3()
-			                        .orElse(null);
+					GraphVertex<String, StatementExecution> vertex = branch.getT4();
+					EventResult nextOutput = e.isEmpty() ? null
+							: e.get(e.size() - 1)
+									.getT3()
+									.orElse(null);
 
-			        if (nextOutput != null && nextOutput.getName()
-			                .equals(Event.OUTPUT) && vertex.getOutVertices()
-			                        .containsKey(Event.OUTPUT)) {
+					if (nextOutput != null && nextOutput.getName()
+							.equals(Event.OUTPUT) && vertex.getOutVertices()
+									.containsKey(Event.OUTPUT)) {
 
-				        vertex.getOutVertices()
-				                .get(Event.OUTPUT)
-				                .stream()
-				                .filter(x -> this.allDependenciesResolved(x, inContext.getSteps()))
-				                .forEach(executionQue::add);
-			        }
+						vertex.getOutVertices()
+								.get(Event.OUTPUT)
+								.stream()
+								.filter(x -> this.allDependenciesResolved(x, inContext.getSteps()))
+								.forEach(executionQue::add);
+					}
 
-			        return true;
-		        });
+					return true;
+				});
 	}
 
 	private Mono<Boolean> executeVertex(GraphVertex<String, StatementExecution> vertex,
-	        ReactiveFunctionExecutionParameters inContext,
-	        LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue,
-	        LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
+			ReactiveFunctionExecutionParameters inContext,
+			LinkedList<Tuple4<ExecutionGraph<String, StatementExecution>, List<Tuple2<String, String>>, FunctionOutput, GraphVertex<String, StatementExecution>>> branchQue,
+			LinkedList<GraphVertex<String, StatementExecution>> executionQue) {
 
 		Statement s = vertex.getData()
-		        .getStatement();
+				.getStatement();
 
 		if (s.getExecuteIftrue() != null && !s.getExecuteIftrue()
-		        .isEmpty()) {
+				.isEmpty()) {
 
 			boolean allTrue = s.getExecuteIftrue()
-			        .entrySet()
-			        .stream()
-			        .filter(Entry::getValue)
-			        .map(e -> new ExpressionEvaluator(e.getKey()).evaluate(inContext.getValuesMap()))
-			        .allMatch(e ->
-					{
-				        if (e == null || JsonNull.INSTANCE.equals(e))
-					        return false;
-				        if (!e.isJsonPrimitive())
-					        return true;
+					.entrySet()
+					.stream()
+					.filter(Entry::getValue)
+					.map(e -> new ExpressionEvaluator(e.getKey()).evaluate(inContext.getValuesMap()))
+					.allMatch(e -> {
+						if (e == null || JsonNull.INSTANCE.equals(e))
+							return false;
+						if (!e.isJsonPrimitive())
+							return true;
 
-				        JsonPrimitive jp = e.getAsJsonPrimitive();
-				        return !jp.isBoolean() || jp.getAsBoolean();
-			        });
+						JsonPrimitive jp = e.getAsJsonPrimitive();
+						return !jp.isBoolean() || jp.getAsBoolean();
+					});
 
 			if (!allTrue)
 				return Mono.just(true);
 		}
 
 		Mono<ReactiveFunction> monoFunction = inContext.getFunctionRepository()
-		        .find(s.getNamespace(), s.getName());
+				.find(s.getNamespace(), s.getName());
 
 		return monoFunction.flatMap(fun -> {
 
 			Map<String, Parameter> paramSet = fun.getSignature()
-			        .getParameters();
+					.getParameters();
 
 			Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
 
 			if (this.debugMode) {
 
 				this.sb.append(DEBUG_STEP)
-				        .append(s.getStatementName())
-				        .append(" => ")
-				        .append(s.getNamespace())
-				        .append('.')
-				        .append(s.getName())
-				        .append("\n");
+						.append(s.getStatementName())
+						.append(" => ")
+						.append(s.getNamespace())
+						.append('.')
+						.append(s.getName())
+						.append("\n");
 				this.sb.append("Arguments : \n")
-				        .append(arguments)
-				        .append("\n");
+						.append(arguments)
+						.append("\n");
 			}
 
 			Map<String, ContextElement> context = inContext.getContext();
@@ -426,100 +423,99 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 			if (fun instanceof ReactiveKIRuntime) {
 				fep = new ReactiveFunctionExecutionParameters(inContext.getFunctionRepository(),
-				        inContext.getSchemaRepository(), inContext.getExecutionId() + "_" + s.getStatementName())
-				        .setArguments(arguments)
-				        .setValuesMap(inContext.getValuesMap()
-				                .values()
-				                .stream()
-				                .filter(e -> !e.getPrefix()
-				                        .equals(ArgumentsTokenValueExtractor.PREFIX)
-				                        && !e.getPrefix()
-				                                .equals(OutputMapTokenValueExtractor.PREFIX)
-				                        && !e.getPrefix()
-				                                .equals(ContextTokenValueExtractor.PREFIX))
-				                .collect(Collectors.toMap(TokenValueExtractor::getPrefix,
-				                        java.util.function.Function.identity())));
+						inContext.getSchemaRepository(), inContext.getExecutionId() + "_" + s.getStatementName())
+						.setArguments(arguments)
+						.setValuesMap(inContext.getValuesMap()
+								.values()
+								.stream()
+								.filter(e -> !e.getPrefix()
+										.equals(ArgumentsTokenValueExtractor.PREFIX)
+										&& !e.getPrefix()
+												.equals(OutputMapTokenValueExtractor.PREFIX)
+										&& !e.getPrefix()
+												.equals(ContextTokenValueExtractor.PREFIX))
+								.collect(Collectors.toMap(TokenValueExtractor::getPrefix,
+										java.util.function.Function.identity())));
 			} else {
 				fep = new ReactiveFunctionExecutionParameters(inContext.getFunctionRepository(),
-				        inContext.getSchemaRepository(), inContext.getExecutionId())
-				        .setValuesMap(inContext.getValuesMap())
-				        .setContext(context)
-				        .setArguments(arguments)
-				        .setEvents(inContext.getEvents())
-				        .setSteps(inContext.getSteps())
-				        .setStatementExecution(vertex.getData())
-				        .setCount(inContext.getCount())
-				        .setExecutionContext(inContext.getExecutionContext());
+						inContext.getSchemaRepository(), inContext.getExecutionId())
+						.setValuesMap(inContext.getValuesMap())
+						.setContext(context)
+						.setArguments(arguments)
+						.setEvents(inContext.getEvents())
+						.setSteps(inContext.getSteps())
+						.setStatementExecution(vertex.getData())
+						.setCount(inContext.getCount())
+						.setExecutionContext(inContext.getExecutionContext());
 			}
 
 			return fun.execute(fep);
 		})
-		        .flatMap(result ->
-				{
+				.flatMap(result -> {
 
-			        EventResult er = result.next();
+					EventResult er = result.next();
 
-			        if (er == null)
-				        return Mono.error(new KIRuntimeException(
-				                StringFormatter.format("Executing $ returned no events", s.getStatementName())));
+					if (er == null)
+						return Mono.error(new KIRuntimeException(
+								StringFormatter.format("Executing $ returned no events", s.getStatementName())));
 
-			        boolean isOutput = er.getName()
-			                .equals(Event.OUTPUT);
+					boolean isOutput = er.getName()
+							.equals(Event.OUTPUT);
 
-			        inContext.getSteps()
-			                .computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
-			                .put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
+					inContext.getSteps()
+							.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
+							.put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
 
-			        if (this.debugMode) {
+					if (this.debugMode) {
 
-				        this.sb.append(DEBUG_STEP)
-				                .append(s.getStatementName())
-				                .append(" => ")
-				                .append(s.getNamespace())
-				                .append('.')
-				                .append(s.getName())
-				                .append("\n");
+						this.sb.append(DEBUG_STEP)
+								.append(s.getStatementName())
+								.append(" => ")
+								.append(s.getNamespace())
+								.append('.')
+								.append(s.getName())
+								.append("\n");
 
-				        this.sb.append("Event :")
-				                .append(er.getName())
-				                .append("\n")
-				                .append(inContext.getSteps()
-				                        .get(s.getStatementName())
-				                        .get(er.getName()))
-				                .append("\n");
-			        }
+						this.sb.append("Event :")
+								.append(er.getName())
+								.append("\n")
+								.append(inContext.getSteps()
+										.get(s.getStatementName())
+										.get(er.getName()))
+								.append("\n");
+					}
 
-			        if (!isOutput) {
+					if (!isOutput) {
 
-				        var subGraph = vertex.getSubGraphOfType(er.getName());
-				        List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph)
-				                .getT1();
-				        branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
-			        } else {
+						var subGraph = vertex.getSubGraphOfType(er.getName());
+						List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph)
+								.getT1();
+						branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
+					} else {
 
-				        Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
-				                .get(Event.OUTPUT);
-				        if (out != null)
-					        out.stream()
-					                .filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
-					                .forEach(executionQue::add);
-			        }
+						Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
+								.get(Event.OUTPUT);
+						if (out != null)
+							out.stream()
+									.filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
+									.forEach(executionQue::add);
+					}
 
-			        return Mono.just(true);
+					return Mono.just(true);
 
-		        });
+				});
 	}
 
 	private Map<String, JsonElement> resolveInternalExpressions(Map<String, JsonElement> result,
-	        ReactiveFunctionExecutionParameters inContext) {
+			ReactiveFunctionExecutionParameters inContext) {
 
 		if (result == null)
 			return result;
 
 		return result.entrySet()
-		        .stream()
-		        .map(e -> Tuples.of(e.getKey(), resolveInternalExpression(e.getValue(), inContext)))
-		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+				.stream()
+				.map(e -> Tuples.of(e.getKey(), resolveInternalExpression(e.getValue(), inContext)))
+				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 	}
 
 	private JsonElement resolveInternalExpression(JsonElement value, ReactiveFunctionExecutionParameters inContext) {
@@ -559,90 +555,88 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	private boolean allDependenciesResolved(List<Tuple2<String, String>> unResolvedDependencies,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+			Map<String, Map<String, Map<String, JsonElement>>> output) {
 
 		return unResolvedDependencies.stream()
-		        .takeWhile(e -> output.containsKey(e.getT1()) && output.get(e.getT1())
-		                .containsKey(e.getT2()))
-		        .count() == unResolvedDependencies.size();
+				.takeWhile(e -> output.containsKey(e.getT1()) && output.get(e.getT1())
+						.containsKey(e.getT2()))
+				.count() == unResolvedDependencies.size();
 	}
 
 	private boolean allDependenciesResolved(GraphVertex<String, StatementExecution> vertex,
-	        Map<String, Map<String, Map<String, JsonElement>>> output) {
+			Map<String, Map<String, Map<String, JsonElement>>> output) {
 
 		if (vertex.getInVertices()
-		        .isEmpty())
+				.isEmpty())
 			return true;
 
 		return vertex.getInVertices()
-		        .stream()
-		        .filter(e ->
-				{
-			        String stepName = e.getT1()
-			                .getData()
-			                .getStatement()
-			                .getStatementName();
-			        String type = e.getT2();
+				.stream()
+				.filter(e -> {
+					String stepName = e.getT1()
+							.getData()
+							.getStatement()
+							.getStatementName();
+					String type = e.getT2();
 
-			        return !(output.containsKey(stepName) && output.get(stepName)
-			                .containsKey(type));
-		        })
-		        .count() == 0;
+					return !(output.containsKey(stepName) && output.get(stepName)
+							.containsKey(type));
+				})
+				.count() == 0;
 	}
 
 	private Map<String, JsonElement> getArgumentsFromParametersMap(final ReactiveFunctionExecutionParameters inContext,
-	        Statement s, Map<String, Parameter> paramSet) {
+			Statement s, Map<String, Parameter> paramSet) {
 
 		return s.getParameterMap()
-		        .entrySet()
-		        .stream()
-		        .map(e ->
-				{
-			        List<ParameterReference> prList = e.getValue() == null ? List.of()
-			                : new ArrayList<>(e.getValue()
-			                        .values());
+				.entrySet()
+				.stream()
+				.map(e -> {
+					List<ParameterReference> prList = e.getValue() == null ? List.of()
+							: new ArrayList<>(e.getValue()
+									.values());
 
-			        JsonElement ret = JsonNull.INSTANCE;
+					JsonElement ret = JsonNull.INSTANCE;
 
-			        if (prList == null || prList.isEmpty())
-				        return Tuples.of(e.getKey(), ret);
+					if (prList == null || prList.isEmpty())
+						return Tuples.of(e.getKey(), ret);
 
-			        Parameter pDef = paramSet.get(e.getKey());
+					Parameter pDef = paramSet.get(e.getKey());
 
-			        if (pDef.isVariableArgument()) {
+					if (pDef.isVariableArgument()) {
 
-				        ret = new JsonArray();
+						ret = new JsonArray();
 
-				        prList.stream()
-				                .sorted((a, b) -> a.getOrder() - b.getOrder())
-				                .map(r -> this.parameterReferenceEvaluation(inContext, r))
-				                .filter(r -> r != null && !r.isJsonNull())
-				                .flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
-				                        .spliterator(), false) : Stream.of(r))
-				                .forEachOrdered(((JsonArray) ret)::add);
+						prList.stream()
+								.sorted((a, b) -> a.getOrder() - b.getOrder())
+								.map(r -> this.parameterReferenceEvaluation(inContext, r))
+								.filter(r -> r != null && !r.isJsonNull())
+								.flatMap(r -> r.isJsonArray() ? StreamSupport.stream(r.getAsJsonArray()
+										.spliterator(), false) : Stream.of(r))
+								.forEachOrdered(((JsonArray) ret)::add);
 
-			        } else {
+					} else {
 
-				        ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
-			        }
+						ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
+					}
 
-			        return Tuples.of(e.getKey(), ret);
-		        })
-		        .filter(e -> !(e.getT2() == null || e.getT2()
-		                .isJsonNull()))
-		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+					return Tuples.of(e.getKey(), ret);
+				})
+				.filter(e -> !(e.getT2() == null || e.getT2()
+						.isJsonNull()))
+				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 	}
 
 	private JsonElement parameterReferenceEvaluation(final ReactiveFunctionExecutionParameters inContext,
-	        ParameterReference ref) {
+			ParameterReference ref) {
 
 		JsonElement ret = null;
 
 		if (ref.getType() == ParameterReferenceType.VALUE) {
 			ret = this.resolveInternalExpression(ref.getValue(), inContext);
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION && ref.getExpression() != null
-		        && !ref.getExpression()
-		                .isBlank()) {
+				&& !ref.getExpression()
+						.isBlank()) {
 			ExpressionEvaluator exp = new ExpressionEvaluator(ref.getExpression());
 			ret = exp.evaluate(inContext.getValueExtractors());
 		}
@@ -650,126 +644,121 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	private Mono<StatementExecution> prepareStatementExecution(Statement s, ReactiveRepository<ReactiveFunction> fRepo, // NOSONAR
-	        ReactiveRepository<Schema> sRepo) {
+			ReactiveRepository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
 
 		return fRepo.find(s.getNamespace(), s.getName())
-		        .map(ReactiveFunction::getSignature)
-		        .map(FunctionSignature::getParameters)
-		        .flatMap(paramSet ->
-				{
+				.map(ReactiveFunction::getSignature)
+				.map(FunctionSignature::getParameters)
+				.flatMap(paramSet -> {
 
-			        if (s.getParameterMap() == null)
-				        return Mono.just(new StatementExecution(s));
+					if (s.getParameterMap() == null)
+						return Mono.just(new StatementExecution(s));
 
-			        StatementExecution se = new StatementExecution(s);
+					StatementExecution se = new StatementExecution(s);
 
-			        return Flux.fromIterable(s.getParameterMap()
-			                .entrySet())
-			                .flatMap(param ->
-							{
-				                Parameter p = paramSet.get(param.getKey());
-				                List<ParameterReference> refList = param.getValue() == null ? List.of()
-				                        : new ArrayList<>(param.getValue()
-				                                .values());
+					return Flux.fromIterable(s.getParameterMap()
+							.entrySet())
+							.flatMap(param -> {
+								Parameter p = paramSet.get(param.getKey());
+								List<ParameterReference> refList = param.getValue() == null ? List.of()
+										: new ArrayList<>(param.getValue()
+												.values());
 
-				                if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
+								if ((refList == null || refList.isEmpty()) && !p.isVariableArgument()) {
 
-					                return ReactiveSchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
-					                        .flatMap(hasDefault ->
-											{
-						                        if (!hasDefault.booleanValue())
-							                        se.addMessage(StatementMessageType.ERROR, StringFormatter
-							                                .format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
-						                        return Mono.just(Tuples.of(param.getKey(), se));
-					                        });
+									return ReactiveSchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+											.flatMap(hasDefault -> {
+												if (!hasDefault.booleanValue())
+													se.addMessage(StatementMessageType.ERROR, StringFormatter
+															.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName()));
+												return Mono.just(Tuples.of(param.getKey(), se));
+											});
 
-				                } else if (p.isVariableArgument()) {
+								} else if (p.isVariableArgument()) {
 
-					                if (refList != null) {
+									if (refList != null) {
 
-						                return Flux.fromIterable(refList)
-						                        .sort((a, b) -> a.getOrder() - b.getOrder())
-						                        .flatMap(ref -> parameterReferenceValidation(se, p, ref, sRepo))
-						                        .collectList()
-						                        .map(e -> Tuples.of(param.getKey(), se));
-					                }
+										return Flux.fromIterable(refList)
+												.sort((a, b) -> a.getOrder() - b.getOrder())
+												.flatMap(ref -> parameterReferenceValidation(se, p, ref, sRepo))
+												.collectList()
+												.map(e -> Tuples.of(param.getKey(), se));
+									}
 
-				                } else if (refList != null && !refList.isEmpty()) {
-					                ParameterReference ref = refList.get(0);
-					                return parameterReferenceValidation(se, p, ref, sRepo)
-					                        .map(e -> Tuples.of(param.getKey(), e));
-				                }
+								} else if (refList != null && !refList.isEmpty()) {
+									ParameterReference ref = refList.get(0);
+									return parameterReferenceValidation(se, p, ref, sRepo)
+											.map(e -> Tuples.of(param.getKey(), e));
+								}
 
-				                return Mono.just(Tuples.of(param.getKey(), se));
-			                })
-			                .collectList()
-			                .map(lst ->
-							{
+								return Mono.just(Tuples.of(param.getKey(), se));
+							})
+							.collectList()
+							.map(lst -> {
 
-				                Set<String> leftOver = new HashSet<>(paramSet.keySet());
-				                lst.stream()
-				                        .map(Tuple2::getT1)
-				                        .forEach(leftOver::remove);
-				                if (se.getStatement()
-				                        .getDependentStatements() != null)
-					                for (Entry<String, Boolean> statement : s.getDependentStatements()
-					                        .entrySet())
-						                if (statement.getValue()
-						                        .booleanValue())
-							                se.addDependency(statement.getKey());
+								Set<String> leftOver = new HashSet<>(paramSet.keySet());
+								lst.stream()
+										.map(Tuple2::getT1)
+										.forEach(leftOver::remove);
+								if (se.getStatement()
+										.getDependentStatements() != null)
+									for (Entry<String, Boolean> statement : s.getDependentStatements()
+											.entrySet())
+										if (statement.getValue()
+												.booleanValue())
+											se.addDependency(statement.getKey());
 
-				                if (se.getStatement()
-				                        .getExecuteIftrue() != null)
-					                for (Entry<String, Boolean> statement : s.getExecuteIftrue()
-					                        .entrySet())
-						                if (statement.getValue()
-						                        .booleanValue())
-							                this.addDependencies(se, statement.getKey());
+								if (se.getStatement()
+										.getExecuteIftrue() != null)
+									for (Entry<String, Boolean> statement : s.getExecuteIftrue()
+											.entrySet())
+										if (statement.getValue()
+												.booleanValue())
+											this.addDependencies(se, statement.getKey());
 
-				                return leftOver;
-			                })
-			                .flatMap(remaining ->
-							{
+								return leftOver;
+							})
+							.flatMap(remaining -> {
 
-				                return Flux.fromIterable(remaining)
-				                        .map(paramSet::get)
-				                        .filter(Predicate.not(Parameter::isVariableArgument))
-				                        .flatMap(p -> ReactiveSchemaUtil
-				                                .hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
-				                                .map(hasDefaultValue -> hasDefaultValue.booleanValue() ? se
-				                                        : se.addMessage(StatementMessageType.ERROR,
-				                                                StringFormatter.format(PARAMETER_NEEDS_A_VALUE,
-				                                                        p.getParameterName()))))
-				                        .collectList()
-				                        .map(e -> se);
-			                });
-		        })
-		        .defaultIfEmpty((new StatementExecution(s)).addMessage(StatementMessageType.ERROR,
-		                StringFormatter.format("$.$ is not available", s.getNamespace(), s.getName())));
+								return Flux.fromIterable(remaining)
+										.map(paramSet::get)
+										.filter(Predicate.not(Parameter::isVariableArgument))
+										.flatMap(p -> ReactiveSchemaUtil
+												.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
+												.map(hasDefaultValue -> hasDefaultValue.booleanValue() ? se
+														: se.addMessage(StatementMessageType.ERROR,
+																StringFormatter.format(PARAMETER_NEEDS_A_VALUE,
+																		p.getParameterName()))))
+										.collectList()
+										.map(e -> se);
+							});
+				})
+				.defaultIfEmpty((new StatementExecution(s)).addMessage(StatementMessageType.ERROR,
+						StringFormatter.format("$.$ is not available", s.getNamespace(), s.getName())));
 
 	}
 
 	private Mono<StatementExecution> parameterReferenceValidation(StatementExecution se, Parameter p, // NOSONAR
-	        ParameterReference ref, ReactiveRepository<Schema> sRepo) {
+			ParameterReference ref, ReactiveRepository<Schema> sRepo) {
 
 		if (ref == null) {
 
 			return ReactiveSchemaUtil.getDefaultValue(p.getSchema(), sRepo)
-			        .map(e -> se)
-			        .switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
-			                StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
+					.map(e -> se)
+					.switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
+							StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
 		} else if (ref.getType() == ParameterReferenceType.VALUE) {
 
 			if (ref.getValue() == null || JsonNull.INSTANCE.equals(ref.getValue())) {
 
 				return ReactiveSchemaUtil.hasDefaultValueOrNullSchemaType(p.getSchema(), sRepo)
-				        .map(hasDefault -> hasDefault.booleanValue() ?
+						.map(hasDefault -> hasDefault.booleanValue() ?
 
-				                se :
+								se :
 
-				                se.addMessage(StatementMessageType.ERROR,
-				                        StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())));
+								se.addMessage(StatementMessageType.ERROR,
+										StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())));
 			}
 
 			LinkedList<Tuple2<Schema, JsonElement>> paramElements = new LinkedList<>();
@@ -784,58 +773,60 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				} else {
 
 					if (e.getT1() == null || e.getT1()
-					        .getType() == null)
+							.getType() == null)
 						continue;
 
 					if (e.getT1()
-					        .getType()
-					        .contains(SchemaType.ARRAY)
-					        && e.getT2()
-					                .isJsonArray()) {
+							.getType()
+							.contains(SchemaType.ARRAY)
+							&& e.getT2()
+									.isJsonArray()) {
 						ArraySchemaType ast = e.getT1()
-						        .getItems();
+								.getItems();
 						if (ast == null) {
 							continue;
 						}
 						if (ast.isSingleType()) {
 							for (JsonElement je : e.getT2()
-							        .getAsJsonArray())
+									.getAsJsonArray())
 								paramElements.push(Tuples.of(ast.getSingleSchema(), je));
 						} else {
 							JsonArray array = e.getT2()
-							        .getAsJsonArray();
+									.getAsJsonArray();
 							for (int i = 0; i < array.size(); i++) {
 								paramElements.push(Tuples.of(ast.getTupleSchema()
-								        .get(i), array.get(i)));
+										.get(i), array.get(i)));
 							}
 						}
 					} else if (e.getT1()
-					        .getType()
-					        .contains(SchemaType.OBJECT)
-					        && e.getT2()
-					                .isJsonObject()) {
+							.getType()
+							.contains(SchemaType.OBJECT)
+							&& e.getT2()
+									.isJsonObject()) {
 
 						Schema sch = e.getT1();
 
 						if (sch.getName()
-						        .equals(Parameter.EXPRESSION.getName())
-						        && sch.getNamespace()
-						                .equals(Parameter.EXPRESSION.getNamespace())) {
+								.equals(Parameter.EXPRESSION.getName())
+								&& sch.getNamespace()
+										.equals(Parameter.EXPRESSION.getNamespace())) {
 							JsonObject obj = e.getT2()
-							        .getAsJsonObject();
+									.getAsJsonObject();
 							boolean isExpression = obj.get("isExpression")
-							        .getAsBoolean();
+									.getAsBoolean();
 							if (isExpression) {
 								this.addDependencies(se, obj.get("value")
-								        .getAsString());
+										.getAsString());
 							}
 						} else {
 
 							for (Entry<String, JsonElement> entry : e.getT2()
-							        .getAsJsonObject()
-							        .entrySet()) {
+									.getAsJsonObject()
+									.entrySet()) {
+								if (sch.getProperties() == null)
+									continue;
 								paramElements.push(Tuples.of(sch.getProperties()
-								        .get(entry.getKey()), entry.getValue()));
+										.get(entry.getKey()), entry.getValue()));
 							}
 						}
 					}
@@ -847,18 +838,18 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 		} else if (ref.getType() == ParameterReferenceType.EXPRESSION) {
 
 			if (ref.getExpression() == null || ref.getExpression()
-			        .isBlank()) {
+					.isBlank()) {
 				return ReactiveSchemaUtil.getDefaultValue(p.getSchema(), sRepo)
-				        .map(e -> se)
-				        .switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
-				                StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
+						.map(e -> se)
+						.switchIfEmpty(Mono.defer(() -> Mono.just(se.addMessage(StatementMessageType.ERROR,
+								StringFormatter.format(PARAMETER_NEEDS_A_VALUE, p.getParameterName())))));
 			} else {
 				try {
 					// TODO: Type check for the resulting expression has to be done here...
 					this.addDependencies(se, ref.getExpression());
 				} catch (KIRuntimeException ex) {
 					return Mono.just(se.addMessage(StatementMessageType.ERROR,
-					        StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage())));
+							StringFormatter.format("Error evaluating $ : ", ref.getExpression(), ex.getMessage())));
 				}
 			}
 		}
@@ -878,20 +869,20 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	}
 
 	public Tuple2<List<Tuple2<String, String>>, Map<String, String>> makeEdges(
-	        ExecutionGraph<String, StatementExecution> graph) {
+			ExecutionGraph<String, StatementExecution> graph) {
 
 		List<Tuple2<String, String>> retValue = new ArrayList<>();
 		Map<String, String> retMap = new HashMap<>();
 
 		for (GraphVertex<String, StatementExecution> e : graph.getNodeMap()
-		        .values()) {
+				.values()) {
 
 			if (e.getData()
-			        .getDependencies() == null)
+					.getDependencies() == null)
 				continue;
 
 			for (String d : e.getData()
-			        .getDependencies()) {
+					.getDependencies()) {
 
 				int secondDot = d.indexOf('.', 6);
 				String step = d.substring(6, secondDot);
@@ -899,16 +890,16 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 				String event = eventDot == -1 ? d.substring(secondDot + 1) : d.substring(secondDot + 1, eventDot);
 
 				if (!graph.getNodeMap()
-				        .containsKey(step)) {
+						.containsKey(step)) {
 					retValue.add(Tuples.of(step, event));
 					retMap.put(e.getData()
-					        .getStatement()
-					        .getStatementName(), StringFormatter.format("Unable to find the step with name $", step));
+							.getStatement()
+							.getStatementName(), StringFormatter.format("Unable to find the step with name $", step));
 
 				} else
 
 					e.addInEdgeTo(graph.getNodeMap()
-					        .get(step), event);
+							.get(step), event);
 
 			}
 		}
