@@ -73,7 +73,7 @@ public class Create extends AbstractReactiveFunction {
 		String name = context.getArguments()
 				.get(NAME)
 				.getAsString();
-		System.out.println("Create.internalExecute() name: " + name);
+
 		if (context.getContext()
 				.containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context already has an element for '$' ", name));
