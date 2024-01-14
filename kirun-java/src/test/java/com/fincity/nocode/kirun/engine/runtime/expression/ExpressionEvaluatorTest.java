@@ -422,4 +422,11 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("(Arguments.number1 = 0) or (Arguments.number1 = 1)");
 		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
 	}
+
+	@Test
+	void additonTest() {
+
+		var ev = new ExpressionEvaluator("1 + 2");
+		assertEquals(new JsonPrimitive(3), ev.evaluate(Map.of()));
+	}
 }
