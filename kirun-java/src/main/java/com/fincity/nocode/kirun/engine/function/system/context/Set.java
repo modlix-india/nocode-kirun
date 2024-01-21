@@ -40,11 +40,11 @@ public class Set extends AbstractReactiveFunction {
 	static final String VALUE = "value";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Set")
-	        .setNamespace(SYSTEM_CTX)
-	        .setParameters(Map.ofEntries(Parameter.ofEntry(NAME, new Schema().setName(NAME)
-	                .setType(Type.of(SchemaType.STRING))
-	                .setMinLength(1), ParameterType.CONSTANT), Parameter.ofEntry(VALUE, Schema.ofAny(VALUE))))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
+			.setNamespace(SYSTEM_CTX)
+			.setParameters(Map.ofEntries(Parameter.ofEntry(NAME, new Schema().setName(NAME)
+					.setType(Type.of(SchemaType.STRING))
+					.setMinLength(1)), Parameter.ofEntry(VALUE, Schema.ofAny(VALUE))))
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -55,30 +55,30 @@ public class Set extends AbstractReactiveFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		String key = context.getArguments()
-		        .get(NAME)
-		        .getAsString();
+				.get(NAME)
+				.getAsString();
 
 		if (key.isBlank()) {
 			throw new KIRuntimeException("Empty string is not a valid name for the context element");
 		}
 
 		JsonElement value = context.getArguments()
-		        .get(VALUE);
+				.get(VALUE);
 
 		Expression exp = new Expression(key);
 
 		ExpressionToken contextToken = exp.getTokens()
-		        .peekLast();
+				.peekLast();
 
 		if (!contextToken.getExpression()
-		        .startsWith("Context")
-		        || contextToken instanceof Expression
-		        || (contextToken instanceof ExpressionTokenValue etv && !etv.getElement()
-		                .toString()
-		                .startsWith("Context"))) {
+				.startsWith("Context")
+				|| contextToken instanceof Expression
+				|| (contextToken instanceof ExpressionTokenValue etv && !etv.getElement()
+						.toString()
+						.startsWith("Context"))) {
 
 			throw new ExecutionException(
-			        StringFormatter.format("The context path $ is not a valid path in context", key));
+					StringFormatter.format("The context path $ is not a valid path in context", key));
 		}
 
 		for (Operation op : exp.getOperations()) {
@@ -87,17 +87,17 @@ public class Set extends AbstractReactiveFunction {
 				continue;
 
 			throw new ExecutionException(StringFormatter
-			        .format("Expected a reference to the context location, but found an expression $", key));
+					.format("Expected a reference to the context location, but found an expression $", key));
 		}
 
 		for (int i = 0; i < exp.getTokens()
-		        .size(); i++) {
+				.size(); i++) {
 
 			if (exp.getTokens()
-			        .get(i) instanceof Expression ex)
+					.get(i) instanceof Expression ex)
 				exp.getTokens()
-				        .set(i, new ExpressionTokenValue(key,
-				                new ExpressionEvaluator(ex).evaluate(context.getValuesMap())));
+						.set(i, new ExpressionTokenValue(key,
+								new ExpressionEvaluator(ex).evaluate(context.getValuesMap())));
 		}
 
 		// TODO: Here I need to validate the schema of the value I have to put in the
@@ -107,18 +107,18 @@ public class Set extends AbstractReactiveFunction {
 	}
 
 	private Mono<FunctionOutput> modifyContext(ReactiveFunctionExecutionParameters context, String key,
-	        JsonElement value, Expression exp) {
+			JsonElement value, Expression exp) {
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
 		tokens.removeLast();
 		LinkedList<Operation> ops = exp.getOperations();
 		ops.removeLast();
 		ContextElement ce = context.getContext()
-		        .get(tokens.removeLast()
-		                .getExpression());
+				.get(tokens.removeLast()
+						.getExpression());
 
 		if (ce == null) {
 			throw new KIRuntimeException(
-			        StringFormatter.format("Context doesn't have any element with name '$' ", key));
+					StringFormatter.format("Context doesn't have any element with name '$' ", key));
 		}
 
 		if (ops.isEmpty()) {
@@ -131,7 +131,7 @@ public class Set extends AbstractReactiveFunction {
 		Operation op = ops.removeLast();
 		ExpressionToken token = tokens.removeLast();
 		String mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
-		        .getAsString() : token.getExpression();
+				.getAsString() : token.getExpression();
 
 		if (el == null || el.isJsonNull()) {
 			el = op == Operation.OBJECT_OPERATOR ? new JsonObject() : new JsonArray();
@@ -149,7 +149,7 @@ public class Set extends AbstractReactiveFunction {
 			op = ops.removeLast();
 			token = tokens.removeLast();
 			mem = token instanceof ExpressionTokenValue etv ? etv.getElement()
-			        .getAsString() : token.getExpression();
+					.getAsString() : token.getExpression();
 		}
 
 		if (op == Operation.OBJECT_OPERATOR)
@@ -228,6 +228,6 @@ public class Set extends AbstractReactiveFunction {
 			throw new KIRuntimeException(StringFormatter.format("Expected an object but found $", el));
 
 		el.getAsJsonObject()
-		        .add(mem, value);
+				.add(mem, value);
 	}
 }
