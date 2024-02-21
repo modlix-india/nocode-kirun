@@ -422,9 +422,14 @@ export class ExpressionEvaluator {
     }
 
     private getValue(path: string, valuesMap: Map<string, TokenValueExtractor>): any {
-        if (path.length <= 5) return LiteralTokenValueExtractor.INSTANCE.getValue(path);
+        if (path.length <= 5)
+            return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
 
         const pathPrefix: string = path.substring(0, path.indexOf('.') + 1);
-        return (valuesMap.get(pathPrefix) ?? LiteralTokenValueExtractor.INSTANCE).getValue(path);
+        if (valuesMap.has(pathPrefix)) {
+            return valuesMap.get(pathPrefix)!.getValue(path);
+        }
+
+        return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
     }
 }

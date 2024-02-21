@@ -137,4 +137,6 @@ export abstract class TokenValueExtractor {
     protected abstract getValueInternal(token: string): any;
 
     public abstract getPrefix(): string;
+
+    public abstract getStore(): any;
 }

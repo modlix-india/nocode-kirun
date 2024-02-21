@@ -13,6 +13,7 @@ import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRe
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
+import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenValueExtractor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -428,5 +429,80 @@ class ExpressionEvaluatorTest {
 
 		var ev = new ExpressionEvaluator("1 + 2");
 		assertEquals(new JsonPrimitive(3), ev.evaluate(Map.of()));
+	}
+
+	@Test
+	void fullStoreTest() {
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+				Map.of("a", new JsonPrimitive("kirun "), "b", new JsonPrimitive(2), "c", new JsonPrimitive(4)));
+
+		JsonObject job = new JsonObject();
+		job.addProperty("a", "kirun ");
+		job.addProperty("b", 2);
+		job.addProperty("c", 4);
+
+		assertEquals(job, atv.getStore());
+
+		OutputMapTokenValueExtractor omtv = new OutputMapTokenValueExtractor(Map.of("step1",
+				Map.of("output", Map.of("name", new JsonPrimitive("Kiran"), "obj", new JsonPrimitive("obj")))));
+
+		JsonObject job2 = new JsonObject();
+		job2.addProperty("name", "Kiran");
+		job2.addProperty("obj", "obj");
+
+		JsonObject job3 = new JsonObject();
+		job3.add("output", job2);
+
+		JsonObject job4 = new JsonObject();
+		job4.add("step1", job3);
+
+		assertEquals(job4, omtv.getStore());
+	}
+
+	@Test
+	void fullStore2Test() {
+
+		class TestTokenValueExtractor extends TokenValueExtractor {
+			private JsonElement store;
+
+			public TestTokenValueExtractor(JsonElement store) {
+				this.store = store;
+			}
+
+			@Override
+			protected JsonElement getValueInternal(String token) {
+				return this.retrieveElementFrom(token, token.split(TokenValueExtractor.REGEX_DOT), 1, store);
+			}
+
+			@Override
+			public String getPrefix() {
+				return "Test.";
+			}
+
+			@Override
+			public JsonElement getStore() {
+				return this.store;
+			}
+		}
+
+		JsonObject job = new JsonObject();
+		job.addProperty("a", "kirun ");
+		job.addProperty("b", 2);
+		job.addProperty("c", 4);
+
+		TestTokenValueExtractor tte = new TestTokenValueExtractor(job);
+
+		ExpressionEvaluator ev;
+
+		ev = new ExpressionEvaluator("Test.a");
+		assertEquals(new JsonPrimitive("kirun "), ev.evaluate(Map.of(tte.getPrefix(), tte)));
+
+		tte = new TestTokenValueExtractor(new JsonPrimitive(20));
+		ev = new ExpressionEvaluator("Test");
+		assertEquals(new JsonPrimitive(20), ev.evaluate(Map.of(tte.getPrefix(), tte)));
+
+		ev = new ExpressionEvaluator("Test > 10");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(Map.of(tte.getPrefix(), tte)));
 	}
 }

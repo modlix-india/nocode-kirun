@@ -5,6 +5,8 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 public class ContextTokenValueExtractor extends TokenValueExtractor {
 
@@ -31,11 +33,26 @@ public class ContextTokenValueExtractor extends TokenValueExtractor {
 		}
 
 		return retrieveElementFrom(token, parts, fromIndex, context.getOrDefault(key, ContextElement.NULL)
-		        .getElement());
+				.getElement());
 	}
 
 	@Override
 	public String getPrefix() {
 		return PREFIX;
+	}
+
+	@Override
+	public JsonElement getStore() {
+
+		if (this.context == null)
+			return JsonNull.INSTANCE;
+
+		JsonObject job = new JsonObject();
+
+		for (Map.Entry<String, ContextElement> entry : this.context.entrySet()) {
+			job.add(entry.getKey(), entry.getValue().getElement());
+		}
+
+		return job;
 	}
 }

@@ -122,4 +122,6 @@ public abstract class TokenValueExtractor {
 	protected abstract JsonElement getValueInternal(String token);
 
 	public abstract String getPrefix();
+
+	public abstract JsonElement getStore();
 }
