@@ -385,10 +385,14 @@ public class ExpressionEvaluator {
 	private JsonElement getValue(String path, Map<String, TokenValueExtractor> valuesMap) {
 
 		if (path.length() <= 5)
-			return LiteralTokenValueExtractor.INSTANCE.getValue(path);
+			return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
 
 		String pathPrefix = path.substring(0, path.indexOf('.') + 1);
-		return valuesMap.getOrDefault(pathPrefix, LiteralTokenValueExtractor.INSTANCE)
-				.getValue(path);
+		if (valuesMap.containsKey(pathPrefix)) {
+			return valuesMap.get(pathPrefix)
+					.getValue(path);
+		}
+
+		return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
 	}
 }

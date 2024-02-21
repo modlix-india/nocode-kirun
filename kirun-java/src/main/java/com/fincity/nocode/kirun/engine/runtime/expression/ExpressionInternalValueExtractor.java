@@ -5,16 +5,17 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 public class ExpressionInternalValueExtractor extends TokenValueExtractor {
 
 	public static final String PREFIX = "_internal.";
-	
+
 	private Map<String, JsonElement> values = new HashMap<>();
-	
+
 	public void addValue(String key, JsonElement value) {
-        this.values.put(key, value);
-    }
+		this.values.put(key, value);
+	}
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
@@ -28,7 +29,7 @@ public class ExpressionInternalValueExtractor extends TokenValueExtractor {
 			parts[1] = parts[1].substring(bIndex);
 			fromIndex = 1;
 		}
-		
+
 		return this.retrieveElementFrom(token, parts, fromIndex, this.values.get(key));
 	}
 
@@ -36,5 +37,9 @@ public class ExpressionInternalValueExtractor extends TokenValueExtractor {
 	public String getPrefix() {
 		return PREFIX;
 	}
-	
+
+	@Override
+	public JsonElement getStore() {
+		return JsonNull.INSTANCE;
+	}
 }

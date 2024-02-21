@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 
@@ -36,5 +38,19 @@ public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 	@Override
 	public String getPrefix() {
 		return PREFIX;
+	}
+
+	@Override
+	public JsonElement getStore() {
+		if (this.arguments == null)
+			return JsonNull.INSTANCE;
+
+		JsonObject job = new JsonObject();
+
+		for (Map.Entry<String, JsonElement> entry : this.arguments.entrySet()) {
+			job.add(entry.getKey(), entry.getValue());
+		}
+
+		return job;
 	}
 }

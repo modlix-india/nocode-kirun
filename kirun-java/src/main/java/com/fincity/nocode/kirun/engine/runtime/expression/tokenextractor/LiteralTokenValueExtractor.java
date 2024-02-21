@@ -7,17 +7,18 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 public class LiteralTokenValueExtractor extends TokenValueExtractor {
-	
+
 	public static final LiteralTokenValueExtractor INSTANCE = new LiteralTokenValueExtractor();
 
 	private static final Map<String, JsonElement> KEYWORDS;
 
 	static {
 		Map<String, JsonElement> map = new HashMap<>(
-		        Map.of("true", new JsonPrimitive(true), "false", new JsonPrimitive(false)));
+				Map.of("true", new JsonPrimitive(true), "false", new JsonPrimitive(false)));
 		map.put("null", null);
 		KEYWORDS = Collections.unmodifiableMap(map);
 	}
@@ -55,24 +56,24 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 
 				Double d = Double.parseDouble(token);
 				Float f = d.floatValue();
-				
+
 				if (d == 0.0d)
 					return new JsonPrimitive(f);
 
 				return f != 0.0f && f != Float.POSITIVE_INFINITY && f != Float.NEGATIVE_INFINITY ? new JsonPrimitive(f)
-				        : new JsonPrimitive(d);
+						: new JsonPrimitive(d);
 			}
 		} catch (Exception ex) {
 
 			throw new ExpressionEvaluationException(token,
-			        StringFormatter.format("Unable to parse the literal or expression $", token));
+					StringFormatter.format("Unable to parse the literal or expression $", token));
 		}
 	}
 
 	private JsonElement processString(String token) {
 		if (!token.endsWith("\""))
 			throw new ExpressionEvaluationException(token,
-			        StringFormatter.format("String literal $ is not closed properly", token));
+					StringFormatter.format("String literal $ is not closed properly", token));
 
 		return new JsonPrimitive(token.substring(1, token.length() - 1));
 	}
@@ -82,4 +83,25 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 		return "";
 	}
 
+	@Override
+	public JsonElement getStore() {
+		return JsonNull.INSTANCE;
+	}
+
+	public JsonElement getValueFromExtractors(String token, Map<String, TokenValueExtractor> maps) {
+
+		if (token == null || token.isBlank())
+			return JsonNull.INSTANCE;
+
+		String prefix = token + ".";
+
+		JsonElement value = null;
+		if (maps.containsKey(prefix))
+			value = maps.get(prefix).getStore();
+
+		if (value != null && value != JsonNull.INSTANCE)
+			return value;
+
+		return this.getValue(token);
+	}
 }

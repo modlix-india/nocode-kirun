@@ -4,6 +4,7 @@ import {
     KIRunFunctionRepository,
     KIRunSchemaRepository,
     MapUtil,
+    OutputMapTokenValueExtractor,
     TokenValueExtractor,
 } from '../../../../src';
 import { Schema } from '../../../../src/engine/json/schema/Schema';
@@ -240,7 +241,6 @@ test('Partial path evaluation', () => {
     let ev = new ExpressionEvaluator('Arguments.c.keys[2].val + 3');
     expect(ev.evaluate(valuesMap)).toBe(8);
     ev = new ExpressionEvaluator('(Arguments.f ?? Arguments.e)[1+1-1].num');
-    console.log(ev.getExpression().toString());
     expect(ev.evaluate(valuesMap)).toBe(2);
 });
 
@@ -373,4 +373,71 @@ test('Expression with logical operators and all value types including object', (
 
     ev = new ExpressionEvaluator('Arguments.number0 ? 3 : 4');
     expect(ev.evaluate(valuesMap)).toBe(4);
+});
+
+test('Full Store Test', () => {
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'kirun '],
+            ['b', 2],
+            ['c', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+            ['d', { a: 2, b: [true, false], c: { x: 'kiran' } }],
+        ]),
+    );
+
+    expect(atv.getStore()).toMatchObject({
+        a: 'kirun ',
+        b: 2,
+        c: { a: 2, b: [true, false], c: { x: 'kiran' } },
+        d: { a: 2, b: [true, false], c: { x: 'kiran' } },
+    });
+
+    let obv: OutputMapTokenValueExtractor = new OutputMapTokenValueExtractor(
+        new Map<string, Map<string, Map<string, any>>>([
+            ['step1', new Map([['output', new Map([['name', 'Kiran']])]])],
+            ['loop', new Map([['iteration', new Map([['index', 2]])]])],
+        ]),
+    );
+
+    expect(obv.getStore()).toMatchObject({
+        step1: { output: { name: 'Kiran' } },
+        loop: { iteration: { index: 2 } },
+    });
+
+    class TestTokenValueExtractor extends TokenValueExtractor {
+        private store: any;
+
+        constructor(store: any) {
+            super();
+            this.store = store;
+        }
+
+        protected getValueInternal(token: string): any {
+            return this.retrieveElementFrom(token, token.split('.'), 1, this.store);
+        }
+        public getPrefix(): string {
+            return 'Test.';
+        }
+        public getStore(): any {
+            return this.store;
+        }
+    }
+
+    let ttv: TestTokenValueExtractor = new TestTokenValueExtractor({
+        a: 'kirun',
+        b: 2,
+        c: { a: 2, b: [true, false], c: { x: 'kiran' } },
+        d: { a: 2, b: [true, false], c: { x: 'kiran' } },
+    });
+
+    let ev: ExpressionEvaluator = new ExpressionEvaluator('Test.a');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('kirun');
+
+    ttv = new TestTokenValueExtractor(20);
+
+    ev = new ExpressionEvaluator('Test');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(20);
+
+    ev = new ExpressionEvaluator('Test > 10');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toStrictEqual(true);
 });
