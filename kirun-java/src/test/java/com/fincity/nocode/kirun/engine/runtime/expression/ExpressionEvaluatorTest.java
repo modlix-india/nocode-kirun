@@ -2,6 +2,7 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -463,29 +464,6 @@ class ExpressionEvaluatorTest {
 	@Test
 	void fullStore2Test() {
 
-		class TestTokenValueExtractor extends TokenValueExtractor {
-			private JsonElement store;
-
-			public TestTokenValueExtractor(JsonElement store) {
-				this.store = store;
-			}
-
-			@Override
-			protected JsonElement getValueInternal(String token) {
-				return this.retrieveElementFrom(token, token.split(TokenValueExtractor.REGEX_DOT), 1, store);
-			}
-
-			@Override
-			public String getPrefix() {
-				return "Test.";
-			}
-
-			@Override
-			public JsonElement getStore() {
-				return this.store;
-			}
-		}
-
 		JsonObject job = new JsonObject();
 		job.addProperty("a", "kirun ");
 		job.addProperty("b", 2);
@@ -504,5 +482,39 @@ class ExpressionEvaluatorTest {
 
 		ev = new ExpressionEvaluator("Test > 10");
 		assertEquals(new JsonPrimitive(true), ev.evaluate(Map.of(tte.getPrefix(), tte)));
+	}
+
+	@Test
+	void fullStoreNULLTest() {
+
+		TestTokenValueExtractor tte = new TestTokenValueExtractor(JsonNull.INSTANCE);
+
+		ExpressionEvaluator ev;
+
+		ev = new ExpressionEvaluator("Test");
+		assertEquals(JsonNull.INSTANCE, ev.evaluate(Map.of(tte.getPrefix(), tte)));
+	}
+}
+
+class TestTokenValueExtractor extends TokenValueExtractor {
+	private JsonElement store;
+
+	public TestTokenValueExtractor(JsonElement store) {
+		this.store = store;
+	}
+
+	@Override
+	protected JsonElement getValueInternal(String token) {
+		return this.retrieveElementFrom(token, token.split(TokenValueExtractor.REGEX_DOT), 1, store);
+	}
+
+	@Override
+	public String getPrefix() {
+		return "Test.";
+	}
+
+	@Override
+	public JsonElement getStore() {
+		return this.store;
 	}
 }

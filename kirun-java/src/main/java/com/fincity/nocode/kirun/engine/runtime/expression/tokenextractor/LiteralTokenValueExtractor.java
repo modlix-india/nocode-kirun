@@ -95,12 +95,9 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 
 		String prefix = token + ".";
 
-		JsonElement value = null;
-		if (maps.containsKey(prefix))
-			value = maps.get(prefix).getStore();
-
-		if (value != null && value != JsonNull.INSTANCE)
-			return value;
+		if (maps.containsKey(prefix)) {
+			return maps.get(prefix).getStore();
+		}
 
 		return this.getValue(token);
 	}

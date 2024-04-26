@@ -375,6 +375,25 @@ test('Expression with logical operators and all value types including object', (
     expect(ev.evaluate(valuesMap)).toBe(4);
 });
 
+class TestTokenValueExtractor extends TokenValueExtractor {
+    private store: any;
+
+    constructor(store: any) {
+        super();
+        this.store = store;
+    }
+
+    protected getValueInternal(token: string): any {
+        return this.retrieveElementFrom(token, token.split('.'), 1, this.store);
+    }
+    public getPrefix(): string {
+        return 'Test.';
+    }
+    public getStore(): any {
+        return this.store;
+    }
+}
+
 test('Full Store Test', () => {
     let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
         new Map<string, any>([
@@ -404,25 +423,6 @@ test('Full Store Test', () => {
         loop: { iteration: { index: 2 } },
     });
 
-    class TestTokenValueExtractor extends TokenValueExtractor {
-        private store: any;
-
-        constructor(store: any) {
-            super();
-            this.store = store;
-        }
-
-        protected getValueInternal(token: string): any {
-            return this.retrieveElementFrom(token, token.split('.'), 1, this.store);
-        }
-        public getPrefix(): string {
-            return 'Test.';
-        }
-        public getStore(): any {
-            return this.store;
-        }
-    }
-
     let ttv: TestTokenValueExtractor = new TestTokenValueExtractor({
         a: 'kirun',
         b: 2,
@@ -440,4 +440,12 @@ test('Full Store Test', () => {
 
     ev = new ExpressionEvaluator('Test > 10');
     expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toStrictEqual(true);
+});
+
+test('Full Store Test when undefined', () => {
+    let ttv = new TestTokenValueExtractor(undefined);
+
+    let ev = new ExpressionEvaluator('Test');
+
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBeUndefined();
 });
