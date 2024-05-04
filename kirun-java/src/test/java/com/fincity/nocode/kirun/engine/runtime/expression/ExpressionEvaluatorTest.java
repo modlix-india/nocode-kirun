@@ -2,9 +2,9 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -15,6 +15,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenVa
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.OutputMapTokenValueExtractor;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -493,6 +494,59 @@ class ExpressionEvaluatorTest {
 
 		ev = new ExpressionEvaluator("Test");
 		assertEquals(JsonNull.INSTANCE, ev.evaluate(Map.of(tte.getPrefix(), tte)));
+	}
+
+	@Test
+	void testingNumberEquality() {
+
+		var json = """
+				{
+					"user": {
+					"id": 265,
+					"updatedBy": 0,
+					"createdAt": 1714649,
+					"updatedAt": 1714716,
+					"clientId": 174,
+					"emailId": "kiran.grandhi+buildingscustomer1@gmail.com",
+					"firstName": "Kiran Kumar",
+					"lastName": "Grandhi",
+					"localeCode": "en-US",
+					"passwordHashed": false,
+					"accountNonExpired": true,
+					"accountNonLocked": true,
+					"credentialsNonExpired": true,
+					"noFailedAttempt": 0,
+					"statusCode": "ACTIVE",
+					"stringAuthorities": [
+						"Authorities.Logged_IN"
+					]
+					},
+					"isAuthenticated": true,
+					"loggedInFromClientId": 174,
+					"loggedInFromClientCode": "BUILD",
+					"clientTypeCode": "INDV",
+					"clientCode": "KIRAN24",
+					"urlClientCode": "BUILD",
+					"urlAppCode": "kyc"
+				}
+				""";
+
+		var jsonElement = new Gson().fromJson(json, JsonElement.class);
+
+		JsonObject job = new JsonObject();
+		job.add("auth", jsonElement);
+		job.add("bigNumber", new JsonPrimitive(new BigInteger("11")));
+		job.add("bigNumber2", new JsonPrimitive(11));
+
+		TestTokenValueExtractor tte = new TestTokenValueExtractor(job);
+
+		ExpressionEvaluator ev;
+
+		ev = new ExpressionEvaluator("Test.auth.loggedInFromClientId = Test.auth.user.clientId");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(Map.of(tte.getPrefix(), tte)));
+
+		ev = new ExpressionEvaluator("Test.bigNumber = Test.bigNumber2");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(Map.of(tte.getPrefix(), tte)));
 	}
 }
 
