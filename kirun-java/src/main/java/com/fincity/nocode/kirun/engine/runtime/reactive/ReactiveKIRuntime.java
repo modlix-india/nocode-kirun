@@ -588,6 +588,9 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	private Map<String, JsonElement> getArgumentsFromParametersMap(final ReactiveFunctionExecutionParameters inContext,
 			Statement s, Map<String, Parameter> paramSet) {
 
+		record ParameterReferenceValue(String name, JsonElement value) {
+		}
+
 		return s.getParameterMap()
 				.entrySet()
 				.stream()
@@ -599,7 +602,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 					JsonElement ret = JsonNull.INSTANCE;
 
 					if (prList == null || prList.isEmpty())
-						return Tuples.of(e.getKey(), ret);
+						return new ParameterReferenceValue(e.getKey(), ret);
 
 					Parameter pDef = paramSet.get(e.getKey());
 
@@ -620,11 +623,11 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 						ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
 					}
 
-					return Tuples.of(e.getKey(), ret);
+					return new ParameterReferenceValue(e.getKey(), ret);
 				})
-				.filter(e -> !(e.getT2() == null || e.getT2()
+				.filter(e -> !(e.value() == null || e.value()
 						.isJsonNull()))
-				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+				.collect(Collectors.toMap(ParameterReferenceValue::name, ParameterReferenceValue::value));
 	}
 
 	private JsonElement parameterReferenceEvaluation(final ReactiveFunctionExecutionParameters inContext,
