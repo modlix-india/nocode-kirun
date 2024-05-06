@@ -469,4 +469,7 @@ test('index retrieval', () => {
 
     ev = new ExpressionEvaluator('Test.c.b[1].__index');
     expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(1);
+
+    ev = new ExpressionEvaluator('Test.x.c.__index');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('c');
 });

@@ -20,7 +20,7 @@ export abstract class TokenValueExtractor {
             const parentPart = token.substring(0, token.length - '.__index'.length);
             const parentValue = this.getValueInternal(parentPart);
 
-            if (!isNullValue(parentValue['__index'])) {
+            if (!isNullValue(parentValue?.['__index'])) {
                 return parentValue['__index'];
             }
             if (parentPart.endsWith(']')) {
