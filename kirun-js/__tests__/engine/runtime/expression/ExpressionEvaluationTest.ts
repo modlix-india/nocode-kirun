@@ -449,3 +449,24 @@ test('Full Store Test when undefined', () => {
 
     expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBeUndefined();
 });
+
+test('index retrieval', () => {
+    let ttv: TestTokenValueExtractor = new TestTokenValueExtractor({
+        a: 'kirun',
+        b: 2,
+        c: { a: 2, b: [true, false], c: { x: 'kiran' } },
+        d: { a: 2, b: [true, false], c: { x: 'kiran' } },
+    });
+
+    let ev: ExpressionEvaluator = new ExpressionEvaluator('Test.a');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('kirun');
+
+    ev = new ExpressionEvaluator('Test.b.__index');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('b');
+
+    ev = new ExpressionEvaluator('Test.c.c.x.__index');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('x');
+
+    ev = new ExpressionEvaluator('Test.c.b[1].__index');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(1);
+});
