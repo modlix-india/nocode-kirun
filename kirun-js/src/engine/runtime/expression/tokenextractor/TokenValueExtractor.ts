@@ -16,6 +16,24 @@ export abstract class TokenValueExtractor {
                 StringFormatter.format("Token $ doesn't start with $", token, prefix),
             );
 
+        if (token.endsWith('.__index')) {
+            const parentPart = token.substring(0, token.length - '.__index'.length);
+            const parentValue = this.getValueInternal(parentPart);
+
+            if (!isNullValue(parentValue?.['__index'])) {
+                return parentValue['__index'];
+            }
+            if (parentPart.endsWith(']')) {
+                const indexString = parentPart.substring(
+                    parentPart.lastIndexOf('[') + 1,
+                    parentPart.length - 1,
+                );
+                const indexInt = parseInt(indexString);
+                if (isNaN(indexInt)) return indexString;
+                return indexInt;
+            } else return parentPart.substring(parentPart.lastIndexOf('.') + 1);
+        }
+
         return this.getValueInternal(token);
     }
 
