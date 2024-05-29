@@ -2,9 +2,9 @@ package com.fincity.nocode.kirun.engine.util.json;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.google.gson.JsonArray;
@@ -21,11 +21,13 @@ public class JsonUtil {
 		if (jsonObject == null || jsonObject.isJsonNull())
 			return Collections.emptyMap();
 
-		return jsonObject.entrySet().stream()
-				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						entry -> toObject(entry.getValue()),
-						(a, b) -> b));
+		Map<String, Object> map = new HashMap<>();
+
+		for (var entry : jsonObject.entrySet()) {
+			map.put(entry.getKey(), toObject(entry.getValue()));
+		}
+
+		return map;
 	}
 
 	public static List<Object> toList(JsonArray jsonArray) {
@@ -35,7 +37,9 @@ public class JsonUtil {
 
 		List<Object> list = new ArrayList<>();
 
-		jsonArray.forEach(jsonElement -> list.add(toObject(jsonElement)));
+		for (JsonElement jsonElement : jsonArray) {
+			list.add(toObject(jsonElement));
+		}
 
 		return list;
 	}
