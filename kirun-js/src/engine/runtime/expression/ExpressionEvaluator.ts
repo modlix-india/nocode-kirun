@@ -96,7 +96,7 @@ export class ExpressionEvaluator {
 
     public constructor(exp: Expression | string) {
         if (exp instanceof Expression) {
-            this.exp = exp as Expression;
+            this.exp = exp;
             this.expression = this.exp.getExpression();
         } else {
             this.expression = exp;
@@ -163,7 +163,7 @@ export class ExpressionEvaluator {
     ): string {
         let newExpression = expression;
 
-        for (var tuple of tuples.toArray()) {
+        for (let tuple of tuples.toArray()) {
             if (tuple.getT2() == -1)
                 throw new ExpressionEvaluationException(
                     expression,
@@ -212,14 +212,14 @@ export class ExpressionEvaluator {
             } else if (operator == Operation.CONDITIONAL_TERNARY_OPERATOR) {
                 const token2: ExpressionToken = tokens.pop();
                 const token3: ExpressionToken = tokens.pop();
-                var v1 = this.getValueFromToken(valuesMap, token3);
-                var v2 = this.getValueFromToken(valuesMap, token2);
-                var v3 = this.getValueFromToken(valuesMap, token);
+                let v1 = this.getValueFromToken(valuesMap, token3);
+                let v2 = this.getValueFromToken(valuesMap, token2);
+                let v3 = this.getValueFromToken(valuesMap, token);
                 tokens.push(this.applyTernaryOperation(operator, v1, v2, v3));
             } else {
                 const token2: ExpressionToken = tokens.pop();
-                var v1 = this.getValueFromToken(valuesMap, token2);
-                var v2 = this.getValueFromToken(valuesMap, token);
+                let v1 = this.getValueFromToken(valuesMap, token2);
+                let v2 = this.getValueFromToken(valuesMap, token);
                 tokens.push(this.applyBinaryOperation(operator, v1, v2));
             }
         }
@@ -235,8 +235,7 @@ export class ExpressionEvaluator {
             );
 
         const token: ExpressionToken = tokens.get(0);
-        if (token instanceof ExpressionTokenValue)
-            return (token as ExpressionTokenValue).getElement();
+        if (token instanceof ExpressionTokenValue) return token.getElement();
         else if (!(token instanceof Expression)) return this.getValueFromToken(valuesMap, token);
 
         throw new ExecutionException(
@@ -262,7 +261,7 @@ export class ExpressionEvaluator {
                 objTokens.push(
                     new ExpressionTokenValue(
                         token.toString(),
-                        this.evaluateExpression(token as Expression, valuesMap),
+                        this.evaluateExpression(token, valuesMap),
                     ),
                 );
             else if (token) objTokens.push(token);
@@ -275,7 +274,7 @@ export class ExpressionEvaluator {
                 objTokens.push(
                     new ExpressionTokenValue(
                         token.toString(),
-                        this.evaluateExpression(token as Expression, valuesMap),
+                        this.evaluateExpression(token, valuesMap),
                     ),
                 );
             else objTokens.push(token);
@@ -296,7 +295,7 @@ export class ExpressionEvaluator {
 
         let sb: StringBuilder = new StringBuilder(
             objToken instanceof ExpressionTokenValue
-                ? (objToken as ExpressionTokenValue).getTokenValue()
+                ? objToken.getTokenValue()
                 : objToken.toString(),
         );
 
@@ -305,7 +304,7 @@ export class ExpressionEvaluator {
             operator = objOperations.pop();
             sb.append(operator.getOperator()).append(
                 objToken instanceof ExpressionTokenValue
-                    ? (objToken as ExpressionTokenValue).getTokenValue()
+                    ? objToken.getTokenValue()
                     : objToken.toString(),
             );
             if (operator == Operation.ARRAY_OPERATOR) sb.append(']');
@@ -414,9 +413,9 @@ export class ExpressionEvaluator {
         token: ExpressionToken,
     ): any {
         if (token instanceof Expression) {
-            return this.evaluateExpression(token as Expression, valuesMap);
+            return this.evaluateExpression(token, valuesMap);
         } else if (token instanceof ExpressionTokenValue) {
-            return (token as ExpressionTokenValue).getElement();
+            return token.getElement();
         }
         return this.getValue(token.getExpression(), valuesMap);
     }
