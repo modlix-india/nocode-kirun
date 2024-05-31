@@ -473,3 +473,8 @@ test('index retrieval', () => {
     ev = new ExpressionEvaluator('Test.x.c.__index');
     expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('c');
 });
+
+test('backslash escape', () => {
+    let ev = new ExpressionEvaluator("'\\maza'");
+    expect(ev.evaluate(new Map())).toBe('\\maza');
+});
