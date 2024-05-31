@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.IDefinitionBasedFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -61,7 +62,7 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
-public class ReactiveKIRuntime extends AbstractReactiveFunction {
+public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefinitionBasedFunction {
 
 	private static final String DEBUG_STEP = "Step : ";
 
@@ -421,7 +422,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 			ReactiveFunctionExecutionParameters fep;
 
-			if (fun instanceof ReactiveKIRuntime) {
+			if (fun instanceof IDefinitionBasedFunction) {
 				fep = new ReactiveFunctionExecutionParameters(inContext.getFunctionRepository(),
 						inContext.getSchemaRepository(), inContext.getExecutionId() + "_" + s.getStatementName())
 						.setArguments(arguments)
