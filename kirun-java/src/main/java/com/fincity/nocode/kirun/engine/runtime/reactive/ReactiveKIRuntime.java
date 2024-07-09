@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.IDefinitionBasedFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.JsonExpression;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -61,7 +62,7 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
-public class ReactiveKIRuntime extends AbstractReactiveFunction {
+public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefinitionBasedFunction {
 
 	private static final String DEBUG_STEP = "Step : ";
 
@@ -421,7 +422,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 
 			ReactiveFunctionExecutionParameters fep;
 
-			if (fun instanceof ReactiveKIRuntime) {
+			if (fun instanceof IDefinitionBasedFunction) {
 				fep = new ReactiveFunctionExecutionParameters(inContext.getFunctionRepository(),
 						inContext.getSchemaRepository(), inContext.getExecutionId() + "_" + s.getStatementName())
 						.setArguments(arguments)
@@ -588,6 +589,9 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 	private Map<String, JsonElement> getArgumentsFromParametersMap(final ReactiveFunctionExecutionParameters inContext,
 			Statement s, Map<String, Parameter> paramSet) {
 
+		record ParameterReferenceValue(String name, JsonElement value) {
+		}
+
 		return s.getParameterMap()
 				.entrySet()
 				.stream()
@@ -599,7 +603,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 					JsonElement ret = JsonNull.INSTANCE;
 
 					if (prList == null || prList.isEmpty())
-						return Tuples.of(e.getKey(), ret);
+						return new ParameterReferenceValue(e.getKey(), ret);
 
 					Parameter pDef = paramSet.get(e.getKey());
 
@@ -620,11 +624,11 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 						ret = this.parameterReferenceEvaluation(inContext, prList.get(0));
 					}
 
-					return Tuples.of(e.getKey(), ret);
+					return new ParameterReferenceValue(e.getKey(), ret);
 				})
-				.filter(e -> !(e.getT2() == null || e.getT2()
+				.filter(e -> !(e.value() == null || e.value()
 						.isJsonNull()))
-				.collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
+				.collect(Collectors.toMap(ParameterReferenceValue::name, ParameterReferenceValue::value));
 	}
 
 	private JsonElement parameterReferenceEvaluation(final ReactiveFunctionExecutionParameters inContext,
@@ -823,6 +827,9 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction {
 							for (Entry<String, JsonElement> entry : e.getT2()
 									.getAsJsonObject()
 									.entrySet()) {
+								if (sch.getProperties() == null || !sch.getProperties()
+										.containsKey(entry.getKey()) || entry.getValue() == null)
+									continue;
 								paramElements.push(Tuples.of(sch.getProperties()
 										.get(entry.getKey()), entry.getValue()));
 							}

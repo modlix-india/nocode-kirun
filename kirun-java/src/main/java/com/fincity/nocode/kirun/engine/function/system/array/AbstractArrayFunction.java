@@ -31,6 +31,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final Event EVENT_RESULT_BOOLEAN = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
+	
+	protected static final Event EVENT_RESULT_STRING = new Event().setName(Event.OUTPUT)
+			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
 
 	protected static final Event EVENT_RESULT_ARRAY = new Event().setName(Event.OUTPUT).setParameters(
 			Map.of(EVENT_RESULT_NAME, Schema.ofArray(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME))));
@@ -77,6 +80,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	public static final Parameter PARAMETER_KEY_PATH = Parameter.of("keyPath",
 			Schema.ofString("keyPath").setDefaultValue(new JsonPrimitive("")));
+	
+	public static final Parameter PARAMETER_DELIMITER = Parameter.of("delimiter",
+			Schema.ofString("delimiter").setDefaultValue(new JsonPrimitive("")));
 
 	protected static final Parameter PARAMETER_FIND_PRIMITIVE = Parameter.of("findPrimitive", Schema.of("findPrimitive",
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));

@@ -1,4 +1,4 @@
-import { KIRunSchemaRepository, SchemaValidator } from '../../../../../src';
+import { KIRunSchemaRepository, SchemaType, SchemaValidator } from '../../../../../src';
 import { Schema } from '../../../../../src/engine/json/schema/Schema';
 
 const repo = new KIRunSchemaRepository();
@@ -138,4 +138,29 @@ test('schemaArray With out Tuple Test ', async () => {
         false,
     ];
     expect(await SchemaValidator.validate([], schema, repo, obj)).toBe(obj);
+});
+
+test('Regular JSON', async () => {
+    let schema = Schema.from({
+        type: 'object',
+        properties: {
+            productId: {
+                description: 'The unique identifier for a product',
+                type: 'integer',
+            },
+        },
+    });
+
+    expect(schema?.getType()?.contains(SchemaType.OBJECT)).toBe(true);
+    expect(schema?.getType()?.contains(SchemaType.INTEGER)).toBe(false);
+    expect(schema?.getProperties()?.get('productId')?.getType()?.contains(SchemaType.INTEGER)).toBe(
+        true,
+    );
+});
+
+test('Only Ref test', async () => {
+    let schema = Schema.from({ ref: 'System.any' });
+
+    expect(schema?.getType()).toBeUndefined();
+    expect(schema?.getRef()).toBe('System.any');
 });

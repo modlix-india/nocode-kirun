@@ -1,3 +1,4 @@
+import { isNullValue } from '../../util/NullCheck';
 import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
 export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
@@ -26,5 +27,13 @@ export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 
     public getPrefix(): string {
         return ArgumentsTokenValueExtractor.PREFIX;
+    }
+
+    public getStore(): any {
+        if (isNullValue(this.args)) return this.args;
+        return Array.from(this.args.entries()).reduce((acc, [key, value]) => {
+            acc[key] = value;
+            return acc;
+        }, {} as { [key: string]: any });
     }
 }

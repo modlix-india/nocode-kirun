@@ -1,5 +1,8 @@
 package com.fincity.nocode.kirun.engine.util.primitive;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
@@ -102,6 +105,10 @@ public class PrimitiveUtil {
 			return SchemaType.LONG;
 		if (number instanceof Double)
 			return SchemaType.DOUBLE;
+		if (number instanceof BigInteger)
+			return SchemaType.LONG;
+		if (number instanceof BigDecimal)
+			return SchemaType.DOUBLE;
 
 		throw new ExecutionException(StringFormatter.format("Unable to identified the Number type of $", number));
 	}
@@ -116,6 +123,10 @@ public class PrimitiveUtil {
 			return new JsonPrimitive(l);
 		if (e instanceof Double d)
 			return new JsonPrimitive(d);
+		if (e instanceof BigInteger bi)
+			return new JsonPrimitive(bi.longValue());
+		if (e instanceof BigDecimal bd)
+			return new JsonPrimitive(bd.doubleValue());
 
 		throw new ExecutionException("Parameter is not a primitive type " + e);
 	}

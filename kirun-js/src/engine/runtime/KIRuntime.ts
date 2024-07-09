@@ -606,12 +606,12 @@ export class KIRuntime extends AbstractFunction {
         }
 
         if (!isNullValue(se.getStatement().getDependentStatements())) {
-            for (let statement of se.getStatement().getDependentStatements().entries())
+            for (let statement of Array.from(se.getStatement().getDependentStatements().entries()))
                 if (statement[1]) se.addDependency(statement[0]);
         }
 
         if (!isNullValue(se.getStatement().getExecuteIftrue())) {
-            for (let statement of se.getStatement().getExecuteIftrue().entries())
+            for (let statement of Array.from(se.getStatement().getExecuteIftrue().entries()))
                 if (statement[1]) this.addDependencies(se, statement[0]);
         }
 
@@ -755,7 +755,7 @@ export class KIRuntime extends AbstractFunction {
         let retMap: Map<string, string> = new Map();
 
         for (let e of Array.from(values)) {
-            for (let d of e.getData().getDependencies()) {
+            for (let d of Array.from(e.getData().getDependencies())) {
                 let secondDot: number = d.indexOf('.', 6);
                 let step: string = d.substring(6, secondDot);
                 let eventDot: number = d.indexOf('.', secondDot + 1);

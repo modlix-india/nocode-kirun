@@ -2,11 +2,9 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { isNullValue } from '../../../util/NullCheck';
 import { duplicate } from '../../../util/duplicate';
 import { StringFormatter } from '../../../util/string/StringFormatter';
-import { StringUtil } from '../../../util/string/StringUtil';
 import { Expression } from '../Expression';
 import { ExpressionTokenValue } from '../ExpressionTokenValue';
 import { Operation } from '../Operation';
-import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
 import { TokenValueExtractor } from './TokenValueExtractor';
 
 export class ObjectValueSetterExtractor extends TokenValueExtractor {

@@ -27,6 +27,11 @@ class TokenValueExtractorTest {
 			public String getPrefix() {
 				return "Testing";
 			}
+
+			@Override
+			public JsonElement getStore() {
+				return null;
+			}
 		};
 	}
 
@@ -72,23 +77,23 @@ class TokenValueExtractorTest {
 
 		String token = "[2]";
 		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, arr));
-		
-		token="[1][1]";
+
+		token = "[1][1]";
 		assertEquals(new JsonPrimitive(6), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, darr));
-		
-		token="[2].length";
+
+		token = "[2].length";
 		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 0, darr));
 
 		token = "a.b.c";
 		assertEquals("K", this.extractor.retrieveElementFrom(token, token.split("\\."), 0, obj)
-		        .getAsString());
+				.getAsString());
 
 		token = "a.b";
 		assertEquals(b, this.extractor.retrieveElementFrom(token, token.split("\\."), 0, obj));
 
 		token = "a.b.c";
 		assertEquals("K", this.extractor.retrieveElementFrom(token, token.split("\\."), 1, a)
-		        .getAsString());
+				.getAsString());
 
 		token = "a.b.arr[2]";
 		assertEquals(new JsonPrimitive(4), this.extractor.retrieveElementFrom(token, token.split("\\."), 1, a));

@@ -31,14 +31,24 @@ public abstract class Type implements Serializable {
 		}
 
 		return ((MultipleType) this).getAllowedSchemaTypes()
-		        .contains(type);
+				.contains(type);
 	}
 
 	public static class SchemaTypeAdapter extends TypeAdapter<Type> {
 
+		private static String fromJSONType(String jtype) {
+
+			String newType = jtype.toUpperCase();
+
+			if (newType.equals("NUMBER"))
+				return "DOUBLE";
+
+			return newType;
+		}
+
 		@Override
 		public void write(JsonWriter out, Type value) throws IOException {
-			
+
 			if (value == null) {
 				out.nullValue();
 				return;
@@ -52,7 +62,7 @@ public abstract class Type implements Serializable {
 				out.endArray();
 			} else {
 				out.value(((SingleType) value).getType()
-				        .toString());
+						.toString());
 			}
 		}
 
@@ -63,12 +73,12 @@ public abstract class Type implements Serializable {
 			Type t = null;
 
 			if (token == JsonToken.STRING)
-				t = of(SchemaType.valueOf(in.nextString()));
+				t = of(SchemaType.valueOf(fromJSONType(in.nextString())));
 			else if (token == JsonToken.BEGIN_ARRAY) {
 				in.beginArray();
 				Set<SchemaType> types = new HashSet<>();
 				while (in.hasNext()) {
-					types.add(SchemaType.valueOf(in.nextString()));
+					types.add(SchemaType.valueOf(fromJSONType(in.nextString())));
 				}
 				in.endArray();
 				t = new MultipleType().setType(types);
