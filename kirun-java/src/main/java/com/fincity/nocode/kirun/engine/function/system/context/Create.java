@@ -53,14 +53,14 @@ public class Create extends AbstractReactiveFunction {
 	}
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Create")
-	        .setNamespace(SYSTEM_CTX)
-	        .setParameters(Map.ofEntries(Parameter.ofEntry(NAME, new Schema().setName(NAME)
-	                .setType(Type.of(SchemaType.STRING))
-	                .setMinLength(1)
-	                .setFormat(StringFormat.REGEX)
-	                .setPattern("^[a-zA-Z_$][a-zA-Z_$0-9]*$"), ParameterType.CONSTANT),
-	                Parameter.ofEntry(SCHEMA, Schema.SCHEMA, ParameterType.CONSTANT)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
+			.setNamespace(SYSTEM_CTX)
+			.setParameters(Map.ofEntries(Parameter.ofEntry(NAME, new Schema().setName(NAME)
+					.setType(Type.of(SchemaType.STRING))
+					.setMinLength(1)
+					.setFormat(StringFormat.REGEX)
+					.setPattern("^[a-zA-Z_$][a-zA-Z_$0-9]*$"), ParameterType.CONSTANT),
+					Parameter.ofEntry(SCHEMA, Schema.SCHEMA, ParameterType.CONSTANT)))
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -71,20 +71,20 @@ public class Create extends AbstractReactiveFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		String name = context.getArguments()
-		        .get(NAME)
-		        .getAsString();
+				.get(NAME)
+				.getAsString();
 
 		if (context.getContext()
-		        .containsKey(name))
+				.containsKey(name))
 			throw new KIRuntimeException(StringFormatter.format("Context already has an element for '$' ", name));
 
 		JsonElement schema = context.getArguments()
-		        .get(SCHEMA);
+				.get(SCHEMA);
 		Schema s = gson.fromJson(schema, Schema.class);
 
 		context.getContext()
-		        .put(name,
-		                new ContextElement(s, s.getDefaultValue() == null ? JsonNull.INSTANCE : s.getDefaultValue()));
+				.put(name,
+						new ContextElement(s, s.getDefaultValue() == null ? JsonNull.INSTANCE : s.getDefaultValue()));
 
 		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of()))));
 	}

@@ -44,9 +44,9 @@ class ReactiveKIRuntimeTest {
 		for (int i = 2; i < num; i++) {
 
 			array.add(array.get(i - 2)
-			        .getAsInt()
-			        + array.get(i - 1)
-			                .getAsInt());
+					.getAsInt()
+					+ array.get(i - 1)
+							.getAsInt());
 		}
 
 		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));
@@ -61,16 +61,16 @@ class ReactiveKIRuntimeTest {
 		integerSchema.addProperty("type", "INTEGER");
 		arrayOfIntegerSchema.add("items", integerSchema);
 		var createArray = new Statement("createArray").setNamespace(create.getNamespace())
-		        .setName(create.getName())
-		        .setParameterMap(Map.of("name", Map.ofEntries(ParameterReference.of(new JsonPrimitive("a"))), "schema",
-		                Map.ofEntries(ParameterReference.of(arrayOfIntegerSchema))));
+				.setName(create.getName())
+				.setParameterMap(Map.of("name", Map.ofEntries(ParameterReference.of(new JsonPrimitive("a"))), "schema",
+						Map.ofEntries(ParameterReference.of(arrayOfIntegerSchema))));
 
 		var rangeLoop = new RangeLoop().getSignature();
 		var loop = new Statement("loop").setNamespace(rangeLoop.getNamespace())
-		        .setName(rangeLoop.getName())
-		        .setParameterMap(Map.of("from", Map.ofEntries(ParameterReference.of(new JsonPrimitive(0))), "to",
-		                Map.ofEntries(ParameterReference.of("Arguments.Count"))))
-		        .setDependentStatements(Map.of("Steps.createArray.output", true));
+				.setName(rangeLoop.getName())
+				.setParameterMap(Map.of("from", Map.ofEntries(ParameterReference.of(new JsonPrimitive(0))), "to",
+						Map.ofEntries(ParameterReference.of("Arguments.Count"))))
+				.setDependentStatements(Map.of("Steps.createArray.output", true));
 
 		var resultObj = new JsonObject();
 		resultObj.add("name", new JsonPrimitive("result"));
@@ -81,61 +81,62 @@ class ReactiveKIRuntimeTest {
 
 		var generate = new GenerateEvent().getSignature();
 		var outputGenerate = new Statement("outputStep").setNamespace(generate.getNamespace())
-		        .setName(generate.getName())
-		        .setParameterMap(Map.of("eventName", Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
-		                "results", Map.ofEntries(ParameterReference.of(resultObj))))
-		        .setDependentStatements(Map.of("Steps.loop.output", true));
+				.setName(generate.getName())
+				.setParameterMap(Map.of("eventName", Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+						"results", Map.ofEntries(ParameterReference.of(resultObj))))
+				.setDependentStatements(Map.of("Steps.loop.output", true));
 
 		var ifFunction = new If().getSignature();
 		var ifStep = new Statement("if").setNamespace(ifFunction.getNamespace())
-		        .setName(ifFunction.getName())
-		        .setParameterMap(Map.of("condition", Map.ofEntries(
-		                ParameterReference.of("Steps.loop.iteration.index = 0 or Steps.loop.iteration.index = 1"))));
+				.setName(ifFunction.getName())
+				.setParameterMap(Map.of("condition", Map.ofEntries(
+						ParameterReference
+								.of("(Steps.loop.iteration.index = 0) or (Steps.loop.iteration.index = 1)"))));
 
 		var set = new Set().getSignature();
 		var set1 = new Statement("setOnTrue").setNamespace(set.getNamespace())
-		        .setName(set.getName())
-		        .setParameterMap(Map.of("name",
-		                Map.ofEntries(
-		                        ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
-		                "value", Map.ofEntries(ParameterReference.of("Steps.loop.iteration.index"))))
-		        .setDependentStatements(Map.of("Steps.if.true", true));
+				.setName(set.getName())
+				.setParameterMap(Map.of("name",
+						Map.ofEntries(
+								ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
+						"value", Map.ofEntries(ParameterReference.of("Steps.loop.iteration.index"))))
+				.setDependentStatements(Map.of("Steps.if.true", true));
 
 		var set2 = new Statement("setOnFalse").setNamespace(set.getNamespace())
-		        .setName(set.getName())
-		        .setParameterMap(Map.of("name",
-		                Map.ofEntries(
-		                        ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
-		                "value",
-		                Map.ofEntries(ParameterReference.of(
-		                        "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
-		        .setDependentStatements(Map.of("Steps.if.false", true));
+				.setName(set.getName())
+				.setParameterMap(Map.of("name",
+						Map.ofEntries(
+								ParameterReference.of(new JsonPrimitive("Context.a[Steps.loop.iteration.index]"))),
+						"value",
+						Map.ofEntries(ParameterReference.of(
+								"Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]"))))
+				.setDependentStatements(Map.of("Steps.if.false", true));
 
 		long start1 = System.currentTimeMillis();
 		ReactiveKIRuntime runtime = new ReactiveKIRuntime(((FunctionDefinition) new FunctionDefinition()
-		        .setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
-		                Statement.ofEntry(outputGenerate), Statement.ofEntry(ifStep), Statement.ofEntry(set1),
-		                Statement.ofEntry(set2)))
-		        .setNamespace("Test")
-		        .setName("Fibonacci")
-		        .setEvents(Map.ofEntries(Event
-		                .outputEventMapEntry(Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
-		        .setParameters(Map.of("Count", new Parameter().setParameterName("Count")
-		                .setSchema(Schema.ofInteger("count"))))),
-		        true);
+				.setSteps(Map.ofEntries(Statement.ofEntry(createArray), Statement.ofEntry(loop),
+						Statement.ofEntry(outputGenerate), Statement.ofEntry(ifStep), Statement.ofEntry(set1),
+						Statement.ofEntry(set2)))
+				.setNamespace("Test")
+				.setName("Fibonacci")
+				.setEvents(Map.ofEntries(Event
+						.outputEventMapEntry(Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))))
+				.setParameters(Map.of("Count", new Parameter().setParameterName("Count")
+						.setSchema(Schema.ofInteger("count"))))),
+				true);
 		var out = runtime
-		        .execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		                new KIRunReactiveSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
-		        .map(FunctionOutput::allResults);
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
+				.map(FunctionOutput::allResults);
 
 		out.subscribe(e -> {
 			System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start1));
 		});
 
 		StepVerifier.create(out)
-		        .expectNext(List.of(new EventResult().setName("output")
-		                .setResult(Map.of("result", array))))
-		        .verifyComplete();
+				.expectNext(List.of(new EventResult().setName("output")
+						.setResult(Map.of("result", array))))
+				.verifyComplete();
 	}
 
 	@Test
@@ -151,28 +152,28 @@ class ReactiveKIRuntimeTest {
 		resultObj.add("value", expression);
 
 		var runtime = new ReactiveKIRuntime(((FunctionDefinition) new FunctionDefinition().setNamespace("Test")
-		        .setName("SingleCall")
-		        .setParameters(Map.of("Value", new Parameter().setParameterName("Value")
-		                .setSchema(Schema.ofInteger("Value")))))
-		        .setSteps(Map.ofEntries(Statement.ofEntry(new Statement("first").setNamespace(Namespaces.MATH)
-		                .setName("Absolute")
-		                .setParameterMap(Map.of("value", Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
-		                Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
-		                        .setName(genEvent.getName())
-		                        .setParameterMap(Map.of("eventName",
-		                                Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
-		                                Map.ofEntries(ParameterReference.of(resultObj))))))),
-		        true);
+				.setName("SingleCall")
+				.setParameters(Map.of("Value", new Parameter().setParameterName("Value")
+						.setSchema(Schema.ofInteger("Value")))))
+				.setSteps(Map.ofEntries(Statement.ofEntry(new Statement("first").setNamespace(Namespaces.MATH)
+						.setName("Absolute")
+						.setParameterMap(Map.of("value", Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
+						Statement.ofEntry(new Statement("second").setNamespace(genEvent.getNamespace())
+								.setName(genEvent.getName())
+								.setParameterMap(Map.of("eventName",
+										Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))), "results",
+										Map.ofEntries(ParameterReference.of(resultObj))))))),
+				true);
 
 		var out = runtime
-		        .execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
-		                new KIRunReactiveSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
-		        .map(e -> e.allResults());
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(Map.of("Value", new JsonPrimitive(-10))))
+				.map(e -> e.allResults());
 
 		StepVerifier.create(out)
-		        .expectNext(List.of(new EventResult().setName("output")
-		                .setResult(Map.of("result", new JsonPrimitive(10)))))
-		        .verifyComplete();
+				.expectNext(List.of(new EventResult().setName("output")
+						.setResult(Map.of("result", new JsonPrimitive(10)))))
+				.verifyComplete();
 
 	}
 

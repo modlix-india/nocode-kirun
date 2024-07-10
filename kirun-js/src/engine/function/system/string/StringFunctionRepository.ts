@@ -30,6 +30,9 @@ export class StringFunctionRepository implements Repository<Function> {
             (a, b) => a.indexOf(b) != -1,
         ),
         AbstractStringFunction.ofEntryAsStringBooleanOutput('EndsWith', (a, b) => a.endsWith(b)),
+        AbstractStringFunction.ofEntryAsStringBooleanOutput('StartsWith', (a, b) =>
+            a.startsWith(b),
+        ),
         AbstractStringFunction.ofEntryAsStringBooleanOutput(
             'EqualsIgnoreCase',
             (a, b) => a.toUpperCase() == b.toUpperCase(),

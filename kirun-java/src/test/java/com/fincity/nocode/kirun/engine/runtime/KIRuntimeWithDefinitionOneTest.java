@@ -63,10 +63,6 @@ class KIRuntimeWithDefinitionOneTest {
 								                "statementName": "genOutput",
 								                "namespace": "System",
 								                "name": "GenerateEvent",
-								                "dependentStatements": {
-								                    "Steps.exSecond.output": true,
-								                    "Steps.exThird.output": true
-								                },
 								                "parameterMap": {
 								                    "eventName": { "one": { "key": "one", "type": "VALUE", "value": "output" } },
 								                    "results": {
@@ -75,7 +71,7 @@ class KIRuntimeWithDefinitionOneTest {
 								                            "type": "VALUE",
 								                            "value": {
 								                                "name": "aresult",
-								                                "value": { "isExpression": true, "value": "Steps.exSecond.output.result" }
+								                                "value": { "isExpression": true, "value": "Steps.exSecond.output.result + Steps.exThird.output.result" }
 								                            }
 								                        }
 								                    }
@@ -188,7 +184,7 @@ class KIRuntimeWithDefinitionOneTest {
 				.execute(new ReactiveFunctionExecutionParameters(repo, new KIRunReactiveSchemaRepository(), "Testing"))
 				.map(FunctionOutput::next).map(e -> e.getResult().get("aresult").getAsInt());
 
-		StepVerifier.create(results).expectNext(4).verifyComplete();
+		StepVerifier.create(results).expectNext(13).verifyComplete();
 	}
 
 	@Test

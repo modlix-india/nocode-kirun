@@ -56,4 +56,13 @@ export class LiteralTokenValueExtractor extends TokenValueExtractor {
     public getPrefix(): string {
         return '';
     }
+
+    public getStore(): any {
+        return undefined;
+    }
+
+    public getValueFromExtractors(token: string, maps: Map<string, TokenValueExtractor>): any {
+        if (maps.has(token + '.')) return maps.get(token + '.')?.getStore();
+        return this.getValue(token);
+    }
 }

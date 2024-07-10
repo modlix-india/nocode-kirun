@@ -32,6 +32,7 @@ export function deepEqual(x: any, y: any) {
         }
 
         if (typeOfA === 'object') {
+            if (typeOfB !== 'object' || a === null || b === null) return false;
             const entriesOfA = Object.entries(a);
             const entriesOfB = Object.entries(b);
             if (entriesOfA.length !== entriesOfB.length) return false;

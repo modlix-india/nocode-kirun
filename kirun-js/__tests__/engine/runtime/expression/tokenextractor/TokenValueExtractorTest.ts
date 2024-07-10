@@ -17,6 +17,10 @@ class TestExtractor extends TokenValueExtractor {
     ): any {
         return super.retrieveElementFrom(token, parts, partNumber, jsonElement);
     }
+
+    public getStore(): any {
+        return undefined;
+    }
 }
 
 let extractor: TestExtractor;

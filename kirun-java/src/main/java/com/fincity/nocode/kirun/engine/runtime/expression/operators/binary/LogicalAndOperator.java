@@ -1,30 +1,34 @@
 package com.fincity.nocode.kirun.engine.runtime.expression.operators.binary;
 
-import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.BOOLEAN;
-
-import com.fincity.nocode.kirun.engine.exception.ExecutionException;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
-import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-
-import reactor.util.function.Tuple2;
 
 public class LogicalAndOperator implements BinaryOperator {
 
 	@Override
 	public JsonElement apply(JsonElement t, JsonElement u) {
 
-		Tuple2<SchemaType, Object> tType = PrimitiveUtil.findPrimitiveNullAsBoolean(t);
-		Tuple2<SchemaType, Object> uType = PrimitiveUtil.findPrimitiveNullAsBoolean(u);
-		
-		if (tType.getT1() != BOOLEAN)
-			throw new ExecutionException(StringFormatter.format("Boolean value expected but found $", tType.getT2()));
-		
-		if (uType.getT1() != BOOLEAN)
-			throw new ExecutionException(StringFormatter.format("Boolean value expected but found $", uType.getT2()));
+		boolean tBoolean = !(t == null || t.isJsonNull());
+		if (tBoolean && t.isJsonPrimitive()) {
+			JsonPrimitive jp = t.getAsJsonPrimitive();
+			if (jp.isBoolean())
+				tBoolean = jp.getAsBoolean();
+			else if (jp.isNumber())
+				tBoolean = jp.getAsDouble() != 0.0d;
+		}
 
-		return new JsonPrimitive(((Boolean) tType.getT2()) && ((Boolean) uType.getT2()));
+		if (!tBoolean)
+			return new JsonPrimitive(false);
+
+		boolean uBoolean = !(u == null || u.isJsonNull());
+		if (uBoolean && u.isJsonPrimitive()) {
+			JsonPrimitive jp = u.getAsJsonPrimitive();
+			if (jp.isBoolean())
+				uBoolean = jp.getAsBoolean();
+			else if (jp.isNumber())
+				uBoolean = jp.getAsDouble() != 0.0d;
+		}
+
+		return new JsonPrimitive(tBoolean && uBoolean);
 	}
 }

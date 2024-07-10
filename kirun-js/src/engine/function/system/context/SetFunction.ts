@@ -8,7 +8,6 @@ import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
-import { ParameterType } from '../../../model/ParameterType';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { ContextElement } from '../../../runtime/ContextElement';
 import { Expression } from '../../../runtime/expression/Expression';
@@ -17,12 +16,9 @@ import { ExpressionToken } from '../../../runtime/expression/ExpressionToken';
 import { ExpressionTokenValue } from '../../../runtime/expression/ExpressionTokenValue';
 import { Operation } from '../../../runtime/expression/Operation';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { LinkedList } from '../../../util/LinkedList';
 import { isNullValue } from '../../../util/NullCheck';
-import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
-import { Tuple2 } from '../../../util/Tuples';
 import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
@@ -35,7 +31,6 @@ const SIGNATURE = new FunctionSignature('Set')
                 NAME,
                 new Schema().setName(NAME).setType(TypeUtil.of(SchemaType.STRING)).setMinLength(1),
                 false,
-                ParameterType.CONSTANT,
             ),
             Parameter.ofEntry(VALUE, Schema.ofAny(VALUE)),
         ]),

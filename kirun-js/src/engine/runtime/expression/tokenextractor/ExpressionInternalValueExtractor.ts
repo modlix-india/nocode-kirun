@@ -26,4 +26,8 @@ export class ExpressionInternalValueExtractor extends TokenValueExtractor {
     public getPrefix(): string {
         return ExpressionInternalValueExtractor.PREFIX;
     }
+
+    public getStore(): any {
+        return undefined;
+    }
 }
