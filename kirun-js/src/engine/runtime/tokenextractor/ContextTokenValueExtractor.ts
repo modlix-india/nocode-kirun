@@ -1,3 +1,4 @@
+import { isNullValue } from '../../util/NullCheck';
 import { ContextElement } from '../ContextElement';
 import { TokenValueExtractor } from '../expression/tokenextractor/TokenValueExtractor';
 
@@ -33,5 +34,14 @@ export class ContextTokenValueExtractor extends TokenValueExtractor {
 
     public getPrefix(): string {
         return ContextTokenValueExtractor.PREFIX;
+    }
+
+    public getStore(): any {
+        if (isNullValue(this.context)) return this.context;
+        return Array.from(this.context.entries()).reduce((acc, [key, value]) => {
+            if (isNullValue(value)) return acc;
+            acc[key] = value.getElement();
+            return acc;
+        }, {} as { [key: string]: any });
     }
 }

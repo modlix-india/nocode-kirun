@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -25,20 +27,20 @@ public class Compare extends AbstractArrayFunction {
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 		var source = ArrayUtil.jsonArrayToArray(context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray());
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray());
 		var srcfrom = context.getArguments()
-		        .get(PARAMETER_INT_SOURCE_FROM.getParameterName())
-		        .getAsInt();
+				.get(PARAMETER_INT_SOURCE_FROM.getParameterName())
+				.getAsInt();
 		var find = ArrayUtil.jsonArrayToArray(context.getArguments()
-		        .get(PARAMETER_ARRAY_FIND.getParameterName())
-		        .getAsJsonArray());
+				.get(PARAMETER_ARRAY_FIND.getParameterName())
+				.getAsJsonArray());
 		var findfrom = context.getArguments()
-		        .get(PARAMETER_INT_FIND_FROM.getParameterName())
-		        .getAsInt();
+				.get(PARAMETER_INT_FIND_FROM.getParameterName())
+				.getAsInt();
 		var length = context.getArguments()
-		        .get(PARAMETER_INT_LENGTH.getParameterName())
-		        .getAsInt();
+				.get(PARAMETER_INT_LENGTH.getParameterName())
+				.getAsInt();
 
 		if (source.length == 0) {
 			throw new KIRuntimeException("Compare source array cannot be empty");
@@ -53,14 +55,14 @@ public class Compare extends AbstractArrayFunction {
 
 		if (srcfrom + length > source.length)
 			throw new KIRuntimeException(StringFormatter.format("Source array size $ is less than comparing size $",
-			        source.length, srcfrom + length));
+					source.length, srcfrom + length));
 
 		if (findfrom + length > find.length)
 			throw new KIRuntimeException(StringFormatter.format("Find array size $ is less than comparing size $",
-			        find.length, findfrom + length));
+					find.length, findfrom + length));
 
 		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME,
-		        new JsonPrimitive(compare(source, srcfrom, srcfrom + length, find, findfrom, findfrom + length)))))));
+				new JsonPrimitive(compare(source, srcfrom, srcfrom + length, find, findfrom, findfrom + length)))))));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -134,6 +136,12 @@ public class Compare extends AbstractArrayFunction {
 			return Float.compare(a.floatValue(), b.floatValue());
 		else if (a instanceof Long || b instanceof Long)
 			return Long.compare(a.longValue(), b.longValue());
+		else if (a instanceof BigInteger || b instanceof BigInteger)
+			return BigInteger.valueOf(a.longValue())
+					.compareTo(BigInteger.valueOf(b.longValue()));
+		else if (a instanceof BigDecimal || b instanceof BigDecimal)
+			return BigDecimal.valueOf(a.doubleValue())
+					.compareTo(BigDecimal.valueOf(b.doubleValue()));
 
 		return Integer.compare(a.intValue(), b.intValue());
 	}
