@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +83,12 @@ public class Max extends AbstractArrayFunction {
 			return Float.compare(a.floatValue(), b.floatValue());
 		else if (a instanceof Long || b instanceof Long)
 			return Long.compare(a.longValue(), b.longValue());
+		else if (a instanceof BigInteger || b instanceof BigInteger)
+			return BigInteger.valueOf(a.longValue())
+					.compareTo(BigInteger.valueOf(b.longValue()));
+		else if (a instanceof BigDecimal || b instanceof BigDecimal)
+			return BigDecimal.valueOf(a.doubleValue())
+					.compareTo(BigDecimal.valueOf(b.doubleValue()));
 
 		return Integer.compare(a.intValue(), b.intValue());
 	}

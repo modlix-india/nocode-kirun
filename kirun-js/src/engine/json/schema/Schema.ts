@@ -453,10 +453,12 @@ export class Schema {
         this.version = schema.version;
         this.ref = schema.ref;
 
-        this.type =
-            schema.type instanceof SingleType
-                ? new SingleType(schema.type as SingleType)
-                : new MultipleType(schema.type as MultipleType);
+        if (!isNullValue(schema.type)) {
+            this.type =
+                schema.type instanceof SingleType
+                    ? new SingleType(schema.type as SingleType)
+                    : new MultipleType(schema.type as MultipleType);
+        }
 
         this.anyOf = schema.anyOf?.map((x) => new Schema(x));
 

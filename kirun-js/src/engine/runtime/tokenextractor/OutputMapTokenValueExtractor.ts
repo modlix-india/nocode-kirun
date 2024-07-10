@@ -37,4 +37,16 @@ export class OutputMapTokenValueExtractor extends TokenValueExtractor {
     public getPrefix(): string {
         return OutputMapTokenValueExtractor.PREFIX;
     }
+
+    public getStore(): any {
+        return this.convertMapToObj(this.output);
+    }
+
+    private convertMapToObj(map: Map<string, Map<string, Map<string, any>>>) {
+        if (map.size === 0) return {};
+        return Array.from(map.entries()).reduce((acc, [key, value]) => {
+            acc[key] = value instanceof Map ? this.convertMapToObj(value) : value;
+            return acc;
+        }, {} as { [key: string]: any });
+    }
 }
