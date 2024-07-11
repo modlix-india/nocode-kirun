@@ -13,6 +13,7 @@ import { EventResult } from "../../../model/EventResult";
 
 const VALUE = 'epoch';
 const OUTPUT = 'date';
+const  ERROR_MSG: string = "Please provide a valid value for epoch.";
 
 const SIGNATURE = new FunctionSignature('EpochToDate')
     .setNamespace(Namespaces.DATE)
@@ -22,7 +23,7 @@ const SIGNATURE = new FunctionSignature('EpochToDate')
                 VALUE,
                 new Parameter(
                     VALUE,
-                    new Schema().setOneOf([
+                    new Schema().setAnyOf([
                         Schema.ofInteger(VALUE),
                         Schema.ofLong(VALUE),
                         Schema.ofString(VALUE),
@@ -50,16 +51,23 @@ export class EpochToDate extends AbstractFunction{
        var epoch : any =  context.getArguments()?.get(VALUE);
 
        if(isNullValue(epoch))
-        throw new KIRuntimeException("Please provide a valid value for epoch.");
+        throw new KIRuntimeException(ERROR_MSG);
+
+       if(typeof epoch === 'boolean')
+            throw new KIRuntimeException(ERROR_MSG);
 
        if(typeof epoch === 'string')
             epoch  = parseInt(epoch)
 
-    //    console.log(new Date(epoch))
+       if(isNaN(epoch))
+        throw new KIRuntimeException(ERROR_MSG);
 
+       epoch = epoch > 999999999999 ? epoch : epoch * 1000;
+
+      
        return new FunctionOutput([
            EventResult.outputOf(new Map([
-            [OUTPUT, new Date(epoch > 999999999999 ? epoch : epoch * 1000).toISOString()]
+            [OUTPUT, new Date(epoch).toISOString()]
             ]))
        ]);
 

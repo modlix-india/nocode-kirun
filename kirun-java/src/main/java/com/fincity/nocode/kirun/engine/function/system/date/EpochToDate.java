@@ -52,8 +52,20 @@ public class EpochToDate extends AbstractReactiveFunction {
 		if (epochPrimitive.isBoolean())
 			throw new KIRuntimeException(ERROR_MSG);
 
-		Long longDate = epochPrimitive.isNumber() ? epochPrimitive.getAsLong()
-		        : Long.parseLong(epochPrimitive.getAsString());
+		Long longDate;
+
+		if (!epochPrimitive.isNumber()) {
+
+			try {
+				longDate = Long.parseLong(epochPrimitive.getAsString());
+			} catch (NumberFormatException e) {
+
+				throw new KIRuntimeException(ERROR_MSG);
+			}
+
+		} else
+			
+			longDate = epochPrimitive.getAsLong();
 
 		Long updatedValue = longDate > 999999999999L ? longDate : longDate * 1000;
 

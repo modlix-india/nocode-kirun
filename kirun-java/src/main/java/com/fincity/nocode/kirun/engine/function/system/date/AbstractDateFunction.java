@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -17,6 +18,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -72,9 +74,9 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 				String date = context.getArguments()
 				        .get(VALUE)
 				        .getAsString();
-
-//				if (!IsValidIsoDateTime.checkValidity(date))
-//					throw new KIRuntimeException(ERROR_MSG);
+				
+				if(!ValidDateTimeUtil.validate(date))
+					throw new KIRuntimeException(ERROR_MSG);
 
 				return Mono.just(new FunctionOutput(
 				        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
