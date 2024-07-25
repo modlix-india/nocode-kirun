@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
-	private static final String VALUE = "isodate";
+	private static final String ISO_DATE = "isoDate";
 
 	private static final String OUTPUT = "result";
 
@@ -41,7 +41,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
 		functionSignature = new FunctionSignature().setName(functionName)
 		        .setNamespace(namespace)
-		        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
+		        .setParameters(Map.of(ISO_DATE, new Parameter().setParameterName(ISO_DATE)
 		                .setSchema(Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
 		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(output, new Schema().setName(output)
 		                .setType(Type.of(schemaType[0]))))));
@@ -51,7 +51,7 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
 		functionSignature = new FunctionSignature().setName(functionName)
 		        .setNamespace(namespace)
-		        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
+		        .setParameters(Map.of(ISO_DATE, new Parameter().setParameterName(ISO_DATE)
 		                .setSchema(Schema.ofRef(Namespaces.DATE + ".timeStamp")), secondName,
 		                new Parameter().setParameterName(secondName)
 		                        .setSchema(Schema.ofBoolean(secondName))))
@@ -72,10 +72,10 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 				String date = context.getArguments()
-				        .get(VALUE)
+				        .get(ISO_DATE)
 				        .getAsString();
-				
-				if(!ValidDateTimeUtil.validate(date))
+
+				if (!ValidDateTimeUtil.validate(date))
 					throw new KIRuntimeException(ERROR_MSG);
 
 				return Mono.just(new FunctionOutput(
