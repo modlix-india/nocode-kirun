@@ -112,7 +112,8 @@ export class ValidDateTimeUtil{
     }
 
     private static  convertToInt( num : string )  : number{ // adding exception
-			return  parseInt(num);		
+		var parsed = parseInt(num);		
+		return isNaN(parsed) ? Number.MIN_VALUE : parsed;
 	}
 }
 

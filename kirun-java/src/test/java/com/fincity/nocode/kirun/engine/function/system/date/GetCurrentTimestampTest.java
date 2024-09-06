@@ -1,8 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
@@ -18,24 +16,38 @@ class GetCurrentTimestampTest {
 	        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 	@Test
-	void test() {
-
-		DateTimeFormatter sdf = DateTimeFormatter.ISO_INSTANT;
-
-//		String date = sdf.format(Instant.now().toEpochMilli());
-
-		Date date = new Date();
-
-		System.out.println(date);
+	void testEqualTimestamp() {
 
 		StepVerifier.create(gct.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			        String currentTime = formatter.format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC));
+			        String resultTime = r.next()
 			                .getResult()
 			                .get("time")
-			                .getAsString()
-			                .equals(date);
+			                .getAsString();
+			        return resultTime.substring(0, 21)
+			                .equals(currentTime.substring(0, 21));
+		        })
+		        .verifyComplete();
+	}
+
+	@Test
+	void testUnequalTimestamp() {
+
+		String pastTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+		        .format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC)
+		                .minusSeconds(1));
+
+		StepVerifier.create(gct.execute(rfep))
+		        .expectNextMatches(r ->
+				{
+			        String resultTime = r.next()
+			                .getResult()
+			                .get("time")
+			                .getAsString();
+			        return !resultTime.equals(pastTime);
 		        })
 		        .verifyComplete();
 	}

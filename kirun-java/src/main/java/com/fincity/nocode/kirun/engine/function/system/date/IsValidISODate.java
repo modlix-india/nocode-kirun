@@ -28,7 +28,7 @@ public class IsValidISODate extends AbstractReactiveFunction {
 	public FunctionSignature getSignature() {
 		return new FunctionSignature().setNamespace(Namespaces.DATE)
 		        .setName("IsValidISODate")
-		        .setParameters(Map.of(VALUE, Parameter.of(VALUE, Schema.ofString(OUTPUT))))
+		        .setParameters(Map.of(VALUE, Parameter.of(VALUE, Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
 		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(OUTPUT, Schema.ofBoolean(OUTPUT)))));
 	}
 

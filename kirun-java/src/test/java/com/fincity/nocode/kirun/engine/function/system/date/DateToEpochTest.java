@@ -19,6 +19,30 @@ class DateToEpochTest {
 	        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
 	@Test
+	void testFailCases() {
+
+		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023")));
+
+		StepVerifier.create(dte.execute(rfep))
+		        .expectError()
+		        .verify();
+
+		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-21T16:11:50.978Z")));
+
+		StepVerifier.create(dte.execute(rfep))
+		        .expectNextMatches(r ->
+				{
+
+			        return r.allResults()
+			                .get(0)
+			                .getResult()
+			                .get("result")
+			                .getAsLong() == 1697904710978L;
+		        })
+		        .verifyComplete();
+	}
+
+	@Test
 	void test1() {
 
 		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-21T16:11:50.978Z")));
@@ -26,7 +50,8 @@ class DateToEpochTest {
 		StepVerifier.create(dte.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        return r.allResults()
+			                .get(0)
 			                .getResult()
 			                .get("result")
 			                .getAsLong() == 1697904710978L;
@@ -44,7 +69,8 @@ class DateToEpochTest {
 		StepVerifier.create(dte.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        return r.allResults()
+			                .get(0)
 			                .getResult()
 			                .get("result")
 			                .getAsLong() == 16964941310000L;
@@ -56,7 +82,8 @@ class DateToEpochTest {
 		StepVerifier.create(dte.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        return r.allResults()
+			                .get(0)
 			                .getResult()
 			                .get("result")
 			                .getAsLong() == 1696431000L;
@@ -80,7 +107,8 @@ class DateToEpochTest {
 		StepVerifier.create(dte.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        return r.allResults()
+			                .get(0)
 			                .getResult()
 			                .get("result")
 			                .getAsLong() == 1696431000L;
@@ -110,7 +138,8 @@ class DateToEpochTest {
 		StepVerifier.create(dte.execute(rfep))
 		        .expectNextMatches(r ->
 				{
-			        return r.next()
+			        return r.allResults()
+			                .get(0)
 			                .getResult()
 			                .get("result")
 			                .getAsLong() == 1653171000L;
@@ -126,7 +155,8 @@ class DateToEpochTest {
 		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2024-02-29T12:13:41.189-12:01")));
 
 		StepVerifier.create(dte.execute(rfep))
-		        .expectNextMatches(res -> res.next()
+		        .expectNextMatches(res -> res.allResults()
+		                .get(0)
 		                .getResult()
 		                .get("result")
 		                .getAsLong() == 1709252081189L)
@@ -135,7 +165,8 @@ class DateToEpochTest {
 		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2028-02-29T12:13:49.200+02:01")));
 
 		StepVerifier.create(dte.execute(rfep))
-		        .expectNextMatches(res -> res.next()
+		        .expectNextMatches(res -> res.allResults()
+		                .get(0)
 		                .getResult()
 		                .get("result")
 		                .getAsLong() == 1835431969200L)

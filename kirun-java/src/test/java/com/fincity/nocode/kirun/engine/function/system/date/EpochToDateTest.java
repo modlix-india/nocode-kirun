@@ -23,15 +23,13 @@ class EpochToDateTest {
 		rfep.setArguments(Map.of("epoch", new JsonPrimitive(1696431)));
 
 		StepVerifier.create(etd.execute(rfep))
-		        .expectNextMatches(r ->
-				{
-			        return r.next()
-			                .getResult()
-			                .get("date")
-			                .getAsString()
-			                .equals("1970-01-20T15:13:51.000Z");
-		        })
+		        .expectNextMatches(r -> r.next()
+		                .getResult()
+		                .get("date")
+		                .getAsString()
+		                .equals("1970-01-20T15:13:51.000Z"))
 		        .verifyComplete();
+
 	}
 
 	@Test
@@ -133,10 +131,10 @@ class EpochToDateTest {
 		        })
 		        .verifyComplete();
 	}
-	
+
 	@Test
 	void LongTest3() {
-		
+
 		rfep.setArguments(Map.of("epoch", new JsonPrimitive(1694072117000L)));
 
 		StepVerifier.create(etd.execute(rfep))

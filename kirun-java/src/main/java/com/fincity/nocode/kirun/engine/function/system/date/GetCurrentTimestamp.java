@@ -40,8 +40,6 @@ public class GetCurrentTimestamp extends AbstractReactiveFunction {
 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-		System.out.println(dtf.format(zdt));
-
 		return Mono.just(
 		        new FunctionOutput(List.of(EventResult.outputOf(Map.of(OUTPUT, new JsonPrimitive(dtf.format(zdt)))))));
 

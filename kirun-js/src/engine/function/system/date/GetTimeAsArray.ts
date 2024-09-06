@@ -13,31 +13,34 @@ import { ValidDateTimeUtil } from "../../../util/ValidDateTimeUtil";
 import { AbstractFunction } from "../../AbstractFunction";
 
 
-const VALUE : string = "isoDate";
+const VALUE:string = "isoDate";
 
-const OUTPUT : string = "output";
+const OUTPUT:string = "output";
 
-const SIGNATURE = new FunctionSignature('IsValidISODate')
-.setNamespace(Namespaces.DATE)
-.setParameters(MapUtil.of(VALUE, Parameter.of(VALUE, Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
-.setEvents(MapUtil.of(OUTPUT , new Event(OUTPUT , MapUtil.of(OUTPUT, Schema.ofBoolean(OUTPUT)))));
+const SIGNATURE = new FunctionSignature('GetTimeAsArray')
+    .setNamespace(Namespaces.DATE)
+    .setParameters(MapUtil.of(VALUE, Parameter.of(VALUE, Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
+    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT , Schema.ofArray(OUTPUT)]]))]))
 
-export class IsValidISODate extends AbstractFunction{
 
+export class GetTimeAsArray extends AbstractFunction{
+    
     public getSignature(): FunctionSignature {
         return SIGNATURE;
     }
-
+    
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        
-        var date = context.getArguments()?.get(VALUE);
+         
+        var inputDate = context.getArguments()?.get(VALUE);
 
-        if(isNullValue(date))
+        if(isNullValue(inputDate) || !ValidDateTimeUtil.validate(inputDate))
             throw new KIRuntimeException("Please provide a valid date object");
 
-        return new FunctionOutput([ EventResult.of(OUTPUT , MapUtil.of( OUTPUT , ValidDateTimeUtil.validate(date)))]);
+        const date = new Date(inputDate);
+
+        const outputArray = [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()];
         
+        return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT , outputArray]]))]);
     }
-    
 
 }

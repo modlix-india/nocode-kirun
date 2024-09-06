@@ -10,6 +10,7 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
@@ -33,8 +34,11 @@ public class EpochToDate extends AbstractReactiveFunction {
 
 		return new FunctionSignature().setNamespace(Namespaces.DATE)
 		        .setName("EpochToDate")
-		        .setParameters(Map.of(EPOCH, Parameter.of(EPOCH, new Schema()
-		                .setAnyOf(List.of(Schema.ofInteger(EPOCH), Schema.ofLong(EPOCH), Schema.ofString(EPOCH))))));
+		        .setParameters(Map.of(EPOCH, Parameter.of(EPOCH,
+		                new Schema().setAnyOf(
+		                        List.of(Schema.ofInteger(EPOCH), Schema.ofLong(EPOCH), Schema.ofString(EPOCH))))))
+		        .setEvents(Map.ofEntries(
+		                Event.outputEventMapEntry(Map.of(OUTPUT, Schema.ofRef(Namespaces.DATE + ".timeStamp")))));
 
 	}
 
@@ -64,7 +68,7 @@ public class EpochToDate extends AbstractReactiveFunction {
 			}
 
 		} else
-			
+
 			longDate = epochPrimitive.getAsLong();
 
 		Long updatedValue = longDate > 999999999999L ? longDate : longDate * 1000;

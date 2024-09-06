@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
-	private static final String ISO_DATE = "isoDate";
+	protected static final String ISO_DATE = "isoDate";
 
 	private static final String OUTPUT = "result";
 
@@ -64,6 +64,27 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 	}
 
 	public static Entry<String, ReactiveFunction> ofEntryDateAndStringWithOutputName(final String name, String output,
+	        Function<String, Number> ufunction, SchemaType... schemaType) {
+
+		return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
+
+			@Override
+			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+				String date = context.getArguments()
+				        .get(ISO_DATE)
+				        .getAsString();
+
+				if (!ValidDateTimeUtil.validate(date))
+					throw new KIRuntimeException(ERROR_MSG);
+
+				return Mono.just(new FunctionOutput(
+				        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
+			}
+		});
+	}
+
+	public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerWithOutputName(final String name, String output,
 	        Function<String, Number> ufunction, SchemaType... schemaType) {
 
 		return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {

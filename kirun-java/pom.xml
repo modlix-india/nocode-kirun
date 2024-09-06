@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.fincity.nocode</groupId>
 	<artifactId>kirun-java</artifactId>
-	<version>3.2.8</version>
+	<version>3.2.9</version>
 	<name>kirun-java</name>
 	<description>Interpreter to execute the visual code based on KIRun JSON on the Java layer</description>
 	<properties>

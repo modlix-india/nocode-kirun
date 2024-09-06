@@ -1,16 +1,18 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.Date;
 
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
-import com.fincity.nocode.kirun.engine.util.date.DateTimePatternUtil;
+import com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil;
+
+import static com.fincity.nocode.kirun.engine.util.date.GetTimeInMillisUtil.getEpochTime;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,15 +21,33 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
 	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 
-	        AbstractDateFunction.ofEntryDateAndStringWithOutputName("GetDate", "date", inputDate ->
-			{
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDate", "date",
+	                inputDate -> getRequiredField(inputDate, Calendar.DATE)),
 
-		        ZonedDateTime localDateTime = ZonedDateTime.parse(inputDate, DateTimePatternUtil.getPattern(inputDate))
-		                .withZoneSameInstant(ZoneId.systemDefault());
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDay", "day",
+	                inputDate -> getRequiredField(inputDate, Calendar.DAY_OF_WEEK)),
 
-		        return localDateTime.getDayOfMonth();
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetFullYear", "year",
+	                inputDate -> getRequiredField(inputDate, Calendar.YEAR)),
 
-	        }, SchemaType.INTEGER)
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMonth", "month",
+	                inputDate -> getRequiredField(inputDate, Calendar.MONTH)),
+
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetHours", "hours",
+	                inputDate -> getRequiredField(inputDate, Calendar.HOUR_OF_DAY)),
+
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMinutes", "minutes",
+	                inputDate -> getRequiredField(inputDate, Calendar.MINUTE)),
+			
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetSeconds", "seconds",
+					inputDate -> getRequiredField(inputDate, Calendar.SECOND)),
+					
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMilliSeconds", "millis",
+					inputDate -> getRequiredField(inputDate, Calendar.MILLISECOND)),
+
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetTime", "time", 
+					GetTimeInMillisUtil::getEpochTime)
+				
 
 	);
 
@@ -36,6 +56,14 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	        .map(ReactiveFunction::getSignature)
 	        .map(FunctionSignature::getFullName)
 	        .toList();
+
+	private static int getRequiredField(String inputDate, int field) {
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date(getEpochTime(inputDate)));
+		System.out.println(cal);
+		return cal.get(field);
+	}
 
 	@Override
 	public Mono<ReactiveFunction> find(String namespace, String name) {
