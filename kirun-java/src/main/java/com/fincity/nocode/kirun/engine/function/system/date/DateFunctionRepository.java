@@ -61,7 +61,6 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date(getEpochTime(inputDate)));
-		System.out.println(cal);
 		return cal.get(field);
 	}
 
