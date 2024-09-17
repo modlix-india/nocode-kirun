@@ -48,7 +48,6 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetTime", "time", 
 					GetTimeInMillisUtil::getEpochTime)
 				
-
 	);
 
 	private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
@@ -58,8 +57,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	        .toList();
 
 	private static int getRequiredField(String inputDate, int field) {
-
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTime(new Date(getEpochTime(inputDate)));
 		return cal.get(field);
 	}
