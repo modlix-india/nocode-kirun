@@ -21,32 +21,28 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
 	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 
-	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDate", "date",
-	                inputDate -> getRequiredField(inputDate, Calendar.DATE)),
+			AbstractDateFunction.ofEntryDateAndBooleanOutput("IsLeapYear", inputDate -> {
+				int year = getRequiredField(inputDate, Calendar.YEAR);
+				return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+			}),
 
-	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDay", "day",
-	                inputDate -> getRequiredField(inputDate, Calendar.DAY_OF_WEEK)),
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDate", inputDate -> getRequiredField(inputDate, Calendar.DATE)),
 
-	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetFullYear", "year",
-	                inputDate -> getRequiredField(inputDate, Calendar.YEAR)),
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetDay", inputDate -> getRequiredField(inputDate, Calendar.DAY_OF_WEEK) - 1),
 
-			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMonth", "month",
-	                inputDate -> getRequiredField(inputDate, Calendar.MONTH)),
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetFullYear", inputDate -> getRequiredField(inputDate, Calendar.YEAR)),
 
-	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetHours", "hours",
-	                inputDate -> getRequiredField(inputDate, Calendar.HOUR_OF_DAY)),
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMonth", inputDate -> getRequiredField(inputDate, Calendar.MONTH) + 1) ,
 
-			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMinutes", "minutes",
-	                inputDate -> getRequiredField(inputDate, Calendar.MINUTE)),
+	        AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetHours", inputDate -> getRequiredField(inputDate, Calendar.HOUR_OF_DAY)),
+
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMinutes", inputDate -> getRequiredField(inputDate, Calendar.MINUTE)),
 			
-			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetSeconds", "seconds",
-					inputDate -> getRequiredField(inputDate, Calendar.SECOND)),
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetSeconds", inputDate -> getRequiredField(inputDate, Calendar.SECOND)),
 					
-			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMilliSeconds", "millis",
-					inputDate -> getRequiredField(inputDate, Calendar.MILLISECOND)),
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetMilliSeconds", inputDate -> getRequiredField(inputDate, Calendar.MILLISECOND)),
 
-			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetTime", "time", 
-					GetTimeInMillisUtil::getEpochTime)
+			AbstractDateFunction.ofEntryDateAndIntegerWithOutputName("GetTime", GetTimeInMillisUtil::getEpochTime)
 				
 	);
 
@@ -59,6 +55,7 @@ public class DateFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	private static int getRequiredField(String inputDate, int field) {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTime(new Date(getEpochTime(inputDate)));
+		System.out.println(cal.get(field));
 		return cal.get(field);
 	}
 

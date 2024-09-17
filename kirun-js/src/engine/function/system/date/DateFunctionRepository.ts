@@ -16,7 +16,7 @@ export class DateFunctionRepository implements Repository<Function> {
 
         AbstractDateFunction.ofEntryDateAndIntegerOutput("GetDate", date => new Date(date).getUTCDate()),
 
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetDay", date => new Date(date).getUTCDay() + 1),
+        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetDay", date => new Date(date).getUTCDay()),
 
         AbstractDateFunction.ofEntryDateAndIntegerOutput("GetFullYear", date => new Date(date).getUTCFullYear()),
 

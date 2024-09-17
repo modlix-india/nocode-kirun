@@ -28,8 +28,8 @@ class GetDateTest {
 		        .flatMap(e -> e.execute(fep)))
 		        .expectNextMatches(res -> res.next()
 		                .getResult()
-		                .get("date")
-		                .getAsInt() == 1)
+		                .get("result")
+		                .getAsInt() == 31)
 		        .verifyComplete();
 
 		fep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-09-07T17:35:17.123-11:00")));
@@ -38,7 +38,7 @@ class GetDateTest {
 		        .flatMap(e -> e.execute(fep)))
 		        .expectNextMatches(res -> res.next()
 		                .getResult()
-		                .get("date")
+		                .get("result")
 		                .getAsInt() == 8)
 		        .verifyComplete();
 
@@ -53,7 +53,7 @@ class GetDateTest {
 		        .flatMap(e -> e.execute(fep)))
 		        .expectNextMatches(res -> res.next()
 		                .getResult()
-		                .get("date")
+		                .get("result")
 		                .getAsInt() == 7)
 		        .verifyComplete();
 
