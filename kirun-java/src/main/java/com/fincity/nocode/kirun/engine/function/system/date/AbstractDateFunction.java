@@ -69,10 +69,10 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 		}
 
 		functionSignature = new FunctionSignature()
-		.setName(functionName)
-		.setNamespace(namespace)
-		.setParameters(paramMap)
-		.setEvents(Map.of(event.getName(), event));
+								.setName(functionName)
+								.setNamespace(namespace)
+								.setParameters(paramMap)
+								.setEvents(Map.of(event.getName(), event));
 
 	}
 

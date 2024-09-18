@@ -18,13 +18,24 @@ const VALUE:string = "isoDate";
 
 const OUTPUT:string = "result";
 
-const SIGNATURE = new FunctionSignature('GetTimeAsArray')
+const SIGNATURE = new FunctionSignature('GetTimeAsObject')
     .setNamespace(Namespaces.DATE)
     .setParameters(MapUtil.of(VALUE, Parameter.of(VALUE, Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT , Schema.ofArray(OUTPUT).setItems(ArraySchemaType.of(Schema.ofNumber("number")))]]))]))
+    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT , 
+        Schema.ofObject(OUTPUT).setProperties(new Map(
+            [
+                ["year", Schema.ofNumber("year")],
+                ["month", Schema.ofNumber("month")],
+                ["day", Schema.ofNumber("day")],
+                ["hours", Schema.ofNumber("hours")],
+                ["minutes", Schema.ofNumber("minutes")],
+                ["seconds", Schema.ofNumber("seconds")],
+                ["milliseconds", Schema.ofNumber("milliseconds")]
+            ]
+        ))]]))])); 
 
 
-export class GetTimeAsArray extends AbstractFunction{
+export class GetTimeAsObject extends AbstractFunction{
     
     public getSignature(): FunctionSignature {
         return SIGNATURE;
@@ -39,10 +50,17 @@ export class GetTimeAsArray extends AbstractFunction{
 
         const date = new Date(inputDate);
 
-        const outputArray = [ date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()
-            , date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds()];
-        
-        return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT , outputArray]]))]);
+        const outputObject = {
+            year: date.getUTCFullYear(),
+            month: date.getUTCMonth() + 1,
+            day: date.getUTCDate(),
+            hours: date.getUTCHours(),
+            minutes: date.getUTCMinutes(),
+            seconds: date.getUTCSeconds(),
+            milliseconds: date.getUTCMilliseconds()
+        };
+
+        return new FunctionOutput([EventResult.outputOf(new Map([[OUTPUT , outputObject]]))]);
     }
 
 }

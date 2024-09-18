@@ -26,7 +26,7 @@ public class GetTimeAsArrayTest {
 
         StepVerifier.create(gta.execute(rfep))
         .expectNextMatches(r ->{
-            JsonArray actualArray = r.allResults().get(0).getResult().get("output").getAsJsonArray();
+            JsonArray actualArray = r.allResults().get(0).getResult().get("result").getAsJsonArray();
             JsonArray expectedArray = new JsonArray();
             expectedArray.add(2024);
             expectedArray.add(9);
@@ -57,13 +57,34 @@ public class GetTimeAsArrayTest {
 
         StepVerifier.create(gta.execute(rfep))
         .expectNextMatches(r ->{
-            JsonArray actualArray = r.allResults().get(0).getResult().get("output").getAsJsonArray();
+            JsonArray actualArray = r.allResults().get(0).getResult().get("result").getAsJsonArray();
             JsonArray expectedArray = new JsonArray();
             expectedArray.add(2023);
             expectedArray.add(10);
             expectedArray.add(10);
+            expectedArray.add(22);
+            expectedArray.add(14);
+            expectedArray.add(54);
+            expectedArray.add(959);
+            return actualArray.equals(expectedArray);
+        })
+        .verifyComplete();
+    }
+
+    @Test
+    public void LongTest4() {
+
+        rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-06-10T10:02:54.959+02:11")));
+
+        StepVerifier.create(gta.execute(rfep))
+        .expectNextMatches(r ->{
+            JsonArray actualArray = r.allResults().get(0).getResult().get("result").getAsJsonArray();
+            JsonArray expectedArray = new JsonArray();
+            expectedArray.add(2023);
+            expectedArray.add(06);
             expectedArray.add(10);
-            expectedArray.add(2);
+            expectedArray.add(7);
+            expectedArray.add(51);
             expectedArray.add(54);
             expectedArray.add(959);
             return actualArray.equals(expectedArray);

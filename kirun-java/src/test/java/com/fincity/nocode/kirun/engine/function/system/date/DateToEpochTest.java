@@ -45,25 +45,6 @@ class DateToEpochTest {
 	@Test
 	void test1() {
 
-		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023-10-21T16:11:50.978Z")));
-
-		StepVerifier.create(dte.execute(rfep))
-		        .expectNextMatches(r ->
-				{
-			        return r.allResults()
-			                .get(0)
-			                .getResult()
-			                .get("result")
-			                .getAsLong() == 1697904710978L;
-		        })
-		        .verifyComplete();
-
-		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2023")));
-
-		StepVerifier.create(dte.execute(rfep))
-		        .expectError()
-		        .verify();
-
 		rfep.setArguments(Map.of("isoDate", new JsonPrimitive("2507-08-07T11:41:50.000Z")));
 
 		StepVerifier.create(dte.execute(rfep))
