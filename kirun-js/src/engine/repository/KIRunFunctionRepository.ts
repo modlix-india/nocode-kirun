@@ -1,5 +1,6 @@
 import { Function } from '../function/Function';
 import { ArrayFunctionRepository } from '../function/system/array/ArrayFunctionRepository';
+import { Join } from '../function/system/array/Join';
 import { Create } from '../function/system/context/Create';
 import { Get } from '../function/system/context/Get';
 import { SetFunction } from '../function/system/context/SetFunction';
@@ -13,6 +14,7 @@ import { MathFunctionRepository } from '../function/system/math/MathFunctionRepo
 import { ObjectFunctionRepository } from '../function/system/object/ObjectFunctionRepository';
 import { Print } from '../function/system/Print';
 import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
+import { DateFunctionRepository } from '../function/system/date/DateFunctionRepository';
 import { Wait } from '../function/system/Wait';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
@@ -39,6 +41,7 @@ const map: Map<string, Map<string, Function>> = new Map([
             mapEntry(new GenerateEvent()),
             mapEntry(new Print()),
             mapEntry(new Wait()),
+            mapEntry(new Join()),
         ]),
     ],
 ]);
@@ -65,6 +68,7 @@ export class KIRunFunctionRepository extends HybridRepository<Function> {
             new StringFunctionRepository(),
             new ArrayFunctionRepository(),
             new ObjectFunctionRepository(),
+            new DateFunctionRepository(),
         );
     }
 }

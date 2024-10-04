@@ -12,6 +12,7 @@ const map: Map<string, Schema> = new Map([
     ['long', Schema.ofLong('long').setNamespace(Namespaces.SYSTEM)],
     ['number', Schema.ofNumber('number').setNamespace(Namespaces.SYSTEM)],
     ['string', Schema.ofString('string').setNamespace(Namespaces.SYSTEM)],
+    ['Date.timeStamp', Schema.ofString('timeStamp').setNamespace(Namespaces.DATE)],
     [Parameter.EXPRESSION.getName()!, Parameter.EXPRESSION],
     [Schema.NULL.getName()!, Schema.NULL],
     [Schema.SCHEMA.getName()!, Schema.SCHEMA],
