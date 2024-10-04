@@ -258,9 +258,9 @@ class TypeValidatorTest {
 
 		JsonObject expectedObject = new JsonObject();
 		expectedObject.addProperty("int", 1997);
-		expectedObject.addProperty("long", 123123123);
-		expectedObject.addProperty("float", 123.12);
-		expectedObject.addProperty("double", 123.1232);
+		expectedObject.addProperty("long", 123123123L);
+		expectedObject.addProperty("float", 123.12F);
+		expectedObject.addProperty("double", 123.1232D);
 		expectedObject.addProperty("booleanTrue", true);
 		expectedObject.addProperty("booleanFalse", false);
 		expectedObject.addProperty("string", "12314");
