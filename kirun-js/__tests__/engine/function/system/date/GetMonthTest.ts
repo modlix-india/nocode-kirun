@@ -49,7 +49,7 @@ test('fetching for valid date' , async () => {
     fep.setArguments(new Map([[AbstractDateFunction.PARAMETER_DATE_NAME, '2024-09-01T23:52:34.633-05:30' ]]));
 
 
-    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(9);
+    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(8);
 
 })
 
@@ -64,7 +64,7 @@ test('fetching for valid date' , async () => {
     fep.setArguments(new Map([[AbstractDateFunction.PARAMETER_DATE_NAME, '2019-11-13T23:52:34.633Z' ]]));
 
 
-    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(11);
+    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(10);
 
 })
 
@@ -80,6 +80,6 @@ test('fetching for valid date' , async () => {
     fep.setArguments(new Map([[AbstractDateFunction.PARAMETER_DATE_NAME, '2023-12-31T07:35:17.000-12:00' ]]));
 
 
-    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(12);
+    expect( (await getMonthFunction.execute(fep)).allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(11);
 
 })
