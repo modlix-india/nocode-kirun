@@ -57,7 +57,7 @@ public class MathFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	public Mono<ReactiveFunction> find(String namespace, String name) {
 		if (!namespace.equals(Namespaces.MATH))
 			return Mono.empty();
-		return Mono.just(REPO_MAP.get(name));
+		return Mono.justOrEmpty(REPO_MAP.get(name));
 	}
 
 	@Override
