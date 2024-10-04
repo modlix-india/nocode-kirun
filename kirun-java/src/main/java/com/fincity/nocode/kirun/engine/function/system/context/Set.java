@@ -17,7 +17,6 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
-import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.expression.Expression;
 import com.fincity.nocode.kirun.engine.runtime.expression.ExpressionEvaluator;
