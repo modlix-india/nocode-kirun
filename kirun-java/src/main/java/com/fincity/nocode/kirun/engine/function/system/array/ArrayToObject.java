@@ -26,9 +26,9 @@ public class ArrayToObject extends AbstractArrayFunction {
     protected static String IGNORE_NULL_VALUES = "ignoreNullValues";
     protected static String IGNORE_NULL_KEYS = "ignoreNullKeys";
     protected static String IGNORE_DUPLICATE_KEYS = "ignoreDuplicateKeys";
-    private static String DATA = "Data.";
+    private static final String DATA = "Data.";
 
-    protected ArrayToObject() {
+    public ArrayToObject() {
         super("ArrayToObject",
 
                 List.of(
@@ -70,7 +70,6 @@ public class ArrayToObject extends AbstractArrayFunction {
 
         JsonObject result = updateArray(keyPath, valuePath, ignoreNullValues, ignoreNullKeys, ignoreDuplicateKeys,
                 sourceArr, ove);
-        
 
         return Mono.just(new FunctionOutput(
                 List.of(EventResult.outputOf(Map.of(AbstractArrayFunction.EVENT_RESULT_NAME, result)))));

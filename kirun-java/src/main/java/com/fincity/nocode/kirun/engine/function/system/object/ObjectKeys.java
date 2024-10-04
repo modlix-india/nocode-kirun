@@ -18,7 +18,7 @@ public class ObjectKeys extends AbstractObjectFunction {
 
 	private static final String VALUE = "value";
 
-	protected ObjectKeys() {
+	public ObjectKeys() {
 		super("ObjectKeys", Schema.ofArray(VALUE, Schema.ofString(VALUE)));
 	}
 
@@ -26,7 +26,7 @@ public class ObjectKeys extends AbstractObjectFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		var source = context.getArguments()
-		        .get(SOURCE);
+				.get(SOURCE);
 
 		JsonArray arr = new JsonArray();
 
@@ -51,10 +51,10 @@ public class ObjectKeys extends AbstractObjectFunction {
 		} else if (source.isJsonObject()) {
 
 			source.getAsJsonObject()
-			        .keySet()
-			        .stream()
-			        .sorted(String::compareTo)
-			        .forEach(arr::add);
+					.keySet()
+					.stream()
+					.sorted(String::compareTo)
+					.forEach(arr::add);
 		}
 
 		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, arr)))));

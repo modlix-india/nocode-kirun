@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 
 public class RemoveDuplicates extends AbstractArrayFunction {
 
-    protected RemoveDuplicates() {
+    public RemoveDuplicates() {
 
         super("RemoveDuplicates", List.of(AbstractArrayFunction.PARAMETER_ARRAY_SOURCE,
                 AbstractArrayFunction.PARAMETER_INT_SOURCE_FROM, AbstractArrayFunction.PARAMETER_INT_LENGTH),
