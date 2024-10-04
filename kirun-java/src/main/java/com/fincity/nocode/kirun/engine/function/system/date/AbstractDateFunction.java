@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -20,6 +21,7 @@ import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
+import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -32,8 +34,12 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
     public static final String PARAMETER_FIELD_NAME = "value";
 
-	private static final String ERROR_MSG = "Please provide the valid iso date.";
+	public static final String PARAMETER_INT_NAME = "intValue";
 
+	public static final String PARAMETER_UNIT_NAME  = "unit";
+
+	private static final String ERROR_MSG = "Please provide the valid iso date.";
+	
 	private final FunctionSignature functionSignature;
 
 	@Override
@@ -49,6 +55,19 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
     protected static final Parameter PARAMETER_FIELD  = new Parameter()
 		.setParameterName(PARAMETER_FIELD_NAME)
 		.setSchema(Schema.ofInteger(PARAMETER_FIELD_NAME));
+
+	protected static final Parameter PARAMETER_UNIT = new Parameter().setParameterName(PARAMETER_UNIT_NAME)
+	.setSchema(Schema.ofString(PARAMETER_UNIT_NAME).setEnums(List.of(
+		new JsonPrimitive("YEAR"),
+		new JsonPrimitive("MONTH"),
+		new JsonPrimitive("DAY"),
+		new JsonPrimitive("HOUR"),
+		new JsonPrimitive("MINUTE"),
+		new JsonPrimitive("SECOND"),
+		new JsonPrimitive("MILLISECOND"))));
+
+	protected static final Parameter PARAMETER_INT = new Parameter().setParameterName(PARAMETER_INT_NAME)
+		.setSchema(Schema.ofInteger(PARAMETER_INT_NAME));
 
 	protected static final Event EVENT_INT = new Event().setName(Event.OUTPUT)
 		.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofInteger(EVENT_RESULT_NAME)));
@@ -146,14 +165,13 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 		});
 	}
 
-	public static Entry<String, ReactiveFunction> ofEntryDateAndStringWithOutputName(final String name, String output,
-	        Function<String, Number> ufunction, SchemaType... schemaType) {
+	public static Entry<String,ReactiveFunction> ofEntryDateWithIntegerWithOutputDate(final String functionName, 
+		BiFunction<String, Integer, String> bifunction){
 
-		return Map.entry(name, new AbstractDateFunction(Namespaces.DATE, name, output, schemaType) {
+		return Map.entry(functionName, new AbstractDateFunction(Namespaces.DATE, functionName, EVENT_DATE , PARAMETER_DATE, PARAMETER_INT) {
 
 			@Override
 			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-
 				String date = context.getArguments()
 				        .get(PARAMETER_DATE_NAME)
 				        .getAsString();
@@ -161,10 +179,49 @@ public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 				if (!ValidDateTimeUtil.validate(date))
 					throw new KIRuntimeException(ERROR_MSG);
 
+				int amount = context.getArguments()
+				        .get(PARAMETER_INT_NAME)
+				        .getAsInt();
+
 				return Mono.just(new FunctionOutput(
-				        List.of(EventResult.outputOf(Map.of(output, new JsonPrimitive(ufunction.apply(date)))))));
+				        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(bifunction.apply(date, amount)))))));
+				
 			}
+
 		});
+
+	}
+
+	public static Entry<String, ReactiveFunction> ofEntryDateWithIntegerUnitWithOutputName(final String functionName,
+			TriFunction<String,Integer,String,String>  trifunction , SchemaType...  schemaType){
+
+				return Map.entry(functionName,
+
+				new AbstractDateFunction(Namespaces.DATE, functionName, EVENT_DATE, PARAMETER_DATE, PARAMETER_INT, PARAMETER_UNIT){
+
+					@Override
+					protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+						
+						String date = context.getArguments()
+							.get(PARAMETER_DATE_NAME)
+							.getAsString();
+
+						if (!ValidDateTimeUtil.validate(date))
+							throw new KIRuntimeException(ERROR_MSG);
+
+						int value = context.getArguments()
+							.get(PARAMETER_INT_NAME)
+							.getAsInt();
+
+						String unit = context.getArguments()
+							.get(PARAMETER_UNIT_NAME)
+							.getAsString();
+
+						return Mono.just(new FunctionOutput(
+								List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(trifunction.apply(date, value, unit)))))));
+					}
+
+				});
 	}
 
 }

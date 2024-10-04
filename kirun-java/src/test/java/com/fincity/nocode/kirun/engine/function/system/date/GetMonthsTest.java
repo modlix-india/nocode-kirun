@@ -50,7 +50,7 @@ public class GetMonthsTest {
                 .expectNextMatches(res -> res.next()
                 .getResult()
                 .get("result")
-                .getAsInt() == 9)
+                .getAsInt() == 8)
                 .verifyComplete();
 
 	}
@@ -65,7 +65,7 @@ public class GetMonthsTest {
 		        .expectNextMatches(res -> res.next()
 		                .getResult()
 		                .get("result")
-		                .getAsInt() == 9)
+		                .getAsInt() == 8)
 		        .verifyComplete();
 
 	}
@@ -80,7 +80,7 @@ public class GetMonthsTest {
 		        .expectNextMatches(res -> res.next()
 		                .getResult()
 		                .get("result")
-		                .getAsInt() == 12)
+		                .getAsInt() == 11)
 		        .verifyComplete();
     }
 }

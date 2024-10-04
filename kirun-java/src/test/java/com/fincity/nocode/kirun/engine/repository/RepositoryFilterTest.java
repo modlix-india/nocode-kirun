@@ -36,11 +36,11 @@ class RepositoryFilterTest {
 				.expectNext("System.any")
 				.verifyComplete();
 
-		StepVerifier.create(schemaRepo.filter("").collect(Collectors.toSet()))
-				.expectNext(Set.of("System.integer", "System.Null", "System.float", "System.number",
-						"System.ParameterExpression", "System.long", "System.string", "System.boolean", "System.Schema",
-						"System.double", "System.any"))
-				.verifyComplete();
+		StepVerifier.create(schemaRepo.filter("").sort().collect(Collectors.toSet()))
+		.expectNext(Set.of("System.any", "System.boolean", "System.double", "System.Date.timeStamp",
+				"System.float", "System.integer", "System.long", "System.number", "System.Null",
+				"System.ParameterExpression", "System.Schema", "System.string"))
+		.verifyComplete();
 	}
 
 }
