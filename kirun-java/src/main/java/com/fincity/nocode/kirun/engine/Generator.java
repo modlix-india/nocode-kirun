@@ -50,6 +50,7 @@ public class Generator {
             csv.append("Parameter,Type,Schema\n");
             if (signature.getParameters() != null) {
                 csv.append(signature.getParameters().entrySet().stream()
+                        .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
                         .map(entry -> {
                             String parameterName = entry.getKey();
                             com.fincity.nocode.kirun.engine.model.Parameter parameterType = entry.getValue();
@@ -67,6 +68,7 @@ public class Generator {
 
             csv.append("Events\n");
             csv.append(signature.getEvents().entrySet().stream()
+                    .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
                     .map(entry -> {
                         String eventName = entry.getKey();
                         Event event = entry.getValue();
@@ -74,6 +76,7 @@ public class Generator {
                                 escapeCsv(eventName) + "," + escapeCsv(event.getName()) + "\n");
                         str.append("Event Parameter,,Schema\n");
                         str.append(event.getParameters().entrySet().stream()
+                                .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
                                 .map(evParam -> {
                                     String eventParameterName = evParam.getKey();
                                     String schemaType = evParam.getValue().getType() == null ? ""

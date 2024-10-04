@@ -13,7 +13,9 @@ import reactor.core.publisher.Mono;
 public class Fill extends AbstractArrayFunction {
 
 	public Fill() {
-		super("Fill", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH, PARAMETER_ANY),
+		super("Fill",
+				List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH,
+						PARAMETER_ANY_ELEMENT),
 				EVENT_RESULT_ARRAY);
 	}
 
@@ -30,7 +32,7 @@ public class Fill extends AbstractArrayFunction {
 				.get(PARAMETER_INT_LENGTH.getParameterName())
 				.getAsInt();
 		var element = context.getArguments()
-				.get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		if (length == -1)
 			length = source.size() - srcfrom;

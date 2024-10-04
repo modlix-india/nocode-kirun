@@ -19,7 +19,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class ArrayToObject extends AbstractArrayFunction {
+public class ArrayToObjects extends AbstractArrayFunction {
 
     protected static String KEY_PATH = "keyPath";
     protected static String VALUE_PATH = "valuePath";
@@ -28,8 +28,8 @@ public class ArrayToObject extends AbstractArrayFunction {
     protected static String IGNORE_DUPLICATE_KEYS = "ignoreDuplicateKeys";
     private static final String DATA = "Data.";
 
-    public ArrayToObject() {
-        super("ArrayToObject",
+    public ArrayToObjects() {
+        super("ArrayToObjects",
 
                 List.of(
 

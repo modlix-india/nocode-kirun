@@ -38,6 +38,7 @@ async function generate() {
         csv += 'Parameter,Type,Schema\n';
         csv +=
             Array.from(signature.getParameters()?.entries() ?? [])
+                .sort((a, b) => a[0].localeCompare(b[0]))
                 .map((p) => {
                     const strings = [];
 
@@ -57,16 +58,20 @@ async function generate() {
 
         csv += 'Events\n';
         csv += Array.from(signature.getEvents()?.entries() ?? [])
+            .sort((a, b) => a[0].localeCompare(b[0]))
             .map((e) => {
                 const strings = [];
                 strings.push(`${escapeCsv(e[0])},${escapeCsv(e[1].getName())}\n`);
                 strings.push('Event Parameter,,Schema\n');
                 strings.push(
                     Array.from(e[1].getParameters()?.entries() ?? [])
+                        .sort((a, b) => a[0].localeCompare(b[0]))
                         .map((p) => {
                             const schemaType = Array.from(
                                 p[1].getType()?.getAllowedSchemaTypes() ?? [],
-                            ).join(';');
+                            )
+                                .sort()
+                                .join(';');
                             return `${escapeCsv(p[0])},,${escapeCsv(schemaType)}`;
                         })
                         .map((e) => e.toString().toLowerCase())

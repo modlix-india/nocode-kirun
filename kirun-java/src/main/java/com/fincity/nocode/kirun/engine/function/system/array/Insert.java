@@ -14,7 +14,8 @@ import reactor.core.publisher.Mono;
 public class Insert extends AbstractArrayFunction {
 
 	public Insert() {
-		super("Insert", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_OFFSET, PARAMETER_ANY), EVENT_RESULT_ARRAY);
+		super("Insert", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_OFFSET, PARAMETER_ANY_ELEMENT),
+				EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public class Insert extends AbstractArrayFunction {
 				.getAsInt();
 
 		var output = context.getArguments()
-				.get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
 		source = duplicateArray(source);
 		if (source.size() == 0) {
