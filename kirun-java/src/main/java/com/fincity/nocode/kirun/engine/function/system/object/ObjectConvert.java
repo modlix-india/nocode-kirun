@@ -60,10 +60,10 @@ public class ObjectConvert extends AbstractReactiveFunction {
 		return convertToSchema(schema, context.getSchemaRepository(), element, mode);
 	}
 
-	private Mono<FunctionOutput> convertToSchema(Schema schema, ReactiveRepository<Schema> targetSchemaRepo,
+	private Mono<FunctionOutput> convertToSchema(Schema targetSchema, ReactiveRepository<Schema> targetSchemaRepo,
 			JsonElement element, ConversionMode mode) {
 
-		return ReactiveSchemaValidator.validate(null, schema, targetSchemaRepo, element, true, mode)
+		return ReactiveSchemaValidator.validate(null, targetSchema, targetSchemaRepo, element, true, mode)
 				.flatMap(convertedElement -> Mono
 						.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, convertedElement))))))
 				.onErrorMap(error -> new KIRuntimeException(error.getMessage(), error));
