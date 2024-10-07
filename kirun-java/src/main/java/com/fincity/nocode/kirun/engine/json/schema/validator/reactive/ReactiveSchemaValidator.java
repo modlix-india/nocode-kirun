@@ -114,7 +114,9 @@ public class ReactiveSchemaValidator {
 				.flatMap(type -> Mono.just(element == null ? JsonNull.INSTANCE : element)
 						.flatMap(el -> ReactiveTypeValidator
 								.validate(parents, type, schema, repository, el, convert, mode)
-								.map(e -> Tuples.of(e, Optional.<Throwable>empty()))
+								.map(e -> convert
+										? Tuples.of(e, Optional.<Throwable>empty())
+										: Tuples.of(el, Optional.<Throwable>empty()))
 								.onErrorResume(sve -> Mono
 										.just(Tuples.of(el == null ? JsonNull.INSTANCE : el, Optional.of(sve))))
 								.onErrorStop()))
