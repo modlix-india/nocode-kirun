@@ -4,45 +4,17 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.convertor.enums.ConversionMode;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.type.Type;
-import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
+import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 class ObjectConvertTest {
-
-	private final ReactiveRepository<Schema> mockSchemaRepo = new ReactiveRepository<>() {
-
-		private final Schema booleanArraySchema = new Schema()
-				.setName("BooleanArray")
-				.setNamespace("testNamespace")
-				.setType(Type.of(SchemaType.ARRAY))
-				.setItems(ArraySchemaType.of(Schema.ofBoolean("boolean")));
-
-		@Override
-		public Mono<Schema> find(String namespace, String target) {
-			if ("testNamespace".equals(namespace) && "BooleanArray".equals(target)) {
-				return Mono.just(booleanArraySchema);
-			}
-			return Mono.empty();
-		}
-
-		@Override
-		public Flux<String> filter(String name) {
-			return Flux.empty();
-		}
-	};
 
 	@Test
 	void testBooleanArrayConversion() {
@@ -66,13 +38,22 @@ class ObjectConvertTest {
 		expectedArray.add(new JsonPrimitive(true));
 		expectedArray.add(new JsonPrimitive(false));
 
+		var arrayOfBooleanSchema = new JsonObject();
+		arrayOfBooleanSchema.addProperty("name", "ArrayType");
+		arrayOfBooleanSchema.addProperty("type", "ARRAY");
+		arrayOfBooleanSchema.add("defaultValue", new JsonArray());
+
+		var booleanSchema = new JsonObject();
+		booleanSchema.addProperty("name", "EachElement");
+		booleanSchema.addProperty("type", "BOOLEAN");
+		arrayOfBooleanSchema.add("items", booleanSchema);
+
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(),
-				mockSchemaRepo)
+				new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(
 						"source", booleanArray,
-						"targetNamespace", new JsonPrimitive("testNamespace"),
-						"target", new JsonPrimitive("BooleanArray"),
+						"schema", arrayOfBooleanSchema,
 						"conversionMode", new JsonPrimitive(ConversionMode.STRICT.name())))
 				.setContext(Map.of())
 				.setSteps(Map.of());
