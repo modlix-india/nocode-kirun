@@ -112,4 +112,78 @@ class ExpressionEvaluatorStringLiteralTest {
         assertEquals(new JsonPrimitive("fun"), ev.evaluate(valuesMap));
 
     }
+
+	@Test
+	void testForStringLengthCaseSquareBracket() {
+
+		JsonObject jsonObj = new JsonObject();
+		jsonObj.add("greeting", new JsonPrimitive("hello"));
+		jsonObj.add("name", new JsonPrimitive("surendhar"));
+
+		ArgumentsTokenValueExtractor atve = new ArgumentsTokenValueExtractor(
+				Map.of("a", new JsonPrimitive("surendhar "),
+						"b", new JsonPrimitive(2), "c", new JsonPrimitive(true), "d", new JsonPrimitive(1.5), "obj",
+						jsonObj));
+
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atve.getPrefix(), atve);
+		ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.a[\"length\"]");
+
+		assertEquals(new JsonPrimitive(10), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.a[\"length\"]");
+
+		ExpressionEvaluator nm = new ExpressionEvaluator("Arguments.b[\"length\"]");
+		assertThrows(ExpressionEvaluationException.class, () -> nm.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj.greeting[\"length\"]*'S'");
+		assertEquals(new JsonPrimitive("SSSSS"), ev.evaluate(valuesMap));
+		ev = new ExpressionEvaluator("Arguments.obj.greeting[\"length\"]*'SP'");
+		assertEquals(new JsonPrimitive("SPSPSPSPSP"), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj[\"greeting\"][\"length\"]*'S'");
+		assertEquals(new JsonPrimitive("SSSSS"), ev.evaluate(valuesMap));
+		ev = new ExpressionEvaluator("Arguments.obj[\"greeting\"][\"length\"]*'SP'");
+		assertEquals(new JsonPrimitive("SPSPSPSPSP"), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj.name[\"length\"] ? 'fun':'not Fun'");
+		assertEquals(new JsonPrimitive("fun"), ev.evaluate(valuesMap));
+
+	}
+
+	@Test
+	void testForStringLengthCaseWLengthObjectSquareBracket() {
+
+		JsonObject jsonObj = new JsonObject();
+		jsonObj.add("length", new JsonPrimitive("hello"));
+		jsonObj.add("name", new JsonPrimitive("surendhar"));
+
+		ArgumentsTokenValueExtractor atve = new ArgumentsTokenValueExtractor(
+				Map.of("a", new JsonPrimitive("surendhar "),
+						"b", new JsonPrimitive(2), "c", new JsonPrimitive(true), "d", new JsonPrimitive(1.5), "obj",
+						jsonObj));
+
+		Map<String, TokenValueExtractor> valuesMap = Map.of(atve.getPrefix(), atve);
+		ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.a[\"length\"]");
+
+		assertEquals(new JsonPrimitive(10), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.a[\"length\"]");
+
+		ExpressionEvaluator nm = new ExpressionEvaluator("Arguments.b[\"length\"]");
+		assertThrows(ExpressionEvaluationException.class, () -> nm.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj.length[\"length\"]*'S'");
+		assertEquals(new JsonPrimitive("SSSSS"), ev.evaluate(valuesMap));
+		ev = new ExpressionEvaluator("Arguments.obj.length[\"length\"]*'SP'");
+		assertEquals(new JsonPrimitive("SPSPSPSPSP"), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj[\"length\"][\"length\"]*'S'");
+		assertEquals(new JsonPrimitive("SSSSS"), ev.evaluate(valuesMap));
+		ev = new ExpressionEvaluator("Arguments.obj[\"length\"][\"length\"]*'SP'");
+		assertEquals(new JsonPrimitive("SPSPSPSPSP"), ev.evaluate(valuesMap));
+
+		ev = new ExpressionEvaluator("Arguments.obj.name[\"length\"] ? 'fun':'not Fun'");
+		assertEquals(new JsonPrimitive("fun"), ev.evaluate(valuesMap));
+
+	}
 }
