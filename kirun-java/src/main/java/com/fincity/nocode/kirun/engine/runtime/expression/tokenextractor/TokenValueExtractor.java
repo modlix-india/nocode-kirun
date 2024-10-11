@@ -54,7 +54,7 @@ public abstract class TokenValueExtractor {
 			return null;
 
 		if (LENGTH.equals(cPart))
-			return getLength(token, cPart, cElement);
+			return getLength(token, cElement);
 
 		if (cElement.isJsonArray())
 			return handleArrayAccess(token, cPart, cElement.getAsJsonArray());
@@ -68,7 +68,7 @@ public abstract class TokenValueExtractor {
 
 	public abstract JsonElement getStore();
 
-	private JsonElement getLength(String token, String cPart, JsonElement cElement) {
+	private JsonElement getLength(String token, JsonElement cElement) {
 
 		if (cElement.isJsonArray())
 			return new JsonPrimitive(cElement.getAsJsonArray().size());
@@ -80,7 +80,7 @@ public abstract class TokenValueExtractor {
 			return new JsonPrimitive(cElement.getAsString().length());
 
 		throw new ExpressionEvaluationException(token,
-				StringFormatter.format("$ length can't be found in token $", cPart, token));
+				StringFormatter.format("Length can't be found in token $", token));
 	}
 
 	private JsonElement handleArrayAccess(String token, String cPart, JsonArray cArray) {
