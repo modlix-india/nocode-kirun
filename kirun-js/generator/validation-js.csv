@@ -9,8 +9,8 @@ result,,array
 
 System.Array.ArrayToArrayOfObjects
 Parameter,Type,Schema
-keyName,EXPRESSION,string
 source,EXPRESSION,array
+keyName,EXPRESSION,string
 Events
 output,output
 Event Parameter,,Schema
@@ -18,23 +18,23 @@ result,,array
 
 System.Array.ArrayToObjects
 Parameter,Type,Schema
-ignoreDuplicateKeys,EXPRESSION,boolean
-ignoreNullKeys,EXPRESSION,boolean
-ignoreNullValues,EXPRESSION,boolean
-keyPath,EXPRESSION,string
 source,EXPRESSION,array
+keyPath,EXPRESSION,string
 valuePath,EXPRESSION,null;string
+ignoreNullValues,EXPRESSION,boolean
+ignoreNullKeys,EXPRESSION,boolean
+ignoreDuplicateKeys,EXPRESSION,boolean
 Events
 output,output
 Event Parameter,,Schema
-result,,array;boolean;double;float;integer;long;null;object;string
+result,,integer;long;float;double;string;boolean;array;null;object
 
 System.Array.BinarySearch
 Parameter,Type,Schema
-findPrimitive,EXPRESSION,double;float;integer;long;string
-length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
+findPrimitive,EXPRESSION,double;float;integer;long;string
+length,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -45,8 +45,6 @@ Parameter,Type,Schema
 find,EXPRESSION,array
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
-source,EXPRESSION,array
-srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -55,7 +53,6 @@ result,,integer
 System.Array.Concatenate
 Parameter,Type,Schema
 secondSource,EXPRESSION,array
-source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -63,8 +60,6 @@ result,,array
 
 System.Array.Copy
 Parameter,Type,Schema
-deepCopy,EXPRESSION,boolean
-length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -74,6 +69,7 @@ result,,array
 
 System.Array.Delete
 Parameter,Type,Schema
+source,EXPRESSION,array
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 source,EXPRESSION,array
 Events
@@ -91,7 +87,6 @@ result,,array
 
 System.Array.DeleteFrom
 Parameter,Type,Schema
-length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -109,11 +104,11 @@ result,,array
 
 System.Array.Disjoint
 Parameter,Type,Schema
-length,EXPRESSION,integer
-secondSource,EXPRESSION,array
-secondSrcFrom,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
+secondSource,EXPRESSION,array
+secondSrcFrom,EXPRESSION,integer
+length,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -124,8 +119,6 @@ Parameter,Type,Schema
 find,EXPRESSION,array
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
-source,EXPRESSION,array
-srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -133,8 +126,6 @@ result,,boolean
 
 System.Array.Fill
 Parameter,Type,Schema
-element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -144,10 +135,10 @@ result,,array
 
 System.Array.Frequency
 Parameter,Type,Schema
-element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-length,EXPRESSION,integer
 source,EXPRESSION,array
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 srcFrom,EXPRESSION,integer
+length,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -155,9 +146,9 @@ result,,integer
 
 System.Array.IndexOf
 Parameter,Type,Schema
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-findFrom,EXPRESSION,integer
 source,EXPRESSION,array
+elementObject,EXPRESSION,array;boolean;double;float;integer;long;object;string
+findFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -166,8 +157,6 @@ result,,integer
 System.Array.IndexOfArray
 Parameter,Type,Schema
 findFrom,EXPRESSION,integer
-secondSource,EXPRESSION,array
-source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -176,8 +165,6 @@ result,,integer
 System.Array.Insert
 Parameter,Type,Schema
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-offset,EXPRESSION,integer
-source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -186,7 +173,6 @@ result,,array
 System.Array.InsertLast
 Parameter,Type,Schema
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -195,7 +181,6 @@ result,,array
 System.Array.Join
 Parameter,Type,Schema
 delimiter,EXPRESSION,string
-source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema

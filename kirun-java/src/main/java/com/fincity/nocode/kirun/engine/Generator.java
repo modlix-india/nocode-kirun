@@ -1,6 +1,5 @@
 package com.fincity.nocode.kirun.engine;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +30,7 @@ public class Generator {
         List<String> functions = repo.filter("").collectList().block();
         if (functions == null)
             return;
-        Collections.sort(functions);
+        functions = functions.stream().distinct().sorted().collect(Collectors.toList());
 
         StringBuilder csv = new StringBuilder();
 

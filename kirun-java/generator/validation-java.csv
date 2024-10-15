@@ -155,7 +155,7 @@ result,,integer
 
 System.Array.IndexOf
 Parameter,Type,Schema
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 findFrom,EXPRESSION,integer
 source,EXPRESSION,array
 Events
@@ -175,7 +175,7 @@ result,,integer
 
 System.Array.Insert
 Parameter,Type,Schema
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 offset,EXPRESSION,integer
 source,EXPRESSION,array
 Events
@@ -185,7 +185,7 @@ result,,array
 
 System.Array.InsertLast
 Parameter,Type,Schema
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 source,EXPRESSION,array
 Events
 output,output
@@ -203,7 +203,7 @@ result,,boolean
 
 System.Array.LastIndexOf
 Parameter,Type,Schema
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 findFrom,EXPRESSION,integer
 source,EXPRESSION,array
 Events
@@ -259,19 +259,9 @@ output,output
 Event Parameter,,Schema
 result,,array
 
-System.Array.Reverse
-Parameter,Type,Schema
-length,EXPRESSION,integer
-source,EXPRESSION,array
-srcFrom,EXPRESSION,integer
-Events
-output,output
-Event Parameter,,Schema
-result,,array
-
 System.Array.Rotate
 Parameter,Type,Schema
-rotateLength,EXPRESSION,integer
+rotateDistance,EXPRESSION,integer
 source,EXPRESSION,array
 Events
 output,output
@@ -287,18 +277,6 @@ Event Parameter,,Schema
 result,,array
 
 System.Array.Sort
-Parameter,Type,Schema
-ascending,EXPRESSION,boolean
-findFrom,EXPRESSION,integer
-keyPath,EXPRESSION,string
-length,EXPRESSION,integer
-source,EXPRESSION,array
-Events
-output,output
-Event Parameter,,Schema
-result,,array
-
-System.Array.SubArray
 Parameter,Type,Schema
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
@@ -670,15 +648,6 @@ output,output
 Event Parameter,,Schema
 value,,float
 
-System.Math.RandomFloat
-Parameter,Type,Schema
-maxValue,EXPRESSION,float
-minValue,EXPRESSION,float
-Events
-output,output
-Event Parameter,,Schema
-value,,float
-
 System.Math.RandomInt
 Parameter,Type,Schema
 maxValue,EXPRESSION,integer
@@ -753,6 +722,16 @@ Events
 output,output
 Event Parameter,,Schema
 value,,double
+
+System.Object.ObjectConvert
+Parameter,Type,Schema
+conversionMode,CONSTANT,string
+schema,CONSTANT,object
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events
+output,output
+Event Parameter,,Schema
+value,,array;boolean;double;float;integer;long;null;object;string
 
 System.Object.ObjectDeleteKey
 Parameter,Type,Schema
@@ -931,15 +910,6 @@ Events
 output,output
 Event Parameter,,Schema
 value,,string
-
-System.String.Matches
-Parameter,Type,Schema
-regex,EXPRESSION,string
-string,EXPRESSION,string
-Events
-output,output
-Event Parameter,,Schema
-result,,boolean
 
 System.String.Matches
 Parameter,Type,Schema
