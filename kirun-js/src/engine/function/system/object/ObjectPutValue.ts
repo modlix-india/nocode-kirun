@@ -7,9 +7,7 @@ import { EventResult } from '../../../model/EventResult';
 import { FunctionSignature } from '../../../model/FunctionSignature';
 import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
-import { duplicate } from '../../../util/duplicate';
 import { AbstractFunction } from '../../AbstractFunction';
-import { isNullValue } from '../../../util/NullCheck';
 import { ObjectValueSetterExtractor } from '../../../runtime/expression/tokenextractor/ObjectValueSetterExtractor';
 
 const VALUE = 'value';

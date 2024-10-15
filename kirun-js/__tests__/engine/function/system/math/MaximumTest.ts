@@ -34,5 +34,6 @@ test('Minimum Test 3', () => {
         new Map([['value', ["-1", -1, 0, -1, -2]]]),
     )
 
-    expect(async () => (await max.execute(fep)).allResults()[0].getResult().get('value')).rejects.toThrowError("Value \"-1\" is not of valid type(s)\n-1 is not a Integer\n-1 is not a Long\n-1 is not a Float\n-1 is not a Double");
+    expect(async () => (await max.execute(fep)).allResults()[0].getResult().get('value')).rejects
+        .toThrowError("Error while executing the function System.Math.Maximum's parameter value with step name 'Unknown Step' with error : Value \"-1\" is not of valid type(s)\n-1 is not a Double\n-1 is not a Float\n-1 is not a Long\n-1 is not a Integer");
 })

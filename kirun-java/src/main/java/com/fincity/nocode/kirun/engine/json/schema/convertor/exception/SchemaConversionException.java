@@ -32,7 +32,7 @@ public class SchemaConversionException extends RuntimeException {
                         .map(SchemaConversionException::getMessage)
                         .collect(Collectors.joining("\n", "\n", ""))));
         this.mode = mode;
-        this.source = source != null ? source.toString() : "No source provided";
+        this.source = source != null ? source.toString() : null;
         this.schemaPath = schemaPath;
         this.scrList = scr;
     }
