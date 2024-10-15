@@ -7,8 +7,22 @@ import { SchemaUtil } from '../SchemaUtil';
 import { AnyOfAllOfOneOfValidator } from './AnyOfAllOfOneOfValidator';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { TypeValidator } from './TypeValidator';
+import { ConversionMode } from '../convertor/enums/ConversionMode';
+import { SchemaType } from '../type/SchemaType';
 
 export class SchemaValidator {
+    private static readonly ORDER: Record<SchemaType, number> = {
+        [SchemaType.OBJECT]: 0,
+        [SchemaType.ARRAY]: 1,
+        [SchemaType.DOUBLE]: 2,
+        [SchemaType.FLOAT]: 3,
+        [SchemaType.LONG]: 4,
+        [SchemaType.INTEGER]: 5,
+        [SchemaType.STRING]: 6,
+        [SchemaType.BOOLEAN]: 7,
+        [SchemaType.NULL]: 8,
+    };
+
     public static path(parents: Schema[] | undefined): string {
         if (!parents) return '';
 
@@ -23,6 +37,8 @@ export class SchemaValidator {
         schema: Schema | undefined,
         repository: Repository<Schema> | undefined,
         element: any,
+        convert?: boolean,
+        mode?: ConversionMode,
     ): Promise<any> {
         if (!schema) {
             throw new SchemaValidationException(
@@ -32,7 +48,7 @@ export class SchemaValidator {
         }
 
         if (!parents) {
-            parents = new Array();
+            parents = [];
         }
         parents.push(schema);
 
@@ -56,8 +72,22 @@ export class SchemaValidator {
                     ' format.',
             );
 
+        if (convert === true && isNullValue(schema.getType())) {
+            throw new SchemaValidationException(
+                this.path(parents),
+                'Type is missing in schema for declared ' + mode,
+            );
+        }
+
         if (schema.getType()) {
-            await SchemaValidator.typeValidation(parents, schema, repository, element);
+            element = await SchemaValidator.typeValidation(
+                parents,
+                schema,
+                repository,
+                element,
+                convert,
+                mode,
+            );
         }
 
         if (!StringUtil.isNullOrBlank(schema.getRef())) {
@@ -66,21 +96,32 @@ export class SchemaValidator {
                 await SchemaUtil.getSchemaFromRef(parents[0], repository, schema.getRef()),
                 repository,
                 element,
+                convert,
+                mode,
             );
         }
 
         if (schema.getOneOf() || schema.getAllOf() || schema.getAnyOf()) {
-            AnyOfAllOfOneOfValidator.validate(parents, schema, repository, element);
+            element = await AnyOfAllOfOneOfValidator.validate(
+                parents,
+                schema,
+                repository,
+                element,
+                convert,
+                mode,
+            );
         }
 
         if (schema.getNot()) {
-            let flag: boolean = false;
+            let flag: boolean;
             try {
-                let x = await SchemaValidator.validate(
+                await SchemaValidator.validate(
                     parents,
                     schema.getNot(),
                     repository,
                     element,
+                    convert,
+                    mode,
                 );
                 flag = true;
             } catch (err) {
@@ -129,28 +170,39 @@ export class SchemaValidator {
         schema: Schema,
         repository: Repository<Schema> | undefined,
         element: any,
-    ) {
-        let valid: boolean = false;
-        let list: SchemaValidationException[] = [];
-        let type;
-        for (type of Array.from(schema.getType()?.getAllowedSchemaTypes()?.values() ?? [])) {
+        convert?: boolean,
+        mode?: ConversionMode,
+    ): Promise<any> {
+        const allowedTypes: SchemaType[] = Array.from(
+            schema.getType()?.getAllowedSchemaTypes()?.values() ?? [],
+        ).sort(
+            (a: SchemaType, b: SchemaType) =>
+                (this.ORDER[a] ?? Infinity) - (this.ORDER[b] ?? Infinity),
+        );
+
+        let errors: SchemaValidationException[] = [];
+
+        for (const type of allowedTypes) {
             try {
-                await TypeValidator.validate(parents, type, schema, repository, element);
-                valid = true;
-                break;
+                return await TypeValidator.validate(
+                    parents,
+                    type,
+                    schema,
+                    repository,
+                    element,
+                    convert,
+                    mode,
+                );
             } catch (err: any) {
-                valid = false;
-                list.push(err);
+                errors.push(err);
             }
         }
 
-        if (!valid) {
-            throw new SchemaValidationException(
-                SchemaValidator.path(parents),
-                'Value ' + JSON.stringify(element) + ' is not of valid type(s)',
-                list,
-            );
-        }
+        throw new SchemaValidationException(
+            SchemaValidator.path(parents),
+            'Value ' + JSON.stringify(element) + ' is not of valid type(s)',
+            errors,
+        );
     }
 
     private constructor() {}

@@ -1,13 +1,5 @@
-import {
-    KIRunSchemaRepository,
-    Schema,
-    SchemaType,
-    StringFormat,
-    TypeUtil,
-} from '../../../../../src';
+import { Schema, SchemaType, StringFormat, TypeUtil } from '../../../../../src';
 import { StringValidator } from '../../../../../src';
-
-const repo = new KIRunSchemaRepository();
 
 test('String valid case', async () => {
     let value: String = 'surendhar';

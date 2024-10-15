@@ -190,7 +190,6 @@ class TypeValidatorTest {
 	void testNumberConvertorArray() {
 		Schema schema = Schema.ofArray("number", Schema.ofNumber("number"));
 
-		// Create an array of boolean representations
 		JsonArray numberArray = new JsonArray();
 		numberArray.add(new JsonPrimitive("11"));
 		numberArray.add(new JsonPrimitive("11.12"));
@@ -198,7 +197,6 @@ class TypeValidatorTest {
 		numberArray.add(new JsonPrimitive("1123.123"));
 		numberArray.add(new JsonPrimitive("0"));
 
-		// Create an expected array of converted boolean values
 		JsonArray expectedArray = new JsonArray();
 		expectedArray.add(new JsonPrimitive(11));
 		expectedArray.add(new JsonPrimitive(11.12));

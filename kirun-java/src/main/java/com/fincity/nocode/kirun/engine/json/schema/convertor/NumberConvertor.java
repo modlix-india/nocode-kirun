@@ -19,11 +19,11 @@ public class NumberConvertor {
 			JsonElement element) {
 
 		if (element == null || element.isJsonNull())
-			return handleUnConvertibleValue(parents, mode, element, getDefaultValue(schema),
+			return handleUnConvertibleValue(parents, mode, element, getDefault(schema),
 					"Expected a Number but found null");
 
 		if (!element.isJsonPrimitive()) {
-			return handleUnConvertibleValue(parents, mode, element, getDefaultValue(schema),
+			return handleUnConvertibleValue(parents, mode, element, getDefault(schema),
 					element + NOT_A + type.getPrintableName());
 		}
 
@@ -33,14 +33,14 @@ public class NumberConvertor {
 			try {
 				jp = new JsonPrimitive(Double.parseDouble(jp.getAsString()));
 			} catch (NumberFormatException exception) {
-				return handleUnConvertibleValue(parents, mode, element, getDefaultValue(schema),
+				return handleUnConvertibleValue(parents, mode, element, getDefault(schema),
 						element + NOT_A + type.getPrintableName());
 			}
 
 		Number number = extractNumber(type, jp, mode);
 
 		if (number == null) {
-			return handleUnConvertibleValue(parents, mode, element, getDefaultValue(schema),
+			return handleUnConvertibleValue(parents, mode, element, getDefault(schema),
 					element + NOT_A + type.getPrintableName());
 		}
 
@@ -93,7 +93,7 @@ public class NumberConvertor {
 		return value >= -Float.MAX_VALUE && value <= Float.MAX_VALUE;
 	}
 
-	private static JsonElement getDefaultValue(Schema schema) {
+	private static JsonElement getDefault(Schema schema) {
 		try {
 			Number value = schema.getDefaultValue().getAsNumber();
 			return new JsonPrimitive(value);
