@@ -110,6 +110,79 @@ class ExpressionEvaluatorTest {
 	}
 
 	@Test
+	void testWithSquareAccessBracket() {
+
+		JsonObject phone = new JsonObject();
+		phone.addProperty("phone1", "1234");
+		phone.addProperty("phone2", "5678");
+		phone.addProperty("phone3", "5678");
+
+		JsonObject address = new JsonObject();
+		address.addProperty("line1", "Flat 202, PVR Estates");
+		address.addProperty("line2", "Nagvara");
+		address.addProperty("city", "Benguluru");
+		address.addProperty("pin", "560048");
+		address.add("phone", phone);
+
+		JsonArray arr = new JsonArray();
+		arr.add(10);
+		arr.add(20);
+		arr.add(30);
+
+		JsonObject obj = new JsonObject();
+		obj.add("studentName", new JsonPrimitive("Kumar"));
+		obj.add("math", new JsonPrimitive(20));
+		obj.add("isStudent", new JsonPrimitive(true));
+		obj.add("address", address);
+		obj.add("array", arr);
+		obj.add("num", new JsonPrimitive(1));
+
+		Map<String, Map<String, Map<String, JsonElement>>> output = Map.of("step1",
+				Map.of("output", Map.of("name", new JsonPrimitive("Kiran"), "obj", obj)));
+
+		ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(),
+				new KIRunReactiveSchemaRepository()).setArguments(Map.of())
+				.setContext(Map.of())
+				.setSteps(output);
+
+		assertEquals(new JsonPrimitive(true),
+				new ExpressionEvaluator("Steps.step1.output.obj.phone.phone2 = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(true),
+				new ExpressionEvaluator("Steps.step1.output.obj[\"phone\"][\"phone2\"] = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(true),
+				new ExpressionEvaluator(
+						"Steps.step1.output.obj[\"address\"].phone[\"phone2\"] != Steps.step1.output.address.obj.phone.phone1 ")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(true),
+				new ExpressionEvaluator(
+						"Steps.step1.output.obj[\"address\"][\"phone\"][\"phone2\"] != Steps.step1.output.address.obj.phone.phone1 ")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(true),
+				new ExpressionEvaluator(
+						"Steps.step1.output.obj[\"address\"][\"phone\"][\"phone2\"] != Steps.step1.output[\"address\"][\"phone\"][\"phone2\"] ")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(32),
+				new ExpressionEvaluator("Steps.step1.output.obj.array[Steps.step1.output.obj[\"num\"] +1]+2")
+						.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
+				"Steps.step1.output.obj.array[Steps.step1.output.obj[\"num\"] +1]+Steps.step1.output.obj.array[Steps.step1.output.obj[\"num\"] +1]")
+				.evaluate(parameters.getValuesMap()));
+
+		assertEquals(new JsonPrimitive(60), new ExpressionEvaluator(
+				"Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]")
+				.evaluate(parameters.getValuesMap()));
+	}
+
+	@Test
 	void deepTest() {
 
 		var cobj = new JsonObject();

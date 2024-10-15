@@ -139,6 +139,86 @@ test('Expression Test', () => {
     );
 });
 
+test('Expression Evaluation with Square Access Bracket', () => {
+    let phone = { phone1: '1234', phone2: '5678', phone3: '5678' };
+
+    let address = {
+        line1: 'Flat 202, PVR Estates',
+        line2: 'Nagvara',
+        city: 'Benguluru',
+        pin: '560048',
+        phone: phone,
+    };
+
+    let arr = [10, 20, 30];
+
+    let obj = {
+        studentName: 'Kumar',
+        math: 20,
+        isStudent: true,
+        address: address,
+        array: arr,
+        num: 1,
+    };
+
+    let inMap: Map<string, any> = new Map();
+    inMap.set('name', 'Kiran');
+    inMap.set('obj', obj);
+
+    let output: Map<string, Map<string, Map<string, any>>> = new Map([
+        ['step1', new Map([['output', inMap]])],
+    ]);
+
+    let parameters: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
+        .setArguments(new Map())
+        .setContext(new Map())
+        .setSteps(output);
+
+    // New test cases for square access bracket using parameters value map
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj.phone.phone2 = Steps.step1.output.obj["phone"]["phone2"]')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj["phone"]["phone2"] = Steps.step1.output.obj["phone"]["phone2"]')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj["address"].phone["phone2"] != Steps.step1.output.address.obj.phone.phone1')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj["address"]["phone"]["phone2"] != Steps.step1.output.address.obj.phone.phone1')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj["address"]["phone"]["phone2"] != Steps.step1.output["address"]["phone"]["phone2"]')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(true);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj.array[Steps.step1.output.obj["num"] + 1] + 2')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(32);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj.array[Steps.step1.output.obj["num"] + 1] + Steps.step1.output.obj.array[Steps.step1.output.obj["num"] + 1]')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(60);
+
+    expect(
+        new ExpressionEvaluator('Steps.step1.output.obj.array[Steps.step1.output.obj.num + 1] + Steps.step1.output.obj.array[Steps.step1.output.obj.num + 1]')
+            .evaluate(parameters.getValuesMap())
+    ).toBe(60);
+});
+
 test('ExpressionEvaluation deep tests', () => {
     let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
         new Map<string, any>([

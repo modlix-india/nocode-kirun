@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.convertor.enums.ConversionMode;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
@@ -26,89 +27,97 @@ public class ReactiveArrayValidator {
 	private static final String BUT_FOUND = " but found ";
 
 	public static Mono<JsonElement> validate(List<Schema> parents, Schema schema, ReactiveRepository<Schema> repository,
-	        JsonElement element) {
+			JsonElement element) {
+
+		return validateArray(parents, schema, repository, element, false, null);
+	}
+
+	public static Mono<JsonElement> validate(List<Schema> parents, Schema schema, ReactiveRepository<Schema> repository,
+			JsonElement element, boolean convert, ConversionMode mode) {
+
+		return validateArray(parents, schema, repository, element, convert, mode);
+	}
+
+	private static Mono<JsonElement> validateArray(List<Schema> parents, Schema schema,
+			ReactiveRepository<Schema> repository, JsonElement element, boolean convert, ConversionMode mode) {
 
 		if (element == null || element.isJsonNull())
 			return Mono.error(new SchemaValidationException(path(parents), "Expected an array but found null"));
 
 		if (!element.isJsonArray())
-			return Mono.error(new SchemaValidationException(path(parents), element.toString() + " is not an Array"));
+			return Mono.error(new SchemaValidationException(path(parents), element + " is not an Array"));
 
 		return Mono.just((JsonArray) element)
 
-		        .flatMap(array ->
-				{
-			        try {
-				        checkMinMaxItems(parents, schema, array);
-			        } catch (SchemaValidationException sve) {
-				        return Mono.error(sve);
-			        }
+				.flatMap(array -> {
+					try {
+						checkMinMaxItems(parents, schema, array);
+					} catch (SchemaValidationException sve) {
+						return Mono.error(sve);
+					}
 
-			        return Mono.just(array);
-		        })
+					return Mono.just(array);
+				})
 
-		        .flatMap(array -> checkItems(parents, schema, repository, array))
+				.flatMap(array -> checkItems(parents, schema, repository, array, convert, mode))
 
-		        .flatMap(array ->
-				{
-			        try {
-				        checkUniqueItems(parents, schema, array);
-			        } catch (SchemaValidationException sve) {
-				        return Mono.error(sve);
-			        }
+				.flatMap(array -> {
+					try {
+						checkUniqueItems(parents, schema, array);
+					} catch (SchemaValidationException sve) {
+						return Mono.error(sve);
+					}
 
-			        return Mono.just(array);
-		        })
+					return Mono.just(array);
+				})
 
-		        .flatMap(array -> checkContains(parents, schema, repository, array));
+				.flatMap(array -> checkContains(parents, schema, repository, array));
 	}
 
 	public static Mono<JsonArray> checkContains(List<Schema> parents, Schema schema,
-	        ReactiveRepository<Schema> repository, JsonArray array) {
+			ReactiveRepository<Schema> repository, JsonArray array) {
 
 		if (schema.getContains() == null)
 			return Mono.just(array);
 
 		return countContains(parents, schema, repository, array,
-		        schema.getMinContains() == null && schema.getMaxContains() == null).flatMap(count ->
-		{
+				schema.getMinContains() == null && schema.getMaxContains() == null).flatMap(count -> {
 
-			        if (count == 0)
-				        return Mono.error(() -> new SchemaValidationException(path(parents),
-				                "None of the items are of type contains schema"));
+					if (count == 0)
+						return Mono.error(() -> new SchemaValidationException(path(parents),
+								"None of the items are of type contains schema"));
 
-			        if (schema.getMinContains() != null && schema.getMinContains() > count)
-				        return Mono.error(() -> new SchemaValidationException(path(parents),
-				                "The minimum number of the items of type contains schema should be "
-				                        + schema.getMinContains() + BUT_FOUND + count));
+					if (schema.getMinContains() != null && schema.getMinContains() > count)
+						return Mono.error(() -> new SchemaValidationException(path(parents),
+								"The minimum number of the items of type contains schema should be "
+										+ schema.getMinContains() + BUT_FOUND + count));
 
-			        if (schema.getMaxContains() != null && schema.getMaxContains() < count)
-				        return Mono.error(() -> new SchemaValidationException(path(parents),
-				                "The maximum number of the items of type contains schema should be "
-				                        + schema.getMaxContains() + BUT_FOUND + count));
+					if (schema.getMaxContains() != null && schema.getMaxContains() < count)
+						return Mono.error(() -> new SchemaValidationException(path(parents),
+								"The maximum number of the items of type contains schema should be "
+										+ schema.getMaxContains() + BUT_FOUND + count));
 
-			        return Mono.just(array);
-		        });
+					return Mono.just(array);
+				});
 	}
 
 	@SuppressWarnings("null")
 	private static Mono<Integer> countContains(List<Schema> parents, Schema schema,
-	        ReactiveRepository<Schema> repository, JsonArray array, boolean stopPoint) {
+			ReactiveRepository<Schema> repository, JsonArray array, boolean stopPoint) {
 
 		return Flux.fromIterable(array)
-		        .flatMap(element ->
-				{
-			        List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-			        return ReactiveSchemaValidator.validate(newParents, schema.getContains(), repository, element)
-			                .map(e -> 1)
-			                .onErrorReturn(0);
-		        })
-		        .takeUntil(e -> stopPoint && e == 1)
-		        .reduce(Integer::sum);
+				.flatMap(element -> {
+					List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+					return ReactiveSchemaValidator.validate(newParents, schema.getContains(), repository, element)
+							.map(e -> 1)
+							.onErrorReturn(0);
+				})
+				.takeUntil(e -> stopPoint && e == 1)
+				.reduce(Integer::sum);
 	}
 
 	public static Mono<JsonArray> checkItems(List<Schema> parents, Schema schema, ReactiveRepository<Schema> repository,
-	        JsonArray array) {
+			JsonArray array, boolean convert, ConversionMode mode) {
 		ArraySchemaType type = schema.getItems();
 
 		if (type == null)
@@ -117,55 +126,53 @@ public class ReactiveArrayValidator {
 		if (type.getSingleSchema() != null) {
 
 			return Flux.fromIterable(array)
-			        .flatMap(element ->
-					{
-				        List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
-				        return ReactiveSchemaValidator.validate(newParents, type.getSingleSchema(), repository,
-				                element);
-			        })
-			        .collectList()
-			        .map(e ->
-					{
+					.flatMap(element -> {
+						List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
+						return ReactiveSchemaValidator.validate(newParents, type.getSingleSchema(), repository,
+								element, convert, mode);
+					})
+					.collectList()
+					.map(e -> {
 
-				        JsonArray ja = new JsonArray(e.size());
-				        for (JsonElement el : e)
-					        ja.add(el);
-				        return ja;
-			        });
+						JsonArray ja = new JsonArray(e.size());
+						for (JsonElement el : e)
+							ja.add(el);
+						return ja;
+					});
 		}
 
 		if (type.getTupleSchema() != null) {
 			if (type.getTupleSchema()
-			        .size() != array.size()
-			        && (array.size() < type.getTupleSchema()
-			                .size() || !AdditionalType.canHaveAddtionalItems(schema.getAdditionalItems())))
+					.size() != array.size()
+					&& (array.size() < type.getTupleSchema()
+							.size() || !AdditionalType.canHaveAddtionalItems(schema.getAdditionalItems())))
 
 				return Mono.error(() -> new SchemaValidationException(path(parents),
-				        "Expected an array with only " + type.getTupleSchema()
-				                .size() + BUT_FOUND + array.size()));
+						"Expected an array with only " + type.getTupleSchema()
+								.size() + BUT_FOUND + array.size()));
 
-			return checkItemInTupleSchema(parents, repository, array, schema);
+			return checkItemInTupleSchema(parents, repository, array, schema, convert, mode);
 		}
 
 		return Mono.error(() -> new SchemaValidationException(path(parents), "Invalid Array schema type"));
 	}
 
 	private static Mono<JsonArray> checkItemInTupleSchema(List<Schema> parents, ReactiveRepository<Schema> repository,
-	        JsonArray array, Schema schema) {
+			JsonArray array, Schema schema, boolean convert, ConversionMode mode) {
 
 		Flux<Tuple3<Integer, JsonElement, Optional<Schema>>> processing = Flux.create(sink -> {
 
 			List<Schema> type = schema.getItems()
-			        .getTupleSchema();
+					.getTupleSchema();
 
-			int i = 0;
+			int i;
 			for (i = 0; i < type.size(); i++) {
 				sink.next(Tuples.of(i, array.get(i), Optional.of(type.get(i))));
 			}
 
 			Schema atSchema = schema.getAdditionalItems() == null ? null
-			        : schema.getAdditionalItems()
-			                .getSchemaValue();
+					: schema.getAdditionalItems()
+							.getSchemaValue();
 
 			for (; i < array.size(); i++) {
 				sink.next(Tuples.of(i, array.get(i), Optional.ofNullable(atSchema)));
@@ -176,55 +183,51 @@ public class ReactiveArrayValidator {
 
 		return processing.flatMap(tup -> {
 			if (tup.getT3()
-			        .isEmpty())
+					.isEmpty())
 				return Mono.just(Tuples.of(tup.getT1(), tup.getT2()));
 
 			List<Schema> newParents = new ArrayList<>(parents == null ? List.of() : parents);
 			Mono<JsonElement> validated = ReactiveSchemaValidator.validate(newParents, tup.getT3()
-			        .get(), repository, tup.getT2());
+					.get(), repository, tup.getT2(), convert, mode);
 
 			return validated.map(e -> Tuples.of(tup.getT1(), e));
 		})
-		        .collectList()
-		        .map(e ->
-				{
+				.collectList()
+				.map(e -> {
 
-			        JsonArray ja = new JsonArray(e.size());
-			        for (var el : e)
-				        ja.add(el.getT2());
+					JsonArray ja = new JsonArray(e.size());
+					for (var el : e)
+						ja.add(el.getT2());
 
-			        return ja;
-		        });
+					return ja;
+				});
 	}
-	
+
 	public static void checkUniqueItems(List<Schema> parents, Schema schema, JsonArray array) {
-        if (schema.getUniqueItems() != null && schema.getUniqueItems()
-                .booleanValue()) {
+		if (schema.getUniqueItems() != null && schema.getUniqueItems()) {
 
-            Set<JsonElement> set = new HashSet<>();
-            for (int i = 0; i < array.size(); i++) {
-                set.add(array.get(i));
-            }
+			Set<JsonElement> set = new HashSet<>();
+			for (int i = 0; i < array.size(); i++) {
+				set.add(array.get(i));
+			}
 
-            if (set.size() != array.size())
-                throw new SchemaValidationException(path(parents),
-                        "Items on the array are not unique");
-        }
-    }
+			if (set.size() != array.size())
+				throw new SchemaValidationException(path(parents),
+						"Items on the array are not unique");
+		}
+	}
 
-    public static void checkMinMaxItems(List<Schema> parents, Schema schema, JsonArray array) {
-        if (schema.getMinItems() != null && schema.getMinItems()
-                .intValue() > array.size()) {
-            throw new SchemaValidationException(path(parents),
-                    "Array should have minimum of " + schema.getMinItems() + " elements");
-        }
+	public static void checkMinMaxItems(List<Schema> parents, Schema schema, JsonArray array) {
+		if (schema.getMinItems() != null && schema.getMinItems() > array.size()) {
+			throw new SchemaValidationException(path(parents),
+					"Array should have minimum of " + schema.getMinItems() + " elements");
+		}
 
-        if (schema.getMaxItems() != null && schema.getMaxItems()
-                .intValue() < array.size()) {
-            throw new SchemaValidationException(path(parents),
-                    "Array can have  maximum of " + schema.getMaxItems() + " elements");
-        }
-    }
+		if (schema.getMaxItems() != null && schema.getMaxItems() < array.size()) {
+			throw new SchemaValidationException(path(parents),
+					"Array can have  maximum of " + schema.getMaxItems() + " elements");
+		}
+	}
 
 	private ReactiveArrayValidator() {
 	}

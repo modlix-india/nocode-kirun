@@ -1,13 +1,17 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import com.fincity.nocode.kirun.engine.json.schema.convertor.enums.ConversionMode;
 import com.fincity.nocode.kirun.engine.json.schema.reactive.ReactiveSchemaUtil;
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.google.gson.JsonElement;
@@ -20,8 +24,24 @@ import reactor.util.function.Tuples;
 
 public class ReactiveSchemaValidator {
 
+	private static final Map<SchemaType, Integer> ORDER = Map.of(
+			SchemaType.DOUBLE, 1,
+			SchemaType.FLOAT, 2,
+			SchemaType.LONG, 3,
+			SchemaType.INTEGER, 4);
+
 	public static Mono<JsonElement> validate(List<Schema> oldParents, Schema schema,
-	        ReactiveRepository<Schema> repository, JsonElement element) {
+			ReactiveRepository<Schema> repository, JsonElement element) {
+		return validateSchema(oldParents, schema, repository, element, false, null);
+	}
+
+	public static Mono<JsonElement> validate(List<Schema> oldParents, Schema schema,
+			ReactiveRepository<Schema> repository, JsonElement element, boolean convert, ConversionMode mode) {
+		return validateSchema(oldParents, schema, repository, element, convert, mode);
+	}
+
+	private static Mono<JsonElement> validateSchema(List<Schema> oldParents, Schema schema,
+			ReactiveRepository<Schema> repository, JsonElement element, boolean convert, ConversionMode mode) {
 
 		if (schema == null) {
 			return Mono.error(() -> new SchemaValidationException(path(oldParents), "No schema found to validate"));
@@ -31,107 +51,107 @@ public class ReactiveSchemaValidator {
 		parents.add(schema);
 
 		if ((element == null || element.isJsonNull()) && schema.getDefaultValue() != null) {
-			return Mono.just(schema.getDefaultValue()
-			        .deepCopy());
+			return Mono.just(schema.getDefaultValue().deepCopy());
 		}
 
 		if (schema.getConstant() != null) {
 			return Mono.fromCallable(() -> constantValidation(parents, schema, element));
 		}
 
-		if (schema.getEnums() != null && !schema.getEnums()
-		        .isEmpty()) {
+		if (schema.getEnums() != null && !schema.getEnums().isEmpty()) {
 			return Mono.fromCallable(() -> enumCheck(parents, schema, element));
 		}
 
 		if (schema.getFormat() != null && schema.getType() == null) {
 			return Mono.error(() -> new SchemaValidationException(path(parents),
-			        "Type is missing in schema for declared " + schema.getFormat()
-			                .toString() + " format."));
+					"Type is missing in schema for declared " + schema.getFormat().toString() + " format."));
 		}
 
-		return typeValidation(parents, schema, repository, element).flatMap(typValiElement -> {
+		return typeValidation(parents, schema, repository, element, convert, mode)
+				.flatMap(typValidElement -> {
+					if (schema.getRef() != null && !schema.getRef().isBlank()) {
+						return ReactiveSchemaUtil.getSchemaFromRef(parents.get(0), repository, schema.getRef())
+								.flatMap(refSchema -> validateSchema(parents, refSchema, repository, typValidElement,
+										convert, mode));
+					}
 
-			if (schema.getRef() != null && !schema.getRef()
-			        .isBlank()) {
-				return ReactiveSchemaUtil.getSchemaFromRef(parents.get(0), repository, schema.getRef())
-				        .flatMap(refSchema -> validate(parents, refSchema, repository, typValiElement));
-			}
-
-			return ReactiveAnyOfAllOfOneOfValidator.validate(parents, schema, repository, typValiElement)
-			        .flatMap(aoaoElement -> notValidation(parents, schema, repository, aoaoElement));
-		});
-
+					return ReactiveAnyOfAllOfOneOfValidator
+							.validate(parents, schema, repository, typValidElement, convert, mode)
+							.flatMap(aoaoElement -> notValidation(parents, schema, repository, aoaoElement));
+				});
 	}
 
 	public static Mono<JsonElement> notValidation(List<Schema> parents, Schema schema,
-	        ReactiveRepository<Schema> repository, JsonElement element) {
+			ReactiveRepository<Schema> repository, JsonElement element) {
 
 		if (schema.getNot() == null)
 			return Mono.just(element);
 
 		return validate(parents, schema.getNot(), repository, element)
 
-		        .map(e -> Optional.<Throwable>empty())
+				.map(e -> Optional.<Throwable>empty())
 
-		        .onErrorResume(t -> Mono.just(Optional.of(t)))
+				.onErrorResume(t -> Mono.just(Optional.of(t)))
 
-		        .flatMap(op -> op.isPresent() ?
+				.flatMap(op -> op.isPresent() ?
 
-		                Mono.just(element) :
+						Mono.just(element) :
 
-		                Mono.error(new SchemaValidationException(path(parents),
-		                        "Schema validated value in not condition.")));
+						Mono.error(new SchemaValidationException(path(parents),
+								"Schema validated value in not condition.")));
 	}
 
 	public static Mono<JsonElement> typeValidation(List<Schema> parents, Schema schema,
-	        ReactiveRepository<Schema> repository, JsonElement element) {
+			ReactiveRepository<Schema> repository, JsonElement element, boolean convert, ConversionMode mode) {
 
 		if (schema.getType() == null)
 			return Mono.just(element);
 
 		return Flux.fromIterable(schema.getType()
-		        .getAllowedSchemaTypes())
-		        .flatMap(type -> Mono.just(element == null ? JsonNull.INSTANCE : element)
-		                .flatMap(el -> ReactiveTypeValidator.validate(parents, type, schema, repository, el)
-		                        .map(e -> Tuples.of(el, Optional.<Throwable>empty()))
-		                        .onErrorResume(sve -> Mono
-		                                .just(Tuples.of(el == null ? JsonNull.INSTANCE : el, Optional.of(sve))))
-		                        .onErrorStop()))
+				.getAllowedSchemaTypes().stream().sorted(
+						Comparator.comparingInt(type -> ORDER.getOrDefault(type, Integer.MAX_VALUE)))
+				.toList())
+				.flatMap(type -> Mono.just(element == null ? JsonNull.INSTANCE : element)
+						.flatMap(el -> ReactiveTypeValidator
+								.validate(parents, type, schema, repository, el, convert, mode)
+								.map(e -> convert
+										? Tuples.of(e, Optional.<Throwable>empty())
+										: Tuples.of(el, Optional.<Throwable>empty()))
+								.onErrorResume(sve -> Mono
+										.just(Tuples.of(el == null ? JsonNull.INSTANCE : el, Optional.of(sve))))
+								.onErrorStop()))
 
-		        .takeUntil(e -> e.getT2()
-		                .isEmpty())
+				.takeUntil(e -> e.getT2()
+						.isEmpty())
 
-		        .collectList()
+				.collectList()
 
-		        .flatMap(lst ->
-				{
+				.flatMap(lst -> {
 
-			        if (lst.isEmpty())
-				        return Mono.empty();
+					if (lst.isEmpty())
+						return Mono.empty();
 
-			        Tuple2<JsonElement, Optional<Throwable>> last = lst.get(lst.size() - 1);
+					Tuple2<JsonElement, Optional<Throwable>> last = lst.get(lst.size() - 1);
 
-			        if (last.getT2()
-			                .isEmpty())
-				        return Mono.just(last.getT1());
+					if (last.getT2()
+							.isEmpty())
+						return Mono.just(last.getT1());
 
-			        String parentPath = path(parents);
+					String parentPath = path(parents);
 
-			        return Mono.error(() -> new SchemaValidationException(parentPath,
-			                "Value " + element + " is not of valid type(s)", lst.stream()
-			                        .map(Tuple2::getT2)
-			                        .filter(Optional::isPresent)
-			                        .map(Optional::get)
-			                        .map(e -> e instanceof SchemaValidationException sve ? sve
-			                                : new SchemaValidationException(parentPath, e))
-			                        .toList()));
-		        });
+					return Mono.error(() -> new SchemaValidationException(parentPath,
+							"Value " + element + " is not of valid type(s)", lst.stream()
+									.map(Tuple2::getT2)
+									.filter(Optional::isPresent)
+									.map(Optional::get)
+									.map(e -> e instanceof SchemaValidationException sve ? sve
+											: new SchemaValidationException(parentPath, e))
+									.toList()));
+				});
 	}
 
 	public static JsonElement constantValidation(List<Schema> parents, Schema schema, JsonElement element) {
-		if (!schema.getConstant()
-		        .equals(element)) {
+		if (!schema.getConstant().equals(element)) {
 			throw new SchemaValidationException(path(parents), "Expecting a constant value : " + element);
 		}
 		return element;
@@ -158,10 +178,10 @@ public class ReactiveSchemaValidator {
 	public static String path(List<Schema> parents) {
 
 		return parents == null || parents.isEmpty() ? ""
-		        : parents.stream()
-		                .map(Schema::getTitle)
-		                .filter(Objects::nonNull)
-		                .collect(Collectors.joining("."));
+				: parents.stream()
+						.map(Schema::getTitle)
+						.filter(Objects::nonNull)
+						.collect(Collectors.joining("."));
 	}
 
 	private ReactiveSchemaValidator() {

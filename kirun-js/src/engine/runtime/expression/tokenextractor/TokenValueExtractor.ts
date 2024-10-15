@@ -52,8 +52,8 @@ export abstract class TokenValueExtractor {
             .map((e) => e.trim())
             .filter((e) => !StringUtil.isNullOrBlank(e))
             .reduce(
-                (a, c, i) =>
-                    this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a, i),
+                (a, c) =>
+                    this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a),
                 jsonElement,
             );
 
@@ -64,74 +64,78 @@ export abstract class TokenValueExtractor {
         token: string,
         parts: string[],
         partNumber: number,
-        c: string,
-        a: any,
-        i: any,
+        cPart: string,
+        cElement: any
     ): any {
-        if (isNullValue(a)) return undefined;
+        if (isNullValue(cElement)) return undefined;
 
-        if (i === 0) {
-            if (c === 'length') {
-                const type = typeof a;
-                if (type === 'string' || Array.isArray(a)) return a.length;
-                if (type === 'object') return Object.keys(a).length;
-            }
-            if (Array.isArray(a)) {
-                try {
-                    let index: number = parseInt(c);
-                    if (isNaN(index)) {
-                        throw new Error(StringFormatter.format('$ is not a number', index));
-                    }
-                    if (index >= a.length) return undefined;
+        if (cPart === 'length') return this.getLength(token, cElement);
 
-                    return a[index];
-                } catch (err: any) {
-                    throw new ExpressionEvaluationException(
-                        token,
-                        StringFormatter.format("$ couldn't be parsed into integer in $", c, token),
-                        err,
-                    );
-                }
-            }
+        if (Array.isArray(cElement)) return this.handleArrayAccess(token, cPart, cElement);
 
-            this.checkIfObject(token, parts, partNumber, a);
-            return a[c];
-        } else if (c?.startsWith('"')) {
-            if (!c.endsWith('"') || c.length == 1 || c.length == 2)
-                throw new ExpressionEvaluationException(
-                    token,
-                    StringFormatter.format('$ is missing a double quote or empty key found', token),
-                );
+        return this.handleObjectAccess(token, parts, partNumber, cPart, cElement);
+    }
 
-            this.checkIfObject(token, parts, partNumber, a);
-            return a[c.substring(1, c.length - 1)];
+    private getLength(
+        token: string,
+        cElement: any
+    ): any {
+        const type = typeof cElement;
+
+        if (type === 'string' || Array.isArray(cElement)) return cElement.length;
+        if (type === 'object') {
+            if ('length' in cElement) return cElement['length'];
+            else return Object.keys(cElement).length;
         }
 
-        try {
-            let index: number = parseInt(c);
-            if (isNaN(index)) {
-                throw new Error(StringFormatter.format('$ is not a number', index));
-            }
-            if (!Array.isArray(a))
-                throw new ExpressionEvaluationException(
-                    token,
-                    StringFormatter.format(
-                        'Expecting an array with index $ while processing the expression',
-                        index,
-                        token,
-                    ),
-                );
+        throw new ExpressionEvaluationException(token,
+            StringFormatter.format('Length can\'t be found in token $', token))
+    }
 
-            if (index >= a.length) return undefined;
+    private handleArrayAccess(
+        token: string,
+        cPart: string,
+        cArray: any[]
+    ): any {
+        const index: number = parseInt(cPart);
 
-            return a[index];
-        } catch (err: any) {
+        if (isNaN(index)) {
             throw new ExpressionEvaluationException(
                 token,
-                StringFormatter.format("$ couldn't be parsed into integer in $", c, token),
-                err,
+                StringFormatter.format('$ is not a number', cPart)
             );
         }
+
+        if (index < 0 || index >= cArray.length) {
+            throw new ExpressionEvaluationException(
+                token,
+                StringFormatter.format('Index $ is out of bounds for array of length $', index, cArray.length)
+            );
+        }
+
+        return cArray[index];
+    }
+
+    private handleObjectAccess(
+        token: string,
+        parts: string[],
+        partNumber: number,
+        cPart: string,
+        cObject: any
+    ): any {
+        if (cPart.startsWith("\"")) {
+            if (!cPart.endsWith("\"") || cPart.length == 1 || cPart.length == 2) {
+                throw new ExpressionEvaluationException(
+                    token,
+                    StringFormatter.format("$ is missing a double quote or empty key found", token))
+            }
+
+            cPart = cPart.substring(1, parts.length - 2);
+        }
+
+        this.checkIfObject(token, parts, partNumber, cObject);
+
+        return cObject[cPart];
     }
 
     protected checkIfObject(
@@ -144,7 +148,7 @@ export abstract class TokenValueExtractor {
             throw new ExpressionEvaluationException(
                 token,
                 StringFormatter.format(
-                    'Unable to retrive $ from $ in the path $',
+                    'Unable to retrieve $ from $ in the path $',
                     parts[partNumber],
                     jsonElement.toString(),
                     token,

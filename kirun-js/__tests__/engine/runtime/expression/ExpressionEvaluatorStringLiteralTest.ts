@@ -4,7 +4,7 @@ import {
     MapUtil,
     TokenValueExtractor,
 } from '../../../../src';
-import { ExpressionEvaluator } from '../../../../src/engine/runtime/expression/ExpressionEvaluator';
+import { ExpressionEvaluator } from '../../../../src';
 
 test('Expression with String Literal - 1 ', () => {
     let ex: Expression = new Expression("'ki/run'+'ab'");
@@ -97,4 +97,76 @@ test('Expression with String Literal - 2 ', () => {
 
     ev = new ExpressionEvaluator('2.val');
     expect(ev.evaluate(valuesMap)).toBe('2.val');
+});
+
+test('Testing for string length with object', () => {
+    const jsonObj = {
+        greeting: 'hello',
+        name: 'surendhar'
+    };
+
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'surendhar '],
+            ['b', 2],
+            ['c', true],
+            ['d', 1.5],
+            ['obj', jsonObj],
+        ]),
+    );
+    const valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev: ExpressionEvaluator = new ExpressionEvaluator('Arguments.a.length');
+    expect(ev.evaluate(valuesMap)).toBe(10);
+
+    ev = new ExpressionEvaluator('Arguments.b.length');
+    expect(() => ev.evaluate(valuesMap)).toThrow();
+
+    ev = new ExpressionEvaluator('Arguments.obj.greeting.length * "S"');
+    expect(ev.evaluate(valuesMap)).toBe('SSSSS');
+
+    ev = new ExpressionEvaluator('Arguments.obj.greeting.length * "SP"');
+    expect(ev.evaluate(valuesMap)).toBe('SPSPSPSPSP');
+
+    ev = new ExpressionEvaluator('Arguments.obj.name.length ? "fun" : "not Fun"');
+    expect(ev.evaluate(valuesMap)).toBe('fun');
+});
+
+test('Testing for string length with square brackets', () => {
+    const jsonObj = {
+        greeting: 'hello',
+        name: 'surendhar'
+    };
+
+    let atv: ArgumentsTokenValueExtractor = new ArgumentsTokenValueExtractor(
+        new Map<string, any>([
+            ['a', 'surendhar '],
+            ['b', 2],
+            ['c', true],
+            ['d', 1.5],
+            ['obj', jsonObj],
+        ]),
+    );
+    const valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(atv.getPrefix(), atv);
+
+    let ev: ExpressionEvaluator = new ExpressionEvaluator('Arguments.a["length"]');
+    expect(ev.evaluate(valuesMap)).toBe(10);
+
+    ev = new ExpressionEvaluator('Arguments.b["length"]');
+    expect(() => ev.evaluate(valuesMap)).toThrow();
+
+    ev = new ExpressionEvaluator('Arguments.obj.greeting["length"] * "S"');
+    expect(ev.evaluate(valuesMap)).toBe('SSSSS');
+
+    ev = new ExpressionEvaluator('Arguments.obj.greeting["length"] * "SP"');
+    expect(ev.evaluate(valuesMap)).toBe('SPSPSPSPSP');
+
+    ev = new ExpressionEvaluator('Arguments.obj["greeting"]["length"] * "S"');
+    expect(ev.evaluate(valuesMap)).toBe('SSSSS');
+
+    ev = new ExpressionEvaluator('Arguments.obj["greeting"]["length"] * "SP"');
+    expect(ev.evaluate(valuesMap)).toBe('SPSPSPSPSP');
+
+    ev = new ExpressionEvaluator('Arguments.obj.name["length"] ? "fun" : "not Fun"');
+    expect(ev.evaluate(valuesMap)).toBe('fun');
 });
