@@ -11,7 +11,7 @@ export class LastIndexOf extends AbstractArrayFunction {
             'LastIndexOf',
             [
                 LastIndexOf.PARAMETER_ARRAY_SOURCE,
-                LastIndexOf.PARAMETER_ANY_NOT_NULL,
+                LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT,
                 LastIndexOf.PARAMETER_INT_FIND_FROM,
             ],
             LastIndexOf.EVENT_RESULT_INTEGER,
@@ -25,7 +25,7 @@ export class LastIndexOf extends AbstractArrayFunction {
 
         var find = context
             ?.getArguments()
-            ?.get(LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
+            ?.get(LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
         let len = context
             ?.getArguments()

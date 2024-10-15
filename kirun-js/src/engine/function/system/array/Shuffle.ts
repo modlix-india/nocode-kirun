@@ -5,7 +5,7 @@ import { AbstractArrayFunction } from './AbstractArrayFunction';
 
 export class Shuffle extends AbstractArrayFunction {
     public constructor() {
-        super('Shuffle', [Shuffle.PARAMETER_ARRAY_SOURCE], Shuffle.EVENT_RESULT_ANY);
+        super('Shuffle', [Shuffle.PARAMETER_ARRAY_SOURCE], Shuffle.EVENT_RESULT_ARRAY);
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

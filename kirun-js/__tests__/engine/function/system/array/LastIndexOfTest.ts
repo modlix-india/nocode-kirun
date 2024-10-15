@@ -1,6 +1,6 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { LastIndexOf } from '../../../../../src/engine/function/system/array/LastIndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Last Index of Test 1', async () => {
     let lind: LastIndexOf = new LastIndexOf();
@@ -32,7 +32,7 @@ test('Last Index of Test 1', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -71,7 +71,7 @@ test('Last Index of Test 2', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -108,7 +108,7 @@ test('Last Index of Test 3', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -145,7 +145,7 @@ test('Last Index of Test 4', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 12],
         ]),
     );
@@ -156,7 +156,7 @@ test('Last Index of Test 4', async () => {
     fep.setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), 'newas'],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), 'newas'],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 12],
         ]),
     );
@@ -195,7 +195,7 @@ test('Last Index of Test 5', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
@@ -250,7 +250,7 @@ test('Last Index of Test 6', async () => {
     ).setArguments(
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [LastIndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), js4],
+            [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), js4],
             [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 1],
         ]),
     );

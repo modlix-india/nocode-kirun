@@ -17,7 +17,7 @@ export class Sort extends AbstractArrayFunction {
                 Sort.PARAMETER_BOOLEAN_ASCENDING,
                 Sort.PARAMETER_KEY_PATH,
             ],
-            Sort.EVENT_RESULT_ANY,
+            Sort.EVENT_RESULT_ARRAY,
         );
     }
 

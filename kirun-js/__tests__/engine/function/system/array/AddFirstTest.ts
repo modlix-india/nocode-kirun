@@ -1,8 +1,4 @@
-import {
-    KIRunFunctionRepository,
-    KIRunSchemaRepository,
-    SchemaValidationException,
-} from '../../../../../src';
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { AddFirst } from '../../../../../src/engine/function/system/array/AddFirst';
 
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
@@ -225,7 +221,7 @@ test('Add Test 4', async () => {
         .setArguments(
             new Map([
                 [AddFirst.PARAMETER_ARRAY_SOURCE.getParameterName(), null],
-                [AddFirst.PARAMETER_ANY_NOT_NULL.getParameterName(), temp],
+                [AddFirst.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), temp],
             ]),
         )
         .setSteps(new Map([]))

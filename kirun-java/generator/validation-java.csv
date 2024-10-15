@@ -7,6 +7,28 @@ output,output
 Event Parameter,,Schema
 result,,array
 
+System.Array.ArrayToArrayOfObjects
+Parameter,Type,Schema
+keyName,EXPRESSION,string
+source,EXPRESSION,array
+Events
+output,output
+Event Parameter,,Schema
+result,,array
+
+System.Array.ArrayToObjects
+Parameter,Type,Schema
+ignoreDuplicateKeys,EXPRESSION,boolean
+ignoreNullKeys,EXPRESSION,boolean
+ignoreNullValues,EXPRESSION,boolean
+keyPath,EXPRESSION,string
+source,EXPRESSION,array
+valuePath,EXPRESSION,null;string
+Events
+output,output
+Event Parameter,,Schema
+result,,array;boolean;double;float;integer;long;null;object;string
+
 System.Array.BinarySearch
 Parameter,Type,Schema
 findPrimitive,EXPRESSION,double;float;integer;long;string
@@ -227,7 +249,7 @@ output,output
 Event Parameter,,Schema
 result,,integer
 
-System.Array.Reverse
+System.Array.RemoveDuplicates
 Parameter,Type,Schema
 length,EXPRESSION,integer
 source,EXPRESSION,array
@@ -254,7 +276,7 @@ output,output
 Event Parameter,,Schema
 result,,array
 
-System.Array.SubArray
+System.Array.Sort
 Parameter,Type,Schema
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
@@ -721,6 +743,14 @@ Event Parameter,,Schema
 value,,array;boolean;double;float;integer;long;null;object;string
 
 System.Object.ObjectEntries
+Parameter,Type,Schema
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events
+output,output
+Event Parameter,,Schema
+value,,array
+
+System.Object.ObjectKeys
 Parameter,Type,Schema
 source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events

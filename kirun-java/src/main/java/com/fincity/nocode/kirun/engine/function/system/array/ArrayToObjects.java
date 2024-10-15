@@ -19,17 +19,17 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
-public class ArrayToObject extends AbstractArrayFunction {
+public class ArrayToObjects extends AbstractArrayFunction {
 
     protected static String KEY_PATH = "keyPath";
     protected static String VALUE_PATH = "valuePath";
     protected static String IGNORE_NULL_VALUES = "ignoreNullValues";
     protected static String IGNORE_NULL_KEYS = "ignoreNullKeys";
     protected static String IGNORE_DUPLICATE_KEYS = "ignoreDuplicateKeys";
-    private static String DATA = "Data.";
+    private static final String DATA = "Data.";
 
-    protected ArrayToObject() {
-        super("ArrayToObject",
+    public ArrayToObjects() {
+        super("ArrayToObjects",
 
                 List.of(
 
@@ -70,7 +70,6 @@ public class ArrayToObject extends AbstractArrayFunction {
 
         JsonObject result = updateArray(keyPath, valuePath, ignoreNullValues, ignoreNullKeys, ignoreDuplicateKeys,
                 sourceArr, ove);
-        
 
         return Mono.just(new FunctionOutput(
                 List.of(EventResult.outputOf(Map.of(AbstractArrayFunction.EVENT_RESULT_NAME, result)))));

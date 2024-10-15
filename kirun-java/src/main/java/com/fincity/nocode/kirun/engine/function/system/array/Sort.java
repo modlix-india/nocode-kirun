@@ -23,7 +23,7 @@ public class Sort extends Max {
 	private ObjectValueSetterExtractor ove;
 	private static String DATA = "Data.";
 
-	protected Sort() {
+	public Sort() {
 		super("Sort", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_INT_FIND_FROM, PARAMETER_INT_LENGTH,
 				PARAMETER_BOOLEAN_ASCENDING, PARAMETER_KEY_PATH), EVENT_RESULT_ARRAY);
 		this.ove = new ObjectValueSetterExtractor(new JsonObject(), "Data.");
@@ -47,7 +47,7 @@ public class Sort extends Max {
 		boolean ascending = context.getArguments()
 				.get(PARAMETER_BOOLEAN_ASCENDING.getParameterName())
 				.getAsBoolean();
-		
+
 		String keyPath = context.getArguments()
 				.get(PARAMETER_KEY_PATH.getParameterName())
 				.getAsString();
@@ -80,19 +80,23 @@ public class Sort extends Max {
 
 	private int compareFunction(JsonElement a, JsonElement b, boolean ascending, String keyPath) {
 		ObjectValueSetterExtractor ove = new ObjectValueSetterExtractor(new JsonObject(), "Data.");
-		if(a.isJsonObject() && b.isJsonObject() && !StringUtil.isNullOrBlank(keyPath)) {
+		if (a.isJsonObject() && b.isJsonObject() && !StringUtil.isNullOrBlank(keyPath)) {
 			JsonObject current = new JsonObject();
 			current.add("a", a);
 			current.add("b", b);
 			ove.setStore(current);
-			var aVal = ove.getValue(DATA+"a." + keyPath);
-            var bVal = ove.getValue(DATA+"b." + keyPath);
+			var aVal = ove.getValue(DATA + "a." + keyPath);
+			var bVal = ove.getValue(DATA + "b." + keyPath);
 			JsonPrimitive aValue = aVal.isJsonPrimitive() ? aVal.getAsJsonPrimitive() : null;
 			JsonPrimitive bValue = bVal.isJsonPrimitive() ? bVal.getAsJsonPrimitive() : null;
-			return ascending ? compareTo(aValue,bValue) : -compareTo(aValue,bValue);
+			return ascending ? compareTo(aValue, bValue) : -compareTo(aValue, bValue);
 		}
 
-		return ascending ?  compareTo(a.isJsonPrimitive() ? a.getAsJsonPrimitive() : null, b.isJsonPrimitive() ? b.getAsJsonPrimitive() : null) : -compareTo(a.isJsonPrimitive() ? a.getAsJsonPrimitive() : null, b.isJsonPrimitive() ? b.getAsJsonPrimitive() : null);
+		return ascending
+				? compareTo(a.isJsonPrimitive() ? a.getAsJsonPrimitive() : null,
+						b.isJsonPrimitive() ? b.getAsJsonPrimitive() : null)
+				: -compareTo(a.isJsonPrimitive() ? a.getAsJsonPrimitive() : null,
+						b.isJsonPrimitive() ? b.getAsJsonPrimitive() : null);
 	}
 
 }

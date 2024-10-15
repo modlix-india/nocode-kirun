@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -158,7 +158,8 @@ class KIRuntimeWithoutGenEventTest {
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(outContent));
 		func.execute(fep).block();
-		assertEquals("\"Something muchh....\"\n31\n", outContent.toString());
+		assertEquals("\"Something muchh....\"" + System.lineSeparator() + "31" + System.lineSeparator(),
+				outContent.toString());
 	}
 
 	@Test
@@ -220,6 +221,7 @@ class KIRuntimeWithoutGenEventTest {
 		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(outContent));
 		func.execute(fep).block();
-		assertEquals("\"Nothing muchh....\"\n31\n", outContent.toString());
+		assertEquals("\"Nothing muchh....\"" + System.lineSeparator() + "31" + System.lineSeparator(),
+				outContent.toString());
 	}
 }
