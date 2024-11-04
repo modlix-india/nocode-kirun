@@ -278,7 +278,7 @@ class KIRuntimeTest {
 			array.add(array.get(i - 2)
 					.getAsInt()
 					+ array.get(i - 1)
-							.getAsInt());
+					.getAsInt());
 		}
 
 		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));
@@ -289,7 +289,6 @@ class KIRuntimeTest {
 						.setSchema(Schema.ofInteger("value"))))
 				.setEvents(Map.ofEntries(Event
 						.outputEventMapEntry(Map.of("value", Schema.ofArray("value", Schema.ofInteger("value"))))));
-		;
 
 		var fibFunction = new AbstractReactiveFunction() {
 
@@ -310,9 +309,9 @@ class KIRuntimeTest {
 				for (int i = 0; i < count; i++)
 					a.add(new JsonPrimitive(i < 2 ? i
 							: (a.get(i - 1)
-									.getAsInt()
-									+ a.get(i - 2)
-											.getAsInt())));
+							.getAsInt()
+							+ a.get(i - 2)
+							.getAsInt())));
 				return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of("value", a)))));
 			}
 		};
@@ -325,6 +324,13 @@ class KIRuntimeTest {
 		expression.addProperty("isExpression", true);
 		expression.addProperty("value", "Steps.fib.output.value");
 		resultObj.add("value", expression);
+
+		var secondResultObj = new JsonObject();
+		secondResultObj.add("name", new JsonPrimitive("count"));
+		var countExpression = new JsonObject();
+		countExpression.addProperty("isExpression", true);
+		countExpression.addProperty("value", "Arguments.Value");
+		secondResultObj.add("value", countExpression);
 
 		var hybrid = new ReactiveHybridRepository<>(new KIRunReactiveFunctionRepository(),
 				new ReactiveRepository<ReactiveFunction>() {
@@ -341,28 +347,43 @@ class KIRuntimeTest {
 				});
 
 		start = System.currentTimeMillis();
-		List<EventResult> out = new ReactiveKIRuntime(((FunctionDefinition) new FunctionDefinition()
+
+		FunctionDefinition functionDefinition = (FunctionDefinition) new FunctionDefinition()
 				.setNamespace("Test")
 				.setName("CustomFunction")
 				.setParameters(Map.of("Value", new Parameter().setParameterName("Value")
-						.setSchema(Schema.ofInteger("Value")))))
-				.setSteps(
-						Map.ofEntries(
-								Statement.ofEntry(new Statement("fib").setNamespace(fibFunctionSignature.getNamespace())
-										.setName("asdf")
-										.setParameterMap(Map.of("value",
-												Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
-								Statement.ofEntry(new Statement("fiboutput").setNamespace(genEvent.getNamespace())
-										.setName(genEvent.getName())
-										.setParameterMap(Map.of("eventName",
-												Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
-												"results", Map.ofEntries(ParameterReference.of(resultObj))))))))
+						.setSchema(Schema.ofInteger("Value"))))
+				.setEvents(Map.ofEntries(
+						Event.eventMapEntry("count", Map.of("count", Schema.ofInteger("count"))),
+						Event.outputEventMapEntry(Map.of("result", Schema.ofArray("result", Schema.ofInteger("result"))))
+				));
+
+		functionDefinition.setSteps(Map.ofEntries(
+				Statement.ofEntry(new Statement("fib").setNamespace(fibFunctionSignature.getNamespace())
+						.setName("asdf")
+						.setParameterMap(Map.of("value",
+								Map.ofEntries(ParameterReference.of("Arguments.Value"))))),
+				Statement.ofEntry(new Statement("countOutput").setNamespace(genEvent.getNamespace())
+						.setName(genEvent.getName())
+						.setParameterMap(Map.of("eventName",
+								Map.ofEntries(ParameterReference.of(new JsonPrimitive("count"))),
+								"results", Map.ofEntries(ParameterReference.of(secondResultObj))))),
+				Statement.ofEntry(new Statement("fiboutput").setNamespace(genEvent.getNamespace())
+						.setName(genEvent.getName())
+						.setParameterMap(Map.of("eventName",
+								Map.ofEntries(ParameterReference.of(new JsonPrimitive("output"))),
+								"results", Map.ofEntries(ParameterReference.of(resultObj)))))));
+
+		List<EventResult> out = new ReactiveKIRuntime(functionDefinition)
 				.execute(new ReactiveFunctionExecutionParameters(hybrid, new KIRunReactiveSchemaRepository())
 						.setArguments(Map.of("Value", new JsonPrimitive(num))))
 				.block()
 				.allResults();
 		System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start));
-		assertEquals(List.of(new EventResult().setName("output")
-				.setResult(Map.of("result", array))), out);
+		assertEquals(List.of(
+				new EventResult().setName("count").setResult(Map.of("count", new JsonPrimitive(num))),
+				new EventResult().setName("output").setResult(Map.of("result", array))
+		), out);
 	}
+
 }
