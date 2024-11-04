@@ -4,6 +4,7 @@ import { ArraySchemaType } from '../array/ArraySchemaType';
 import { Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
+import { ConversionMode } from '../convertor/enums/ConversionMode';
 
 export class ArrayValidator {
     public static async validate(
@@ -11,6 +12,8 @@ export class ArrayValidator {
         schema: Schema,
         repository: Repository<Schema> | undefined,
         element: any,
+        convert?: boolean,
+        mode?: ConversionMode,
     ): Promise<any> {
         if (isNullValue(element))
             throw new SchemaValidationException(
@@ -28,7 +31,7 @@ export class ArrayValidator {
 
         ArrayValidator.checkMinMaxItems(parents, schema, array);
 
-        await ArrayValidator.checkItems(parents, schema, repository, array);
+        await ArrayValidator.checkItems(parents, schema, repository, array, convert, mode);
 
         ArrayValidator.checkUniqueItems(parents, schema, array);
 
@@ -137,6 +140,8 @@ export class ArrayValidator {
         schema: Schema,
         repository: Repository<Schema> | undefined,
         array: any[],
+        convert?: boolean,
+        mode?: ConversionMode,
     ) {
         if (!schema.getItems()) return;
 
@@ -145,13 +150,14 @@ export class ArrayValidator {
         if (type.getSingleSchema()) {
             for (let i = 0; i < array.length; i++) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
-                let element: any = await SchemaValidator.validate(
+                array[i] = await SchemaValidator.validate(
                     newParents,
                     type.getSingleSchema(),
                     repository,
                     array[i],
+                    convert,
+                    mode,
                 );
-                array[i] = element;
             }
         }
 
@@ -180,16 +186,19 @@ export class ArrayValidator {
         repository: Repository<Schema> | undefined,
         array: any[],
         type: ArraySchemaType,
+        convert?: boolean,
+        mode?: ConversionMode,
     ) {
         for (let i = 0; i < type.getTupleSchema()?.length!; i++) {
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = await SchemaValidator.validate(
+            array[i] = await SchemaValidator.validate(
                 newParents,
                 type.getTupleSchema()![i],
                 repository,
                 array[i],
+                convert,
+                mode,
             );
-            array[i] = element;
         }
     }
 
@@ -246,13 +255,12 @@ export class ArrayValidator {
     ) {
         for (let i = type.getTupleSchema()?.length!; i < array.length; i++) {
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = await SchemaValidator.validate(
+            array[i] = await SchemaValidator.validate(
                 newParents,
                 schemaType!,
                 repository,
                 array[i],
             );
-            array[i] = element;
         }
         return;
     }

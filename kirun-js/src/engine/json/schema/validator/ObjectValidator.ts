@@ -4,6 +4,7 @@ import { AdditionalType, Schema } from '../Schema';
 import { SchemaUtil } from '../SchemaUtil';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
+import { ConversionMode } from '../convertor/enums/ConversionMode';
 
 export class ObjectValidator {
     public static async validate(
@@ -11,7 +12,9 @@ export class ObjectValidator {
         schema: Schema,
         repository: Repository<Schema> | undefined,
         element: any,
-    ) {
+        convert?: boolean,
+        mode?: ConversionMode,
+    ): Promise<any> {
         if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
@@ -38,7 +41,15 @@ export class ObjectValidator {
         }
 
         if (schema.getProperties()) {
-            await ObjectValidator.checkProperties(parents, schema, repository, jsonObject, keys);
+            await ObjectValidator.checkProperties(
+                parents,
+                schema,
+                repository,
+                jsonObject,
+                keys,
+                convert,
+                mode,
+            );
         }
 
         if (schema.getPatternProperties()) {
@@ -52,7 +63,7 @@ export class ObjectValidator {
         }
 
         if (schema.getAdditionalProperties()) {
-            await ObjectValidator.checkAddtionalProperties(
+            await ObjectValidator.checkAdditionalProperties(
                 parents,
                 schema,
                 repository,
@@ -60,6 +71,8 @@ export class ObjectValidator {
                 keys,
             );
         }
+
+        return jsonObject;
     }
 
     private static async checkPropertyNameSchema(
@@ -96,7 +109,7 @@ export class ObjectValidator {
         }
     }
 
-    private static async checkAddtionalProperties(
+    private static async checkAdditionalProperties(
         parents: Schema[],
         schema: Schema,
         repository: Repository<Schema> | undefined,
@@ -108,13 +121,12 @@ export class ObjectValidator {
             for (let key of Array.from(keys.values())) {
                 let newParents: Schema[] = !parents ? [] : [...parents];
 
-                let element: any = await SchemaValidator.validate(
+                jsonObject[key] = await SchemaValidator.validate(
                     newParents,
                     apt.getSchemaValue(),
                     repository,
                     jsonObject[key],
                 );
-                jsonObject[key] = element;
             }
         } else {
             if (apt.getBooleanValue() === false && keys.size) {
@@ -137,20 +149,17 @@ export class ObjectValidator {
         for (const keyPattern of Array.from(schema.getPatternProperties()!.keys()))
             compiledPatterns.set(keyPattern, new RegExp(keyPattern));
 
-        let goodKeys: string[] = [];
-
         for (const key of Array.from(keys.values())) {
             const newParents: Schema[] = !parents ? [] : [...parents];
 
             for (const e of Array.from(compiledPatterns.entries())) {
                 if (e[1].test(key)) {
-                    const element: any = await SchemaValidator.validate(
+                    jsonObject[key] = await SchemaValidator.validate(
                         newParents,
                         schema.getPatternProperties()!.get(e[0]),
                         repository,
                         jsonObject[key],
                     );
-                    jsonObject[key] = element;
                     keys.delete(key);
                     break;
                 }
@@ -164,6 +173,8 @@ export class ObjectValidator {
         repository: Repository<Schema> | undefined,
         jsonObject: any,
         keys: Set<string>,
+        convert?: boolean,
+        mode?: ConversionMode,
     ) {
         for (const each of Array.from(schema.getProperties()!)) {
             let value: any = jsonObject[each[0]];
@@ -174,14 +185,14 @@ export class ObjectValidator {
             }
 
             let newParents: Schema[] = !parents ? [] : [...parents];
-            let element: any = await SchemaValidator.validate(
+            jsonObject[each[0]] = await SchemaValidator.validate(
                 newParents,
                 each[1],
                 repository,
                 value,
+                convert,
+                mode,
             );
-
-            jsonObject[each[0]] = element;
             keys.delete(each[0]);
         }
     }
