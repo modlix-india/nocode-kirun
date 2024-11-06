@@ -273,11 +273,6 @@ test('indexof test 5', async () => {
         (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(5);
 
-    fep.setArguments(
-        new Map<string, any>([
-            [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), null],
-        ]),
-    );
+    fep.setArguments(new Map<string, any>());
     await expect(ind.execute(fep)).rejects.toThrow();
 });

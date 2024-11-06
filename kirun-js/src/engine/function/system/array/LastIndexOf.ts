@@ -23,7 +23,7 @@ export class LastIndexOf extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context
+        let find = context
             ?.getArguments()
             ?.get(LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 

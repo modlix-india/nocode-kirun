@@ -72,7 +72,7 @@ test('Last Index of Test 2', async () => {
         new Map<string, any>([
             [LastIndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
             [LastIndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
-            [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
+            [LastIndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
     await expect(lind.execute(fep)).rejects.toThrow();

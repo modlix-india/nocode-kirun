@@ -28,7 +28,7 @@ export class Wait extends AbstractFunction {
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        var condition = context.getArguments()?.get(Wait.MILLIS);
+        let condition = context.getArguments()?.get(Wait.MILLIS);
 
         await new Promise((resolve) => setTimeout(resolve, condition));
 

@@ -100,7 +100,7 @@ export abstract class AbstractFunction implements Function {
         );
         context.setArguments(args);
         try {
-            return this.internalExecute(context);
+            return await this.internalExecute(context);
         } catch (err: any) {
             const signature = this.getSignature();
             throw new KIRuntimeException(

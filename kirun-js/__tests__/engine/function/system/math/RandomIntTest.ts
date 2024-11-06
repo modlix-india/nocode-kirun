@@ -1,10 +1,9 @@
-import { RandomInt } from '../../../../../src/engine/function/system/math/RandomInt';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
-
-const rand = new RandomInt();
+import { KIRunFunctionRepository, KIRunSchemaRepository, Namespaces } from '../../../../../src';
+import { MathFunctionRepository } from '../../../../../src/engine/function/system/math/MathFunctionRepository';
 
 test(' rand int 1', async () => {
+    const rand = (await new MathFunctionRepository().find(Namespaces.MATH, 'RandomInt'))!;
     let min = 100,
         max = 1000123;
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
@@ -23,6 +22,7 @@ test(' rand int 1', async () => {
 });
 
 test(' rand int 2', async () => {
+    const rand = (await new MathFunctionRepository().find(Namespaces.MATH, 'RandomInt'))!;
     let min = 100;
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
         new KIRunFunctionRepository(),
@@ -35,6 +35,7 @@ test(' rand int 2', async () => {
 });
 
 test(' rand int 3', async () => {
+    const rand = (await new MathFunctionRepository().find(Namespaces.MATH, 'RandomInt'))!;
     let min = 100,
         max = 101;
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(

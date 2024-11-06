@@ -23,7 +23,7 @@ export class IndexOf extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context
+        let find = context
             ?.getArguments()
             ?.get(IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
@@ -35,7 +35,6 @@ export class IndexOf extends AbstractArrayFunction {
             return new FunctionOutput([
                 EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_NAME, -1]])),
             ]);
-
         if (len < 0 || len > source.length)
             throw new KIRuntimeException(
                 'The size of the search index of the array is greater than the size of the array',
