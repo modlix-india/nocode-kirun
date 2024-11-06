@@ -14,9 +14,8 @@ export class Print extends AbstractFunction {
 
     private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Print')
         .setNamespace(Namespaces.SYSTEM)
-        .setParameters(
-            new Map([Parameter.ofEntry(Print.VALUES, Schema.ofAny(Print.VALUES), true)]),
-        );
+        .setParameters(new Map([Parameter.ofEntry(Print.VALUES, Schema.ofAny(Print.VALUES), true)]))
+        .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
 
     public getSignature(): FunctionSignature {
         return Print.SIGNATURE;
