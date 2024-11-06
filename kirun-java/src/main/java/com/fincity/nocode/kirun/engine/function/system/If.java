@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
@@ -41,7 +40,7 @@ public class If extends AbstractReactiveFunction {
 				.get(CONDITION);
 
 		boolean condBoolean = !(condition == null || condition.isJsonNull());
-		if (condBoolean && condition.isJsonPrimitive()) {
+		if (condBoolean && condition.isJsonPrimitive()) { // NOSONAR Condition is not null
 			JsonPrimitive jp = condition.getAsJsonPrimitive();
 			if (jp.isBoolean())
 				condBoolean = jp.getAsBoolean();

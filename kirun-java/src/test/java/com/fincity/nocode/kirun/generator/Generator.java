@@ -49,8 +49,7 @@ public class Generator {
             FunctionSignature signature = func.getSignature();
 
             csv.append(escapeCsv(signature.getFullName()));
-            csv.append("\n");
-            csv.append("Parameter,Type,Schema\n");
+
             if (signature.getParameters() != null) {
                 String params = signature.getParameters().entrySet().stream()
                         .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
@@ -67,7 +66,9 @@ public class Generator {
                                     + escapeCsv(schemaType);
                         })
                         .collect(Collectors.joining("\n"));
+                csv.append("\n");
                 if (!params.isBlank()) {
+                    csv.append("Parameter,Type,Schema\n");
                     csv.append(params);
                     csv.append("\n");
                 }

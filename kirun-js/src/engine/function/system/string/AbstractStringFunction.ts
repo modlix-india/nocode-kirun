@@ -87,7 +87,7 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ),
     );
 
-    private signature: FunctionSignature;
+    private readonly signature: FunctionSignature;
 
     constructor(namespace: string, functionName: string, event: Event, ...parameter: Parameter[]) {
         super();
@@ -104,22 +104,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         return this.signature;
     }
 
-    public static ofEntryAsStringBooleanOutput(
+    public static ofEntryStringStringAndBooleanOutput(
         name: string,
         fun: (a: string, b: string) => boolean,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -146,22 +137,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryAsStringAndIntegerStringOutput(
+    public static ofEntryStringIntegerAndStringOutput(
         name: string,
         fun: (a: string, b: number) => string,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -188,22 +170,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryAsStringIntegerOutput(
+    public static ofEntryStringStringAndIntegerOutput(
         name: string,
         fun: (a: string, b: string) => number,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -230,19 +203,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryString(name: string, fun: (a: string) => string): [string, Function] {
+    public static ofEntryStringAndStringOutput(
+        name: string,
+        fun: (a: string) => string,
+    ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -264,22 +231,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
             ),
         ];
     }
-    public static ofEntryStringBooleanOutput(
+    public static ofEntryStringAndBooleanOutput(
         name: string,
         fun: (a: string) => boolean,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -302,22 +260,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryAsStringStringIntegerIntegerOutput(
+    public static ofEntryStringStringIntegerAndIntegerOutput(
         name: string,
         fun: (a: string, b: string, c: number) => number,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -349,22 +298,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryAsStringIntegerIntegerStringOutput(
+    public static ofEntryStringIntegerIntegerAndStringOutput(
         name: string,
         fun: (a: string, b: number, c: number) => string,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -391,7 +331,7 @@ export abstract class AbstractStringFunction extends AbstractFunction {
             })(
                 Namespaces.STRING,
                 name,
-                AbstractStringFunction.EVENT_INT,
+                AbstractStringFunction.EVENT_STRING,
                 AbstractStringFunction.PARAMETER_STRING,
                 AbstractStringFunction.PARAMETER_INDEX,
                 AbstractStringFunction.PARAMETER_SECOND_INDEX,
@@ -399,22 +339,13 @@ export abstract class AbstractStringFunction extends AbstractFunction {
         ];
     }
 
-    public static ofEntryAsStringStringStringStringOutput(
+    public static ofEntryStringStringStringAndStringOutput(
         name: string,
         fun: (a: string, b: string, c: string) => string,
     ): [string, Function] {
         return [
             name,
             new (class extends AbstractStringFunction {
-                constructor(
-                    namespace: string,
-                    functionName: string,
-                    event: Event,
-                    ...parameter: Parameter[]
-                ) {
-                    super(namespace, functionName, event, ...parameter);
-                }
-
                 protected async internalExecute(
                     context: FunctionExecutionParameters,
                 ): Promise<FunctionOutput> {
@@ -441,6 +372,35 @@ export abstract class AbstractStringFunction extends AbstractFunction {
                 AbstractStringFunction.PARAMETER_STRING,
                 AbstractStringFunction.PARAMETER_SECOND_STRING,
                 AbstractStringFunction.PARAMETER_THIRD_STRING,
+            ),
+        ];
+    }
+
+    public static ofEntryStringAndIntegerOutput(
+        name: string,
+        fun: (a: string) => number,
+    ): [string, Function] {
+        return [
+            name,
+            new (class extends AbstractStringFunction {
+                protected async internalExecute(
+                    context: FunctionExecutionParameters,
+                ): Promise<FunctionOutput> {
+                    let s: string = context
+                        ?.getArguments()
+                        ?.get(AbstractStringFunction.PARAMETER_STRING_NAME);
+
+                    return new FunctionOutput([
+                        EventResult.outputOf(
+                            MapUtil.of(AbstractStringFunction.EVENT_RESULT_NAME, fun(s)),
+                        ),
+                    ]);
+                }
+            })(
+                Namespaces.STRING,
+                name,
+                AbstractStringFunction.EVENT_INT,
+                AbstractStringFunction.PARAMETER_STRING,
             ),
         ];
     }

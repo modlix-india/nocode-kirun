@@ -729,6 +729,15 @@ output,output
 Event Parameter,,Schema
 value,,double
 
+System.Math.RandomDouble
+Parameter,Type,Schema
+maxValue,EXPRESSION,double
+minValue,EXPRESSION,double
+Events
+output,output
+Event Parameter,,Schema
+value,,double
+
 System.Math.RandomFloat
 Parameter,Type,Schema
 maxValue,EXPRESSION,float
@@ -746,6 +755,15 @@ Events
 output,output
 Event Parameter,,Schema
 value,,integer
+
+System.Math.RandomLong
+Parameter,Type,Schema
+maxValue,EXPRESSION,long
+minValue,EXPRESSION,long
+Events
+output,output
+Event Parameter,,Schema
+value,,long
 
 System.Math.Round
 Parameter,Type,Schema
@@ -795,6 +813,16 @@ output,output
 Event Parameter,,Schema
 value,,double
 
+System.Object.ObjectConvert
+Parameter,Type,Schema
+conversionMode,EXPRESSION,string
+schema,CONSTANT,object
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events
+output,output
+Event Parameter,,Schema
+value,,array;boolean;double;float;integer;long;null;object;string
+
 System.Object.ObjectDeleteKey
 Parameter,Type,Schema
 key,EXPRESSION,string
@@ -842,6 +870,7 @@ value,,array
 
 System.Print
 Parameter,Type,Schema
+stream,EXPRESSION,string
 values,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events
 output,output
@@ -890,6 +919,15 @@ Events
 output,output
 Event Parameter,,Schema
 result,,boolean
+
+System.String.Frequency
+Parameter,Type,Schema
+searchString,EXPRESSION,string
+string,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
 
 System.String.IndexOf
 Parameter,Type,Schema
@@ -949,6 +987,14 @@ System.String.LastIndexOfWithStartPoint
 Parameter,Type,Schema
 index,EXPRESSION,integer
 searchString,EXPRESSION,string
+string,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.String.Length
+Parameter,Type,Schema
 string,EXPRESSION,string
 Events
 output,output
@@ -1079,7 +1125,7 @@ string,EXPRESSION,string
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+result,,string
 
 System.String.ToString
 Parameter,Type,Schema
@@ -1090,6 +1136,22 @@ Event Parameter,,Schema
 result,,string
 
 System.String.Trim
+Parameter,Type,Schema
+string,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.String.TrimEnd
+Parameter,Type,Schema
+string,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.String.TrimStart
 Parameter,Type,Schema
 string,EXPRESSION,string
 Events

@@ -19,50 +19,69 @@ import { TrimTo } from './TrimTo';
 
 export class StringFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
-        AbstractStringFunction.ofEntryString('Trim', (e) => e.trim()),
-        AbstractStringFunction.ofEntryString('LowerCase', (e) => e.toLocaleLowerCase()),
-        AbstractStringFunction.ofEntryString('UpperCase', (e) => e.toUpperCase()),
-        AbstractStringFunction.ofEntryStringBooleanOutput('IsBlank', (e) => e.trim() === ''),
-        AbstractStringFunction.ofEntryStringBooleanOutput('IsEmpty', (e) => e === ''),
+        AbstractStringFunction.ofEntryStringAndStringOutput('Trim', (e) => e.trim()),
+        AbstractStringFunction.ofEntryStringAndStringOutput('TrimStart', (e) => e.trimStart()),
+        AbstractStringFunction.ofEntryStringAndStringOutput('TrimEnd', (e) => e.trimEnd()),
 
-        AbstractStringFunction.ofEntryAsStringBooleanOutput(
+        AbstractStringFunction.ofEntryStringAndIntegerOutput('Length', (e) => e.length),
+
+        AbstractStringFunction.ofEntryStringStringAndIntegerOutput('Frequency', (a, b) => {
+            let count = 0;
+            let index = a.indexOf(b);
+            while (index != -1) {
+                count++;
+                index = a.indexOf(b, index + 1);
+            }
+            return count;
+        }),
+
+        AbstractStringFunction.ofEntryStringAndStringOutput('LowerCase', (e) =>
+            e.toLocaleLowerCase(),
+        ),
+        AbstractStringFunction.ofEntryStringAndStringOutput('UpperCase', (e) => e.toUpperCase()),
+        AbstractStringFunction.ofEntryStringAndBooleanOutput('IsBlank', (e) => e.trim() === ''),
+        AbstractStringFunction.ofEntryStringAndBooleanOutput('IsEmpty', (e) => e === ''),
+
+        AbstractStringFunction.ofEntryStringStringAndBooleanOutput(
             'Contains',
             (a, b) => a.indexOf(b) != -1,
         ),
-        AbstractStringFunction.ofEntryAsStringBooleanOutput('EndsWith', (a, b) => a.endsWith(b)),
-        AbstractStringFunction.ofEntryAsStringBooleanOutput('StartsWith', (a, b) =>
+        AbstractStringFunction.ofEntryStringStringAndBooleanOutput('EndsWith', (a, b) =>
+            a.endsWith(b),
+        ),
+        AbstractStringFunction.ofEntryStringStringAndBooleanOutput('StartsWith', (a, b) =>
             a.startsWith(b),
         ),
-        AbstractStringFunction.ofEntryAsStringBooleanOutput(
+        AbstractStringFunction.ofEntryStringStringAndBooleanOutput(
             'EqualsIgnoreCase',
             (a, b) => a.toUpperCase() == b.toUpperCase(),
         ),
-        AbstractStringFunction.ofEntryAsStringBooleanOutput('Matches', (a, b) =>
+        AbstractStringFunction.ofEntryStringStringAndBooleanOutput('Matches', (a, b) =>
             new RegExp(b).test(a),
         ),
-        AbstractStringFunction.ofEntryAsStringIntegerOutput('IndexOf', (a, b) => a.indexOf(b)),
-        AbstractStringFunction.ofEntryAsStringIntegerOutput('LastIndexOf', (a, b) =>
+        AbstractStringFunction.ofEntryStringStringAndIntegerOutput('IndexOf', (a, b) =>
+            a.indexOf(b),
+        ),
+        AbstractStringFunction.ofEntryStringStringAndIntegerOutput('LastIndexOf', (a, b) =>
             a.lastIndexOf(b),
         ),
-        AbstractStringFunction.ofEntryAsStringAndIntegerStringOutput('Repeat', (a, b) =>
-            a.repeat(b),
-        ),
+        AbstractStringFunction.ofEntryStringIntegerAndStringOutput('Repeat', (a, b) => a.repeat(b)),
 
-        AbstractStringFunction.ofEntryAsStringStringIntegerIntegerOutput(
+        AbstractStringFunction.ofEntryStringStringIntegerAndIntegerOutput(
             'IndexOfWithStartPoint',
             (a, b, c) => a.indexOf(b, c),
         ),
-        AbstractStringFunction.ofEntryAsStringStringIntegerIntegerOutput(
+        AbstractStringFunction.ofEntryStringStringIntegerAndIntegerOutput(
             'LastIndexOfWithStartPoint',
             (a, b, c) => a.lastIndexOf(b, c),
         ),
-        AbstractStringFunction.ofEntryAsStringStringStringStringOutput('Replace', (a, b, c) => {
+        AbstractStringFunction.ofEntryStringStringStringAndStringOutput('Replace', (a, b, c) => {
             return a.replaceAll(b, c);
         }),
-        AbstractStringFunction.ofEntryAsStringStringStringStringOutput('ReplaceFirst', (a, b, c) =>
+        AbstractStringFunction.ofEntryStringStringStringAndStringOutput('ReplaceFirst', (a, b, c) =>
             a.replace(b, c),
         ),
-        AbstractStringFunction.ofEntryAsStringIntegerIntegerStringOutput('SubString', (a, b, c) =>
+        AbstractStringFunction.ofEntryStringIntegerIntegerAndStringOutput('SubString', (a, b, c) =>
             a.substring(b, c),
         ),
         mapEntry(new Concatenate()),

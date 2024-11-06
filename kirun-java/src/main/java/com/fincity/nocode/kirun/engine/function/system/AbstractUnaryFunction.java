@@ -47,8 +47,7 @@ public abstract class AbstractUnaryFunction extends AbstractReactiveFunction {
 
 	}
 
-	protected AbstractUnaryFunction(String namespace, SchemaType inputSchemaType, String functionName,
-			SchemaType... schemaType) {
+	protected AbstractUnaryFunction(String namespace, Type inputType, String functionName, SchemaType... schemaType) {
 
 		if (schemaType == null || schemaType.length == 0) {
 			schemaType = new SchemaType[] { SchemaType.DOUBLE };
@@ -58,7 +57,7 @@ public abstract class AbstractUnaryFunction extends AbstractReactiveFunction {
 				.setName(functionName)
 				.setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
 						.setSchema(new Schema().setName(VALUE)
-								.setType(Type.of(inputSchemaType)))))
+								.setType(inputType))))
 				.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, new Schema().setName(VALUE)
 						.setType(Type.of(schemaType))))));
 
@@ -96,10 +95,10 @@ public abstract class AbstractUnaryFunction extends AbstractReactiveFunction {
 		);
 	}
 
-	public static Map.Entry<String, ReactiveFunction> ofEntryStringBooleanOutput(final String name,
+	public static Map.Entry<String, ReactiveFunction> ofEntryStringAndBooleanOutput(final String name,
 			Predicate<String> function) {
 		return Map.entry(name,
-				new AbstractUnaryFunction(Namespaces.STRING, SchemaType.STRING, name, SchemaType.BOOLEAN) {
+				new AbstractUnaryFunction(Namespaces.STRING, Type.of(SchemaType.STRING), name, SchemaType.BOOLEAN) {
 
 					@Override
 					protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
@@ -113,9 +112,11 @@ public abstract class AbstractUnaryFunction extends AbstractReactiveFunction {
 				});
 	}
 
-	public static Map.Entry<String, ReactiveFunction> ofEntryNumber(final String name, UnaryOperator<Number> function,
+	public static Map.Entry<String, ReactiveFunction> ofEntryNumber(final String name,
+			Map<String, UnaryOperator<Number>> map,
 			SchemaType... schemaTypes) {
-		return Map.entry(name, new AbstractUnaryFunction(Namespaces.MATH, name, schemaTypes) {
+		return Map.entry(name, new AbstractUnaryFunction(Namespaces.MATH,
+				Type.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.LONG, SchemaType.INTEGER), name, schemaTypes) {
 
 			@Override
 			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
@@ -125,49 +126,50 @@ public abstract class AbstractUnaryFunction extends AbstractReactiveFunction {
 
 				Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil
 						.findPrimitiveNumberType(pValue.getAsJsonPrimitive());
-				JsonPrimitive rValue = null;
 
-				switch (primitiveTypeTuple.getT1()) {
-					case DOUBLE:
-						rValue = new JsonPrimitive(this.mathFunction(Double.class.cast(primitiveTypeTuple.getT2())));
-						break;
-					case FLOAT:
-						rValue = new JsonPrimitive(this.mathFunction(Float.class.cast(primitiveTypeTuple.getT2())));
-						break;
-					case LONG:
-						rValue = new JsonPrimitive(this.mathFunction(Long.class.cast(primitiveTypeTuple.getT2())));
-						break;
-					case INTEGER:
-						rValue = new JsonPrimitive(this.mathFunction(Integer.class.cast(primitiveTypeTuple.getT2())));
-						break;
-					default:
-						rValue = new JsonPrimitive(this.mathFunction(pValue.getAsInt()));
+				UnaryOperator<Number> mathFunction = map.get(primitiveTypeTuple.getT2().getClass().getName());
+				if (mathFunction == null) {
+					mathFunction = map.get(Double.class.getName());
 				}
 
-				return Mono
-						.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, (JsonElement) rValue)))));
-			}
+				Number rValue = switch (primitiveTypeTuple.getT1()) {
+					case DOUBLE -> mathFunction.apply(Double.class.cast(primitiveTypeTuple.getT2()));
+					case FLOAT -> mathFunction.apply(Float.class.cast(primitiveTypeTuple.getT2()));
+					case LONG -> mathFunction.apply(Long.class.cast(primitiveTypeTuple.getT2()));
+					case INTEGER -> mathFunction.apply(Integer.class.cast(primitiveTypeTuple.getT2()));
+					default -> mathFunction.apply(pValue.getAsInt());
+				};
 
-			public Number mathFunction(Number n) {
-				return function.apply(n);
+				return Mono
+						.just(new FunctionOutput(
+								List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(rValue))))));
 			}
 
 		});
 	}
 
-	public static Map.Entry<String, ReactiveFunction> ofEntryDouble(String name, DoubleUnaryOperator function,
-			SchemaType... schema) {
+	public static Map.Entry<String, ReactiveFunction> ofEntryAnyNumberDoubleOutput(String name,
+			DoubleUnaryOperator function) {
 
-		return ofEntryNumber(name, n -> (Number) function.applyAsDouble(n.doubleValue()), schema);
+		return Map.entry(name, new AbstractUnaryFunction(
+				Namespaces.MATH,
+				Type.of(SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.LONG, SchemaType.INTEGER),
+				name,
+				SchemaType.DOUBLE) {
 
+			@Override
+			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+
+				JsonElement pValue = context.getArguments()
+						.get(VALUE);
+
+				Tuple2<SchemaType, Number> primitiveTypeTuple = PrimitiveUtil
+						.findPrimitiveNumberType(pValue.getAsJsonPrimitive());
+
+				return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE,
+						new JsonPrimitive(function.applyAsDouble(primitiveTypeTuple.getT2().doubleValue())))))));
+
+			}
+		});
 	}
-
-	public static Map.Entry<String, ReactiveFunction> ofEntryAnyType(String name,
-			Map<Class<? extends Number>, UnaryOperator<Number>> map, SchemaType... schemaTypes) {
-
-		return ofEntryNumber(name, n -> map.get(n.getClass())
-				.apply(n), schemaTypes);
-
-	}
-
 }

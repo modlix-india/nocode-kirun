@@ -1,4 +1,6 @@
+import { Schema } from '../../../json/schema/Schema';
 import { SchemaType } from '../../../json/schema/type/SchemaType';
+import { Parameter } from '../../../model/Parameter';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { Repository } from '../../../Repository';
 import { AbstractFunction } from '../../AbstractFunction';
@@ -9,8 +11,7 @@ import { Hypotenuse } from './Hypotenuse';
 import { Maximum } from './Maximum';
 import { Minimum } from './Minimum';
 import { Random } from './Random';
-import { RandomFloat } from './RandomFloat';
-import { RandomInt } from './RandomInt';
+import { RandomAny } from './RandomAny';
 
 const functionObjectsIndex: { [key: string]: AbstractFunction } = {
     Absolute: new GenericMathFunction(
@@ -55,8 +56,46 @@ const functionObjectsIndex: { [key: string]: AbstractFunction } = {
     Maximum: new Maximum(),
     Minimum: new Minimum(),
     Random: new Random(),
-    RandomFloat: new RandomFloat(),
-    RandomInt: new RandomInt(),
+    RandomFloat: new RandomAny(
+        'RandomFloat',
+        Parameter.of(RandomAny.MIN_VALUE, Schema.ofFloat(RandomAny.MIN_VALUE).setDefaultValue(0)),
+        Parameter.of(
+            RandomAny.MAX_VALUE,
+            Schema.ofFloat(RandomAny.MAX_VALUE).setDefaultValue(2147483647),
+        ),
+        Schema.ofFloat(RandomAny.VALUE),
+        (min, max) => Math.random() * (max - min) + min,
+    ),
+    RandomInt: new RandomAny(
+        'RandomInt',
+        Parameter.of(RandomAny.MIN_VALUE, Schema.ofInteger(RandomAny.MIN_VALUE).setDefaultValue(0)),
+        Parameter.of(
+            RandomAny.MAX_VALUE,
+            Schema.ofInteger(RandomAny.MAX_VALUE).setDefaultValue(2147483647),
+        ),
+        Schema.ofInteger(RandomAny.VALUE),
+        (min, max) => Math.round(Math.random() * (max - min) + min),
+    ),
+    RandomLong: new RandomAny(
+        'RandomLong',
+        Parameter.of(RandomAny.MIN_VALUE, Schema.ofLong(RandomAny.MIN_VALUE).setDefaultValue(0)),
+        Parameter.of(
+            RandomAny.MAX_VALUE,
+            Schema.ofLong(RandomAny.MAX_VALUE).setDefaultValue(Number.MAX_SAFE_INTEGER),
+        ),
+        Schema.ofLong(RandomAny.VALUE),
+        (min, max) => Math.round(Math.random() * (max - min) + min),
+    ),
+    RandomDouble: new RandomAny(
+        'RandomDouble',
+        Parameter.of(RandomAny.MIN_VALUE, Schema.ofDouble(RandomAny.MIN_VALUE).setDefaultValue(0)),
+        Parameter.of(
+            RandomAny.MAX_VALUE,
+            Schema.ofDouble(RandomAny.MAX_VALUE).setDefaultValue(Number.MAX_VALUE),
+        ),
+        Schema.ofDouble(RandomAny.VALUE),
+        (min, max) => Math.random() * (max - min) + min,
+    ),
 };
 
 const filterableNames = Object.values(functionObjectsIndex).map((e) =>

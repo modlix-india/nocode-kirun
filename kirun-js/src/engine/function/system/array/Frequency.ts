@@ -2,7 +2,6 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { isNullValue } from '../../../util/NullCheck';
 import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
