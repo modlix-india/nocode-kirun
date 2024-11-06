@@ -1,8 +1,10 @@
 package com.fincity.nocode.kirun.engine.runtime.reactive;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -136,13 +138,13 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 	protected Mono<FunctionOutput> internalExecute(final ReactiveFunctionExecutionParameters inContext) {
 
 		if (inContext.getContext() == null)
-			inContext.setContext(new ConcurrentHashMap<>());
+			inContext.setContext(Collections.synchronizedMap(new LinkedHashMap<>()));
 
 		if (inContext.getEvents() == null)
-			inContext.setEvents(new ConcurrentHashMap<>());
+			inContext.setEvents(Collections.synchronizedMap(new LinkedHashMap<>()));
 
 		if (inContext.getSteps() == null)
-			inContext.setSteps(new ConcurrentHashMap<>());
+			inContext.setSteps(Collections.synchronizedMap(new LinkedHashMap<>()));
 
 		inContext.addTokenValueExtractor(new ArgumentsTokenValueExtractor(
 				inContext.getArguments() == null ? Map.of() : inContext.getArguments()));
