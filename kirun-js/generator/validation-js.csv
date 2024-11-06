@@ -9,8 +9,8 @@ result,,array
 
 System.Array.ArrayToArrayOfObjects
 Parameter,Type,Schema
-source,EXPRESSION,array
 keyName,EXPRESSION,string
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -18,23 +18,23 @@ result,,array
 
 System.Array.ArrayToObjects
 Parameter,Type,Schema
-source,EXPRESSION,array
-keyPath,EXPRESSION,string
-valuePath,EXPRESSION,null;string
-ignoreNullValues,EXPRESSION,boolean
-ignoreNullKeys,EXPRESSION,boolean
 ignoreDuplicateKeys,EXPRESSION,boolean
+ignoreNullKeys,EXPRESSION,boolean
+ignoreNullValues,EXPRESSION,boolean
+keyPath,EXPRESSION,string
+source,EXPRESSION,array
+valuePath,EXPRESSION,null;string
 Events
 output,output
 Event Parameter,,Schema
-result,,integer;long;float;double;string;boolean;array;null;object
+result,,array;boolean;double;float;integer;long;null;object;string
 
 System.Array.BinarySearch
 Parameter,Type,Schema
-source,EXPRESSION,array
-srcFrom,EXPRESSION,integer
 findPrimitive,EXPRESSION,double;float;integer;long;string
 length,EXPRESSION,integer
+source,EXPRESSION,array
+srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -45,6 +45,8 @@ Parameter,Type,Schema
 find,EXPRESSION,array
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
+source,EXPRESSION,array
+srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -53,6 +55,7 @@ result,,integer
 System.Array.Concatenate
 Parameter,Type,Schema
 secondSource,EXPRESSION,array
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -60,6 +63,8 @@ result,,array
 
 System.Array.Copy
 Parameter,Type,Schema
+deepCopy,EXPRESSION,boolean
+length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -69,7 +74,6 @@ result,,array
 
 System.Array.Delete
 Parameter,Type,Schema
-source,EXPRESSION,array
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 source,EXPRESSION,array
 Events
@@ -87,6 +91,7 @@ result,,array
 
 System.Array.DeleteFrom
 Parameter,Type,Schema
+length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -104,11 +109,11 @@ result,,array
 
 System.Array.Disjoint
 Parameter,Type,Schema
-source,EXPRESSION,array
-srcFrom,EXPRESSION,integer
+length,EXPRESSION,integer
 secondSource,EXPRESSION,array
 secondSrcFrom,EXPRESSION,integer
-length,EXPRESSION,integer
+source,EXPRESSION,array
+srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -119,6 +124,8 @@ Parameter,Type,Schema
 find,EXPRESSION,array
 findFrom,EXPRESSION,integer
 length,EXPRESSION,integer
+source,EXPRESSION,array
+srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -126,6 +133,8 @@ result,,boolean
 
 System.Array.Fill
 Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+length,EXPRESSION,integer
 source,EXPRESSION,array
 srcFrom,EXPRESSION,integer
 Events
@@ -135,10 +144,10 @@ result,,array
 
 System.Array.Frequency
 Parameter,Type,Schema
-source,EXPRESSION,array
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
-srcFrom,EXPRESSION,integer
 length,EXPRESSION,integer
+source,EXPRESSION,array
+srcFrom,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
@@ -146,9 +155,9 @@ result,,integer
 
 System.Array.IndexOf
 Parameter,Type,Schema
-source,EXPRESSION,array
-elementObject,EXPRESSION,array;boolean;double;float;integer;long;object;string
+elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 findFrom,EXPRESSION,integer
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -157,6 +166,8 @@ result,,integer
 System.Array.IndexOfArray
 Parameter,Type,Schema
 findFrom,EXPRESSION,integer
+secondSource,EXPRESSION,array
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -165,6 +176,8 @@ result,,integer
 System.Array.Insert
 Parameter,Type,Schema
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+offset,EXPRESSION,integer
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -173,6 +186,7 @@ result,,array
 System.Array.InsertLast
 Parameter,Type,Schema
 element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -181,6 +195,7 @@ result,,array
 System.Array.Join
 Parameter,Type,Schema
 delimiter,EXPRESSION,string
+source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
@@ -281,7 +296,7 @@ source,EXPRESSION,array
 Events
 output,output
 Event Parameter,,Schema
-result,,array;boolean;double;float;integer;long;null;object;string
+result,,array
 
 System.Array.SubArray
 Parameter,Type,Schema
@@ -299,8 +314,6 @@ name,CONSTANT,string
 schema,CONSTANT,object
 Events
 output,output
-Event Parameter,,Schema
-
 
 System.Context.Get
 Parameter,Type,Schema
@@ -316,8 +329,6 @@ name,EXPRESSION,string
 value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events
 output,output
-Event Parameter,,Schema
-
 
 System.Date.AddTime
 Parameter,Type,Schema
@@ -341,9 +352,6 @@ System.Date.DifferenceOfTimestamps
 Parameter,Type,Schema
 isoDateOne,EXPRESSION,string
 isoDateTwo,EXPRESSION,string
-Events
-
-
 System.Date.EpochToDate
 Parameter,Type,Schema
 epoch,EXPRESSION,
@@ -353,8 +361,6 @@ Event Parameter,,Schema
 date,,
 
 System.Date.GetCurrentTimeStamp
-Parameter,Type,Schema
-
 Events
 output,output
 Event Parameter,,Schema
@@ -496,30 +502,20 @@ eventName,EXPRESSION,string
 results,EXPRESSION,object
 Events
 output,output
-Event Parameter,,Schema
-
 
 System.If
 Parameter,Type,Schema
 condition,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events
 false,false
-Event Parameter,,Schema
-
 output,output
-Event Parameter,,Schema
-
 true,true
-Event Parameter,,Schema
-
 
 System.Loop.Break
 Parameter,Type,Schema
 stepName,EXPRESSION,string
 Events
 output,output
-Event Parameter,,Schema
-
 
 System.Loop.CountLoop
 Parameter,Type,Schema
@@ -728,8 +724,6 @@ Event Parameter,,Schema
 value,,double
 
 System.Math.Random
-Parameter,Type,Schema
-
 Events
 output,output
 Event Parameter,,Schema
@@ -850,7 +844,7 @@ System.Print
 Parameter,Type,Schema
 values,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events
-
+output,output
 
 System.String.Concatenate
 Parameter,Type,Schema
@@ -1125,7 +1119,4 @@ Parameter,Type,Schema
 millis,EXPRESSION,double;float;integer;long
 Events
 output,output
-Event Parameter,,Schema
-
-
 
