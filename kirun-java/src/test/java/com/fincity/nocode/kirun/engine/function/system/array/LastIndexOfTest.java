@@ -40,7 +40,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", array, "element", new JsonPrimitive("I"), "findFrom",
+						Map.of("source", array, "elementObject", new JsonPrimitive("I"), "findFrom",
 								new JsonPrimitive(3)));
 
 		LastIndexOf ind = new LastIndexOf();
@@ -51,7 +51,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", array, "element", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(2)));
+						Map.of("source", array, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(-2)));
 
 		StepVerifier.create(ind.execute(fep1))
 				.verifyError(KIRuntimeException.class);
@@ -81,7 +81,7 @@ class LastIndexOfTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", array,
-						"element", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(12)));
+						"elementObject", new JsonPrimitive("developement"), "findFrom", new JsonPrimitive(12)));
 
 		LastIndexOf ind = new LastIndexOf();
 
@@ -92,7 +92,7 @@ class LastIndexOfTest {
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source",
-						new JsonArray(), "element", new JsonPrimitive("new "), "findFrom", new JsonPrimitive(5)));
+						new JsonArray(), "elementObject", new JsonPrimitive("new "), "findFrom", new JsonPrimitive(5)));
 
 		StepVerifier.create(ind.execute(fep1))
 				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(-1)))
@@ -123,7 +123,7 @@ class LastIndexOfTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", array,
-						"element", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(-2)));
+						"elementObject", new JsonPrimitive("developedment"), "findFrom", new JsonPrimitive(-2)));
 
 		LastIndexOf ind = new LastIndexOf();
 
@@ -208,7 +208,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "element", array1, "findFrom", new JsonPrimitive(1)));
+				.setArguments(Map.of("source", arr, "elementObject", array1, "findFrom", new JsonPrimitive(1)));
 
 		LastIndexOf ind = new LastIndexOf();
 
@@ -259,7 +259,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "element", js3, "findFrom", new JsonPrimitive(10)));
+				.setArguments(Map.of("source", arr, "elementObject", js3, "findFrom", new JsonPrimitive(10)));
 
 		LastIndexOf ind = new LastIndexOf();
 
@@ -267,7 +267,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr, "element", js1, "findFrom", new JsonPrimitive(3)));
+				.setArguments(Map.of("source", arr, "elementObject", js1, "findFrom", new JsonPrimitive(3)));
 
 		StepVerifier.create(ind.execute(fep1))
 				.expectNextMatches(r -> r.next().getResult().get("result").equals(new JsonPrimitive(4)))
@@ -316,7 +316,7 @@ class LastIndexOfTest {
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-						Map.of("source", arr, "element", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(0)));
+						Map.of("source", arr, "elementObject", JsonNull.INSTANCE, "findFrom", new JsonPrimitive(-2)));
 
 		LastIndexOf ind = new LastIndexOf();
 

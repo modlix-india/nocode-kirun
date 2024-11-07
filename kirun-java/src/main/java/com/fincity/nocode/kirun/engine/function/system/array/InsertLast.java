@@ -24,7 +24,7 @@ public class InsertLast extends AbstractArrayFunction {
 				.getAsJsonArray();
 
 		var output = context.getArguments()
-				.get(PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		source = duplicateArray(source);
 		source.add(output);

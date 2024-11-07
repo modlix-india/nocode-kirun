@@ -81,25 +81,6 @@ test('Last Index of Test 2', async () => {
 test('Last Index of Test 3', async () => {
     let lind: LastIndexOf = new LastIndexOf();
 
-    let array: string[] = [];
-
-    array.push('test');
-    array.push('Driven');
-    array.push('developement');
-    array.push('I');
-    array.push('am');
-    array.push('using');
-    array.push('eclipse');
-    array.push('I');
-    array.push('to');
-    array.push('test');
-    array.push('the');
-    array.push('changes');
-    array.push('with');
-    array.push('test');
-    array.push('Driven');
-    array.push('developement');
-
     let find;
 
     let fep: FunctionExecutionParameters = new FunctionExecutionParameters(

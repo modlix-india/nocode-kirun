@@ -165,7 +165,7 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         Schema.ofArray('eachResult', Schema.ofAny('eachResult')),
     );
 
-    private signature: FunctionSignature;
+    private readonly signature: FunctionSignature;
 
     protected constructor(functionName: string, parameters: Parameter[], event: Event) {
         super();

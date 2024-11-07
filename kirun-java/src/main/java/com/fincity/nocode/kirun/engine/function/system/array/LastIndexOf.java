@@ -46,9 +46,6 @@ public class LastIndexOf extends AbstractArrayFunction {
 
 		int index = -1;
 
-		if (find.isJsonNull())
-			throw new KIRuntimeException("Please provide the valid find object or primitive in order to verify");
-
 		for (int i = source.size() - 1; i >= len; i--) {
 			if (PrimitiveUtil.compare(source.get(i), find) == 0) {
 				index = i;

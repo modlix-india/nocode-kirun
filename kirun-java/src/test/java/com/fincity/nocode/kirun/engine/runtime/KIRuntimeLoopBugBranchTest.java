@@ -272,7 +272,7 @@ class KIRuntimeLoopBugBranchTest {
                 "top": 760.3984375
               },
               "parameterMap": {
-                "value": {
+                "string": {
                   "7uvjy8hwDzlkIO6s8NLWr3": {
                     "key": "7uvjy8hwDzlkIO6s8NLWr3",
                     "type": "EXPRESSION",
@@ -295,7 +295,7 @@ class KIRuntimeLoopBugBranchTest {
                   "2rnqfOmJtOVK4RzhK0lPDu": {
                     "key": "2rnqfOmJtOVK4RzhK0lPDu",
                     "type": "EXPRESSION",
-                    "expression": "Steps.trim.output.value != ''",
+                    "expression": "Steps.trim.output.result != ''",
                     "order": 1
                   }
                 }
@@ -372,7 +372,7 @@ class KIRuntimeLoopBugBranchTest {
 
     var fd = gson.fromJson(func, FunctionDefinition.class);
 
-    var runtime = new ReactiveKIRuntime(fd, true);
+    var runtime = new ReactiveKIRuntime(fd);
 
     var execution = runtime.execute(
         new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
@@ -383,6 +383,6 @@ class KIRuntimeLoopBugBranchTest {
         .expectNext(4)
         .verifyComplete();
 
-    assertEquals(8, outContent.toString().split(System.lineSeparator()).length);
+    assertEquals(9, outContent.toString().split("\"").length);
   }
 }

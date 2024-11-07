@@ -31,7 +31,7 @@ public class Insert extends AbstractArrayFunction {
 				.getAsInt();
 
 		var output = context.getArguments()
-				.get(PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		source = duplicateArray(source);
 		if (source.size() == 0) {
