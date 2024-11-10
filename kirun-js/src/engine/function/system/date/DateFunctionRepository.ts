@@ -7,7 +7,6 @@ import { AbstractDateFunction } from './AbstractDateFunction';
 import { AddSubtractTime } from './AddSubtractTime';
 import { getDateTime } from './common';
 import { EpochToTimestamp } from './EpochToTimestamp';
-import { GetCurrentTimestamp } from './GetCurrentTimestamp';
 import { TimestampToEpoch } from './TimestampToEpoch';
 import { ToDateString } from './ToDateString';
 import { Schema } from '../../../json/schema/Schema';
@@ -21,6 +20,7 @@ import { GetNames } from './GetNames';
 import { IsValidISODate } from './IsValidISODate';
 import { FromNow } from './FromNow';
 import { FromDateString } from './FromDateString';
+import { GetCurrentTimestamp } from './GetCurrentTimestamp';
 
 export class DateFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
