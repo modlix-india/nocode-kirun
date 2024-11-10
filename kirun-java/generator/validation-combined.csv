@@ -1,0 +1,1203 @@
+System.Array.AddFirst,,,,System.Array.AddFirst
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.ArrayToArrayOfObjects,,,,System.Array.ArrayToArrayOfObjects
+Parameter,Type,Schema,,Parameter,Type,Schema
+keyName,EXPRESSION,string,,keyName,EXPRESSION,string
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.ArrayToObjects,,,,System.Array.ArrayToObjects
+Parameter,Type,Schema,,Parameter,Type,Schema
+ignoreDuplicateKeys,EXPRESSION,boolean,,ignoreDuplicateKeys,EXPRESSION,boolean
+ignoreNullKeys,EXPRESSION,boolean,,ignoreNullKeys,EXPRESSION,boolean
+ignoreNullValues,EXPRESSION,boolean,,ignoreNullValues,EXPRESSION,boolean
+keyPath,EXPRESSION,string,,keyPath,EXPRESSION,string
+source,EXPRESSION,array,,source,EXPRESSION,array
+valuePath,EXPRESSION,null;string,,valuePath,EXPRESSION,null;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array;boolean;double;float;integer;long;null;object;string,,result,,array;boolean;double;float;integer;long;null;object;string
+
+System.Array.BinarySearch,,,,System.Array.BinarySearch
+Parameter,Type,Schema,,Parameter,Type,Schema
+findPrimitive,EXPRESSION,double;float;integer;long;string,,findPrimitive,EXPRESSION,double;float;integer;long;string
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+index,,integer,,index,,integer
+
+System.Array.Compare,,,,System.Array.Compare
+Parameter,Type,Schema,,Parameter,Type,Schema
+find,EXPRESSION,array,,find,EXPRESSION,array
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.Concatenate,,,,System.Array.Concatenate
+Parameter,Type,Schema,,Parameter,Type,Schema
+secondSource,EXPRESSION,array,,secondSource,EXPRESSION,array
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Copy,,,,System.Array.Copy
+Parameter,Type,Schema,,Parameter,Type,Schema
+deepCopy,EXPRESSION,boolean,,deepCopy,EXPRESSION,boolean
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Delete,,,,System.Array.Delete
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.DeleteFirst,,,,System.Array.DeleteFirst
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.DeleteFrom,,,,System.Array.DeleteFrom
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.DeleteLast,,,,System.Array.DeleteLast
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Disjoint,,,,System.Array.Disjoint
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+secondSource,EXPRESSION,array,,secondSource,EXPRESSION,array
+secondSrcFrom,EXPRESSION,integer,,secondSrcFrom,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Equals,,,,System.Array.Equals
+Parameter,Type,Schema,,Parameter,Type,Schema
+find,EXPRESSION,array,,find,EXPRESSION,array
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.Array.Fill,,,,System.Array.Fill
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Frequency,,,,System.Array.Frequency
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.IndexOf,,,,System.Array.IndexOf
+Parameter,Type,Schema,,Parameter,Type,Schema
+elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.IndexOfArray,,,,System.Array.IndexOfArray
+Parameter,Type,Schema,,Parameter,Type,Schema
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+secondSource,EXPRESSION,array,,secondSource,EXPRESSION,array
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.Insert,,,,System.Array.Insert
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+offset,EXPRESSION,integer,,offset,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.InsertLast,,,,System.Array.InsertLast
+Parameter,Type,Schema,,Parameter,Type,Schema
+element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,element,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Join,,,,System.Array.Join
+Parameter,Type,Schema,,Parameter,Type,Schema
+delimiter,EXPRESSION,string,,delimiter,EXPRESSION,string
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.Array.LastIndexOf,,,,System.Array.LastIndexOf
+Parameter,Type,Schema,,Parameter,Type,Schema
+elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,elementObject,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.LastIndexOfArray,,,,System.Array.LastIndexOfArray
+Parameter,Type,Schema,,Parameter,Type,Schema
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+secondSource,EXPRESSION,array,,secondSource,EXPRESSION,array
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.Max,,,,System.Array.Max
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array;boolean;double;float;integer;long;null;object;string,,result,,array;boolean;double;float;integer;long;null;object;string
+
+System.Array.Min,,,,System.Array.Min
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array;boolean;double;float;integer;long;null;object;string,,result,,array;boolean;double;float;integer;long;null;object;string
+
+System.Array.MisMatch,,,,System.Array.MisMatch
+Parameter,Type,Schema,,Parameter,Type,Schema
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+secondSource,EXPRESSION,array,,secondSource,EXPRESSION,array
+secondSrcFrom,EXPRESSION,integer,,secondSrcFrom,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.Array.RemoveDuplicates,,,,System.Array.RemoveDuplicates
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Reverse,,,,System.Array.Reverse
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+srcFrom,EXPRESSION,integer,,srcFrom,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Rotate,,,,System.Array.Rotate
+Parameter,Type,Schema,,Parameter,Type,Schema
+rotateLength,EXPRESSION,integer,,rotateLength,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Shuffle,,,,System.Array.Shuffle
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.Sort,,,,System.Array.Sort
+Parameter,Type,Schema,,Parameter,Type,Schema
+ascending,EXPRESSION,boolean,,ascending,EXPRESSION,boolean
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+keyPath,EXPRESSION,string,,keyPath,EXPRESSION,string
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Array.SubArray,,,,System.Array.SubArray
+Parameter,Type,Schema,,Parameter,Type,Schema
+findFrom,EXPRESSION,integer,,findFrom,EXPRESSION,integer
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Context.Create,,,,System.Context.Create
+Parameter,Type,Schema,,Parameter,Type,Schema
+name,CONSTANT,string,,name,CONSTANT,string
+schema,CONSTANT,object,,schema,CONSTANT,object
+Events,,,,Events
+output,output,,,output,output
+
+System.Context.Get,,,,System.Context.Get
+Parameter,Type,Schema,,Parameter,Type,Schema
+name,CONSTANT,string,,name,CONSTANT,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array;boolean;double;float;integer;long;null;object;string,,value,,array;boolean;double;float;integer;long;null;object;string
+
+System.Context.Set,,,,System.Context.Set
+Parameter,Type,Schema,,Parameter,Type,Schema
+name,EXPRESSION,string,,name,EXPRESSION,string
+value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+
+System.Date.AddTime
+Parameter,Type,Schema
+intValue,EXPRESSION,integer
+isoDate,EXPRESSION,string
+unit,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.Date.DateToEpoch,,,,System.Date.DateToEpoch
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDate,EXPRESSION,,,isoDate,EXPRESSION,
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,long,,result,,long
+
+System.Date.DifferenceOfTimestamps,,,,System.Date.DifferenceOfTimestamps
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDateOne,EXPRESSION,string,,isoDateOne,EXPRESSION,string
+isoDateTwo,EXPRESSION,string,,isoDateTwo,EXPRESSION,string
+System.Date.EpochToDate,,,,Events
+Parameter,Type,Schema,,output,output
+epoch,EXPRESSION,,,Event Parameter,,Schema
+Events,,,,result,,integer
+
+,,,,System.Date.EpochToDate
+,,,,Parameter,Type,Schema
+,,,,epoch,EXPRESSION,
+,,,,Events
+,,,,output,output
+,,,,Event Parameter,,Schema
+,,,,date,,
+
+System.Date.GetCurrentTimeStamp
+Events
+output,output
+Event Parameter,,Schema
+date,,
+
+,,,,System.Date.GetCurrentTimestamp
+,,,,Events
+,,,,output,output
+,,,,Event Parameter,,Schema
+,,,,time,,long
+
+System.Date.GetDate
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetDay
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetFullYear
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetHours
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMilliSeconds
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMinutes
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMonth
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetSeconds
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetTime
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetTimeAsArray,,,,System.Date.GetTimeAsArray
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDate,EXPRESSION,,,isoDate,EXPRESSION,
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.Date.GetTimeAsObject,,,,System.Date.GetTimeAsObject
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDate,EXPRESSION,,,isoDate,EXPRESSION,
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,object,,result,,object
+
+,,,,System.Date.GetTimeZoneOffset
+,,,,Parameter,Type,Schema
+,,,,isodate,EXPRESSION,
+,,,,Events
+,,,,output,output
+,,,,Event Parameter,,Schema
+,,,,result,,integer
+
+System.Date.IsLeapYear
+Parameter,Type,Schema
+isoDate,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsValidISODate,,,,System.Date.IsValidISODate
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDate,EXPRESSION,,,isoDate,EXPRESSION,
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+output,,boolean,,output,,boolean
+
+System.Date.MaximumTimestamp,,,,System.Date.MaximumTimestamp
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDates,EXPRESSION,string,,isoDates,EXPRESSION,
+Events,,,,Events
+result,result,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.Date.MinimumTimestamp,,,,System.Date.MinimumTimestamp
+Parameter,Type,Schema,,Parameter,Type,Schema
+isoDates,EXPRESSION,string,,isoDates,EXPRESSION,
+Events,,,,Events
+result,result,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.Date.SubtractTime
+Parameter,Type,Schema
+intValue,EXPRESSION,integer
+isoDate,EXPRESSION,string
+unit,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.GenerateEvent,,,,System.GenerateEvent
+Parameter,Type,Schema,,Parameter,Type,Schema
+eventName,EXPRESSION,string,,eventName,EXPRESSION,string
+results,EXPRESSION,object,,results,EXPRESSION,object
+Events,,,,Events
+output,output,,,output,output
+
+System.If,,,,System.If
+Parameter,Type,Schema,,Parameter,Type,Schema
+condition,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,condition,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+false,false,,,false,false
+output,output,,,output,output
+true,true,,,true,true
+
+System.Loop.Break,,,,System.Loop.Break
+Parameter,Type,Schema,,Parameter,Type,Schema
+stepName,EXPRESSION,string,,stepName,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+
+System.Loop.CountLoop,,,,System.Loop.CountLoop
+Parameter,Type,Schema,,Parameter,Type,Schema
+count,EXPRESSION,integer,,count,EXPRESSION,integer
+Events,,,,Events
+iteration,iteration,,,iteration,iteration
+Event Parameter,,Schema,,Event Parameter,,Schema
+index,,integer,,index,,integer
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,integer,,value,,integer
+
+System.Loop.ForEachLoop,,,,System.Loop.ForEachLoop
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array,,source,EXPRESSION,array
+Events,,,,Events
+iteration,iteration,,,iteration,iteration
+Event Parameter,,Schema,,Event Parameter,,Schema
+each,,array;boolean;double;float;integer;long;null;object;string,,each,,array;boolean;double;float;integer;long;null;object;string
+index,,integer,,index,,integer
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,integer,,value,,integer
+
+System.Loop.RangeLoop,,,,System.Loop.RangeLoop
+Parameter,Type,Schema,,Parameter,Type,Schema
+from,EXPRESSION,double;float;integer;long,,from,EXPRESSION,double;float;integer;long
+step,EXPRESSION,double;float;integer;long,,step,EXPRESSION,double;float;integer;long
+to,EXPRESSION,double;float;integer;long,,to,EXPRESSION,double;float;integer;long
+Events,,,,Events
+iteration,iteration,,,iteration,iteration
+Event Parameter,,Schema,,Event Parameter,,Schema
+index,,double;float;integer;long,,index,,double;float;integer;long
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double;float;integer;long,,value,,double;float;integer;long
+
+System.Math.Absolute,,,,System.Math.Absolute
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double;float;integer;long,,value,,double;float;integer;long
+
+System.Math.Add,,,,System.Math.Add
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double;float;integer;long,,value,,double;float;integer;long
+
+System.Math.ArcCosine,,,,System.Math.ArcCosine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ArcSine,,,,System.Math.ArcSine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ArcTangent,,,,System.Math.ArcTangent
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ArcTangent2,,,,System.Math.ArcTangent2
+Parameter,Type,Schema,,Parameter,Type,Schema
+value1,EXPRESSION,double;float;integer;long,,value1,EXPRESSION,double;float;integer;long
+value2,EXPRESSION,double;float;integer;long,,value2,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Ceiling,,,,System.Math.Ceiling
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Cosine,,,,System.Math.Cosine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.CubeRoot,,,,System.Math.CubeRoot
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Exponential,,,,System.Math.Exponential
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ExponentialMinus1,,,,System.Math.ExponentialMinus1
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Floor,,,,System.Math.Floor
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.HyperbolicCosine,,,,System.Math.HyperbolicCosine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.HyperbolicSine,,,,System.Math.HyperbolicSine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.HyperbolicTangent,,,,System.Math.HyperbolicTangent
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Hypotenuse,,,,System.Math.Hypotenuse
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Log10,,,,System.Math.Log10
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.LogNatural,,,,System.Math.LogNatural
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Maximum,,,,System.Math.Maximum
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double;float;integer;long,,value,,double;float;integer;long
+
+System.Math.Minimum,,,,System.Math.Minimum
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double;float;integer;long,,value,,double;float;integer;long
+
+System.Math.Power,,,,System.Math.Power
+Parameter,Type,Schema,,Parameter,Type,Schema
+value1,EXPRESSION,double;float;integer;long,,value1,EXPRESSION,double;float;integer;long
+value2,EXPRESSION,double;float;integer;long,,value2,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Random,,,,System.Math.Random
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.RandomDouble,,,,System.Math.RandomDouble
+Parameter,Type,Schema,,Parameter,Type,Schema
+maxValue,EXPRESSION,double,,maxValue,EXPRESSION,double
+minValue,EXPRESSION,double,,minValue,EXPRESSION,double
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.RandomFloat,,,,System.Math.RandomFloat
+Parameter,Type,Schema,,Parameter,Type,Schema
+maxValue,EXPRESSION,float,,maxValue,EXPRESSION,float
+minValue,EXPRESSION,float,,minValue,EXPRESSION,float
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,float,,value,,float
+
+System.Math.RandomInt,,,,System.Math.RandomInt
+Parameter,Type,Schema,,Parameter,Type,Schema
+maxValue,EXPRESSION,integer,,maxValue,EXPRESSION,integer
+minValue,EXPRESSION,integer,,minValue,EXPRESSION,integer
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,integer,,value,,integer
+
+System.Math.RandomLong,,,,System.Math.RandomLong
+Parameter,Type,Schema,,Parameter,Type,Schema
+maxValue,EXPRESSION,long,,maxValue,EXPRESSION,long
+minValue,EXPRESSION,long,,minValue,EXPRESSION,long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,long,,value,,long
+
+System.Math.Round,,,,System.Math.Round
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,integer;long,,value,,integer;long
+
+System.Math.Sine,,,,System.Math.Sine
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.SquareRoot,,,,System.Math.SquareRoot
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.Tangent,,,,System.Math.Tangent
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ToDegrees,,,,System.Math.ToDegrees
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Math.ToRadians,,,,System.Math.ToRadians
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,double;float;integer;long,,value,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,double,,value,,double
+
+System.Object.ObjectConvert,,,,System.Object.ObjectConvert
+Parameter,Type,Schema,,Parameter,Type,Schema
+conversionMode,EXPRESSION,string,,conversionMode,EXPRESSION,string
+schema,CONSTANT,object,,schema,CONSTANT,object
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array;boolean;double;float;integer;long;null;object;string,,value,,array;boolean;double;float;integer;long;null;object;string
+
+System.Object.ObjectDeleteKey,,,,System.Object.ObjectDeleteKey
+Parameter,Type,Schema,,Parameter,Type,Schema
+key,EXPRESSION,string,,key,EXPRESSION,string
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array;boolean;double;float;integer;long;null;object;string,,value,,array;boolean;double;float;integer;long;null;object;string
+
+System.Object.ObjectEntries,,,,System.Object.ObjectEntries
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array,,value,,array
+
+System.Object.ObjectKeys,,,,System.Object.ObjectKeys
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array,,value,,array
+
+System.Object.ObjectPutValue,,,,System.Object.ObjectPutValue
+Parameter,Type,Schema,,Parameter,Type,Schema
+deleteKeyOnNull,EXPRESSION,boolean,,deleteKeyOnNull,EXPRESSION,boolean
+key,EXPRESSION,string,,key,EXPRESSION,string
+overwrite,EXPRESSION,boolean,,overwrite,EXPRESSION,boolean
+source,EXPRESSION,object,,source,EXPRESSION,object
+value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,object,,value,,object
+
+System.Object.ObjectValues,,,,System.Object.ObjectValues
+Parameter,Type,Schema,,Parameter,Type,Schema
+source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,source,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,array,,value,,array
+
+System.Print,,,,System.Print
+Parameter,Type,Schema,,Parameter,Type,Schema
+stream,EXPRESSION,string,,stream,EXPRESSION,string
+values,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,values,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+
+System.String.Concatenate,,,,System.String.Concatenate
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,string,,value,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,string,,value,,string
+
+System.String.Contains,,,,System.String.Contains
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.DeleteForGivenLength,,,,System.String.DeleteForGivenLength
+Parameter,Type,Schema,,Parameter,Type,Schema
+endPosition,EXPRESSION,integer,,endPosition,EXPRESSION,integer
+startPosition,EXPRESSION,integer,,startPosition,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.EndsWith,,,,System.String.EndsWith
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.EqualsIgnoreCase,,,,System.String.EqualsIgnoreCase
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.Frequency,,,,System.String.Frequency
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.IndexOf,,,,System.String.IndexOf
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.IndexOfWithStartPoint,,,,System.String.IndexOfWithStartPoint
+Parameter,Type,Schema,,Parameter,Type,Schema
+index,EXPRESSION,integer,,index,EXPRESSION,integer
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.InsertAtGivenPosition,,,,System.String.InsertAtGivenPosition
+Parameter,Type,Schema,,Parameter,Type,Schema
+insertString,EXPRESSION,string,,insertString,EXPRESSION,string
+position,EXPRESSION,integer,,position,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.IsBlank,,,,System.String.IsBlank
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.IsEmpty,,,,System.String.IsEmpty
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.LastIndexOf,,,,System.String.LastIndexOf
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.LastIndexOfWithStartPoint,,,,System.String.LastIndexOfWithStartPoint
+Parameter,Type,Schema,,Parameter,Type,Schema
+index,EXPRESSION,integer,,index,EXPRESSION,integer
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.Length,,,,System.String.Length
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,integer,,result,,integer
+
+System.String.LowerCase,,,,System.String.LowerCase
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.Matches,,,,System.String.Matches
+Parameter,Type,Schema,,Parameter,Type,Schema
+regex,EXPRESSION,string,,regex,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.PostPad,,,,System.String.PostPad
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+postpadString,EXPRESSION,string,,postpadString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.PrePad,,,,System.String.PrePad
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+prepadString,EXPRESSION,string,,prepadString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.RegionMatches,,,,System.String.RegionMatches
+Parameter,Type,Schema,,Parameter,Type,Schema
+boolean,EXPRESSION,boolean,,boolean,EXPRESSION,boolean
+firstOffset,EXPRESSION,integer,,firstOffset,EXPRESSION,integer
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+otherString,EXPRESSION,string,,otherString,EXPRESSION,string
+secondOffset,EXPRESSION,integer,,secondOffset,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.Repeat,,,,System.String.Repeat
+Parameter,Type,Schema,,Parameter,Type,Schema
+index,EXPRESSION,integer,,index,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.Replace,,,,System.String.Replace
+Parameter,Type,Schema,,Parameter,Type,Schema
+secondString,EXPRESSION,string,,secondString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+thirdString,EXPRESSION,string,,thirdString,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.ReplaceAtGivenPosition,,,,System.String.ReplaceAtGivenPosition
+Parameter,Type,Schema,,Parameter,Type,Schema
+lengthPosition,EXPRESSION,integer,,lengthPosition,EXPRESSION,integer
+replaceString,EXPRESSION,string,,replaceString,EXPRESSION,string
+startPosition,EXPRESSION,integer,,startPosition,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.ReplaceFirst,,,,System.String.ReplaceFirst
+Parameter,Type,Schema,,Parameter,Type,Schema
+secondString,EXPRESSION,string,,secondString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+thirdString,EXPRESSION,string,,thirdString,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.Reverse,,,,System.String.Reverse
+Parameter,Type,Schema,,Parameter,Type,Schema
+value,EXPRESSION,string,,value,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+value,,string,,value,,string
+
+System.String.Split,,,,System.String.Split
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,array,,result,,array
+
+System.String.StartsWith,,,,System.String.StartsWith
+Parameter,Type,Schema,,Parameter,Type,Schema
+searchString,EXPRESSION,string,,searchString,EXPRESSION,string
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,boolean,,result,,boolean
+
+System.String.SubString,,,,System.String.SubString
+Parameter,Type,Schema,,Parameter,Type,Schema
+index,EXPRESSION,integer,,index,EXPRESSION,integer
+secondIndex,EXPRESSION,integer,,secondIndex,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.ToString,,,,System.String.ToString
+Parameter,Type,Schema,,Parameter,Type,Schema
+anytype,EXPRESSION,array;boolean;double;float;integer;long;null;object;string,,anytype,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.Trim,,,,System.String.Trim
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.TrimEnd,,,,System.String.TrimEnd
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.TrimStart,,,,System.String.TrimStart
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.TrimTo,,,,System.String.TrimTo
+Parameter,Type,Schema,,Parameter,Type,Schema
+length,EXPRESSION,integer,,length,EXPRESSION,integer
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.String.UpperCase,,,,System.String.UpperCase
+Parameter,Type,Schema,,Parameter,Type,Schema
+string,EXPRESSION,string,,string,EXPRESSION,string
+Events,,,,Events
+output,output,,,output,output
+Event Parameter,,Schema,,Event Parameter,,Schema
+result,,string,,result,,string
+
+System.Wait,,,,System.Wait
+Parameter,Type,Schema,,Parameter,Type,Schema
+millis,EXPRESSION,double;float;integer;long,,millis,EXPRESSION,double;float;integer;long
+Events,,,,Events
+output,output,,,output,output
+

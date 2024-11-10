@@ -79,7 +79,7 @@ public class ObjectConvert extends AbstractReactiveFunction {
 								Parameter.ofEntry(SOURCE, Schema.ofAny(SCHEMA)),
 								Parameter.ofEntry(SCHEMA, Schema.SCHEMA, ParameterType.CONSTANT),
 								Parameter.ofEntry(CONVERSION_MODE, Schema.ofString(CONVERSION_MODE)
-										.setEnums(ConversionMode.getConversionModes()), ParameterType.CONSTANT)))
+										.setEnums(ConversionMode.getConversionModes()))))
 				.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofAny(VALUE)))));
 	}
 }

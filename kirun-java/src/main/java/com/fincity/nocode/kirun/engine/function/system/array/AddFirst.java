@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public class AddFirst extends AbstractArrayFunction {
 
 	public AddFirst() {
-		super("AddFirst", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY), EVENT_RESULT_ARRAY);
+		super("AddFirst", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_ELEMENT), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class AddFirst extends AbstractArrayFunction {
 				.getAsJsonArray();
 
 		var input = context.getArguments()
-				.get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		source = duplicateArray(source);
 

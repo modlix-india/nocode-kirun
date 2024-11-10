@@ -1,5 +1,8 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.*;
+
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -23,12 +26,18 @@ class ArrayToArrayOfObjectsTest {
 		arr.add(1);
 		arr.add(2);
 
-		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
+		KIRunReactiveFunctionRepository repo = new KIRunReactiveFunctionRepository();
+
+		StepVerifier.create(repo.filter("ArrayToArrayOfObjects").collectList())
+				.expectNext(List.of("System.Array.ArrayToArrayOfObjects"))
+				.verifyComplete();
+
+		var func = repo.find(SYSTEM_ARRAY, "ArrayToArrayOfObjects")
+				.block();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-				.setArguments(Map.of("source", arr))
-				;
+				repo, new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
 		for (int i = 0; i < arr.size(); i++) {
@@ -38,11 +47,11 @@ class ArrayToArrayOfObjectsTest {
 		}
 
 		StepVerifier.create(func.execute(fep)
-		        .map(e -> e.next()
-		                .getResult()
-		                .get("result")))
-		        .expectNext(resArr)
-		        .verifyComplete();
+				.map(e -> e.next()
+						.getResult()
+						.get("result")))
+				.expectNext(resArr)
+				.verifyComplete();
 	}
 
 	@Test
@@ -59,23 +68,23 @@ class ArrayToArrayOfObjectsTest {
 		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject job = new JsonObject();
 			job.add(keyArr.get(0)
-			        .getAsString(), arr.get(i));
+					.getAsString(), arr.get(i));
 			resArr.add(job);
 		}
 
 		StepVerifier.create(func.execute(fep.setArguments(Map.of("source", arr, "keyName", keyArr))))
-		        .expectNextMatches(result -> result.next()
-		                .getResult()
-		                .get("result")
-		                .equals(resArr))
-		        .verifyComplete();
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(resArr))
+				.verifyComplete();
 	}
 
 	@Test
@@ -99,23 +108,23 @@ class ArrayToArrayOfObjectsTest {
 		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject job = new JsonObject();
 			job.add(keyArr.get(0)
-			        .getAsString(), arr.get(i));
+					.getAsString(), arr.get(i));
 			resArr.add(job);
 		}
 
 		StepVerifier.create(func.execute(fep.setArguments(Map.of("source", arr, "keyName", keyArr.get(0)))))
-		        .expectNextMatches(result -> result.next()
-		                .getResult()
-		                .get("result")
-		                .equals(resArr))
-		        .verifyComplete();
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(resArr))
+				.verifyComplete();
 	}
 
 	@Test
@@ -136,7 +145,7 @@ class ArrayToArrayOfObjectsTest {
 		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
@@ -147,11 +156,11 @@ class ArrayToArrayOfObjectsTest {
 		}
 
 		StepVerifier.create(func.execute(fep.setArguments(Map.of("source", arr))))
-		        .expectNextMatches(result -> result.next()
-		                .getResult()
-		                .get("result")
-		                .equals(resArr))
-		        .verifyComplete();
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(resArr))
+				.verifyComplete();
 	}
 
 	@Test
@@ -173,14 +182,14 @@ class ArrayToArrayOfObjectsTest {
 		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
 		for (int i = 0; i < arr.size(); i++) {
 			JsonObject job = new JsonObject();
 			JsonArray innerArr = arr.get(i)
-			        .getAsJsonArray();
+					.getAsJsonArray();
 			for (int j = 0; j < innerArr.size(); j++) {
 				job.add("value" + (j + 1), innerArr.get(j));
 			}
@@ -188,11 +197,11 @@ class ArrayToArrayOfObjectsTest {
 		}
 
 		StepVerifier.create(func.execute(fep.setArguments(Map.of("source", arr))))
-		        .expectNextMatches(result -> result.next()
-		                .getResult()
-		                .get("result")
-		                .equals(resArr))
-		        .verifyComplete();
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(resArr))
+				.verifyComplete();
 	}
 
 	@Test
@@ -214,7 +223,8 @@ class ArrayToArrayOfObjectsTest {
 		ArrayToArrayOfObjects func = new ArrayToArrayOfObjects();
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
-		        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(Map.of("source", arr));
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of("source", arr));
 
 		JsonArray resArr = new JsonArray();
 
@@ -225,11 +235,11 @@ class ArrayToArrayOfObjectsTest {
 
 		for (int i = 0; i < arr.size(); i++) {
 			JsonArray innerArr = arr.get(i)
-			        .getAsJsonArray();
+					.getAsJsonArray();
 			JsonObject job = new JsonObject();
 			for (int j = 0; j < innerArr.size() && j < keys.size(); j++) {
 				job.add(keys.get(j)
-				        .getAsString(), innerArr.get(j));
+						.getAsString(), innerArr.get(j));
 			}
 			resArr.add(job);
 		}
@@ -240,24 +250,24 @@ class ArrayToArrayOfObjectsTest {
 			JsonObject job = new JsonObject();
 
 			for (int j = 0; j < keys.size() && j < arr.get(i)
-			        .getAsJsonArray()
-			        .size(); j++) {
+					.getAsJsonArray()
+					.size(); j++) {
 				job.add(keys.get(j)
-				        .getAsString(),
-				        arr.get(i)
-				                .getAsJsonArray()
-				                .get(j));
+						.getAsString(),
+						arr.get(i)
+								.getAsJsonArray()
+								.get(j));
 			}
 			finArr.add(job);
 
 		}
 
 		StepVerifier.create(func.execute(fep.setArguments(Map.of("source", arr, "keyName", keys))))
-		        .expectNextMatches(result -> result.next()
-		                .getResult()
-		                .get("result")
-		                .equals(finArr))
-		        .verifyComplete();
+				.expectNextMatches(result -> result.next()
+						.getResult()
+						.get("result")
+						.equals(finArr))
+				.verifyComplete();
 	}
 
 }

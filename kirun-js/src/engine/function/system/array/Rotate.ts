@@ -8,7 +8,7 @@ export class Rotate extends AbstractArrayFunction {
         super(
             'Rotate',
             [Rotate.PARAMETER_ARRAY_SOURCE, Rotate.PARAMETER_ROTATE_LENGTH],
-            Rotate.EVENT_RESULT_ANY,
+            Rotate.EVENT_RESULT_ARRAY,
         );
     }
 

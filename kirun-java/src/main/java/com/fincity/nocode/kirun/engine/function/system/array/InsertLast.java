@@ -13,18 +13,18 @@ import reactor.core.publisher.Mono;
 public class InsertLast extends AbstractArrayFunction {
 
 	public InsertLast() {
-		super("InsertLast", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY), EVENT_RESULT_ARRAY);
+		super("InsertLast", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_ELEMENT), EVENT_RESULT_ARRAY);
 	}
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonArray source = context.getArguments()
-		        .get(PARAMETER_ARRAY_SOURCE.getParameterName())
-		        .getAsJsonArray();
+				.get(PARAMETER_ARRAY_SOURCE.getParameterName())
+				.getAsJsonArray();
 
 		var output = context.getArguments()
-		        .get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		source = duplicateArray(source);
 		source.add(output);

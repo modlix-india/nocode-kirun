@@ -149,7 +149,7 @@ export class SchemaUtil {
         let nms = StringUtil.splitAtFirstOccurance(ref ?? '', '/');
         if (!nms[0]) return Promise.resolve(undefined);
 
-        let nmspnm = StringUtil.splitAtFirstOccurance(nms[0], '.');
+        let nmspnm = StringUtil.splitAtLastOccurance(nms[0], '.');
         if (!nmspnm[0] || !nmspnm[1]) return Promise.resolve(undefined);
 
         let schema = await sRepository.find(nmspnm[0], nmspnm[1]);

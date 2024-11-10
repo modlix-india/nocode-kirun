@@ -1,6 +1,6 @@
+import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 import { IndexOf } from '../../../../../src/engine/function/system/array/IndexOf';
 import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
 
 test('Index of Test 1', async () => {
     let ind: IndexOf = new IndexOf();
@@ -32,7 +32,7 @@ test('Index of Test 1', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -71,7 +71,7 @@ test('Index of Test 2', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
@@ -81,7 +81,7 @@ test('Index of Test 2', async () => {
     fep.setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), []],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), -2],
         ]),
     );
@@ -120,7 +120,7 @@ test('Index of Test 3', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), array],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 0],
         ]),
     );
@@ -213,7 +213,7 @@ test('Index of Test 4', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
             [IndexOf.PARAMETER_INT_FIND_FROM.getParameterName(), 2],
         ]),
     );
@@ -265,7 +265,7 @@ test('indexof test 5', async () => {
     ).setArguments(
         new Map<string, any>([
             [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), find],
+            [IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName(), find],
         ]),
     );
 
@@ -273,11 +273,6 @@ test('indexof test 5', async () => {
         (await ind.execute(fep)).allResults()[0].getResult().get(IndexOf.EVENT_RESULT_NAME),
     ).toBe(5);
 
-    fep.setArguments(
-        new Map<string, any>([
-            [IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName(), arr],
-            [IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName(), null],
-        ]),
-    );
+    fep.setArguments(new Map<string, any>());
     await expect(ind.execute(fep)).rejects.toThrow();
 });

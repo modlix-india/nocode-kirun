@@ -21,7 +21,7 @@ public class ArrayToArrayOfObjects extends AbstractArrayFunction {
 
     public static final String ARRAY_TO_OBJECTS = "ArrayToArrayOfObjects";
 
-    protected ArrayToArrayOfObjects() {
+    public ArrayToArrayOfObjects() {
         super(
                 ARRAY_TO_OBJECTS,
 

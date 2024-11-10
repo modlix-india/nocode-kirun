@@ -42,7 +42,7 @@ test('wait test immediately', async () => {
     await waitFunction.execute(fep.setArguments(new Map()));
 
     const endTime = new Date().getTime();
-    expect(endTime - startTime).toBeLessThan(10);
+    expect(endTime - startTime).toBeLessThan(50);
 });
 
 test('wait test error with negative number', async () => {

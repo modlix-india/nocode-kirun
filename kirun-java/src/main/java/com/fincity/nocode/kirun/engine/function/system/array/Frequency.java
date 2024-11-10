@@ -18,7 +18,8 @@ public class Frequency extends AbstractArrayFunction {
 
 	public Frequency() {
 		super("Frequency",
-				List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_SOURCE_FROM, PARAMETER_INT_LENGTH),
+				List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_ELEMENT, PARAMETER_INT_SOURCE_FROM,
+						PARAMETER_INT_LENGTH),
 				EVENT_RESULT_INTEGER);
 	}
 
@@ -27,7 +28,7 @@ public class Frequency extends AbstractArrayFunction {
 
 		JsonArray source = context.getArguments().get(PARAMETER_ARRAY_SOURCE.getParameterName()).getAsJsonArray();
 
-		JsonElement find = context.getArguments().get(PARAMETER_ANY.getParameterName());
+		JsonElement find = context.getArguments().get(PARAMETER_ANY_ELEMENT.getParameterName());
 
 		int start = context.getArguments().get(PARAMETER_INT_SOURCE_FROM.getParameterName()).getAsJsonPrimitive()
 				.getAsInt();

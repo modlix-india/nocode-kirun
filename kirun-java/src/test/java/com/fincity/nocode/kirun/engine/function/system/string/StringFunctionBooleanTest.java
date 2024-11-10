@@ -12,7 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-public class StringFunctionBooleanTest {
+class StringFunctionBooleanTest {
 
 	@Test
 	void test() {
@@ -24,9 +24,9 @@ public class StringFunctionBooleanTest {
 					return fun
 							.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 									new KIRunReactiveSchemaRepository())
-									.setArguments(Map.of("value",
+									.setArguments(Map.of("string",
 											new JsonPrimitive("			no code  Kirun  PLATform		"))))
-							.map(fo -> fo.allResults().get(0).getResult().get("value"));
+							.map(fo -> fo.allResults().get(0).getResult().get("result"));
 				}))
 				.expectNext(new JsonPrimitive(false))
 				.verifyComplete();
@@ -35,8 +35,8 @@ public class StringFunctionBooleanTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("						"))))
-						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+								.setArguments(Map.of("string", new JsonPrimitive("						"))))
+						.map(fo -> fo.allResults().get(0).getResult().get("result"))))
 				.expectNext(new JsonPrimitive(true))
 				.verifyComplete();
 
@@ -44,8 +44,8 @@ public class StringFunctionBooleanTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(""))))
-						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+								.setArguments(Map.of("string", new JsonPrimitive(""))))
+						.map(fo -> fo.allResults().get(0).getResult().get("result"))))
 				.expectNext(new JsonPrimitive(true))
 				.verifyComplete();
 	}
@@ -59,9 +59,9 @@ public class StringFunctionBooleanTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value",
+								.setArguments(Map.of("string",
 										new JsonPrimitive("			no code  Kirun  PLATform		"))))
-						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+						.map(fo -> fo.allResults().get(0).getResult().get("result"))))
 				.expectNext(new JsonPrimitive(false))
 				.verifyComplete();
 
@@ -69,8 +69,8 @@ public class StringFunctionBooleanTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("						"))))
-						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+								.setArguments(Map.of("string", new JsonPrimitive("						"))))
+						.map(fo -> fo.allResults().get(0).getResult().get("result"))))
 				.expectNext(new JsonPrimitive(false))
 				.verifyComplete();
 
@@ -78,8 +78,8 @@ public class StringFunctionBooleanTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(""))))
-						.map(fo -> fo.allResults().get(0).getResult().get("value"))))
+								.setArguments(Map.of("string", new JsonPrimitive(""))))
+						.map(fo -> fo.allResults().get(0).getResult().get("result"))))
 				.expectNext(new JsonPrimitive(true))
 				.verifyComplete();
 	}

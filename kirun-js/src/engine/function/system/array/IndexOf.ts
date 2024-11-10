@@ -2,7 +2,6 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
-import { isNullValue } from '../../../util/NullCheck';
 import { PrimitiveUtil } from '../../../util/primitive/PrimitiveUtil';
 import { AbstractArrayFunction } from './AbstractArrayFunction';
 
@@ -12,7 +11,7 @@ export class IndexOf extends AbstractArrayFunction {
             'IndexOf',
             [
                 IndexOf.PARAMETER_ARRAY_SOURCE,
-                IndexOf.PARAMETER_ANY_NOT_NULL,
+                IndexOf.PARAMETER_ANY_ELEMENT_OBJECT,
                 IndexOf.PARAMETER_INT_FIND_FROM,
             ],
             IndexOf.EVENT_RESULT_INTEGER,
@@ -24,7 +23,9 @@ export class IndexOf extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(IndexOf.PARAMETER_ARRAY_SOURCE.getParameterName());
 
-        var find = context?.getArguments()?.get(IndexOf.PARAMETER_ANY_NOT_NULL.getParameterName());
+        let find = context
+            ?.getArguments()
+            ?.get(IndexOf.PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
         let len: number = context
             ?.getArguments()
@@ -34,7 +35,6 @@ export class IndexOf extends AbstractArrayFunction {
             return new FunctionOutput([
                 EventResult.outputOf(new Map([[IndexOf.EVENT_RESULT_NAME, -1]])),
             ]);
-
         if (len < 0 || len > source.length)
             throw new KIRuntimeException(
                 'The size of the search index of the array is greater than the size of the array',

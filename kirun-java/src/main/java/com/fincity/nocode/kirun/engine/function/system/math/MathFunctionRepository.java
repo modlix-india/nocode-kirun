@@ -16,42 +16,45 @@ import reactor.core.publisher.Mono;
 public class MathFunctionRepository implements ReactiveRepository<ReactiveFunction> {
 
 	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
-	        AbstractUnaryFunction.ofEntryAnyType("Absolute",
-	                Map.of(Integer.class, n -> Math.abs(n.intValue()), Float.class, n -> Math.abs(n.floatValue()),
-	                        Double.class, n -> Math.abs(n.doubleValue()), Long.class, n -> Math.abs(n.longValue())),
-	                SchemaType.INTEGER, SchemaType.FLOAT, SchemaType.DOUBLE, SchemaType.LONG),
-	        AbstractUnaryFunction.ofEntryDouble("ArcCosine", Math::acos),
-	        AbstractUnaryFunction.ofEntryDouble("ArcSine", Math::asin),
-	        AbstractUnaryFunction.ofEntryDouble("ArcTangent", Math::atan),
-	        AbstractUnaryFunction.ofEntryDouble("Ceiling", Math::ceil),
-	        AbstractUnaryFunction.ofEntryDouble("Cosine", Math::cos),
-	        AbstractUnaryFunction.ofEntryDouble("HyperbolicCosine", Math::cosh),
-	        AbstractUnaryFunction.ofEntryDouble("CubeRoot", Math::cbrt),
-	        AbstractUnaryFunction.ofEntryDouble("Exponential", Math::exp),
-	        AbstractUnaryFunction.ofEntryDouble("ExponentialMinus1", Math::expm1),
-	        AbstractUnaryFunction.ofEntryDouble("Floor", Math::floor),
-	        AbstractUnaryFunction.ofEntryDouble("LogNatural", Math::log),
-	        AbstractUnaryFunction.ofEntryDouble("Log10", Math::log10),
-	        AbstractUnaryFunction.ofEntryAnyType("Round",
-	                Map.of(Integer.class, n -> Math.round(n.floatValue()), Float.class, n -> Math.round(n.floatValue()),
-	                        Double.class, n -> Math.round(n.doubleValue()), Long.class,
-	                        n -> Math.round(n.doubleValue())),
-	                SchemaType.INTEGER, SchemaType.FLOAT, SchemaType.DOUBLE, SchemaType.LONG),
-	        AbstractUnaryFunction.ofEntryDouble("Sine", Math::sin),
-	        AbstractUnaryFunction.ofEntryDouble("HyperbolicSine", Math::sinh),
-	        AbstractUnaryFunction.ofEntryDouble("Tangent", Math::tan),
-	        AbstractUnaryFunction.ofEntryDouble("HyperbolicTangent", Math::tanh),
-	        AbstractUnaryFunction.ofEntryDouble("ToDegrees", Math::toDegrees),
-	        AbstractUnaryFunction.ofEntryDouble("ToRadians", Math::toRadians),
-	        AbstractUnaryFunction.ofEntryDouble("SquareRoot", Math::sqrt, SchemaType.DOUBLE),
-	        AbstractBinaryMathFunction.ofEntryDouble("ArcTangent2", Math::atan2),
-	        AbstractBinaryMathFunction.ofEntryDouble("Power", Math::pow));
+			AbstractUnaryFunction.ofEntryNumber("Absolute",
+					Map.of(Integer.class.getName(), n -> Math.abs(n.intValue()), Float.class.getName(),
+							n -> Math.abs(n.floatValue()),
+							Double.class.getName(), n -> Math.abs(n.doubleValue()), Long.class.getName(),
+							n -> Math.abs(n.longValue())),
+					SchemaType.INTEGER, SchemaType.FLOAT, SchemaType.DOUBLE, SchemaType.LONG),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ArcCosine", Math::acos),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ArcSine", Math::asin),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ArcTangent", Math::atan),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Ceiling", Math::ceil),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Cosine", Math::cos),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("HyperbolicCosine", Math::cosh),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("CubeRoot", Math::cbrt),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Exponential", Math::exp),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ExponentialMinus1", Math::expm1),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Floor", Math::floor),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("LogNatural", Math::log),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Log10", Math::log10),
+			AbstractUnaryFunction.ofEntryNumber("Round",
+					Map.of(Integer.class.getName(), n -> Math.round(n.floatValue()), Float.class.getName(),
+							n -> Math.round(n.floatValue()),
+							Double.class.getName(), n -> Math.round(n.doubleValue()), Long.class.getName(),
+							n -> Math.round(n.doubleValue())),
+					SchemaType.LONG, SchemaType.INTEGER),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Sine", Math::sin),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("HyperbolicSine", Math::sinh),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Tangent", Math::tan),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("HyperbolicTangent", Math::tanh),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ToDegrees", Math::toDegrees),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ToRadians", Math::toRadians),
+			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("SquareRoot", Math::sqrt),
+			AbstractBinaryMathFunction.ofEntryDouble("ArcTangent2", Math::atan2),
+			AbstractBinaryMathFunction.ofEntryDouble("Power", Math::pow));
 
 	private static final List<String> FILTERABLE_NAMES = REPO_MAP.values()
-	        .stream()
-	        .map(ReactiveFunction::getSignature)
-	        .map(FunctionSignature::getFullName)
-	        .toList();
+			.stream()
+			.map(ReactiveFunction::getSignature)
+			.map(FunctionSignature::getFullName)
+			.toList();
 
 	@Override
 	public Mono<ReactiveFunction> find(String namespace, String name) {
@@ -63,7 +66,7 @@ public class MathFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	@Override
 	public Flux<String> filter(String name) {
 		return Flux.fromIterable(FILTERABLE_NAMES)
-		        .filter(e -> e.toLowerCase()
-		                .indexOf(name.toLowerCase()) != -1);
+				.filter(e -> e.toLowerCase()
+						.indexOf(name.toLowerCase()) != -1);
 	}
 }

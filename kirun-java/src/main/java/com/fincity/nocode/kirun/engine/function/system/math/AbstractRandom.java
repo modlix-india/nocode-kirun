@@ -35,18 +35,21 @@ public class AbstractRandom extends AbstractReactiveFunction {
 
 	private FunctionSignature signature;
 
+	private SchemaType schemaType;
+
 	protected AbstractRandom(String functionName, SchemaType schemaType) {
 
 		this.signature = new FunctionSignature().setName(functionName)
-		        .setNamespace(MATH)
-		        .setParameters(Map.of(MIN_VALUE, new Parameter().setParameterName(MIN_VALUE)
-		                .setSchema(new Schema().setType(Type.of(schemaType))
-		                        .setDefaultValue(getDefaultMinValue(schemaType))),
-		                MAX_VALUE, new Parameter().setParameterName(MAX_VALUE)
-		                        .setSchema(new Schema().setType(Type.of(schemaType))
-		                                .setDefaultValue(getDefaultMaxValue(schemaType)))))
-		        .setEvents(Map.ofEntries(
-		                Event.outputEventMapEntry(Map.of(VALUE, new Schema().setType(Type.of(schemaType))))));
+				.setNamespace(MATH)
+				.setParameters(Map.of(MIN_VALUE, new Parameter().setParameterName(MIN_VALUE)
+						.setSchema(new Schema().setType(Type.of(schemaType))
+								.setDefaultValue(getDefaultMinValue(schemaType))),
+						MAX_VALUE, new Parameter().setParameterName(MAX_VALUE)
+								.setSchema(new Schema().setType(Type.of(schemaType))
+										.setDefaultValue(getDefaultMaxValue(schemaType)))))
+				.setEvents(Map.ofEntries(
+						Event.outputEventMapEntry(Map.of(VALUE, new Schema().setType(Type.of(schemaType))))));
+		this.schemaType = schemaType;
 	}
 
 	@Override
@@ -58,19 +61,16 @@ public class AbstractRandom extends AbstractReactiveFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonElement minvalue = context.getArguments()
-		        .get(MIN_VALUE);
+				.get(MIN_VALUE);
 
 		JsonElement maxValue = context.getArguments()
-		        .get(MAX_VALUE);
-
-		Tuple2<SchemaType, Number> primitiveTypeTupleOfMin = PrimitiveUtil
-		        .findPrimitiveNumberType(minvalue.getAsJsonPrimitive());
+				.get(MAX_VALUE);
 
 		if (minvalue.getAsDouble() > maxValue.getAsDouble())
 			throw new KIRuntimeException("Given minimum value is more than the maximum value.");
 
 		JsonPrimitive result = this.randomFunction(minvalue.getAsJsonPrimitive(), maxValue.getAsJsonPrimitive(),
-		        primitiveTypeTupleOfMin.getT1());
+				this.schemaType);
 
 		return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, result)))));
 
@@ -78,26 +78,13 @@ public class AbstractRandom extends AbstractReactiveFunction {
 
 	public JsonPrimitive randomFunction(JsonPrimitive min, JsonPrimitive max, SchemaType st) {
 
-		switch (st) {
-		case DOUBLE: {
-			return new JsonPrimitive(rand.nextDouble(min.getAsDouble(),
-			        max.getAsDouble() == Double.MAX_VALUE ? max.getAsDouble() : max.getAsDouble() + 1d));
-		}
-		case INTEGER: {
-			return new JsonPrimitive(rand.nextInt(min.getAsInt(),
-			        max.getAsInt() == Integer.MAX_VALUE ? max.getAsInt() : max.getAsInt() + 1));
-		}
-		case FLOAT: {
-			return new JsonPrimitive(rand.nextFloat(min.getAsFloat(),
-			        max.getAsFloat() == Float.MAX_VALUE ? max.getAsFloat() : max.getAsFloat() + 1f));
-		}
-		case LONG: {
-			return new JsonPrimitive(rand.nextLong(min.getAsLong(),
-			        max.getAsLong() == Long.MAX_VALUE ? max.getAsLong() : max.getAsLong() + 1));
-		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: ");
-		}
+		return switch (st) {
+			case DOUBLE -> new JsonPrimitive(rand.nextDouble(min.getAsDouble(), max.getAsDouble()));
+			case INTEGER -> new JsonPrimitive(rand.nextInt(min.getAsInt(), max.getAsInt()));
+			case FLOAT -> new JsonPrimitive(rand.nextFloat(min.getAsFloat(), max.getAsFloat()));
+			case LONG -> new JsonPrimitive(rand.nextLong(min.getAsLong(), max.getAsLong()));
+			default -> throw new IllegalArgumentException("Unexpected value: " + st);
+		};
 	}
 
 	public JsonPrimitive getDefaultMinValue(SchemaType schema) {

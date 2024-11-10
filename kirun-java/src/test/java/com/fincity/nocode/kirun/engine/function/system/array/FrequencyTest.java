@@ -41,7 +41,7 @@ class FrequencyTest {
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
 						Map.of(
 								Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
-								Frequency.PARAMETER_ANY.getParameterName(),
+								Frequency.PARAMETER_ANY_ELEMENT.getParameterName(),
 								new JsonPrimitive("I"), Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(),
 								new JsonPrimitive(2),
 								Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(10)));
@@ -77,7 +77,7 @@ class FrequencyTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
 				.setArguments(Map.of(Frequency.PARAMETER_ARRAY_SOURCE.getParameterName(), array,
-						Frequency.PARAMETER_ANY.getParameterName(), new JsonPrimitive("developement"),
+						Frequency.PARAMETER_ANY_ELEMENT.getParameterName(), new JsonPrimitive("developement"),
 						Frequency.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(-2),
 						Frequency.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(array.size() - 2)));
 

@@ -1,7 +1,5 @@
 package com.fincity.nocode.kirun.engine.function.system;
 
-import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,7 @@ import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -26,7 +25,7 @@ public class Wait extends AbstractReactiveFunction {
 			.setNamespace(SYSTEM)
 			.setParameters(Map.ofEntries(Parameter.ofEntry(MILLIS,
 					Schema.ofNumber(MILLIS).setMinimum(0).setDefaultValue(new JsonPrimitive(0)))))
-			.setEvents(Map.ofEntries(Event.eventMapEntry(Event.TRUE, Map.of())));
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of())));
 
 	@Override
 	public FunctionSignature getSignature() {
