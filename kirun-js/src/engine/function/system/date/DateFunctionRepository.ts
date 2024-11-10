@@ -20,7 +20,7 @@ import { GetNames } from './GetNames';
 import { IsValidISODate } from './IsValidISODate';
 import { FromNow } from './FromNow';
 import { FromDateString } from './FromDateString';
-import { GetCurrentTimestamp } from './GetCurrentTimestamp';
+import { GetCurrentTimestamp } from './GetCurrent';
 
 export class DateFunctionRepository implements Repository<Function> {
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
