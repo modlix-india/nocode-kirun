@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 21.7.3
       - name: Install Dependencies
         working-directory: ./kirun-js
         run: npm ci
@@ -25,10 +25,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 21.7.3
           registry-url: https://registry.npmjs.org/
       - name: Install Dependencies
         working-directory: ./kirun-js
@@ -38,6 +38,6 @@ jobs:
         run: npm run build
       - name: Publish to NPM
         working-directory: ./kirun-js
-        run: npm publish --access public    
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
