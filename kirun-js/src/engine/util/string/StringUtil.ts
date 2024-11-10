@@ -42,6 +42,18 @@ export class StringUtil {
         return [str.substring(0, index), str.substring(index + 1)];
     }
 
+    public static splitAtLastOccurance(
+        str: string,
+        c: string,
+    ): [string | undefined, string | undefined] {
+        if (!str) return [undefined, undefined];
+
+        let index: number = str.lastIndexOf(c);
+        if (index == -1) return [str, undefined];
+
+        return [str.substring(0, index), str.substring(index + 1)];
+    }
+
     public static isNullOrBlank(str: string | undefined): boolean {
         return !str || str.trim() == '';
     }
