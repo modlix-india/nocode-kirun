@@ -65,7 +65,7 @@ export abstract class TokenValueExtractor {
         parts: string[],
         partNumber: number,
         cPart: string,
-        cElement: any
+        cElement: any,
     ): any {
         if (isNullValue(cElement)) return undefined;
 
@@ -76,10 +76,7 @@ export abstract class TokenValueExtractor {
         return this.handleObjectAccess(token, parts, partNumber, cPart, cElement);
     }
 
-    private getLength(
-        token: string,
-        cElement: any
-    ): any {
+    private getLength(token: string, cElement: any): any {
         const type = typeof cElement;
 
         if (type === 'string' || Array.isArray(cElement)) return cElement.length;
@@ -88,29 +85,24 @@ export abstract class TokenValueExtractor {
             else return Object.keys(cElement).length;
         }
 
-        throw new ExpressionEvaluationException(token,
-            StringFormatter.format('Length can\'t be found in token $', token))
+        throw new ExpressionEvaluationException(
+            token,
+            StringFormatter.format("Length can't be found in token $", token),
+        );
     }
 
-    private handleArrayAccess(
-        token: string,
-        cPart: string,
-        cArray: any[]
-    ): any {
+    private handleArrayAccess(token: string, cPart: string, cArray: any[]): any {
         const index: number = parseInt(cPart);
 
         if (isNaN(index)) {
             throw new ExpressionEvaluationException(
                 token,
-                StringFormatter.format('$ is not a number', cPart)
+                StringFormatter.format('$ is not a number', cPart),
             );
         }
 
         if (index < 0 || index >= cArray.length) {
-            throw new ExpressionEvaluationException(
-                token,
-                StringFormatter.format('Index $ is out of bounds for array of length $', index, cArray.length)
-            );
+            return undefined;
         }
 
         return cArray[index];
@@ -121,13 +113,14 @@ export abstract class TokenValueExtractor {
         parts: string[],
         partNumber: number,
         cPart: string,
-        cObject: any
+        cObject: any,
     ): any {
-        if (cPart.startsWith("\"")) {
-            if (!cPart.endsWith("\"") || cPart.length == 1 || cPart.length == 2) {
+        if (cPart.startsWith('"')) {
+            if (!cPart.endsWith('"') || cPart.length == 1 || cPart.length == 2) {
                 throw new ExpressionEvaluationException(
                     token,
-                    StringFormatter.format("$ is missing a double quote or empty key found", token))
+                    StringFormatter.format('$ is missing a double quote or empty key found', token),
+                );
             }
 
             cPart = cPart.substring(1, parts.length - 2);

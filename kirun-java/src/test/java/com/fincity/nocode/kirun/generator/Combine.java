@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Combine {
 
-    public static final String PATH_PREFIX = "./kirun-";
+    public static final String PATH_PREFIX = "./../kirun-";
 
     public static void main(String[] args) throws IOException {
 
