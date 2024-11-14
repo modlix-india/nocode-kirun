@@ -33,7 +33,7 @@ class FromDateStringTest {
         StepVerifier.create(fromDateString.execute(parameters)
                 .map(functionOutput -> functionOutput.allResults().get(0).getResult()
                         .get(FromDateString.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-11-03T00:00:00Z")
+                .expectNext("2024-11-03T00:00:00.000Z")
                 .verifyComplete();
     }
 }

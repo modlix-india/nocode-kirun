@@ -32,7 +32,7 @@ public class DateUtil {
             .appendValue(MINUTE_OF_HOUR, 2)
             .appendLiteral(':')
             .appendValue(SECOND_OF_MINUTE, 2)
-            .appendFraction(MILLI_OF_SECOND, 0, 3, true)
+            .appendFraction(MILLI_OF_SECOND, 3, 3, true)
             .appendOffsetId()
             .toFormatter();
 

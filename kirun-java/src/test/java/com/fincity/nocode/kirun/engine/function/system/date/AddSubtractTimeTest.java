@@ -32,7 +32,7 @@ class AddSubtractTimeTest {
         StepVerifier.create(addSubtractTime.execute(parameters)
                 .map(functionOutput -> functionOutput.allResults().get(0).getResult()
                         .get(AddSubtractTime.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-11-11T14:55:00+05:30")
+                .expectNext("2024-11-11T14:55:00.000+05:30")
                 .verifyComplete();
     }
 

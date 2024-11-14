@@ -69,9 +69,9 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 					"seconds", Schema.ofLong("seconds"),
 					"milliseconds", Schema.ofLong("milliseconds")));
 
-	private Map<String, Schema> map = new HashMap<>();
+	private final Map<String, Schema> map = new HashMap<>();
 
-	private List<String> filterable;
+	private final List<String> filterable;
 
 	public KIRunReactiveSchemaRepository() {
 

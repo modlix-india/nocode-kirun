@@ -15,40 +15,40 @@ import reactor.test.StepVerifier;
 
 class EpochToTimestampTest {
 
-    @BeforeAll
-    public static void setup() {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    }
+        @BeforeAll
+        public static void setup() {
+                TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        }
 
-    @Test
-    void testEpochToTimestampSeconds() {
-        EpochToTimestamp epochToTimestamp = new EpochToTimestamp(true);
-        ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
-                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(
-                        Map.of("epochSeconds",
-                                new JsonPrimitive(1715529300)));
+        @Test
+        void testEpochToTimestampSeconds() {
+                EpochToTimestamp epochToTimestamp = new EpochToTimestamp(true);
+                ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+                                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                                .setArguments(
+                                                Map.of("epochSeconds",
+                                                                new JsonPrimitive(1715529300)));
 
-        StepVerifier.create(epochToTimestamp.execute(parameters)
-                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
-                        .get(EpochToTimestamp.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-05-12T15:55:00Z")
-                .verifyComplete();
-    }
+                StepVerifier.create(epochToTimestamp.execute(parameters)
+                                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
+                                                .get(EpochToTimestamp.EVENT_TIMESTAMP_NAME).getAsString()))
+                                .expectNext("2024-05-12T15:55:00.000Z")
+                                .verifyComplete();
+        }
 
-    @Test
-    void testEpochToTimestampMilliseconds() {
-        EpochToTimestamp epochToTimestamp = new EpochToTimestamp(false);
-        ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
-                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(
-                        Map.of("epochMilliseconds",
-                                new JsonPrimitive(1715529300234L)));
+        @Test
+        void testEpochToTimestampMilliseconds() {
+                EpochToTimestamp epochToTimestamp = new EpochToTimestamp(false);
+                ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+                                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                                .setArguments(
+                                                Map.of("epochMilliseconds",
+                                                                new JsonPrimitive(1715529300234L)));
 
-        StepVerifier.create(epochToTimestamp.execute(parameters)
-                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
-                        .get(EpochToTimestamp.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-05-12T15:55:00.234Z")
-                .verifyComplete();
-    }
+                StepVerifier.create(epochToTimestamp.execute(parameters)
+                                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
+                                                .get(EpochToTimestamp.EVENT_TIMESTAMP_NAME).getAsString()))
+                                .expectNext("2024-05-12T15:55:00.234Z")
+                                .verifyComplete();
+        }
 }
