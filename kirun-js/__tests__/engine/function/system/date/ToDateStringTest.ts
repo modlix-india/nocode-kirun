@@ -45,4 +45,22 @@ describe('ToDateString', () => {
             .get(AbstractDateFunction.EVENT_RESULT_NAME);
         expect(result).toBe('1 janvier 2024');
     });
+
+    test('should return the date string in the given format and no locale', async () => {
+        const fep = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(
+            new Map([
+                [ToDateString.PARAMETER_TIMESTAMP_NAME, '2024-01-01T00:00:00.000+05:30'],
+                [ToDateString.PARAMETER_FORMAT_NAME, 'DDD'],
+            ]),
+        );
+
+        const result = await (await new ToDateString().execute(fep))
+            .allResults()[0]
+            .getResult()
+            .get(AbstractDateFunction.EVENT_RESULT_NAME);
+        expect(result).toBe('1 January 2024');
+    });
 });
