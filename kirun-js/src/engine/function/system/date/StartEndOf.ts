@@ -32,10 +32,12 @@ export class StartEndOf extends AbstractDateFunction {
         unit = unit.substring(0, unit.length - 1);
 
         const newDateTime = this.isStart ? dateTime.startOf(unit) : dateTime.endOf(unit);
-
         return new FunctionOutput([
             EventResult.outputOf(
-                MapUtil.of(AbstractDateFunction.EVENT_TIMESTAMP_NAME, newDateTime.toISO()),
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_TIMESTAMP_NAME,
+                    newDateTime.toISO({ includeOffset: true }),
+                ),
             ),
         ]);
     }
