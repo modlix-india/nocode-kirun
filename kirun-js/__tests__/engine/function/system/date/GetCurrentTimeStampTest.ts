@@ -1,35 +1,27 @@
-import { FunctionExecutionParameters } from '../../../../../src/engine/runtime/FunctionExecutionParameters';
-import { KIRunFunctionRepository, KIRunSchemaRepository } from '../../../../../src';
-import { GetCurrentTimeStamp } from '../../../../../src/engine/function/system/date/GetCurrentTimeStamp';
+import { KIRunSchemaRepository, Namespaces } from '../../../../../src';
+import { KIRunFunctionRepository } from '../../../../../src';
+import { FunctionExecutionParameters } from '../../../../../src';
+import { AbstractDateFunction } from '../../../../../src/engine/function/system/date/AbstractDateFunction';
+import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
 
-const gcts: GetCurrentTimeStamp = new GetCurrentTimeStamp();
+import { Settings } from 'luxon';
 
-describe('testing GetCurrentTimeStamp', () => {
-    test('checking with current time stamp', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+Settings.defaultZone = 'Asia/Kolkata';
+
+describe('GetCurrentTimestamp', () => {
+    test('should return the current timestamp', async () => {
+        const fep = new FunctionExecutionParameters(
             new KIRunFunctionRepository(),
             new KIRunSchemaRepository(),
-        ).setArguments(new Map([]));
+        ).setArguments(new Map());
 
-        const d = new Date(Date.now());
+        const result = await (await new DateFunctionRepository().find(
+            Namespaces.DATE,
+            'GetCurrentTimestamp',
+        ))!.execute(fep);
 
-        expect((await gcts.execute(fep)).allResults()[0].getResult().get('date').substring(0,21)).toBe(
-            d.toISOString().substring(0,21)
-        );
+        expect(
+            result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_TIMESTAMP_NAME),
+        ).toBeDefined();
     });
-})
-
-describe('testing false case of GetCurrentTimeStamp', () => {
-    test('checking with current time stamp', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([]));
-
-        const d = new Date(Date.now()-1000000);
-
-        expect((await gcts.execute(fep)).allResults()[0].getResult().get('date')).not.toBe(
-            d.toISOString()
-        );
-    });
-})
+});

@@ -19,8 +19,7 @@ import { ParameterType } from '../../../model/ParameterType';
 import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 
 export class ObjectConvert extends AbstractFunction {
-
-    private static readonly SOURCE: string = 'SOURCE';
+    private static readonly SOURCE: string = 'source';
     private static readonly SCHEMA: string = 'schema';
     private static readonly VALUE: string = 'value';
     private static readonly CONVERSION_MODE: string = 'conversionMode';
@@ -28,31 +27,45 @@ export class ObjectConvert extends AbstractFunction {
     getSignature(): FunctionSignature {
         return new FunctionSignature('ObjectConvert')
             .setNamespace(Namespaces.SYSTEM_OBJECT)
-            .setParameters(new Map([
-                Parameter.ofEntry(ObjectConvert.SOURCE, Schema.ofAny(ObjectConvert.SCHEMA)),
-                Parameter.ofEntry(ObjectConvert.SCHEMA, Schema.SCHEMA, false, ParameterType.CONSTANT),
-                Parameter.ofEntry(ObjectConvert.CONVERSION_MODE, Schema.ofString(ObjectConvert.CONVERSION_MODE)
-                    .setEnums(getConversionModes())),
-            ]))
-            .setEvents(new Map([
-                    Event.outputEventMapEntry(MapUtil.of(ObjectConvert.VALUE, Schema.ofAny(ObjectConvert.VALUE))),
+            .setParameters(
+                new Map([
+                    Parameter.ofEntry(ObjectConvert.SOURCE, Schema.ofAny(ObjectConvert.SCHEMA)),
+                    Parameter.ofEntry(
+                        ObjectConvert.SCHEMA,
+                        Schema.SCHEMA,
+                        false,
+                        ParameterType.CONSTANT,
+                    ),
+                    Parameter.ofEntry(
+                        ObjectConvert.CONVERSION_MODE,
+                        Schema.ofString(ObjectConvert.CONVERSION_MODE).setEnums(
+                            getConversionModes(),
+                        ),
+                    ),
+                ]),
+            )
+            .setEvents(
+                new Map([
+                    Event.outputEventMapEntry(
+                        MapUtil.of(ObjectConvert.VALUE, Schema.ofAny(ObjectConvert.VALUE)),
+                    ),
                 ]),
             );
     }
 
-    protected internalExecute(
-        context: FunctionExecutionParameters,
-    ): Promise<FunctionOutput> {
-
+    protected internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         let element: any = context.getArguments()?.get(ObjectConvert.SOURCE);
-        let schema: Schema | undefined = Schema.from(context?.getArguments()?.get(ObjectConvert.SCHEMA));
+        let schema: Schema | undefined = Schema.from(
+            context?.getArguments()?.get(ObjectConvert.SCHEMA),
+        );
 
         if (!schema) {
             throw new KIRuntimeException('Schema is not supplied.');
         }
 
-        const mode: ConversionMode = genericValueOf(context.getArguments()?.get(ObjectConvert.CONVERSION_MODE))
-            || ConversionMode.STRICT;
+        const mode: ConversionMode =
+            genericValueOf(context.getArguments()?.get(ObjectConvert.CONVERSION_MODE)) ||
+            ConversionMode.STRICT;
 
         return this.convertToSchema(schema, context.getSchemaRepository(), element, mode);
     }
@@ -64,8 +77,21 @@ export class ObjectConvert extends AbstractFunction {
         mode: ConversionMode,
     ): Promise<FunctionOutput> {
         try {
-            return new FunctionOutput([EventResult.outputOf(MapUtil.of(ObjectConvert.VALUE,
-                SchemaValidator.validate([], targetSchema, targetSchemaRepository, element, true, mode)))]);
+            return new FunctionOutput([
+                EventResult.outputOf(
+                    MapUtil.of(
+                        ObjectConvert.VALUE,
+                        SchemaValidator.validate(
+                            [],
+                            targetSchema,
+                            targetSchemaRepository,
+                            element,
+                            true,
+                            mode,
+                        ),
+                    ),
+                ),
+            ]);
         } catch (error: any) {
             throw new KIRuntimeException(error?.message);
         }

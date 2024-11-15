@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public class LastIndexOf extends AbstractArrayFunction {
 
 	public LastIndexOf() {
-		super("LastIndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_FIND_FROM),
+		super("LastIndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_ELEMENT_OBJECT, PARAMETER_INT_FIND_FROM),
 				EVENT_RESULT_INTEGER);
 	}
 
@@ -28,7 +28,7 @@ public class LastIndexOf extends AbstractArrayFunction {
 				.getAsJsonArray();
 
 		var find = context.getArguments()
-				.get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
 		JsonPrimitive length = context.getArguments()
 				.get(PARAMETER_INT_FIND_FROM.getParameterName())
@@ -45,9 +45,6 @@ public class LastIndexOf extends AbstractArrayFunction {
 					"The value of length shouldn't the exceed the size of the array or shouldn't be in terms");
 
 		int index = -1;
-
-		if (find.isJsonNull())
-			throw new KIRuntimeException("Please provide the valid find object or primitive in order to verify");
 
 		for (int i = source.size() - 1; i >= len; i--) {
 			if (PrimitiveUtil.compare(source.get(i), find) == 0) {

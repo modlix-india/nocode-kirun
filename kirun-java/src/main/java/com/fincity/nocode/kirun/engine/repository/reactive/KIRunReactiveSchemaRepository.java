@@ -8,6 +8,7 @@ import com.fincity.nocode.kirun.engine.json.schema.Schema;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,27 +16,62 @@ import reactor.core.publisher.Mono;
 public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema> {
 
 	private static final Schema ANY = Schema.ofAny("any")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema BOOLEAN = Schema.ofBoolean("boolean")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema DOUBLE = Schema.ofDouble("double")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema FLOAT = Schema.ofFloat("float")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema INTEGER = Schema.ofInteger("integer")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema LONG = Schema.ofLong("long")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema NUMBER = Schema.ofNumber("number")
-	        .setNamespace(Namespaces.SYSTEM);
+			.setNamespace(Namespaces.SYSTEM);
 	private static final Schema STRING = Schema.ofString("string")
-	        .setNamespace(Namespaces.SYSTEM);
-    private static final Schema TIMESTAMP = Schema.ofString("timeStamp")
-            .setNamespace(Namespaces.DATE);
+			.setNamespace(Namespaces.SYSTEM);
+	private static final Schema TIMESTAMP = Schema.ofString("Timestamp")
+			.setNamespace(Namespaces.DATE);
+	private static final Schema TIMEUNIT = Schema.ofString("Timeunit")
+			.setNamespace(Namespaces.DATE).setEnums(List.of(
+					new JsonPrimitive("YEARS"),
+					new JsonPrimitive("QUARTERS"),
+					new JsonPrimitive("MONTHS"),
+					new JsonPrimitive("WEEKS"),
+					new JsonPrimitive("DAYS"),
+					new JsonPrimitive("HOURS"),
+					new JsonPrimitive("MINUTES"),
+					new JsonPrimitive("SECONDS"),
+					new JsonPrimitive("MILLISECONDS")));
 
-	private Map<String, Schema> map = new HashMap<>();
+	private static final Schema TIMEOBJECT = Schema.ofObject("TimeObject")
+			.setNamespace(Namespaces.DATE)
+			.setProperties(Map.of(
+					"year", Schema.ofNumber("year"),
+					"month", Schema.ofNumber("month"),
+					"day", Schema.ofNumber("day"),
+					"hour", Schema.ofNumber("hour"),
+					"minute", Schema.ofNumber("minute"),
+					"second", Schema.ofNumber("second"),
+					"millisecond", Schema.ofNumber("millisecond")));
 
-	private List<String> filterable;
+	private static final Schema DURATION = Schema.ofObject("Duration")
+			.setNamespace(Namespaces.DATE)
+			.setProperties(Map.of(
+					"years", Schema.ofNumber("years"),
+					"quarters", Schema.ofNumber("quarters"),
+					"months", Schema.ofNumber("months"),
+					"weeks", Schema.ofNumber("weeks"),
+					"days", Schema.ofNumber("days"),
+					"hours", Schema.ofNumber("hours"),
+					"minutes", Schema.ofNumber("minutes"),
+					"seconds", Schema.ofNumber("seconds"),
+					"milliseconds", Schema.ofNumber("milliseconds")));
+
+	private final Map<String, Schema> map = new HashMap<>();
+
+	private final List<String> filterable;
 
 	public KIRunReactiveSchemaRepository() {
 
@@ -50,19 +86,21 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 		map.put(Parameter.EXPRESSION.getName(), Parameter.EXPRESSION);
 		map.put(Schema.NULL.getName(), Schema.NULL);
 		map.put(Schema.SCHEMA.getName(), Schema.SCHEMA);
-        map.put("Date." + TIMESTAMP.getName(), TIMESTAMP);
-
+		map.put(TIMESTAMP.getName(), TIMESTAMP);
+		map.put(TIMEUNIT.getName(), TIMEUNIT);
+		map.put(TIMEOBJECT.getName(), TIMEOBJECT);
+		map.put(DURATION.getName(), DURATION);
 
 		filterable = map.values()
-		        .stream()
-		        .map(Schema::getFullName)
-		        .toList();
+				.stream()
+				.map(Schema::getFullName)
+				.toList();
 	}
 
 	@Override
 	public Mono<Schema> find(String namespace, String name) {
 
-		if (!Namespaces.SYSTEM.equals(namespace))
+		if (!Namespaces.SYSTEM.equals(namespace) && !Namespaces.DATE.equals(namespace))
 			return Mono.empty();
 
 		return Mono.just(map.get(name));
@@ -74,8 +112,8 @@ public class KIRunReactiveSchemaRepository implements ReactiveRepository<Schema>
 		String lowerCaseName = name.toLowerCase();
 
 		return Flux.fromIterable(this.filterable)
-		        .filter(e -> e.toLowerCase()
-		                .contains(lowerCaseName));
+				.filter(e -> e.toLowerCase()
+						.contains(lowerCaseName));
 	}
 
 }

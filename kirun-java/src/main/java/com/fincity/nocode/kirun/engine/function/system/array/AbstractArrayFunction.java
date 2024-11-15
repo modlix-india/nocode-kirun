@@ -1,6 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_ARRAY;
+import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +18,7 @@ import com.google.gson.JsonPrimitive;
 
 public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
+	private static final String ELEMENT_OBJECT = "elementObject";
 	private static final String ELEMENT = "element";
 	protected static final String EVENT_INDEX_NAME = "index";
 	protected static final String EVENT_RESULT_NAME = "result";
@@ -31,9 +32,9 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	protected static final Event EVENT_RESULT_BOOLEAN = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
-	
+
 	protected static final Event EVENT_RESULT_STRING = new Event().setName(Event.OUTPUT)
-			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
+			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
 
 	protected static final Event EVENT_RESULT_ARRAY = new Event().setName(Event.OUTPUT).setParameters(
 			Map.of(EVENT_RESULT_NAME, Schema.ofArray(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME))));
@@ -41,8 +42,8 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 	protected static final Event EVENT_RESULT_ANY = new Event().setName(Event.OUTPUT)
 			.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofAny(EVENT_RESULT_NAME)));
 
-	protected static final Parameter PARAMETER_ROTATE_LENGTH = Parameter.of("rotateDistance",
-			Schema.ofInteger("rotateDistance").setDefaultValue(new JsonPrimitive(1)).setMinimum(1));
+	protected static final Parameter PARAMETER_ROTATE_LENGTH = Parameter.of("rotateLength",
+			Schema.ofInteger("rotateLength").setDefaultValue(new JsonPrimitive(1)).setMinimum(1));
 
 	protected static final Parameter PARAMETER_INT_LENGTH = Parameter.of("length",
 			Schema.ofInteger("length").setDefaultValue(new JsonPrimitive(-1)));
@@ -80,14 +81,17 @@ public abstract class AbstractArrayFunction extends AbstractReactiveFunction {
 
 	public static final Parameter PARAMETER_KEY_PATH = Parameter.of("keyPath",
 			Schema.ofString("keyPath").setDefaultValue(new JsonPrimitive("")));
-	
+
 	public static final Parameter PARAMETER_DELIMITER = Parameter.of("delimiter",
 			Schema.ofString("delimiter").setDefaultValue(new JsonPrimitive("")));
 
 	protected static final Parameter PARAMETER_FIND_PRIMITIVE = Parameter.of("findPrimitive", Schema.of("findPrimitive",
 			SchemaType.STRING, SchemaType.DOUBLE, SchemaType.FLOAT, SchemaType.INTEGER, SchemaType.LONG));
 
-	protected static final Parameter PARAMETER_ANY = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT));
+	protected static final Parameter PARAMETER_ANY_ELEMENT_OBJECT = Parameter.of(ELEMENT_OBJECT,
+			Schema.ofAny(ELEMENT_OBJECT));
+
+	protected static final Parameter PARAMETER_ANY_ELEMENT = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT));
 
 	protected static final Parameter PARAMETER_ANY_VAR_ARGS = Parameter.of(ELEMENT, Schema.ofAny(ELEMENT))
 			.setVariableArgument(true);

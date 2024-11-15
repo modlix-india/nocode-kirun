@@ -22,8 +22,8 @@ class StringFunctionRepositoryTest {
 		StepVerifier.create(stringFunction.find(Namespaces.STRING, "Trim")
 				.flatMap(fun -> fun.execute(new ReactiveFunctionExecutionParameters(
 						new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository()).setArguments(
-								Map.of("value", new JsonPrimitive("			no code  Kirun  PLATform		")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								Map.of("string", new JsonPrimitive("			no code  Kirun  PLATform		")))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("no code  Kirun  PLATform")
 				.verifyComplete();
 
@@ -32,8 +32,8 @@ class StringFunctionRepositoryTest {
 						.flatMap(fun -> fun
 								.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 										new KIRunReactiveSchemaRepository())
-										.setArguments(Map.of("value", new JsonPrimitive("						")))))
-						.map(fo -> fo.next().getResult().get("value").getAsString()))
+										.setArguments(Map.of("string", new JsonPrimitive("						")))))
+						.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("")
 				.verifyComplete();
 
@@ -41,9 +41,9 @@ class StringFunctionRepositoryTest {
 				.create(stringFunction.find(Namespaces.STRING, "Trim")
 						.flatMap(fun -> fun.execute(new ReactiveFunctionExecutionParameters(
 								new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value",
+								.setArguments(Map.of("string",
 										new JsonPrimitive("		{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}	"))))
-								.map(fo -> fo.next().getResult().get("value").getAsString())))
+								.map(fo -> fo.next().getResult().get("result").getAsString())))
 				.expectNext("{20934 123 1[[23 245-0 34\\\" 3434 \\\" 123]]}")
 				.verifyComplete();
 	}
@@ -56,8 +56,8 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM	")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								.setArguments(Map.of("string", new JsonPrimitive(" THIS IS A NOcoDE plATFORM	")))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext(" this is a nocode platform	")
 				.verifyComplete();
 
@@ -65,8 +65,8 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("				")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								.setArguments(Map.of("string", new JsonPrimitive("				")))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("				")
 				.verifyComplete();
 
@@ -74,9 +74,9 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value",
+								.setArguments(Map.of("string",
 										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("		20934 123 123 245-0 34\" 3434 \" 123		")
 				.verifyComplete();
 
@@ -84,8 +84,8 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(1231)))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								.setArguments(Map.of("string", new JsonPrimitive(1231)))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.verifyError(KIRuntimeException.class);
 	}
 
@@ -97,8 +97,9 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive(" THIS IS A NOcoDE plATFORM		")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								.setArguments(
+										Map.of("string", new JsonPrimitive(" THIS IS A NOcoDE plATFORM		")))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext(" THIS IS A NOCODE PLATFORM		")
 				.verifyComplete();
 
@@ -106,8 +107,8 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value", new JsonPrimitive("				")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+								.setArguments(Map.of("string", new JsonPrimitive("				")))))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("				")
 				.verifyComplete();
 
@@ -115,9 +116,9 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value",
+								.setArguments(Map.of("string",
 										new JsonPrimitive("		20934 123 123 245-0 34\" 3434 \" 123		")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("		20934 123 123 245-0 34\" 3434 \" 123		")
 				.verifyComplete();
 
@@ -125,9 +126,9 @@ class StringFunctionRepositoryTest {
 				.flatMap(fun -> fun
 						.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 								new KIRunReactiveSchemaRepository())
-								.setArguments(Map.of("value",
+								.setArguments(Map.of("string",
 										new JsonPrimitive("			no code  Kirun  PLATform		")))))
-				.map(fo -> fo.next().getResult().get("value").getAsString()))
+				.map(fo -> fo.next().getResult().get("result").getAsString()))
 				.expectNext("			NO CODE  KIRUN  PLATFORM		")
 				.verifyComplete();
 	}

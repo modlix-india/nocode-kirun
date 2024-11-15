@@ -60,7 +60,7 @@ export class SchemaValidator {
             return SchemaValidator.constantValidation(parents, schema, element);
         }
 
-        if (schema.getEnums() && !schema.getEnums()?.length) {
+        if (schema.getEnums()?.length) {
             return SchemaValidator.enumCheck(parents, schema, element);
         }
 

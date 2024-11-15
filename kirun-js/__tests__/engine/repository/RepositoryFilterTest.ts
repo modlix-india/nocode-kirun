@@ -24,7 +24,10 @@ test('Repository Filter Test', async () => {
     expect(await schemaRepo.filter('ny')).toStrictEqual(['System.any']);
 
     expect((await schemaRepo.filter('')).sort()).toStrictEqual([
-        'System.Date.timeStamp',
+        'System.Date.Duration',
+        'System.Date.TimeObject',
+        'System.Date.Timestamp',
+        'System.Date.Timeunit',
         'System.Null',
         'System.ParameterExpression',
         'System.Schema',

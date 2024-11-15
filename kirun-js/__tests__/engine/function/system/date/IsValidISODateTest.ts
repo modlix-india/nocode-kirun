@@ -1,79 +1,67 @@
-import { FunctionExecutionParameters, KIRunFunctionRepository, KIRunSchemaRepository } from "../../../../../src";
-import { IsValidISODate } from "../../../../../src/engine/function/system/date/IsValidISODate";
+import {
+    FunctionExecutionParameters,
+    KIRunFunctionRepository,
+    KIRunSchemaRepository,
+} from '../../../../../src';
+import { AbstractDateFunction } from '../../../../../src/engine/function/system/date/AbstractDateFunction';
+import { IsValidISODate } from '../../../../../src/engine/function/system/date/IsValidISODate';
 
+import { Settings } from 'luxon';
 
-const validIso: IsValidISODate = new IsValidISODate();
+Settings.defaultZone = 'Asia/Kolkata';
 
-describe('checking the validity for not string types ',() => {
+const isValidISODate = new IsValidISODate();
 
-    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-        new KIRunFunctionRepository(),
-        new KIRunSchemaRepository(),
-    );
-
-    test('number test' , async () => {
-
-        fep.setArguments(new Map([['isoDate',1234]]))
-        await expect( validIso.execute(fep)).rejects.toThrow();
-
-    });
-
-    test('boolean test' , async () => {
-
-        fep.setArguments(new Map([['isoDate',true]]))
-        await expect(validIso.execute(fep)).rejects.toThrow();
-
-    })
-})
-
-describe('checking validity for string date types' , () => {
-
-    test('Date1', async () => {
+describe('IsValidISODate', () => {
+    it('should return true for a valid ISO date', async () => {
         let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
             new KIRunFunctionRepository(),
             new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isoDate', "aws"]]));
+        ).setArguments(
+            new Map([[AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2024-01-01T00:00:00.000Z']]),
+        );
 
-        expect((await validIso.execute(fep)).allResults()[0].getResult().get('output')).toBeFalsy();
+        const result = await isValidISODate.execute(fep);
+        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
+            true,
+        );
+    });
+
+    it('should return false for an invalid ISO date', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([[AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, 'invalid']]));
+
+        const result = await isValidISODate.execute(fep);
+        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
+            false,
+        );
+    });
+
+    it('should return false for an invalid ISO date', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(new Map([[AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2024-02-31']]));
+
+        const result = await isValidISODate.execute(fep);
+        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
+            false,
+        );
+    });
+
+    it('should return false for an invalid leap year ISO date', async () => {
+        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(
+            new Map([[AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2022-02-29T00:00:00.000Z']]),
+        );
+
+        const result = await isValidISODate.execute(fep);
+        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
+            false,
+        );
     });
 });
-
-describe('checking validity', () => {
-
-    test('Date1', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isoDate', "2023-10-04T11:45:38.939ss"]]));
-
-        expect((await validIso.execute(fep)).allResults()[0].getResult().get('output')).toBeFalsy();
-    });
-
-    test('Date2', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isoDate', "2023-10-04T11:45:38.939Z"]]));
-
-        expect((await validIso.execute(fep)).allResults()[0].getResult().get('output')).toBeTruthy();
-    });
-
-    test('Date3', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isoDate', "2023-10-10T10:02:54.959Z"]]));
-
-        expect((await validIso.execute(fep)).allResults()[0].getResult().get('output')).toBeTruthy();
-    });
-
-    test('Date4', async () => {
-        let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
-            new KIRunFunctionRepository(),
-            new KIRunSchemaRepository(),
-        ).setArguments(new Map([['isoDate', "2023-10-10T10:02:54.959-12:12"]]));
-
-        expect((await validIso.execute(fep)).allResults()[0].getResult().get('output')).toBeTruthy();
-    });
-    
-})

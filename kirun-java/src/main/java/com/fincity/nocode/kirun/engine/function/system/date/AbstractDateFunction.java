@@ -1,227 +1,199 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
-import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
-import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
+import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
+import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
-import com.fincity.nocode.kirun.engine.util.date.ValidDateTimeUtil;
-import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
 import com.google.gson.JsonPrimitive;
+
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.function.ToIntFunction;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.function.BiFunction;
+import com.fincity.nocode.kirun.engine.util.stream.TriFunction;
+import java.util.ArrayList;
+
+import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Mono;
 
 public abstract class AbstractDateFunction extends AbstractReactiveFunction {
 
+    private final FunctionSignature signature;
+    public static final String PARAMETER_TIMESTAMP_NAME = "isoTimeStamp";
+    public static final String PARAMETER_TIMESTAMP_NAME_ONE = "isoTimeStamp1";
+    public static final String PARAMETER_TIMESTAMP_NAME_TWO = "isoTimeStamp2";
+    public static final String PARAMETER_UNIT_NAME = "unit";
+    public static final String PARAMETER_NUMBER_NAME = "number";
+
+    private static final String TIMESTAMP_SCHEMA_NAME = Namespaces.DATE + ".Timestamp";
+
+    public static final Parameter PARAMETER_TIMESTAMP = Parameter.of(
+            PARAMETER_TIMESTAMP_NAME,
+            Schema.ofRef(TIMESTAMP_SCHEMA_NAME));
+
+    public static final Parameter PARAMETER_TIMESTAMP_ONE = Parameter.of(PARAMETER_TIMESTAMP_NAME_ONE,
+            Schema.ofRef(TIMESTAMP_SCHEMA_NAME));
+
+    public static final Parameter PARAMETER_TIMESTAMP_TWO = Parameter.of(PARAMETER_TIMESTAMP_NAME_TWO,
+            Schema.ofRef(TIMESTAMP_SCHEMA_NAME));
+    public static final Parameter PARAMETER_VARIABLE_UNIT = Parameter.of(
+            PARAMETER_UNIT_NAME,
+            Schema.ofRef(Namespaces.DATE + ".Timeunit"))
+            .setVariableArgument(true);
+
+    public static final Parameter PARAMETER_UNIT = Parameter.of(PARAMETER_UNIT_NAME,
+            Schema.ofRef(Namespaces.DATE + ".Timeunit"));
+
+    public static final Parameter PARAMETER_NUMBER = Parameter.of(
+            PARAMETER_NUMBER_NAME,
+            Schema.ofInteger(PARAMETER_NUMBER_NAME));
+
     public static final String EVENT_RESULT_NAME = "result";
+    public static final String EVENT_TIMESTAMP_NAME = "isoTimeStamp";
 
-    public static final String PARAMETER_DATE_NAME = "isoDate";
+    public static final Event EVENT_INT = new Event()
+            .setName(Event.OUTPUT)
+            .setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofInteger(EVENT_RESULT_NAME)));
 
-    public static final String PARAMETER_FIELD_NAME = "value";
+    public static final Event EVENT_STRING = new Event()
+            .setName(Event.OUTPUT)
+            .setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)));
 
-	public static final String PARAMETER_INT_NAME = "intValue";
+    public static final Event EVENT_LONG = new Event()
+            .setName(Event.OUTPUT)
+            .setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofLong(EVENT_RESULT_NAME)));
 
-	public static final String PARAMETER_UNIT_NAME  = "unit";
+    protected static final Event EVENT_BOOLEAN = new Event()
+            .setName(Event.OUTPUT)
+            .setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
 
-	private static final String ERROR_MSG = "Please provide the valid iso date.";
-	
-	private final FunctionSignature functionSignature;
+    public static final Event EVENT_TIMESTAMP = new Event()
+            .setName(Event.OUTPUT)
+            .setParameters(Map.of(EVENT_TIMESTAMP_NAME, Schema.ofRef(TIMESTAMP_SCHEMA_NAME)));
 
-	@Override
-	public FunctionSignature getSignature() {
-		return functionSignature;
-	}
+    @Override
+    public FunctionSignature getSignature() {
+        return this.signature;
+    }
 
-	protected static final Parameter PARAMETER_DATE = new Parameter()
-		.setParameterName(PARAMETER_DATE_NAME)
-		.setSchema(Schema.ofString(PARAMETER_DATE_NAME).setRef(Namespaces.DATE + ".timeStamp"));
+    protected AbstractDateFunction(String functionName, Event event, Parameter... parameter) {
+        this.signature = new FunctionSignature()
+                .setName(functionName)
+                .setNamespace(Namespaces.DATE)
+                .setEvents(Map.of(event.getName(), event));
 
+        if (parameter == null || parameter.length == 0)
+            return;
 
-    protected static final Parameter PARAMETER_FIELD  = new Parameter()
-		.setParameterName(PARAMETER_FIELD_NAME)
-		.setSchema(Schema.ofInteger(PARAMETER_FIELD_NAME));
+        Map<String, Parameter> paramMap = new HashMap<>();
+        for (Parameter e : parameter) {
+            paramMap.put(e.getParameterName(), e);
+        }
+        this.signature.setParameters(paramMap);
+    }
 
-	protected static final Parameter PARAMETER_UNIT = new Parameter().setParameterName(PARAMETER_UNIT_NAME)
-	.setSchema(Schema.ofString(PARAMETER_UNIT_NAME).setEnums(List.of(
-		new JsonPrimitive("YEAR"),
-		new JsonPrimitive("MONTH"),
-		new JsonPrimitive("DAY"),
-		new JsonPrimitive("HOUR"),
-		new JsonPrimitive("MINUTE"),
-		new JsonPrimitive("SECOND"),
-		new JsonPrimitive("MILLISECOND"))));
+    public static Map.Entry<String, ReactiveFunction> ofEntryTimestampAndIntegerOutput(String name,
+            ToIntFunction<String> fun) {
 
-	protected static final Parameter PARAMETER_INT = new Parameter().setParameterName(PARAMETER_INT_NAME)
-		.setSchema(Schema.ofInteger(PARAMETER_INT_NAME));
+        ReactiveFunction dateFunction = new AbstractDateFunction(name, EVENT_INT, PARAMETER_TIMESTAMP) {
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+                String timestamp = context.getArguments().get(PARAMETER_TIMESTAMP_NAME).getAsString();
+                JsonPrimitive result = new JsonPrimitive(fun.applyAsInt(timestamp));
+                return Mono.just(new FunctionOutput(List.of(
+                        EventResult.outputOf(Map.of(EVENT_RESULT_NAME, result)))));
+            }
+        };
 
-	protected static final Event EVENT_INT = new Event().setName(Event.OUTPUT)
-		.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofInteger(EVENT_RESULT_NAME)));
+        return Map.entry(name, dateFunction);
+    }
 
-	protected static final Event EVENT_BOOLEAN = new Event().setName(Event.OUTPUT)
-		.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofBoolean(EVENT_RESULT_NAME)));
+    public static Map.Entry<String, ReactiveFunction> ofEntryTimestampAndBooleanOutput(String name,
+            Predicate<String> fun) {
 
-	protected static final Event EVENT_DATE = new Event().setName(Event.OUTPUT)
-		.setParameters(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME).setRef(Namespaces.DATE + ".timeStamp")));
+        ReactiveFunction dateFunction = new AbstractDateFunction(name, EVENT_BOOLEAN, PARAMETER_TIMESTAMP) {
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+                String timestamp = context.getArguments().get(PARAMETER_TIMESTAMP_NAME).getAsString();
+                JsonPrimitive result = new JsonPrimitive(fun.test(timestamp));
+                return Mono.just(new FunctionOutput(List.of(
+                        EventResult.outputOf(Map.of(EVENT_RESULT_NAME, result)))));
+            }
+        };
 
+        return Map.entry(name, dateFunction);
+    }
 
-	protected AbstractDateFunction(String namespace, String functionName, Event event, Parameter ... parameters){
+    public static Map.Entry<String, ReactiveFunction> ofEntryTimestampAndStringOutput(String name,
+            UnaryOperator<String> fun) {
 
-		Map<String, Parameter> paramMap = new HashMap<>();
+        ReactiveFunction dateFunction = new AbstractDateFunction(name, EVENT_STRING, PARAMETER_TIMESTAMP) {
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+                String timestamp = context.getArguments().get(PARAMETER_TIMESTAMP_NAME).getAsString();
+                JsonPrimitive result = new JsonPrimitive(fun.apply(timestamp));
+                return Mono.just(new FunctionOutput(List.of(
+                        EventResult.outputOf(Map.of(EVENT_RESULT_NAME, result)))));
+            }
+        };
 
-		for(Parameter param : parameters){
-			paramMap.put(param.getParameterName(), param);
-		}
+        return Map.entry(name, dateFunction);
+    }
 
-		functionSignature = new FunctionSignature()
-								.setName(functionName)
-								.setNamespace(namespace)
-								.setParameters(paramMap)
-								.setEvents(Map.of(event.getName(), event));
+    public static Map.Entry<String, ReactiveFunction> ofEntryTimestampIntegerAndTimestampOutput(String name,
+            BiFunction<String, Integer, String> fun) {
+        ReactiveFunction dateFunction = new AbstractDateFunction(name, EVENT_TIMESTAMP, PARAMETER_TIMESTAMP,
+                PARAMETER_NUMBER) {
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
+                String timestamp = context.getArguments().get(PARAMETER_TIMESTAMP_NAME).getAsString();
+                Integer number = context.getArguments().get(PARAMETER_NUMBER_NAME).getAsInt();
+                JsonPrimitive result = new JsonPrimitive(fun.apply(timestamp, number));
+                return Mono.just(new FunctionOutput(List.of(
+                        EventResult.outputOf(Map.of(EVENT_RESULT_NAME, result)))));
+            }
+        };
+        return Map.entry(name, dateFunction);
+    }
 
-	}
+    public static <T extends JsonElement> Map.Entry<String, ReactiveFunction> ofEntryTimestampTimestampAndTOutput(
+            String name, Event event,
+            TriFunction<String, String, List<JsonElement>, T> fun, Parameter... parameter) {
 
-	protected AbstractDateFunction(String namespace, String functionName, String output, SchemaType... schemaType) {
+        Parameter[] paramArray = new Parameter[parameter.length + 2];
+        paramArray[0] = PARAMETER_TIMESTAMP_ONE;
+        paramArray[1] = PARAMETER_TIMESTAMP_TWO;
+        System.arraycopy(parameter, 0, paramArray, 2, parameter.length);
 
-		if (schemaType == null || schemaType.length == 0) {
-			schemaType = new SchemaType[] { SchemaType.DOUBLE };
-		}
+        ReactiveFunction dateFunction = new AbstractDateFunction(name, event, paramArray) {
+            @Override
+            protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
-		functionSignature = new FunctionSignature().setName(functionName)
-		        .setNamespace(namespace)
-		        .setParameters(Map.of(PARAMETER_DATE_NAME, new Parameter().setParameterName(PARAMETER_DATE_NAME)
-		                .setSchema(Schema.ofRef(Namespaces.DATE + ".timeStamp"))))
-		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(output, new Schema().setName(output)
-		                .setType(Type.of(schemaType[0]))))));
-	}
+                List<JsonElement> args = new ArrayList<>();
+                for (Parameter p : parameter) {
+                    args.add(context.getArguments().get(p.getParameterName()));
+                }
 
-	protected AbstractDateFunction(String secondName, String namespace, String functionName) {
+                String timestamp1 = context.getArguments().get(PARAMETER_TIMESTAMP_NAME_ONE).getAsString();
+                String timestamp2 = context.getArguments().get(PARAMETER_TIMESTAMP_NAME_TWO).getAsString();
 
-		functionSignature = new FunctionSignature().setName(functionName)
-		        .setNamespace(namespace)
-		        .setParameters(Map.of(PARAMETER_DATE_NAME, new Parameter().setParameterName(PARAMETER_DATE_NAME)
-		                .setSchema(Schema.ofRef(Namespaces.DATE + ".timeStamp")), secondName,
-		                new Parameter().setParameterName(secondName)
-		                        .setSchema(Schema.ofBoolean(secondName))))
-		        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(EVENT_RESULT_NAME, Schema.ofString(EVENT_RESULT_NAME)))));
-	}
+                T result = fun.apply(timestamp1, timestamp2, args);
 
+                return Mono.just(new FunctionOutput(List.of(
+                        EventResult.outputOf(Map.of(EVENT_RESULT_NAME, result)))));
+            }
+        };
 
- 
-	public static Entry<String, ReactiveFunction> ofEntryDateAndBooleanOutput(final String functionName, Function<String, Boolean> ufunction){
-
-		return Map.entry(functionName, new AbstractDateFunction( Namespaces.DATE, functionName,  EVENT_BOOLEAN ,  PARAMETER_DATE ) {
-		
-			@Override
-			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-
-				String date = context.getArguments()
-				        .get(PARAMETER_DATE_NAME)
-				        .getAsString();
-
-				if (!ValidDateTimeUtil.validate(date))
-					throw new KIRuntimeException(ERROR_MSG);
-
-				return Mono.just(new FunctionOutput(
-				        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(ufunction.apply(date)))))));
-			}
-
-		}) ;
-
-	}
-
-	public static Entry<String, ReactiveFunction> ofEntryDateAndIntegerWithOutputName(final String functionName, Function<String, Number> ufunction) {
-
-		return Map.entry(functionName, new AbstractDateFunction(Namespaces.DATE, functionName, EVENT_INT, PARAMETER_DATE) {
-
-			@Override
-			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-
-				String date = context.getArguments()
-				        .get(PARAMETER_DATE_NAME)
-				        .getAsString();
-
-				if (!ValidDateTimeUtil.validate(date))
-					throw new KIRuntimeException(ERROR_MSG);
-
-				return Mono.just(new FunctionOutput(
-				        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(ufunction.apply(date)))))));
-			}
-			
-		});
-	}
-
-	public static Entry<String,ReactiveFunction> ofEntryDateWithIntegerWithOutputDate(final String functionName, 
-		BiFunction<String, Integer, String> bifunction){
-
-		return Map.entry(functionName, new AbstractDateFunction(Namespaces.DATE, functionName, EVENT_DATE , PARAMETER_DATE, PARAMETER_INT) {
-
-			@Override
-			protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-				String date = context.getArguments()
-				        .get(PARAMETER_DATE_NAME)
-				        .getAsString();
-
-				if (!ValidDateTimeUtil.validate(date))
-					throw new KIRuntimeException(ERROR_MSG);
-
-				int amount = context.getArguments()
-				        .get(PARAMETER_INT_NAME)
-				        .getAsInt();
-
-				return Mono.just(new FunctionOutput(
-				        List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(bifunction.apply(date, amount)))))));
-				
-			}
-
-		});
-
-	}
-
-	public static Entry<String, ReactiveFunction> ofEntryDateWithIntegerUnitWithOutputName(final String functionName,
-			TriFunction<String,Integer,String,String>  trifunction , SchemaType...  schemaType){
-
-				return Map.entry(functionName,
-
-				new AbstractDateFunction(Namespaces.DATE, functionName, EVENT_DATE, PARAMETER_DATE, PARAMETER_INT, PARAMETER_UNIT){
-
-					@Override
-					protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
-						
-						String date = context.getArguments()
-							.get(PARAMETER_DATE_NAME)
-							.getAsString();
-
-						if (!ValidDateTimeUtil.validate(date))
-							throw new KIRuntimeException(ERROR_MSG);
-
-						int value = context.getArguments()
-							.get(PARAMETER_INT_NAME)
-							.getAsInt();
-
-						String unit = context.getArguments()
-							.get(PARAMETER_UNIT_NAME)
-							.getAsString();
-
-						return Mono.just(new FunctionOutput(
-								List.of(EventResult.outputOf(Map.of(EVENT_RESULT_NAME, new JsonPrimitive(trifunction.apply(date, value, unit)))))));
-					}
-
-				});
-	}
-
+        return Map.entry(name, dateFunction);
+    }
 }

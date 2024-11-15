@@ -1,8 +1,8 @@
-import { SchemaType } from '../../../json/schema/type/SchemaType';
 import { Namespaces } from '../../../namespaces/Namespaces';
 import { Repository } from '../../../Repository';
 import { AbstractFunction } from '../../AbstractFunction';
 import { Function } from '../../Function';
+import { ObjectConvert } from './ObjectConvert';
 import { ObjectDeleteKey } from './ObjectDeleteKey';
 import { ObjectEntries } from './ObjectEntries';
 import { ObjectKeys } from './ObjectKeys';
@@ -15,6 +15,7 @@ const functionObjectsIndex: { [key: string]: AbstractFunction } = {
     ObjectEntries: new ObjectEntries(),
     ObjectDeleteKey: new ObjectDeleteKey(),
     ObjectPutValue: new ObjectPutValue(),
+    ObjectConvert: new ObjectConvert(),
 };
 
 const filterableNames = Object.values(functionObjectsIndex).map((e) =>

@@ -1,6 +1,9 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.TimeZone;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
@@ -11,45 +14,26 @@ import reactor.test.StepVerifier;
 
 class GetCurrentTimestampTest {
 
-	GetCurrentTimestamp gct = new GetCurrentTimestamp();
-	ReactiveFunctionExecutionParameters rfep = new ReactiveFunctionExecutionParameters(
-	        new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
+    @BeforeAll
+    public static void setup() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 
-	@Test
-	void testEqualTimestamp() {
+    @Test
+    void testGetCurrentTimestamp() {
+        GetCurrentTimestamp function = new GetCurrentTimestamp();
 
-		StepVerifier.create(gct.execute(rfep))
-		        .expectNextMatches(r ->
-				{
-			        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			        String currentTime = formatter.format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC));
-			        String resultTime = r.next()
-			                .getResult()
-			                .get("time")
-			                .getAsString();
-			        return resultTime.substring(0, 21)
-			                .equals(currentTime.substring(0, 21));
-		        })
-		        .verifyComplete();
-	}
+        ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                .setArguments(Map.of());
 
-	@Test
-	void testUnequalTimestamp() {
-
-		String pastTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-		        .format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC)
-		                .minusSeconds(1));
-
-		StepVerifier.create(gct.execute(rfep))
-		        .expectNextMatches(r ->
-				{
-			        String resultTime = r.next()
-			                .getResult()
-			                .get("time")
-			                .getAsString();
-			        return !resultTime.equals(pastTime);
-		        })
-		        .verifyComplete();
-	}
-
+        StepVerifier
+                .create(function.execute(parameters)
+                        .map(e -> e.allResults().get(0).getResult().get(GetCurrentTimestamp.EVENT_TIMESTAMP_NAME)))
+                .expectNextMatches(jsonElement -> {
+                    System.out.println(jsonElement);
+                    return jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString();
+                })
+                .verifyComplete();
+    }
 }

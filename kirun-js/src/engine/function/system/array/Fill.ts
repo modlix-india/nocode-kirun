@@ -18,7 +18,7 @@ export class Fill extends AbstractArrayFunction {
                 Fill.PARAMETER_INT_LENGTH,
                 Fill.PARAMETER_ANY,
             ],
-            Fill.EVENT_RESULT_EMPTY,
+            Fill.EVENT_RESULT_ARRAY,
         );
     }
 

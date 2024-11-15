@@ -15,16 +15,17 @@ import reactor.core.publisher.Mono;
 public class RandomRepository implements ReactiveRepository<ReactiveFunction> {
 
 	private static final Map<String, ReactiveFunction> RANDOM_REPO = Map.ofEntries(
-	        Map.entry("RandomInteger", new AbstractRandom("RandomInteger", SchemaType.INTEGER)),
-	        Map.entry("RandomLong", new AbstractRandom("RandomLong", SchemaType.LONG)),
-	        Map.entry("RandomFloat", new AbstractRandom("RandomFloat", SchemaType.FLOAT)),
-	        Map.entry("RandomDouble", new AbstractRandom("RandomDouble", SchemaType.DOUBLE)));
+			Map.entry("Random", new Random()),
+			Map.entry("RandomInt", new AbstractRandom("RandomInt", SchemaType.INTEGER)),
+			Map.entry("RandomLong", new AbstractRandom("RandomLong", SchemaType.LONG)),
+			Map.entry("RandomFloat", new AbstractRandom("RandomFloat", SchemaType.FLOAT)),
+			Map.entry("RandomDouble", new AbstractRandom("RandomDouble", SchemaType.DOUBLE)));
 
 	private static final List<String> FILTERABLE_NAMES = RANDOM_REPO.values()
-	        .stream()
-	        .map(ReactiveFunction::getSignature)
-	        .map(FunctionSignature::getFullName)
-	        .toList();
+			.stream()
+			.map(ReactiveFunction::getSignature)
+			.map(FunctionSignature::getFullName)
+			.toList();
 
 	@Override
 	public Mono<ReactiveFunction> find(String namespace, String name) {
@@ -36,7 +37,7 @@ public class RandomRepository implements ReactiveRepository<ReactiveFunction> {
 	@Override
 	public Flux<String> filter(String name) {
 		return Flux.fromIterable(FILTERABLE_NAMES)
-		        .filter(e -> e.toLowerCase()
-		                .indexOf(name.toLowerCase()) != -1);
+				.filter(e -> e.toLowerCase()
+						.indexOf(name.toLowerCase()) != -1);
 	}
 }

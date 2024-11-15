@@ -26,11 +26,11 @@ public class Hypotenuse extends AbstractReactiveFunction {
 	private static final String VALUE = "value";
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Hypotenuse")
-	        .setNamespace(MATH)
-	        .setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
-	                .setSchema(Schema.ofNumber(VALUE))
-	                .setVariableArgument(true)))
-	        .setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofNumber(VALUE)))));
+			.setNamespace(MATH)
+			.setParameters(Map.of(VALUE, new Parameter().setParameterName(VALUE)
+					.setSchema(Schema.ofNumber(VALUE))
+					.setVariableArgument(true)))
+			.setEvents(Map.ofEntries(Event.outputEventMapEntry(Map.of(VALUE, Schema.ofDouble(VALUE)))));
 
 	@Override
 	public FunctionSignature getSignature() {
@@ -41,26 +41,26 @@ public class Hypotenuse extends AbstractReactiveFunction {
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {
 
 		JsonElement jsonElement = context.getArguments()
-		        .get(VALUE);
+				.get(VALUE);
 
 		if (!jsonElement.isJsonArray()) {
 			throw new KIRuntimeException(StringFormatter.format("Expected an array but found $", jsonElement));
 		}
 
 		if (jsonElement.getAsJsonArray()
-		        .isEmpty()) {
+				.isEmpty()) {
 
 			return Mono.just(new FunctionOutput(List.of(EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(0))))));
 		}
 
 		Iterator<JsonElement> iterator = jsonElement.getAsJsonArray()
-		        .iterator();
+				.iterator();
 
 		double sumOfSqaures = 0;
 
 		while (iterator.hasNext()) {
 			double value = iterator.next()
-			        .getAsDouble();
+					.getAsDouble();
 			sumOfSqaures += value * value;
 		}
 

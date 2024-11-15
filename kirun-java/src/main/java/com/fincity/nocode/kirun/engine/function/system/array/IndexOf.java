@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public class IndexOf extends AbstractArrayFunction {
 
 	public IndexOf() {
-		super("IndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY, PARAMETER_INT_FIND_FROM),
+		super("IndexOf", List.of(PARAMETER_ARRAY_SOURCE, PARAMETER_ANY_ELEMENT_OBJECT, PARAMETER_INT_FIND_FROM),
 				EVENT_RESULT_INTEGER);
 	}
 
@@ -28,7 +28,7 @@ public class IndexOf extends AbstractArrayFunction {
 				.getAsJsonArray();
 
 		var find = context.getArguments()
-				.get(PARAMETER_ANY.getParameterName());
+				.get(PARAMETER_ANY_ELEMENT_OBJECT.getParameterName());
 
 		JsonPrimitive srcFrom = context.getArguments()
 				.get(PARAMETER_INT_FIND_FROM.getParameterName())

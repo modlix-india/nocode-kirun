@@ -1,147 +1,255 @@
-import { Namespaces } from "../../../namespaces/Namespaces";
-import { Repository } from "../../../Repository";
-import { MapUtil } from "../../../util/MapUtil";
-import { AbstractDateFunction } from "./AbstractDateFunction";
+import { Namespaces } from '../../../namespaces/Namespaces';
+import { Event } from '../../../model/Event';
+import { Repository } from '../../../Repository';
+import { MapUtil } from '../../../util/MapUtil';
 import { Function } from '../../Function';
-import { KIRuntimeException } from "../../../exception/KIRuntimeException";
-import mapEntry from '../../../util/mapEntry';
-import { DateToEpoch } from "./DateToEpoch";
-import { DifferenceOfTimestamps } from "./DifferenceOfTimestamps";
-import { EpochToDate } from "./EpochToDate";
-import { GetCurrentTimeStamp } from "./GetCurrentTimeStamp";
-import { GetTimeAsArray } from "./GetTimeAsArray";
-import { GetTimeAsObject } from "./GetTimeAsObject";
-import { IsValidISODate } from "./IsValidISODate";
-import { MaximumTimestamp } from "./MaximumTimestamp";
-import { MinimumTimestamp } from "./MinimumTimestamp";
-
+import { AbstractDateFunction } from './AbstractDateFunction';
+import { AddSubtractTime } from './AddSubtractTime';
+import { getDateTime } from './common';
+import { EpochToTimestamp } from './EpochToTimestamp';
+import { TimestampToEpoch } from './TimestampToEpoch';
+import { ToDateString } from './ToDateString';
+import { Schema } from '../../../json/schema/Schema';
+import { DateTimeUnit, Duration, DurationUnits } from 'luxon';
+import { SetTimeZone } from './SetTimeZone';
+import { IsBetween } from './IsBetween';
+import { LastFirstOf } from './LastFirstOf';
+import { TimeAs } from './TimeAs';
+import { StartEndOf } from './StartEndOf';
+import { GetNames } from './GetNames';
+import { IsValidISODate } from './IsValidISODate';
+import { FromNow } from './FromNow';
+import { FromDateString } from './FromDateString';
+import { GetCurrentTimestamp } from './GetCurrent';
 
 export class DateFunctionRepository implements Repository<Function> {
-
     private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
+        ['EpochSecondsToTimestamp', new EpochToTimestamp('EpochSecondsToTimestamp', true)],
+        [
+            'EpochMillisecondsToTimestamp',
+            new EpochToTimestamp('EpochMillisecondsToTimestamp', false),
+        ],
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetDay',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).day,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetDayOfWeek',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).weekday,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetMonth',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).month,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetYear',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).year,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetHours',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).hour,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetMinutes',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).minute,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetSeconds',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).second,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetMilliseconds',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).millisecond,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetDaysInMonth',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).daysInMonth!,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetDaysInYear',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).daysInYear!,
+        ),
+        ['TimestampToEpochSeconds', new TimestampToEpoch('TimestampToEpochSeconds', true)],
+        [
+            'TimestampToEpochMilliseconds',
+            new TimestampToEpoch('TimestampToEpochMilliseconds', false),
+        ],
+        AbstractDateFunction.ofEntryTimestampAndStringOutput(
+            'GetTimeZoneName',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).zoneName!,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndStringOutput(
+            'GetTimeZoneOffsetLong',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).offsetNameLong!,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndStringOutput(
+            'GetTimeZoneOffsetShort',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).offsetNameShort!,
+        ),
+        AbstractDateFunction.ofEntryTimestampAndIntegerOutput(
+            'GetTimeZoneOffset',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).offset,
+        ),
+        ['ToDateString', new ToDateString()],
+        ['AddTime', new AddSubtractTime(true)],
+        ['SubtractTime', new AddSubtractTime(false)],
+        ['GetCurrentTimestamp', new GetCurrentTimestamp()],
 
-        mapEntry(new DateToEpoch()),
-        mapEntry(new EpochToDate()),
-        mapEntry(new GetCurrentTimeStamp()),
-        mapEntry(new DifferenceOfTimestamps()),
-        mapEntry(new IsValidISODate()),
-        mapEntry(new GetTimeAsArray()),
-        mapEntry(new GetTimeAsObject()),
-        mapEntry(new MaximumTimestamp()),
-        mapEntry(new MinimumTimestamp()),
-
-        AbstractDateFunction.ofEntryDateAndBooleanOutput("IsLeapYear", date => {
-           const year = new Date(date).getUTCFullYear();
-           return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-        }),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetDate", date => new Date(date).getUTCDate()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetDay", date => new Date(date).getUTCDay()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetFullYear", date => new Date(date).getUTCFullYear()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetMonth", date => new Date(date).getUTCMonth()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetHours", date => new Date(date).getUTCHours()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetMinutes", date => new Date(date).getUTCMinutes()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetSeconds", date => new Date(date).getUTCSeconds()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetMilliSeconds", date => new Date(date).getUTCMilliseconds()),
-
-        AbstractDateFunction.ofEntryDateAndIntegerOutput("GetTime" , date => new Date(date).getTime()),
-
-        AbstractDateFunction.ofEntryDateWithIntegerUnitWithOutputName("AddTime", 
-            (date , value , unit) => this.changeAmountToUnit(date, unit, value, true)
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<any>(
+            'Difference',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofRef(`${Namespaces.DATE}.Duration`),
+                ),
+            ),
+            (ts1: string, ts2: string, extraParams: any[]) => {
+                const dt1 = getDateTime(ts1);
+                const dt2 = getDateTime(ts2);
+                let units: Array<DateTimeUnit> | undefined = undefined;
+                if (extraParams?.[0]?.length) {
+                    units = extraParams[0]
+                        ?.filter((e: any) => !!e)
+                        .map((e: string) => e.toLowerCase() as DateTimeUnit);
+                }
+                const duration = dt1.diff(dt2);
+                if (!units?.length) return duration.toObject();
+                return duration.shiftTo(...units).toObject();
+            },
+            AbstractDateFunction.PARAMETER_VARIABLE_UNIT,
         ),
 
-        AbstractDateFunction.ofEntryDateWithIntegerUnitWithOutputName("SubtractTime",
-            (date , value , unit) => this.changeAmountToUnit(date, unit, value, false)
-        )
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetDay',
+            (isoTimestamp: string, day: number) => getDateTime(isoTimestamp).set({ day }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetMonth',
+            (isoTimestamp: string, month: number) =>
+                getDateTime(isoTimestamp).set({ month }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetYear',
+            (isoTimestamp: string, year: number) =>
+                getDateTime(isoTimestamp).set({ year }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetHours',
+            (isoTimestamp: string, hour: number) =>
+                getDateTime(isoTimestamp).set({ hour }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetMinutes',
+            (isoTimestamp: string, minute: number) =>
+                getDateTime(isoTimestamp).set({ minute }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetSeconds',
+            (isoTimestamp: string, second: number) =>
+                getDateTime(isoTimestamp).set({ second }).toISO()!,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampIntegerAndTimestampOutput(
+            'SetMilliseconds',
+            (isoTimestamp: string, millisecond: number) =>
+                getDateTime(isoTimestamp).set({ millisecond }).toISO()!,
+        ),
+
+        ['SetTimeZone', new SetTimeZone()],
+
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
+            'IsBefore',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
+                ),
+            ),
+            (t1: string, t2: string) => getDateTime(t1) < getDateTime(t2),
+        ),
+
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
+            'IsAfter',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
+                ),
+            ),
+            (t1: string, t2: string) => getDateTime(t1) > getDateTime(t2),
+        ),
+
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
+            'IsSame',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
+                ),
+            ),
+            (t1: string, t2: string) => getDateTime(t1) === getDateTime(t2),
+        ),
+
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
+            'IsSameOrBefore',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
+                ),
+            ),
+            (t1: string, t2: string) => getDateTime(t1) <= getDateTime(t2),
+        ),
+
+        AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
+            'IsSameOrAfter',
+            new Event(
+                Event.OUTPUT,
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
+                ),
+            ),
+            (t1: string, t2: string) => getDateTime(t1) >= getDateTime(t2),
+        ),
+
+        AbstractDateFunction.ofEntryTimestampAndBooleanOutput(
+            'IsInLeapYear',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).isInLeapYear,
+        ),
+
+        AbstractDateFunction.ofEntryTimestampAndBooleanOutput(
+            'IsInDST',
+            (isoTimestamp: string) => getDateTime(isoTimestamp).isInDST,
+        ),
+
+        ['IsBetween', new IsBetween()],
+        ['LastOf', new LastFirstOf(true)],
+        ['FirstOf', new LastFirstOf(false)],
+        ['StartOf', new StartEndOf(true)],
+        ['EndOf', new StartEndOf(false)],
+        ['TimeAsObject', new TimeAs(false)],
+        ['TimeAsArray', new TimeAs(true)],
+        ['GetNames', new GetNames()],
+        ['IsValidISODate', new IsValidISODate()],
+        ['FromNow', new FromNow()],
+        ['FromDateString', new FromDateString()],
     );
 
     private static readonly filterableNames = Array.from(
         DateFunctionRepository.repoMap.values(),
     ).map((e) => e.getSignature().getFullName());
 
-    private static changeAmountToUnit(inputDate: string , unit: string, value: number, isAdd: boolean): string{
-
-        const amount = isAdd ? value : -1 * value;
-
-        const date = this.getFullUTCDate(inputDate);
-        const originalOffset = this.getTimezoneOffset(inputDate);
-    
-        switch(unit){
-
-            case "MILLISECOND" : date.setMilliseconds(date.getMilliseconds() + amount);
-                                break;
-            case "SECOND" :  date.setSeconds(date.getSeconds() + amount);
-                                break;
-            case "MINUTE" : date.setMinutes(date.getMinutes() + amount);
-                                break;
-            case "HOUR" : date.setHours(date.getHours() + amount);
-                                break;
-            case "DAY" : date.setDate(date.getDate() + amount);
-                                break;
-            case "MONTH" : date.setMonth(date.getMonth() + amount);
-                                break;
-            case "YEAR" : date.setFullYear(date.getFullYear() + amount);
-                                break;
-            default :
-                throw new KIRuntimeException("No such unit: " + unit)
-
-        }
-
-        return this.formatDate(date, originalOffset);
-    }
-    
-    private static getTimezoneOffset(dateString: string): string {
-        const lastChar = dateString.charAt(dateString.length - 1);
-        if (lastChar === 'Z') return '+00:00';
-    
-        const offsetStart = dateString.indexOf('+') !== -1 ? dateString.lastIndexOf('+') : dateString.lastIndexOf('-');
-        if (offsetStart === -1) return '+00:00';
-    
-        let offset = dateString.substring(offsetStart);
-        if (offset.length === 3) {
-            offset = offset.substring(0, 1) + '0' + offset.substring(1) + ':00';
-        } else if (offset.length === 5) {
-            offset = offset.substring(0, 3) + ':' + offset.substring(3);
-        }
-    
-        return offset;
-    }
-
-    private static getFullUTCDate(inputDate:string): Date {
-
-        if(inputDate.lastIndexOf('+') !== -1)
-            inputDate = inputDate.substring(0, inputDate.lastIndexOf('+')) + 'Z';
-        else if(inputDate.lastIndexOf('-') !== -1)
-            inputDate = inputDate.substring(0, inputDate.lastIndexOf('-')) + 'Z';
-
-        const date: Date = new Date(inputDate);
-    
-        return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 
-                        date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), 
-                        date.getUTCSeconds(), date.getUTCMilliseconds()));
-    }
-
-    private static formatDate(date: Date, offset: string): string {
-        const pad = (num: number) => num.toString().padStart(2, '0');
-        
-        const year = date.getUTCMonth() === 0 ? date.getUTCFullYear() - 1 : date.getUTCFullYear();
-        const month = pad(date.getUTCMonth() === 0 ? 12 : date.getUTCMonth());
-        const day = pad(date.getUTCDate());
-        const hours = pad(date.getUTCHours());
-        const minutes = pad(date.getUTCMinutes());
-        const seconds = pad(date.getUTCSeconds());
-        const milliseconds = pad(date.getUTCMilliseconds());
-        
-        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}${offset}`;
-    }
-    
     find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.DATE) {
             return Promise.resolve(undefined);
@@ -149,7 +257,6 @@ export class DateFunctionRepository implements Repository<Function> {
         return Promise.resolve(DateFunctionRepository.repoMap.get(name));
     }
     filter(name: string): Promise<string[]> {
-
         return Promise.resolve(
             DateFunctionRepository.filterableNames.filter(
                 (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,

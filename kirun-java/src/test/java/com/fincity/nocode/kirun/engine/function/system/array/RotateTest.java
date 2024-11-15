@@ -1,9 +1,8 @@
 package com.fincity.nocode.kirun.engine.function.system.array;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -36,7 +35,7 @@ class RotateTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
+		fep.setArguments(Map.of("source", array, "rotateLength", new JsonPrimitive(4))).setContext(Map.of())
 				.setSteps(Map.of());
 
 		var res = new JsonArray();
@@ -63,7 +62,7 @@ class RotateTest {
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(0))).setContext(Map.of())
+		fep1.setArguments(Map.of("source", array, "rotateLength", new JsonPrimitive(0))).setContext(Map.of())
 				.setSteps(Map.of());
 
 		StepVerifier.create(rotate.execute(fep1)).expectError(KIRuntimeException.class).verify();
@@ -88,7 +87,7 @@ class RotateTest {
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-		fep.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(4))).setContext(Map.of())
+		fep.setArguments(Map.of("source", array, "rotateLength", new JsonPrimitive(4))).setContext(Map.of())
 				.setSteps(Map.of());
 
 		var res = new JsonArray();
@@ -115,7 +114,7 @@ class RotateTest {
 		ReactiveFunctionExecutionParameters fep1 = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository());
 
-		fep1.setArguments(Map.of("source", array, "rotateDistance", new JsonPrimitive(-2))).setContext(Map.of())
+		fep1.setArguments(Map.of("source", array, "rotateLength", new JsonPrimitive(-2))).setContext(Map.of())
 				.setSteps(Map.of());
 
 		StepVerifier.create(rotate.execute(fep1)).expectError(KIRuntimeException.class).verify();

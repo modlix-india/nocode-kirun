@@ -1,9 +1,8 @@
 package com.fincity.nocode.kirun.engine.function.system.math;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
@@ -67,7 +66,7 @@ class AbstractRandomIntTest {
 
 		RandomRepository rand = new RandomRepository();
 
-		Mono<AbstractRandom> absR = rand.find(Namespaces.MATH, "RandomInteger").map(r -> (AbstractRandom) r);
+		Mono<AbstractRandom> absR = rand.find(Namespaces.MATH, "RandomInt").map(r -> (AbstractRandom) r);
 
 		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
 				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())

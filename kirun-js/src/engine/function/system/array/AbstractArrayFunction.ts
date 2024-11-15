@@ -150,9 +150,9 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         Schema.ofAny('element'),
     );
 
-    public static readonly PARAMETER_ANY_NOT_NULL: Parameter = Parameter.of(
+    public static readonly PARAMETER_ANY_ELEMENT_OBJECT: Parameter = Parameter.of(
         'elementObject',
-        Schema.ofAnyNotNull('elementObject'),
+        Schema.ofAny('elementObject'),
     );
 
     public static readonly PARAMETER_ANY_VAR_ARGS: Parameter = Parameter.of(
@@ -165,7 +165,7 @@ export abstract class AbstractArrayFunction extends AbstractFunction {
         Schema.ofArray('eachResult', Schema.ofAny('eachResult')),
     );
 
-    private signature: FunctionSignature;
+    private readonly signature: FunctionSignature;
 
     protected constructor(functionName: string, parameters: Parameter[], event: Event) {
         super();

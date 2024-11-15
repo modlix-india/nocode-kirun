@@ -37,10 +37,11 @@ class RepositoryFilterTest {
 				.verifyComplete();
 
 		StepVerifier.create(schemaRepo.filter("").sort().collect(Collectors.toSet()))
-		.expectNext(Set.of("System.any", "System.boolean", "System.double", "System.Date.timeStamp",
-				"System.float", "System.integer", "System.long", "System.number", "System.Null",
-				"System.ParameterExpression", "System.Schema", "System.string"))
-		.verifyComplete();
+				.expectNext(Set.of("System.Date.Duration", "System.Date.Timeunit", "System.Null", "System.float",
+						"System.number", "System.Date.TimeObject", "System.ParameterExpression",
+						"System.Date.Timestamp", "System.long", "System.integer", "System.string",
+						"System.Schema", "System.boolean", "System.double", "System.any"))
+				.verifyComplete();
 	}
 
 }
