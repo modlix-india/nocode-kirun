@@ -10,7 +10,7 @@ import { EpochToTimestamp } from './EpochToTimestamp';
 import { TimestampToEpoch } from './TimestampToEpoch';
 import { ToDateString } from './ToDateString';
 import { Schema } from '../../../json/schema/Schema';
-import { DateTimeUnit, DurationUnits } from 'luxon';
+import { DateTimeUnit, Duration, DurationUnits } from 'luxon';
 import { SetTimeZone } from './SetTimeZone';
 import { IsBetween } from './IsBetween';
 import { LastFirstOf } from './LastFirstOf';
@@ -107,14 +107,15 @@ export class DateFunctionRepository implements Repository<Function> {
             (ts1: string, ts2: string, extraParams: any[]) => {
                 const dt1 = getDateTime(ts1);
                 const dt2 = getDateTime(ts2);
-                let units: DurationUnits | undefined = undefined;
+                let units: Array<DateTimeUnit> | undefined = undefined;
                 if (extraParams?.[0]?.length) {
                     units = extraParams[0]
                         ?.filter((e: any) => !!e)
                         .map((e: string) => e.toLowerCase() as DateTimeUnit);
                 }
-                const duration = dt1.diff(dt2, units);
-                return duration.toObject();
+                const duration = dt1.diff(dt2);
+                if (!units?.length) return duration.toObject();
+                return duration.shiftTo(...units).toObject();
             },
             AbstractDateFunction.PARAMETER_VARIABLE_UNIT,
         ),

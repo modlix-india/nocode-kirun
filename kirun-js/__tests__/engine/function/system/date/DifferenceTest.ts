@@ -69,7 +69,7 @@ describe('Difference of dates', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
-        ).toMatchObject({ months: 8, days: 6, hours: 13, minutes: 30 });
+        ).toMatchObject({ months: 8, days: 10, hours: 13, minutes: 30 });
     });
 
     test('should return the difference in negative months,days,hours,minutes', async () => {
@@ -91,7 +91,7 @@ describe('Difference of dates', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
-        ).toMatchObject({ months: -15, days: -24, hours: -10, minutes: -30 });
+        ).toMatchObject({ months: -16, days: 0, hours: -10, minutes: -30 });
     });
 
     test('should return the difference in fractions', async () => {
@@ -135,6 +135,6 @@ describe('Difference of dates', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
-        ).toMatchObject({ days: -480, hours: -9.448055555555555 });
+        ).toMatchObject({ days: -480, hours: -9.448055555554674 });
     });
 });
