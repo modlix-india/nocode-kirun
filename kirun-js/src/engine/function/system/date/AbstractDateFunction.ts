@@ -222,7 +222,7 @@ export abstract class AbstractDateFunction extends AbstractFunction {
                 }
             })(
                 name,
-                AbstractDateFunction.EVENT_INT,
+                AbstractDateFunction.EVENT_TIMESTAMP,
                 AbstractDateFunction.PARAMETER_TIMESTAMP,
                 AbstractDateFunction.PARAMETER_NUMBER,
             ),

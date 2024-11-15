@@ -330,80 +330,433 @@ value,EXPRESSION,array;boolean;double;float;integer;long;null;object;string
 Events
 output,output
 
-System.Date.DateToEpoch
+System.Date.AddTime
 Parameter,Type,Schema
-isoDate,EXPRESSION,
+days,EXPRESSION,double;float;integer;long
+hours,EXPRESSION,double;float;integer;long
+isoTimeStamp,EXPRESSION,
+milliseconds,EXPRESSION,double;float;integer;long
+minutes,EXPRESSION,double;float;integer;long
+months,EXPRESSION,double;float;integer;long
+seconds,EXPRESSION,double;float;integer;long
+years,EXPRESSION,double;float;integer;long
 Events
 output,output
 Event Parameter,,Schema
-result,,long
+isoTimeStamp,,
 
-System.Date.DifferenceOfTimestamps
+System.Date.Difference
 Parameter,Type,Schema
-isoDateOne,EXPRESSION,string
-isoDateTwo,EXPRESSION,string
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+unit,EXPRESSION,
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+result,,
 
-System.Date.EpochToDate
+System.Date.EndOf
 Parameter,Type,Schema
-epoch,EXPRESSION,
+isoTimeStamp,EXPRESSION,
+unit,EXPRESSION,
 Events
 output,output
 Event Parameter,,Schema
-date,,
+isoTimeStamp,,
 
-System.Date.GetCurrentTimestamp
+System.Date.EpochMillisecondsToTimestamp
+Parameter,Type,Schema
+epochMilliseconds,EXPRESSION,integer;long;string
 Events
 output,output
 Event Parameter,,Schema
-time,,long
+isoTimeStamp,,
 
-System.Date.GetTimeAsArray
+System.Date.EpochSecondsToTimestamp
 Parameter,Type,Schema
-isoDate,EXPRESSION,
+epochSeconds,EXPRESSION,integer;long;string
 Events
 output,output
 Event Parameter,,Schema
-result,,array
+isoTimeStamp,,
 
-System.Date.GetTimeAsObject
+System.Date.FirstOf
 Parameter,Type,Schema
-isoDate,EXPRESSION,
+isoTimeStamp,EXPRESSION,
 Events
 output,output
 Event Parameter,,Schema
-result,,object
+isoTimeStamp,,
 
-System.Date.GetTimeZoneOffset
+System.Date.FromDateString
 Parameter,Type,Schema
-isodate,EXPRESSION,
+format,EXPRESSION,string
+timestampString,EXPRESSION,string
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isoTimeStamp,,
 
-System.Date.IsValidISODate
+System.Date.FromNow
 Parameter,Type,Schema
-isoDate,EXPRESSION,
-Events
-output,output
-Event Parameter,,Schema
-output,,boolean
-
-System.Date.MaximumTimestamp
-Parameter,Type,Schema
-isoDates,EXPRESSION,
+base,EXPRESSION,
+format,EXPRESSION,string
+isoTimeStamp,EXPRESSION,
+locale,EXPRESSION,string
+round,EXPRESSION,boolean
+unit,EXPRESSION,
 Events
 output,output
 Event Parameter,,Schema
 result,,string
 
-System.Date.MinimumTimestamp
+System.Date.GetCurrentTimestamp
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.GetDay
 Parameter,Type,Schema
-isoDates,EXPRESSION,
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetDayOfWeek
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetDaysInMonth
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetDaysInYear
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetHours
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMilliseconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMinutes
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetMonth
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetNames
+Parameter,Type,Schema
+locale,EXPRESSION,string
+unit,EXPRESSION,string
+Events
+names,names
+Event Parameter,,Schema
+names,,array
+
+System.Date.GetSeconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetTimeZoneName
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.Date.GetTimeZoneOffset
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.GetTimeZoneOffsetLong
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.Date.GetTimeZoneOffsetShort
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,string
+
+System.Date.GetYear
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,integer
+
+System.Date.IsAfter
+Parameter,Type,Schema
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsBefore
+Parameter,Type,Schema
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsBetween
+Parameter,Type,Schema
+checkTimestamp,EXPRESSION,
+endTimestamp,EXPRESSION,
+startTimestamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsInDST
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsInLeapYear
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsSame
+Parameter,Type,Schema
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsSameOrAfter
+Parameter,Type,Schema
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsSameOrBefore
+Parameter,Type,Schema
+isoTimeStamp1,EXPRESSION,
+isoTimeStamp2,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.IsValidISODate
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+result,,boolean
+
+System.Date.LastOf
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetDay
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetHours
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetMilliseconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetMinutes
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetMonth
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetSeconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetTimeZone
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+timezone,EXPRESSION,string
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SetYear
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+number,EXPRESSION,integer
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.StartOf
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+unit,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.SubtractTime
+Parameter,Type,Schema
+days,EXPRESSION,double;float;integer;long
+hours,EXPRESSION,double;float;integer;long
+isoTimeStamp,EXPRESSION,
+milliseconds,EXPRESSION,double;float;integer;long
+minutes,EXPRESSION,double;float;integer;long
+months,EXPRESSION,double;float;integer;long
+seconds,EXPRESSION,double;float;integer;long
+years,EXPRESSION,double;float;integer;long
+Events
+output,output
+Event Parameter,,Schema
+isoTimeStamp,,
+
+System.Date.TimeAsArray
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+array,,array
+
+System.Date.TimeAsObject
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+object,,
+
+System.Date.TimestampToEpochMilliseconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,long
+
+System.Date.TimestampToEpochSeconds
+Parameter,Type,Schema
+isoTimeStamp,EXPRESSION,
+Events
+output,output
+Event Parameter,,Schema
+result,,long
+
+System.Date.ToDateString
+Parameter,Type,Schema
+format,EXPRESSION,string
+isoTimeStamp,EXPRESSION,
+locale,EXPRESSION,string
 Events
 output,output
 Event Parameter,,Schema

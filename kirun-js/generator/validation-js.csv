@@ -368,7 +368,7 @@ System.Date.EpochMillisecondsToTimestamp
 Parameter,Type,Schema
 epochMilliseconds,EXPRESSION,integer;long;string
 Events
-isoTimeStamp,output
+output,output
 Event Parameter,,Schema
 isotimestamp,,
 
@@ -376,7 +376,7 @@ System.Date.EpochSecondsToTimestamp
 Parameter,Type,Schema
 epochSeconds,EXPRESSION,integer;long;string
 Events
-isoTimeStamp,output
+output,output
 Event Parameter,,Schema
 isotimestamp,,
 
@@ -384,7 +384,7 @@ System.Date.FirstOf
 Parameter,Type,Schema
 isoTimeStamp,EXPRESSION,
 Events
-isoTimeStamp,output
+output,output
 Event Parameter,,Schema
 isotimestamp,,
 
@@ -399,8 +399,8 @@ isotimestamp,,
 
 System.Date.FromNow
 Parameter,Type,Schema
+base,EXPRESSION,
 format,EXPRESSION,string
-from,EXPRESSION,
 isoTimeStamp,EXPRESSION,
 locale,EXPRESSION,string
 round,EXPRESSION,boolean
@@ -620,7 +620,7 @@ System.Date.LastOf
 Parameter,Type,Schema
 isoTimeStamp,EXPRESSION,
 Events
-isoTimeStamp,output
+output,output
 Event Parameter,,Schema
 isotimestamp,,
 
@@ -631,7 +631,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetHours
 Parameter,Type,Schema
@@ -640,7 +640,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetMilliseconds
 Parameter,Type,Schema
@@ -649,7 +649,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetMinutes
 Parameter,Type,Schema
@@ -658,7 +658,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetMonth
 Parameter,Type,Schema
@@ -667,7 +667,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetSeconds
 Parameter,Type,Schema
@@ -676,7 +676,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.SetTimeZone
 Parameter,Type,Schema
@@ -694,7 +694,7 @@ number,EXPRESSION,integer
 Events
 output,output
 Event Parameter,,Schema
-result,,integer
+isotimestamp,,
 
 System.Date.StartOf
 Parameter,Type,Schema
@@ -740,7 +740,7 @@ System.Date.TimestampToEpochMilliseconds
 Parameter,Type,Schema
 isoTimeStamp,EXPRESSION,
 Events
-result,output
+output,output
 Event Parameter,,Schema
 result,,long
 
@@ -748,7 +748,7 @@ System.Date.TimestampToEpochSeconds
 Parameter,Type,Schema
 isoTimeStamp,EXPRESSION,
 Events
-result,output
+output,output
 Event Parameter,,Schema
 result,,long
 

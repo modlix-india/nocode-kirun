@@ -28,7 +28,10 @@ export class TimestampToEpoch extends AbstractFunction {
             )
             .setEvents(
                 new Map([
-                    [AbstractDateFunction.EVENT_RESULT_NAME, AbstractDateFunction.EVENT_LONG],
+                    [
+                        AbstractDateFunction.EVENT_TIMESTAMP.getName(),
+                        AbstractDateFunction.EVENT_LONG,
+                    ],
                 ]),
             );
     }

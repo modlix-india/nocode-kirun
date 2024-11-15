@@ -44,7 +44,7 @@ export class EpochToTimestamp extends AbstractFunction {
             .setEvents(
                 new Map([
                     [
-                        AbstractDateFunction.EVENT_TIMESTAMP_NAME,
+                        AbstractDateFunction.EVENT_TIMESTAMP.getName(),
                         AbstractDateFunction.EVENT_TIMESTAMP,
                     ],
                 ]),

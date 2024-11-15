@@ -8,6 +8,7 @@ import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunctio
 import com.fincity.nocode.kirun.engine.model.EventResult;
 import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
+import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
 
@@ -24,11 +25,12 @@ public class TimestampToEpoch extends AbstractReactiveFunction {
         this.isSeconds = isSeconds;
         this.signature = new FunctionSignature()
                 .setName(name)
+                .setNamespace(Namespaces.DATE)
                 .setParameters(
                         Map.of(
                                 AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
                                 AbstractDateFunction.PARAMETER_TIMESTAMP))
-                .setEvents(Map.of(AbstractDateFunction.EVENT_RESULT_NAME, AbstractDateFunction.EVENT_LONG));
+                .setEvents(Map.of(AbstractDateFunction.EVENT_LONG.getName(), AbstractDateFunction.EVENT_LONG));
     }
 
     @Override
