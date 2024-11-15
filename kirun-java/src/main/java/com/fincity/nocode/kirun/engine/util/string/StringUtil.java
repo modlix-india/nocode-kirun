@@ -48,9 +48,22 @@ public class StringUtil {
 
 		return new String[] { str.substring(0, index), str.substring(index + 1) };
 	}
-	
+
+	public static String[] splitAtLastOccurance(String str, char c) {
+
+		if (str == null)
+			return new String[2];
+
+		int index = str.lastIndexOf(c);
+
+		if (index == -1)
+			return new String[] { str, null };
+
+		return new String[] { str.substring(0, index), str.substring(index + 1) };
+	}
+
 	public static boolean isNullOrBlank(String str) {
-		
+
 		return str == null || str.isBlank();
 	}
 }

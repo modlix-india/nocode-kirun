@@ -1,8 +1,5 @@
-import { DurationLikeObject } from 'luxon';
-import { Schema } from '../../../json/schema/Schema';
 import { EventResult } from '../../../model/EventResult';
 import { FunctionOutput } from '../../../model/FunctionOutput';
-import { Parameter } from '../../../model/Parameter';
 import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionParameters';
 import { MapUtil } from '../../../util/MapUtil';
 import { AbstractDateFunction } from './AbstractDateFunction';
@@ -28,16 +25,19 @@ export class StartEndOf extends AbstractDateFunction {
 
         const dateTime = getDateTime(timestamp);
 
-        const unit = context
+        let unit = context
             .getArguments()
             ?.get(AbstractDateFunction.PARAMETER_UNIT_NAME)
             ?.toLowerCase();
+        unit = unit.substring(0, unit.length - 1);
 
         const newDateTime = this.isStart ? dateTime.startOf(unit) : dateTime.endOf(unit);
-
         return new FunctionOutput([
             EventResult.outputOf(
-                MapUtil.of(AbstractDateFunction.EVENT_TIMESTAMP_NAME, newDateTime.toISO()),
+                MapUtil.of(
+                    AbstractDateFunction.EVENT_TIMESTAMP_NAME,
+                    newDateTime.toISO({ includeOffset: true }),
+                ),
             ),
         ]);
     }

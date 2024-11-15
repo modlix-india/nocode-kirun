@@ -17,7 +17,7 @@ describe('From Now', () => {
         ).setArguments(
             new Map([
                 [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2025-01-01'],
-                [FromNow.PARAMETER_FROM_NAME, '2024-04-25'],
+                [FromNow.PARAMETER_BASE_NAME, '2024-04-25'],
             ]),
         );
 
@@ -35,7 +35,7 @@ describe('From Now', () => {
         ).setArguments(
             new Map<string, any>([
                 [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2025-01-01'],
-                [FromNow.PARAMETER_FROM_NAME, '2023-04-25'],
+                [FromNow.PARAMETER_BASE_NAME, '2023-04-25'],
                 [FromNow.PARAMETER_UNIT_NAME, ['MONTHS', 'DAYS']],
                 [FromNow.PARAMETER_FORMAT_NAME, 'SHORT'],
             ]),
@@ -55,7 +55,7 @@ describe('From Now', () => {
         ).setArguments(
             new Map<string, any>([
                 [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME, '2025-01-01'],
-                [FromNow.PARAMETER_FROM_NAME, '2023-04-25'],
+                [FromNow.PARAMETER_BASE_NAME, '2023-04-25'],
                 [FromNow.PARAMETER_UNIT_NAME, ['DAYS']],
                 [FromNow.PARAMETER_FORMAT_NAME, 'LONG'],
                 [FromNow.PARAMETER_LOCALE_NAME, 'fr'],

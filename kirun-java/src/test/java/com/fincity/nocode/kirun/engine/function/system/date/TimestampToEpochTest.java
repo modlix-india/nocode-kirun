@@ -13,7 +13,7 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class IsValidISODateTest {
+class TimestampToEpochTest {
 
     @BeforeAll
     public static void setup() {
@@ -21,38 +21,38 @@ class IsValidISODateTest {
     }
 
     @Test
-    void testIsValidISODate() {
+    void testTimestampToEpochSeconds() {
 
         ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
-                        new JsonPrimitive("2024-01-01T00:00:00Z")));
-
-        IsValidISODate function = new IsValidISODate();
+                .setArguments(
+                        Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
+                                new JsonPrimitive("2024-01-01T00:00:00.000+05:30")));
 
         StepVerifier
-                .create(function.execute(parameters)
-                        .map(e -> e.allResults().get(0).getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)
-                                .getAsBoolean()))
-                .expectNext(true)
+                .create(new TimestampToEpoch("TimestampToEpochSeconds", true).execute(parameters)
+                        .map(e -> e.allResults().get(0).getResult()
+                                .get(AbstractDateFunction.EVENT_RESULT_NAME)
+                                .getAsLong()))
+                .expectNext(1704047400L)
                 .verifyComplete();
     }
 
     @Test
-    void testIsValidISODateWithInvalidDate() {
+    void testTimestampToEpochMilliseconds() {
 
         ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
-                        new JsonPrimitive("invalid")));
-
-        IsValidISODate function = new IsValidISODate();
+                .setArguments(
+                        Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
+                                new JsonPrimitive("2024-01-01T00:00:00.000+05:30")));
 
         StepVerifier
-                .create(function.execute(parameters)
-                        .map(e -> e.allResults().get(0).getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)
-                                .getAsBoolean()))
-                .expectNext(false)
+                .create(new TimestampToEpoch("TimestampToEpochMilliseconds", false).execute(parameters)
+                        .map(e -> e.allResults().get(0).getResult()
+                                .get(AbstractDateFunction.EVENT_RESULT_NAME)
+                                .getAsLong()))
+                .expectNext(1704047400000L)
                 .verifyComplete();
     }
 }

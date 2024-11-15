@@ -36,15 +36,15 @@ const map: Map<string, Schema> = new Map([
             .setNamespace(Namespaces.DATE)
             .setProperties(
                 MapUtil.ofArrayEntries(
-                    ['years', Schema.ofInteger('years')],
-                    ['quarters', Schema.ofInteger('quarters')],
-                    ['months', Schema.ofInteger('months')],
-                    ['weeks', Schema.ofInteger('weeks')],
-                    ['days', Schema.ofInteger('days')],
-                    ['hours', Schema.ofInteger('hours')],
-                    ['minutes', Schema.ofInteger('minutes')],
-                    ['seconds', Schema.ofLong('seconds')],
-                    ['milliseconds', Schema.ofLong('milliseconds')],
+                    ['years', Schema.ofNumber('years')],
+                    ['quarters', Schema.ofNumber('quarters')],
+                    ['months', Schema.ofNumber('months')],
+                    ['weeks', Schema.ofNumber('weeks')],
+                    ['days', Schema.ofNumber('days')],
+                    ['hours', Schema.ofNumber('hours')],
+                    ['minutes', Schema.ofNumber('minutes')],
+                    ['seconds', Schema.ofNumber('seconds')],
+                    ['milliseconds', Schema.ofNumber('milliseconds')],
                 ),
             )
             .setAdditionalItems(AdditionalType.from(false)!),
@@ -55,13 +55,13 @@ const map: Map<string, Schema> = new Map([
             .setNamespace(Namespaces.DATE)
             .setProperties(
                 MapUtil.ofArrayEntries(
-                    ['year', Schema.ofInteger('year')],
-                    ['month', Schema.ofInteger('month')],
-                    ['day', Schema.ofInteger('day')],
-                    ['hour', Schema.ofInteger('hour')],
-                    ['minute', Schema.ofInteger('minute')],
-                    ['second', Schema.ofLong('second')],
-                    ['millisecond', Schema.ofLong('millisecond')],
+                    ['year', Schema.ofNumber('year')],
+                    ['month', Schema.ofNumber('month')],
+                    ['day', Schema.ofNumber('day')],
+                    ['hour', Schema.ofNumber('hour')],
+                    ['minute', Schema.ofNumber('minute')],
+                    ['second', Schema.ofNumber('second')],
+                    ['millisecond', Schema.ofNumber('millisecond')],
                 ),
             )
             .setAdditionalItems(AdditionalType.from(false)!),

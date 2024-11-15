@@ -21,9 +21,9 @@ describe('SetTimeZone', () => {
 
         const result = await setTimeZone.execute(fep);
 
-        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
-            '2024-01-01T09:00:00.000+09:00',
-        );
+        expect(
+            result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_TIMESTAMP_NAME),
+        ).toBe('2024-01-01T09:00:00.000+09:00');
     });
 
     test('shoud set the time zone with offset', async () => {
@@ -41,8 +41,8 @@ describe('SetTimeZone', () => {
 
         const result = await setTimeZone.execute(fep);
 
-        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
-            '2024-01-01T05:30:00.000+05:30',
-        );
+        expect(
+            result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_TIMESTAMP_NAME),
+        ).toBe('2024-01-01T05:30:00.000+05:30');
     });
 });

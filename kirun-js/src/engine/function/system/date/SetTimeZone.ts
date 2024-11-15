@@ -34,7 +34,7 @@ export class SetTimeZone extends AbstractDateFunction {
         return new FunctionOutput([
             EventResult.outputOf(
                 MapUtil.of(
-                    AbstractDateFunction.EVENT_RESULT_NAME,
+                    AbstractDateFunction.EVENT_TIMESTAMP_NAME,
                     dateTime.setZone(timeZone).toISO()!,
                 ),
             ),

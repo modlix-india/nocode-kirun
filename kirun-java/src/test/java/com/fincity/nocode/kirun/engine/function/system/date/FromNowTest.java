@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class GetCurrentTimestampTest {
+class FromNowTest {
 
     @BeforeAll
     public static void setup() {
@@ -20,20 +21,20 @@ class GetCurrentTimestampTest {
     }
 
     @Test
-    void testGetCurrentTimestamp() {
-        GetCurrentTimestamp function = new GetCurrentTimestamp();
+    void testFromNowFutureDate() {
+
+        FromNow fromNow = new FromNow();
 
         ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(Map.of());
+                .setArguments(Map.of(FromNow.PARAMETER_BASE_NAME, new JsonPrimitive("2024-11-13T10:00:00Z"),
+                        FromNow.PARAMETER_TIMESTAMP_NAME, new JsonPrimitive("2025-11-13T09:00:00Z")));
 
-        StepVerifier
-                .create(function.execute(parameters)
-                        .map(e -> e.allResults().get(0).getResult().get(GetCurrentTimestamp.EVENT_TIMESTAMP_NAME)))
-                .expectNextMatches(jsonElement -> {
-                    System.out.println(jsonElement);
-                    return jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString();
-                })
+        StepVerifier.create(fromNow.execute(parameters)
+                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
+                        .get(FromNow.EVENT_RESULT_NAME).getAsString()))
+                .expectNext("1 year ago")
                 .verifyComplete();
     }
+
 }

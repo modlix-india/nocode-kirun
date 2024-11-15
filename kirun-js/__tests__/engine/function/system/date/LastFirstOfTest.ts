@@ -30,7 +30,7 @@ describe('LastFirstOf', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_TIMESTAMP_NAME),
-        ).toBe('2024-01-03T15:30:00.000+05:30');
+        ).toBe('2024-01-03T10:00:00.000Z');
     });
 
     test('should return the first timestamp', async () => {
@@ -49,7 +49,7 @@ describe('LastFirstOf', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_TIMESTAMP_NAME),
-        ).toBe('2024-01-02T05:30:00.000+05:30');
+        ).toBe('2024-01-02T00:00:00.000Z');
     });
 
     test('should throw an error if no timestamps are provided', async () => {

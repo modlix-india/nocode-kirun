@@ -1,7 +1,10 @@
 import { Settings } from 'luxon';
-import { KIRunSchemaRepository, Namespaces } from '../../../../../src';
-import { FunctionExecutionParameters } from '../../../../../src';
-import { KIRunFunctionRepository } from '../../../../../src';
+import {
+    FunctionExecutionParameters,
+    KIRunFunctionRepository,
+    KIRunSchemaRepository,
+    Namespaces,
+} from '../../../../../src';
 import { AbstractDateFunction } from '../../../../../src/engine/function/system/date/AbstractDateFunction';
 import { DateFunctionRepository } from '../../../../../src/engine/function/system/date/DateFunctionRepository';
 
@@ -66,7 +69,7 @@ describe('Difference of dates', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
-        ).toMatchObject({ months: 8, days: 6, hours: 13, minutes: 30 });
+        ).toMatchObject({ months: 8, days: 10, hours: 13, minutes: 30 });
     });
 
     test('should return the difference in negative months,days,hours,minutes', async () => {
@@ -88,6 +91,50 @@ describe('Difference of dates', () => {
 
         expect(
             result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
-        ).toMatchObject({ months: -15, days: -24, hours: -10, minutes: -30 });
+        ).toMatchObject({ months: -16, days: 0, hours: -10, minutes: -30 });
+    });
+
+    test('should return the difference in fractions', async () => {
+        const fep = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(
+            new Map<string, any>([
+                [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_ONE, '2024-01-01T10:20:30+05:30'],
+                [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_TWO, '2025-04-25T10:20:30-05:00'],
+                [AbstractDateFunction.PARAMETER_UNIT_NAME, ['DAYS']],
+            ]),
+        );
+
+        const result = await (await new DateFunctionRepository().find(
+            Namespaces.DATE,
+            'Difference',
+        ))!.execute(fep);
+
+        expect(
+            result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
+        ).toMatchObject({ days: -480.4375 });
+    });
+
+    test('should return the difference in multiple fractions', async () => {
+        const fep = new FunctionExecutionParameters(
+            new KIRunFunctionRepository(),
+            new KIRunSchemaRepository(),
+        ).setArguments(
+            new Map<string, any>([
+                [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_ONE, '2024-01-01T10:20:30+05:30'],
+                [AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_TWO, '2025-04-25T09:17:23-05:00'],
+                [AbstractDateFunction.PARAMETER_UNIT_NAME, ['DAYS', 'HOURS']],
+            ]),
+        );
+
+        const result = await (await new DateFunctionRepository().find(
+            Namespaces.DATE,
+            'Difference',
+        ))!.execute(fep);
+
+        expect(
+            result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME),
+        ).toMatchObject({ days: -480, hours: -9.448055555554674 });
     });
 });

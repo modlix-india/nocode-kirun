@@ -14,7 +14,7 @@ describe('TimeAs', () => {
             new KIRunFunctionRepository(),
             new KIRunSchemaRepository(),
         ).setArguments(
-            MapUtil.of(TimeAs.PARAMETER_TIMESTAMP_NAME, '2024-11-10T10:10:10.100+05:30'),
+            MapUtil.of(TimeAs.PARAMETER_TIMESTAMP_NAME, '2024-11-10T10:10:10.100-05:00'),
         );
         const result = await timeAsArray.execute(fep);
         expect(result.allResults()[0].getResult().get(TimeAs.EVENT_TIME_ARRAY_NAME)).toEqual([

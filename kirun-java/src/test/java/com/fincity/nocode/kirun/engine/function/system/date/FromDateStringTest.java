@@ -9,31 +9,31 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.google.gson.JsonPrimitive;
 
 import reactor.test.StepVerifier;
 
-class GetCurrentTimestampTest {
-
+class FromDateStringTest {
     @BeforeAll
     public static void setup() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
     @Test
-    void testGetCurrentTimestamp() {
-        GetCurrentTimestamp function = new GetCurrentTimestamp();
-
+    void testFromDateString() {
+        FromDateString fromDateString = new FromDateString();
         ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
-                .setArguments(Map.of());
+                .setArguments(
+                        Map.of(FromDateString.PARAMETER_TIMESTAMP_STRING_NAME,
+                                new JsonPrimitive("2024-03"),
+                                FromDateString.PARAMETER_FORMAT_NAME,
+                                new JsonPrimitive("yyyy-dd")));
 
-        StepVerifier
-                .create(function.execute(parameters)
-                        .map(e -> e.allResults().get(0).getResult().get(GetCurrentTimestamp.EVENT_TIMESTAMP_NAME)))
-                .expectNextMatches(jsonElement -> {
-                    System.out.println(jsonElement);
-                    return jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString();
-                })
+        StepVerifier.create(fromDateString.execute(parameters)
+                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
+                        .get(FromDateString.EVENT_TIMESTAMP_NAME).getAsString()))
+                .expectNext("2024-11-03T00:00:00.000Z")
                 .verifyComplete();
     }
 }

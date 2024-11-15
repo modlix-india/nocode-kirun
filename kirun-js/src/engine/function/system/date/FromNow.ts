@@ -9,9 +9,9 @@ import { MapUtil } from '../../../util/MapUtil';
 import { AbstractDateFunction } from './AbstractDateFunction';
 
 export class FromNow extends AbstractDateFunction {
-    public static readonly PARAMETER_FROM_NAME = 'from';
-    public static readonly PARAMETER_FROM = new Parameter(
-        FromNow.PARAMETER_FROM_NAME,
+    public static readonly PARAMETER_BASE_NAME = 'base';
+    public static readonly PARAMETER_BASE = new Parameter(
+        FromNow.PARAMETER_BASE_NAME,
         Schema.ofRef(Namespaces.DATE + '.Timestamp').setDefaultValue(''),
     );
     public static readonly PARAMETER_LOCALE_NAME = 'locale';
@@ -40,7 +40,7 @@ export class FromNow extends AbstractDateFunction {
             AbstractDateFunction.EVENT_STRING,
             AbstractDateFunction.PARAMETER_TIMESTAMP,
             FromNow.PARAMETER_FORMAT,
-            FromNow.PARAMETER_FROM,
+            FromNow.PARAMETER_BASE,
             AbstractDateFunction.PARAMETER_VARIABLE_UNIT,
             FromNow.PARAMETER_ROUND,
             FromNow.PARAMETER_LOCALE,
@@ -48,8 +48,8 @@ export class FromNow extends AbstractDateFunction {
     }
 
     public internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
-        const from1 = context.getArguments()?.get(FromNow.PARAMETER_FROM_NAME);
-        const fromDate = from1 === '' ? DateTime.now() : DateTime.fromISO(from1);
+        const base = context.getArguments()?.get(FromNow.PARAMETER_BASE_NAME);
+        const baseDate = base === '' ? DateTime.now() : DateTime.fromISO(base);
         const given = context.getArguments()?.get(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME);
         const givenDate = DateTime.fromISO(given);
 
@@ -58,7 +58,7 @@ export class FromNow extends AbstractDateFunction {
         const round = context.getArguments()?.get(FromNow.PARAMETER_ROUND_NAME);
         const locale = context.getArguments()?.get(FromNow.PARAMETER_LOCALE_NAME);
 
-        const options: any = { base: fromDate, style: format?.toLowerCase(), round, locale };
+        const options: any = { base: baseDate, style: format?.toLowerCase(), round, locale };
         if (units?.length > 0) {
             options.unit = units.map((e: string) => e.toLowerCase());
         }
