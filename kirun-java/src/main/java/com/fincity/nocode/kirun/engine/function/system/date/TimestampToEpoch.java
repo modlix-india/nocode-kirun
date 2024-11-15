@@ -18,12 +18,12 @@ public class TimestampToEpoch extends AbstractReactiveFunction {
     private final FunctionSignature signature;
     private final boolean isSeconds;
 
-    public TimestampToEpoch(boolean isSeconds) {
+    public TimestampToEpoch(String name, boolean isSeconds) {
         super();
 
         this.isSeconds = isSeconds;
         this.signature = new FunctionSignature()
-                .setName(isSeconds ? "TimestampToEpochSeconds" : "TimestampToEpochMilliseconds")
+                .setName(name)
                 .setParameters(
                         Map.of(
                                 AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,

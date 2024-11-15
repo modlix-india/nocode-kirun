@@ -22,7 +22,7 @@ class EpochToTimestampTest {
 
         @Test
         void testEpochToTimestampSeconds() {
-                EpochToTimestamp epochToTimestamp = new EpochToTimestamp(true);
+                EpochToTimestamp epochToTimestamp = new EpochToTimestamp("EpochSecondsToTimestamp", true);
                 ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
                                 .setArguments(
@@ -38,7 +38,7 @@ class EpochToTimestampTest {
 
         @Test
         void testEpochToTimestampMilliseconds() {
-                EpochToTimestamp epochToTimestamp = new EpochToTimestamp(false);
+                EpochToTimestamp epochToTimestamp = new EpochToTimestamp("EpochMillisecondsToTimestamp", false);
                 ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
                                 new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
                                 .setArguments(

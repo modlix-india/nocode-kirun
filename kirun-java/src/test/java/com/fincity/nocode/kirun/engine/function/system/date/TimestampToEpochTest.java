@@ -29,9 +29,11 @@ class TimestampToEpochTest {
                         Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
                                 new JsonPrimitive("2024-01-01T00:00:00.000+05:30")));
 
-        StepVerifier.create(new TimestampToEpoch(true).execute(parameters).map(e -> e.allResults().get(0).getResult()
-                .get(AbstractDateFunction.EVENT_RESULT_NAME)
-                .getAsLong()))
+        StepVerifier
+                .create(new TimestampToEpoch("TimestampToEpochSeconds", true).execute(parameters)
+                        .map(e -> e.allResults().get(0).getResult()
+                                .get(AbstractDateFunction.EVENT_RESULT_NAME)
+                                .getAsLong()))
                 .expectNext(1704047400L)
                 .verifyComplete();
     }
@@ -45,9 +47,11 @@ class TimestampToEpochTest {
                         Map.of(AbstractDateFunction.PARAMETER_TIMESTAMP_NAME,
                                 new JsonPrimitive("2024-01-01T00:00:00.000+05:30")));
 
-        StepVerifier.create(new TimestampToEpoch(false).execute(parameters).map(e -> e.allResults().get(0).getResult()
-                .get(AbstractDateFunction.EVENT_RESULT_NAME)
-                .getAsLong()))
+        StepVerifier
+                .create(new TimestampToEpoch("TimestampToEpochMilliseconds", false).execute(parameters)
+                        .map(e -> e.allResults().get(0).getResult()
+                                .get(AbstractDateFunction.EVENT_RESULT_NAME)
+                                .getAsLong()))
                 .expectNext(1704047400000L)
                 .verifyComplete();
     }

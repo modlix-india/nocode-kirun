@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -11,7 +13,10 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static java.time.temporal.ChronoField.YEAR;
+
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +39,24 @@ public class DateUtil {
             .appendValue(SECOND_OF_MINUTE, 2)
             .appendFraction(MILLI_OF_SECOND, 3, 3, true)
             .appendOffsetId()
+            .toFormatter();
+
+    public static final DateTimeFormatter ISO_DATE_READING_FORMATTER = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .optionalStart() // time made optional
+            .appendLiteral('T')
+            .append(DateTimeFormatter.ISO_LOCAL_TIME)
+            .optionalStart() // zone and offset made optional
+            .appendOffsetId()
+            .optionalStart()
+            .appendLiteral('[')
+            .parseCaseSensitive()
+            .appendZoneRegionId()
+            .appendLiteral(']')
+            .optionalEnd()
+            .optionalEnd()
+            .optionalEnd()
             .toFormatter();
 
     private static final Map<String, String> LUXON_DATEFORMATTER_MAP = new HashMap<>();
@@ -123,10 +146,27 @@ public class DateUtil {
 
     public static ZonedDateTime getDateTime(String isoTimestamp) {
         try {
-            return ZonedDateTime.parse(isoTimestamp, DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception e) {
+            TemporalAccessor temporalAccessor = ISO_DATE_READING_FORMATTER.parseBest(isoTimestamp, ZonedDateTime::from,
+                    LocalDateTime::from,
+                    LocalDate::from);
+
+            if (temporalAccessor == null) {
+                throw new IllegalArgumentException("Invalid timestamp: " + isoTimestamp);
+            }
+
+            if (temporalAccessor instanceof ZonedDateTime zonedDateTime) {
+                return zonedDateTime;
+            }
+
+            if (temporalAccessor instanceof LocalDateTime localDateTime) {
+
+                return localDateTime.atZone(ZoneId.systemDefault());
+            }
+            return ((LocalDate) temporalAccessor).atStartOfDay(ZoneId.systemDefault());
+        } catch (IllegalArgumentException e) {
             throw new KIRuntimeException("Invalid ISO timestamp : " + isoTimestamp);
         }
+
     }
 
     public static String toDateTimeFormat(String luxonFormat) {

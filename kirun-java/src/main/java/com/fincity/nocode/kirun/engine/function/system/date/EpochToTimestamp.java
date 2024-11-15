@@ -26,10 +26,10 @@ public class EpochToTimestamp extends AbstractDateFunction {
     private static final String SECONDS = "Seconds";
     private static final String MILLISECONDS = "Milliseconds";
 
-    public EpochToTimestamp(boolean isSeconds) {
+    public EpochToTimestamp(String name, boolean isSeconds) {
 
         super(
-                EPOCH + (isSeconds ? SECONDS : MILLISECONDS),
+                name,
                 EVENT_TIMESTAMP,
                 Parameter.of(EPOCH + (isSeconds ? SECONDS : MILLISECONDS), new Schema()
                         .setName(EPOCH + (isSeconds ? SECONDS : MILLISECONDS))

@@ -67,6 +67,6 @@ public class MathFunctionRepository implements ReactiveRepository<ReactiveFuncti
 	public Flux<String> filter(String name) {
 		return Flux.fromIterable(FILTERABLE_NAMES)
 				.filter(e -> e.toLowerCase()
-						.indexOf(name.toLowerCase()) != -1);
+						.contains(name.toLowerCase()));
 	}
 }
