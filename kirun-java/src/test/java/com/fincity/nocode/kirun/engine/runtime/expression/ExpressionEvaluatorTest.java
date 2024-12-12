@@ -147,11 +147,13 @@ class ExpressionEvaluatorTest {
 				.setSteps(output);
 
 		assertEquals(new JsonPrimitive(true),
-				new ExpressionEvaluator("Steps.step1.output.obj.phone.phone2 = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
+				new ExpressionEvaluator(
+						"Steps.step1.output.obj.phone.phone2 = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
 						.evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
-				new ExpressionEvaluator("Steps.step1.output.obj[\"phone\"][\"phone2\"] = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
+				new ExpressionEvaluator(
+						"Steps.step1.output.obj[\"phone\"][\"phone2\"] = Steps.step1.output.obj[\"phone\"][\"phone2\"] ")
 						.evaluate(parameters.getValuesMap()));
 
 		assertEquals(new JsonPrimitive(true),
@@ -497,6 +499,31 @@ class ExpressionEvaluatorTest {
 
 		ev = new ExpressionEvaluator("(Arguments.number1 = 0) or (Arguments.number1 = 1)");
 		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+	}
+
+	@Test
+	void testObjectPath() {
+		JsonObject job = new JsonObject();
+		job.addProperty("a", 1);
+		job.addProperty("b", "2");
+		job.addProperty("c", true);
+		job.add("d", JsonNull.INSTANCE);
+		job.add("e", JsonNull.INSTANCE);
+
+		ArgumentsTokenValueExtractor atv = new ArgumentsTokenValueExtractor(
+				Map.ofEntries(Map.entry("object", job)));
+
+		String paramName = "b";
+
+		ExpressionEvaluator ev = new ExpressionEvaluator("Arguments.object." + paramName);
+
+		assertEquals(new JsonPrimitive("2"), ev.evaluate(Map.of(atv.getPrefix(), atv)));
+
+		paramName = "";
+
+		ev = new ExpressionEvaluator("Arguments.object." + paramName);
+
+		assertEquals(job, ev.evaluate(Map.of(atv.getPrefix(), atv)));
 	}
 
 	@Test
