@@ -1,16 +1,14 @@
 package com.fincity.nocode.kirun.engine.function.system.date;
 
-import java.util.Map;
-import java.util.TimeZone;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunctionRepository;
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.google.gson.JsonPrimitive;
-
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.TimeZone;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 class FromDateStringTest {
@@ -33,7 +31,7 @@ class FromDateStringTest {
         StepVerifier.create(fromDateString.execute(parameters)
                 .map(functionOutput -> functionOutput.allResults().get(0).getResult()
                         .get(FromDateString.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-11-03T00:00:00.000Z")
+                .expectNext("2024-" + LocalDate.now().getMonthValue() + "-03T00:00:00.000Z")
                 .verifyComplete();
     }
 }

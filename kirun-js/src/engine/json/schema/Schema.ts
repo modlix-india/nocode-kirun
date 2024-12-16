@@ -205,6 +205,7 @@ export class Schema {
                 ],
 
                 ['permission', Schema.ofString('permission')],
+                ['details', Schema.ofObject('details')],
             ]),
         )
         .setRequired([]);
@@ -386,6 +387,8 @@ export class Schema {
         schema.$defs = Schema.fromMapOfSchemas(obj.$defs);
         schema.permission = obj.permission;
 
+        schema.details = obj.details ? new Map(Object.entries(obj.details)) : undefined;
+
         return schema;
     }
 
@@ -443,6 +446,8 @@ export class Schema {
 
     private $defs?: Map<string, Schema>;
     private permission?: string;
+
+    private details?: Map<string, any>;
 
     public constructor(schema?: Schema) {
         if (!schema) return;
@@ -528,6 +533,9 @@ export class Schema {
             : undefined;
 
         this.permission = schema.permission;
+        this.details = schema.details
+            ? new Map(JSON.parse(JSON.stringify(Array.from(schema.details.values()))))
+            : undefined;
     }
 
     public getTitle(): string | undefined {
@@ -835,6 +843,15 @@ export class Schema {
     }
     public setPermission(permission: string): Schema {
         this.permission = permission;
+        return this;
+    }
+
+    public getDetails(): Map<string, any> | undefined {
+        return this.details;
+    }
+
+    public setDetails(details: Map<string, any>): Schema {
+        this.details = details;
         return this;
     }
 }
