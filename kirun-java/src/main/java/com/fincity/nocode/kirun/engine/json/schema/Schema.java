@@ -117,7 +117,9 @@ public class Schema implements Serializable {
 							.setAdditionalProperties(
 									new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
-					entry("permission", ofString("permission"))))
+					entry("permission", ofString("permission")),
+
+					entry("details", ofObject("details"))))
 			.setRequired(List.of());
 
 	public static Schema ofString(String id) {
@@ -244,6 +246,8 @@ public class Schema implements Serializable {
 	private Map<String, Schema> $defs; // NOSONAR - needed as per json schema
 	private String permission;
 
+	private Map<String, Object> details; // NOSONAR - needed as per json schema
+
 	public String getTitle() {
 
 		if (this.namespace == null || this.namespace.equals(TEMPORARY))
@@ -358,5 +362,7 @@ public class Schema implements Serializable {
 						.collect(Collectors.toMap(Entry::getKey, e -> new Schema(e.getValue())));
 
 		this.permission = schema.permission;
+
+		this.details = schema.details == null ? null : Map.copyOf(schema.details);
 	}
 }

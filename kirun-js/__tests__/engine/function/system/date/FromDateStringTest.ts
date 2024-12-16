@@ -1,3 +1,4 @@
+import { getDateTime } from '../../../../../src/engine/function/system/date/common';
 import { FromDateString } from '../../../../../src/engine/function/system/date/FromDateString';
 import { KIRunFunctionRepository } from '../../../../../src/engine/repository/KIRunFunctionRepository';
 import { KIRunSchemaRepository } from '../../../../../src/engine/repository/KIRunSchemaRepository';
@@ -67,6 +68,13 @@ describe('FromDateString', () => {
             .getResult()
             .get(FromDateString.EVENT_RESULT_NAME);
 
-        expect(result).toEqual('2024-11-03T00:00:12.123+05:30');
+        let d: Date = new Date();
+        d.setDate(3);
+        d.setHours(0);
+        d.setMinutes(0);
+        d.setSeconds(12);
+        d.setMilliseconds(123);
+
+        expect(new Date(result).getTime()).toEqual(d.getTime());
     });
 });
