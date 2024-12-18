@@ -41,7 +41,6 @@ export class RandomAny extends AbstractFunction {
         this.randomFunction = randomFunction;
     }
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

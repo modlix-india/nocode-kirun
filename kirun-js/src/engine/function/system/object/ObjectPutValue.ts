@@ -40,7 +40,6 @@ export class ObjectPutValue extends AbstractFunction {
             );
     }
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

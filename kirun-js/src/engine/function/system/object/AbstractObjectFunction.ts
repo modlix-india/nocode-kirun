@@ -13,8 +13,6 @@ const VALUE = 'value';
 const SOURCE = 'source';
 
 export abstract class AbstractObjectFunction extends AbstractFunction {
-    private signature: FunctionSignature;
-
     protected constructor(functionName: string, valueSchema: Schema) {
         super();
         this.signature = new FunctionSignature(functionName)
@@ -23,7 +21,7 @@ export abstract class AbstractObjectFunction extends AbstractFunction {
             .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, valueSchema]]))]));
     }
 
-    private readonly signature = this.signature;
+    private readonly signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

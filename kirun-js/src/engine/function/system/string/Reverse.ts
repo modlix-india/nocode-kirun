@@ -45,7 +45,6 @@ export class Reverse extends AbstractFunction {
         super();
     }
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

@@ -55,7 +55,6 @@ export class PostPad extends AbstractFunction {
         super();
     }
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

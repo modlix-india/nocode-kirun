@@ -54,7 +54,6 @@ export class InsertAtGivenPosition extends AbstractFunction {
             ]),
         );
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

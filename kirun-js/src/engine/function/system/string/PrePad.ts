@@ -48,7 +48,6 @@ export class PrePad extends AbstractFunction {
         )
         .setEvents(new Map([[PrePad.EVENT_STRING.getName(), PrePad.EVENT_STRING]]));
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

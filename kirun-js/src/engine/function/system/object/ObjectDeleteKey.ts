@@ -16,8 +16,6 @@ const SOURCE = 'source';
 const KEY = 'key';
 
 export class ObjectDeleteKey extends AbstractFunction {
-    private signature: FunctionSignature;
-
     public constructor() {
         super();
         this.signature = new FunctionSignature('ObjectDeleteKey')
@@ -33,7 +31,7 @@ export class ObjectDeleteKey extends AbstractFunction {
             );
     }
 
-    private readonly signature = this.signature;
+    private readonly signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

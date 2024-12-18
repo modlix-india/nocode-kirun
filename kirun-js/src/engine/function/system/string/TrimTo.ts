@@ -40,7 +40,6 @@ export class TrimTo extends AbstractFunction {
         )
         .setEvents(new Map([[TrimTo.EVENT_STRING.getName(), TrimTo.EVENT_STRING]]));
 
-    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }
