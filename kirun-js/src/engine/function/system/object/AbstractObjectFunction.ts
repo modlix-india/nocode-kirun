@@ -23,6 +23,7 @@ export abstract class AbstractObjectFunction extends AbstractFunction {
             .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, valueSchema]]))]));
     }
 
+    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

@@ -12,7 +12,7 @@ import { AbstractFunction } from '../AbstractFunction';
 export class If extends AbstractFunction {
     private static readonly CONDITION: string = 'condition';
 
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('If')
+    private readonly signature = new FunctionSignature('If')
         .setNamespace(Namespaces.SYSTEM)
         .setParameters(new Map([Parameter.ofEntry(If.CONDITION, Schema.ofAny(If.CONDITION))]))
         .setEvents(
@@ -22,9 +22,8 @@ export class If extends AbstractFunction {
                 Event.outputEventMapEntry(new Map()),
             ]),
         );
-
     public getSignature(): FunctionSignature {
-        return If.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

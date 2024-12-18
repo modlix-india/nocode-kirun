@@ -19,51 +19,59 @@ import { Wait } from '../function/system/Wait';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
+import { Repository } from '../Repository';
 
-const map: Map<string, Map<string, Function>> = new Map([
-    [
-        Namespaces.SYSTEM_CTX,
-        new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
-    ],
-    [
-        Namespaces.SYSTEM_LOOP,
-        new Map([
-            mapEntry(new RangeLoop()),
-            mapEntry(new CountLoop()),
-            mapEntry(new Break()),
-            mapEntry(new ForEachLoop()),
-        ]),
-    ],
-    [
-        Namespaces.SYSTEM,
-        new Map([
-            mapEntry(new If()),
-            mapEntry(new GenerateEvent()),
-            mapEntry(new Print()),
-            mapEntry(new Wait()),
-            mapEntry(new Join()),
-        ]),
-    ],
-]);
+class SystemFunctionRepository implements Repository<Function> {
+    private readonly map: Map<string, Map<string, Function>>;
+    private readonly filterableNames: string[];
 
-const filterableNames = Array.from(map.values())
-    .flatMap((e) => Array.from(e.values()))
-    .map((e) => e.getSignature().getFullName());
+    public constructor() {
+        this.map = new Map([
+            [
+                Namespaces.SYSTEM_CTX,
+                new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
+            ],
+            [
+                Namespaces.SYSTEM_LOOP,
+                new Map([
+                    mapEntry(new RangeLoop()),
+                    mapEntry(new CountLoop()),
+                    mapEntry(new Break()),
+                    mapEntry(new ForEachLoop()),
+                ]),
+            ],
+            [
+                Namespaces.SYSTEM,
+                new Map([
+                    mapEntry(new If()),
+                    mapEntry(new GenerateEvent()),
+                    mapEntry(new Print()),
+                    mapEntry(new Wait()),
+                    mapEntry(new Join()),
+                ]),
+            ],
+        ]);
+
+        this.filterableNames = Array.from(this.map.values())
+            .flatMap((e) => Array.from(e.values()))
+            .map((e) => e.getSignature().getFullName());
+    }
+
+    async find(namespace: string, name: string): Promise<Function | undefined> {
+        return this.map.get(namespace)?.get(name);
+    }
+
+    async filter(name: string): Promise<string[]> {
+        return Array.from(this.filterableNames).filter(
+            (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
+        );
+    }
+}
 
 export class KIRunFunctionRepository extends HybridRepository<Function> {
     public constructor() {
         super(
-            {
-                async find(namespace: string, name: string): Promise<Function | undefined> {
-                    return map.get(namespace)?.get(name);
-                },
-
-                async filter(name: string): Promise<string[]> {
-                    return Array.from(filterableNames).filter(
-                        (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-                    );
-                },
-            },
+            new SystemFunctionRepository(),
             new MathFunctionRepository(),
             new StringFunctionRepository(),
             new ArrayFunctionRepository(),

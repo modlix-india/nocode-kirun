@@ -14,7 +14,7 @@ import { SchemaType } from '../../../json/schema/type/SchemaType';
 export class Reverse extends AbstractFunction {
     protected readonly VALUE: string = 'value';
 
-    private readonly SIGNATURE: FunctionSignature = new FunctionSignature('Reverse')
+    private readonly signature: FunctionSignature = new FunctionSignature('Reverse')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -45,8 +45,9 @@ export class Reverse extends AbstractFunction {
         super();
     }
 
+    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
-        return this.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

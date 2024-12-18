@@ -14,27 +14,26 @@ const EACH = 'each';
 const INDEX = 'index';
 const VALUE = 'value';
 
-const SIGNATURE = new FunctionSignature('ForEachLoop')
-    .setNamespace(Namespaces.SYSTEM_LOOP)
-    .setParameters(
-        new Map([Parameter.ofEntry(SOURCE, Schema.ofArray(SOURCE, Schema.ofAny(SOURCE)))]),
-    )
-    .setEvents(
-        new Map([
-            Event.eventMapEntry(
-                Event.ITERATION,
-                new Map([
-                    [INDEX, Schema.of(INDEX, SchemaType.INTEGER)],
-                    [EACH, Schema.ofAny(EACH)],
-                ]),
-            ),
-            Event.outputEventMapEntry(new Map([[VALUE, Schema.of(VALUE, SchemaType.INTEGER)]])),
-        ]),
-    );
-
 export class ForEachLoop extends AbstractFunction {
+    private readonly signature = new FunctionSignature('ForEachLoop')
+        .setNamespace(Namespaces.SYSTEM_LOOP)
+        .setParameters(
+            new Map([Parameter.ofEntry(SOURCE, Schema.ofArray(SOURCE, Schema.ofAny(SOURCE)))]),
+        )
+        .setEvents(
+            new Map([
+                Event.eventMapEntry(
+                    Event.ITERATION,
+                    new Map([
+                        [INDEX, Schema.of(INDEX, SchemaType.INTEGER)],
+                        [EACH, Schema.ofAny(EACH)],
+                    ]),
+                ),
+                Event.outputEventMapEntry(new Map([[VALUE, Schema.of(VALUE, SchemaType.INTEGER)]])),
+            ]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

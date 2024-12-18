@@ -89,6 +89,7 @@ export class RegionMatches extends AbstractFunction {
         )
         .setEvents(new Map([[RegionMatches.EVENT_BOOLEAN.getName(), RegionMatches.EVENT_BOOLEAN]]));
 
+    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

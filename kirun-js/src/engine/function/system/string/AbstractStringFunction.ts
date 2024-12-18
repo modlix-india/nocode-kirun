@@ -100,6 +100,7 @@ export abstract class AbstractStringFunction extends AbstractFunction {
             .setEvents(MapUtil.of(event.getName(), event));
     }
 
+    private readonly signature = this.signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

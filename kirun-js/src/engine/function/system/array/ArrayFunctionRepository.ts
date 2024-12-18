@@ -36,7 +36,7 @@ import { ArrayToObject } from './ArrayToObject';
 import { Join } from './Join';
 
 export class ArrayFunctionRepository implements Repository<Function> {
-    private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
+    private readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
         mapEntry(new Concatenate()),
         mapEntry(new AddFirst()),
         mapEntry(new BinarySearch()),
@@ -67,26 +67,24 @@ export class ArrayFunctionRepository implements Repository<Function> {
         mapEntry(new InsertLast()),
         mapEntry(new RemoveDuplicates()),
         mapEntry(new ArrayToObject()),
-        mapEntry(new Join())
+        mapEntry(new Join()),
     );
 
-    private static readonly filterableNames = Array.from(
-        ArrayFunctionRepository.repoMap.values(),
-    ).map((e) => e.getSignature().getFullName());
+    private readonly filterableNames = Array.from(this.repoMap.values()).map((e) =>
+        e.getSignature().getFullName(),
+    );
 
     public async find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.SYSTEM_ARRAY) {
             return Promise.resolve(undefined);
         }
 
-        return Promise.resolve(ArrayFunctionRepository.repoMap.get(name));
+        return Promise.resolve(this.repoMap.get(name));
     }
 
     public async filter(name: string): Promise<string[]> {
         return Promise.resolve(
-            ArrayFunctionRepository.filterableNames.filter(
-                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-            ),
+            this.filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1),
         );
     }
 }

@@ -12,7 +12,7 @@ import { AbstractDateFunction } from './AbstractDateFunction';
 import { DateTime } from 'luxon';
 
 export class IsValidISODate extends AbstractFunction {
-    private static readonly SIGNATURE = new FunctionSignature('IsValidISODate')
+    private readonly signature = new FunctionSignature('IsValidISODate')
         .setNamespace(Namespaces.DATE)
         .setParameters(
             new Map([
@@ -43,15 +43,13 @@ export class IsValidISODate extends AbstractFunction {
         return Promise.resolve(
             new FunctionOutput([
                 EventResult.outputOf(
-                    MapUtil.of(
-                        AbstractDateFunction.EVENT_RESULT_NAME,
-                        dt.isValid,
-                    ),
+                    MapUtil.of(AbstractDateFunction.EVENT_RESULT_NAME, dt.isValid),
                 ),
             ]),
         );
     }
+
     public getSignature(): FunctionSignature {
-        return IsValidISODate.SIGNATURE;
+        return this.signature;
     }
 }

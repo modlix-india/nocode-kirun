@@ -13,22 +13,21 @@ const COUNT = 'count';
 const VALUE = 'value';
 const INDEX = 'index';
 
-const SIGNATURE = new FunctionSignature('CountLoop')
-    .setNamespace(Namespaces.SYSTEM_LOOP)
-    .setParameters(new Map([Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER))]))
-    .setEvents(
-        new Map([
-            Event.eventMapEntry(
-                Event.ITERATION,
-                new Map([[INDEX, Schema.of(INDEX, SchemaType.INTEGER)]]),
-            ),
-            Event.outputEventMapEntry(new Map([[VALUE, Schema.of(VALUE, SchemaType.INTEGER)]])),
-        ]),
-    );
-
 export class CountLoop extends AbstractFunction {
+    private readonly signature = new FunctionSignature('CountLoop')
+        .setNamespace(Namespaces.SYSTEM_LOOP)
+        .setParameters(new Map([Parameter.ofEntry(COUNT, Schema.of(COUNT, SchemaType.INTEGER))]))
+        .setEvents(
+            new Map([
+                Event.eventMapEntry(
+                    Event.ITERATION,
+                    new Map([[INDEX, Schema.of(INDEX, SchemaType.INTEGER)]]),
+                ),
+                Event.outputEventMapEntry(new Map([[VALUE, Schema.of(VALUE, SchemaType.INTEGER)]])),
+            ]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

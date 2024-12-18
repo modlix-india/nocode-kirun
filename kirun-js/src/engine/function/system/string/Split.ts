@@ -29,22 +29,23 @@ export class Split extends AbstractFunction {
         MapUtil.of(this.EVENT_RESULT_NAME, Schema.ofArray(this.EVENT_RESULT_NAME)),
     );
 
+    private readonly signature = new FunctionSignature('Split')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [this.PARAMETER_STRING_NAME, this.PARAMETER_STRING],
+                [this.PARAMETER_SPLIT_STRING_NAME, this.PARAMETER_SPLIT_STRING],
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.outputEventMapEntry(
+                    new Map([[this.EVENT_RESULT_NAME, Schema.ofArray(this.EVENT_RESULT_NAME)]]),
+                ) as [string, Event],
+            ]),
+        );
     public getSignature(): FunctionSignature {
-        return new FunctionSignature('Split')
-            .setNamespace(Namespaces.STRING)
-            .setParameters(
-                new Map([
-                    [this.PARAMETER_STRING_NAME, this.PARAMETER_STRING],
-                    [this.PARAMETER_SPLIT_STRING_NAME, this.PARAMETER_SPLIT_STRING],
-                ]),
-            )
-            .setEvents(
-                new Map([
-                    Event.outputEventMapEntry(
-                        new Map([[this.EVENT_RESULT_NAME, Schema.ofArray(this.EVENT_RESULT_NAME)]]),
-                    ) as [string, Event],
-                ]),
-            );
+        return this.signature;
     }
 
     public constructor() {
