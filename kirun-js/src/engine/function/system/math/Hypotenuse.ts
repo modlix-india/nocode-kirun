@@ -13,7 +13,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 const VALUE = 'value';
 
 export class Hypotenuse extends AbstractFunction {
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Hypotenuse')
+    private readonly signature: FunctionSignature = new FunctionSignature('Hypotenuse')
         .setNamespace(Namespaces.MATH)
         .setParameters(
             new Map([
@@ -38,7 +38,7 @@ export class Hypotenuse extends AbstractFunction {
     }
 
     public getSignature(): FunctionSignature {
-        return Hypotenuse.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

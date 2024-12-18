@@ -9,17 +9,19 @@ import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionP
 import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'value';
-
-const SIGNATURE = new FunctionSignature('Add')
-    .setNamespace(Namespaces.MATH)
-    .setParameters(
-        new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)]]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]));
-
 export class Add extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Add')
+        .setNamespace(Namespaces.MATH)
+        .setParameters(
+            new Map([
+                [VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)],
+            ]),
+        )
+        .setEvents(
+            new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

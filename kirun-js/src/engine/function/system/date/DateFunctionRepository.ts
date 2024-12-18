@@ -23,7 +23,7 @@ import { FromDateString } from './FromDateString';
 import { GetCurrentTimestamp } from './GetCurrent';
 
 export class DateFunctionRepository implements Repository<Function> {
-    private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
+    private readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
         ['EpochSecondsToTimestamp', new EpochToTimestamp('EpochSecondsToTimestamp', true)],
         [
             'EpochMillisecondsToTimestamp',
@@ -246,21 +246,19 @@ export class DateFunctionRepository implements Repository<Function> {
         ['FromDateString', new FromDateString()],
     );
 
-    private static readonly filterableNames = Array.from(
-        DateFunctionRepository.repoMap.values(),
-    ).map((e) => e.getSignature().getFullName());
+    private readonly filterableNames = Array.from(this.repoMap.values()).map((e) =>
+        e.getSignature().getFullName(),
+    );
 
     find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.DATE) {
             return Promise.resolve(undefined);
         }
-        return Promise.resolve(DateFunctionRepository.repoMap.get(name));
+        return Promise.resolve(this.repoMap.get(name));
     }
     filter(name: string): Promise<string[]> {
         return Promise.resolve(
-            DateFunctionRepository.filterableNames.filter(
-                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-            ),
+            this.filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1),
         );
     }
 }

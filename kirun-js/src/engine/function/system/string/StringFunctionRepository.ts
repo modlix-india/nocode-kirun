@@ -18,7 +18,7 @@ import { ToString } from './ToString';
 import { TrimTo } from './TrimTo';
 
 export class StringFunctionRepository implements Repository<Function> {
-    private static readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
+    private readonly repoMap: Map<string, Function> = MapUtil.ofArrayEntries(
         AbstractStringFunction.ofEntryStringAndStringOutput('Trim', (e) => e.trim()),
         AbstractStringFunction.ofEntryStringAndStringOutput('TrimStart', (e) => e.trimStart()),
         AbstractStringFunction.ofEntryStringAndStringOutput('TrimEnd', (e) => e.trimEnd()),
@@ -98,22 +98,20 @@ export class StringFunctionRepository implements Repository<Function> {
         mapEntry(new Matches()),
     );
 
-    private static readonly filterableNames = Array.from(
-        StringFunctionRepository.repoMap.values(),
-    ).map((e) => e.getSignature().getFullName());
+    private readonly filterableNames = Array.from(this.repoMap.values()).map((e) =>
+        e.getSignature().getFullName(),
+    );
 
     public async find(namespace: string, name: string): Promise<Function | undefined> {
         if (namespace != Namespaces.STRING) {
             return Promise.resolve(undefined);
         }
-        return Promise.resolve(StringFunctionRepository.repoMap.get(name));
+        return Promise.resolve(this.repoMap.get(name));
     }
 
     public async filter(name: string): Promise<string[]> {
         return Promise.resolve(
-            StringFunctionRepository.filterableNames.filter(
-                (e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1,
-            ),
+            this.filterableNames.filter((e) => e.toLowerCase().indexOf(name.toLowerCase()) !== -1),
         );
     }
 }

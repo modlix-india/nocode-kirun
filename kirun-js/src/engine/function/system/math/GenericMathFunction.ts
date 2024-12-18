@@ -15,22 +15,11 @@ const VALUE = 'value';
 const VALUE1 = 'value1';
 const VALUE2 = 'value2';
 
-const paramFunctions = [
-    () => {
-        return new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE))]]);
-    },
-    () => {
-        return new Map([
-            [VALUE1, new Parameter(VALUE1, Schema.ofNumber(VALUE1))],
-            [VALUE2, new Parameter(VALUE2, Schema.ofNumber(VALUE2))],
-        ]);
-    },
-];
-
 export class GenericMathFunction extends AbstractFunction {
     private signature: FunctionSignature;
     private parametersNumber: number;
     private mathFunction: (v1: number, v2?: number) => number;
+    private readonly paramFunctions: Array<() => Map<string, Parameter>>;
 
     public constructor(
         functionName: string,
@@ -39,12 +28,23 @@ export class GenericMathFunction extends AbstractFunction {
         ...returnType: SchemaType[]
     ) {
         super();
+        this.paramFunctions = [
+            () => {
+                return new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE))]]);
+            },
+            () => {
+                return new Map([
+                    [VALUE1, new Parameter(VALUE1, Schema.ofNumber(VALUE1))],
+                    [VALUE2, new Parameter(VALUE2, Schema.ofNumber(VALUE2))],
+                ]);
+            },
+        ];
         if (!returnType || !returnType.length) returnType = [SchemaType.DOUBLE];
         this.parametersNumber = parametersNumber;
         this.mathFunction = mathFunction;
         this.signature = new FunctionSignature(functionName)
             .setNamespace(Namespaces.MATH)
-            .setParameters(paramFunctions[parametersNumber - 1]())
+            .setParameters(this.paramFunctions[parametersNumber - 1]())
             .setEvents(
                 new Map([
                     Event.outputEventMapEntry(

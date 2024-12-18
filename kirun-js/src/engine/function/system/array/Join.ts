@@ -13,39 +13,40 @@ const VALUE = 'source';
 const DELIMITTER = 'delimiter';
 const OUTPUT = 'result';
 
-const SIGNATURE = new FunctionSignature('Join')
-    .setNamespace(Namespaces.SYSTEM_ARRAY)
-    .setParameters(
-        new Map([
-            [
-                VALUE,
-                new Parameter(
+export class Join extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Join')
+        .setNamespace(Namespaces.SYSTEM_ARRAY)
+        .setParameters(
+            new Map([
+                [
                     VALUE,
-                    Schema.ofArray(
+                    new Parameter(
                         VALUE,
-                        Schema.of(
-                            'each',
-                            SchemaType.STRING,
-                            SchemaType.INTEGER,
-                            SchemaType.LONG,
-                            SchemaType.DOUBLE,
-                            SchemaType.FLOAT,
-                            SchemaType.NULL,
+                        Schema.ofArray(
+                            VALUE,
+                            Schema.of(
+                                'each',
+                                SchemaType.STRING,
+                                SchemaType.INTEGER,
+                                SchemaType.LONG,
+                                SchemaType.DOUBLE,
+                                SchemaType.FLOAT,
+                                SchemaType.NULL,
+                            ),
                         ),
                     ),
-                ),
-            ],
-            [
-                DELIMITTER,
-                new Parameter(DELIMITTER, Schema.ofString(DELIMITTER).setDefaultValue('')),
-            ],
-        ]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[OUTPUT, Schema.ofString(OUTPUT)]]))]));
-
-export class Join extends AbstractFunction {
+                ],
+                [
+                    DELIMITTER,
+                    new Parameter(DELIMITTER, Schema.ofString(DELIMITTER).setDefaultValue('')),
+                ],
+            ]),
+        )
+        .setEvents(
+            new Map([Event.outputEventMapEntry(new Map([[OUTPUT, Schema.ofString(OUTPUT)]]))]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

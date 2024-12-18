@@ -11,7 +11,7 @@ import { AbstractFunction } from '../AbstractFunction';
 export class Wait extends AbstractFunction {
     private static readonly MILLIS: string = 'millis';
 
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Wait')
+    private readonly signature = new FunctionSignature('Wait')
         .setNamespace(Namespaces.SYSTEM)
         .setParameters(
             new Map([
@@ -22,9 +22,8 @@ export class Wait extends AbstractFunction {
             ]),
         )
         .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
-
     public getSignature(): FunctionSignature {
-        return Wait.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

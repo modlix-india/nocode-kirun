@@ -12,7 +12,6 @@ import { AbstractFunction } from '../../AbstractFunction';
 import { AbstractDateFunction } from './AbstractDateFunction';
 
 export class EpochToTimestamp extends AbstractFunction {
-    private readonly signature: FunctionSignature;
     private readonly isSeconds: boolean;
     private readonly paramName: string;
 
@@ -51,6 +50,7 @@ export class EpochToTimestamp extends AbstractFunction {
             );
     }
 
+    private readonly signature;
     public getSignature(): FunctionSignature {
         return this.signature;
     }

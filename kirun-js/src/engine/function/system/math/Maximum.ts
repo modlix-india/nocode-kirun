@@ -10,16 +10,19 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'value';
 
-const SIGNATURE = new FunctionSignature('Maximum')
-    .setNamespace(Namespaces.MATH)
-    .setParameters(
-        new Map([[VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)]]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]));
-
 export class Maximum extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Maximum')
+        .setNamespace(Namespaces.MATH)
+        .setParameters(
+            new Map([
+                [VALUE, new Parameter(VALUE, Schema.ofNumber(VALUE)).setVariableArgument(true)],
+            ]),
+        )
+        .setEvents(
+            new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofNumber(VALUE)]]))]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
@@ -27,9 +30,7 @@ export class Maximum extends AbstractFunction {
 
         return new FunctionOutput([
             EventResult.outputOf(
-                new Map([
-                    [VALUE, nums.reduce((a, c) => ((!a && a !== 0) || c > a ? c : a))],
-                ]),
+                new Map([[VALUE, nums.reduce((a, c) => ((!a && a !== 0) || c > a ? c : a))]]),
             ),
         ]);
     }

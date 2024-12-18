@@ -10,7 +10,7 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const VALUE = 'value';
 export class Random extends AbstractFunction {
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Random')
+    private readonly signature: FunctionSignature = new FunctionSignature('Random')
         .setNamespace(Namespaces.MATH)
         .setEvents(
             new Map<string, Event>([
@@ -19,7 +19,7 @@ export class Random extends AbstractFunction {
         );
 
     public getSignature(): FunctionSignature {
-        return Random.SIGNATURE;
+        return this.signature;
     }
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         return new FunctionOutput([EventResult.outputOf(new Map([[VALUE, Math.random()]]))]);

@@ -10,15 +10,15 @@ import { FunctionExecutionParameters } from '../../../runtime/FunctionExecutionP
 import { AbstractFunction } from '../../AbstractFunction';
 
 const STEP_NAME = 'stepName';
-
-const SIGNATURE = new FunctionSignature('Break')
-    .setNamespace(Namespaces.SYSTEM_LOOP)
-    .setParameters(new Map([Parameter.ofEntry(STEP_NAME, Schema.of(STEP_NAME, SchemaType.STRING))]))
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([]))]));
-
 export class Break extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Break')
+        .setNamespace(Namespaces.SYSTEM_LOOP)
+        .setParameters(
+            new Map([Parameter.ofEntry(STEP_NAME, Schema.of(STEP_NAME, SchemaType.STRING))]),
+        )
+        .setEvents(new Map([Event.outputEventMapEntry(new Map([]))]));
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

@@ -15,35 +15,37 @@ import { AbstractFunction } from '../AbstractFunction';
 const VALUE = 'value';
 const EVENT_NAME = 'eventName';
 const RESULTS = 'results';
-
-const SIGNATURE: FunctionSignature = new FunctionSignature('GenerateEvent')
-    .setNamespace(Namespaces.SYSTEM)
-    .setParameters(
-        new Map([
-            Parameter.ofEntry(EVENT_NAME, Schema.ofString(EVENT_NAME).setDefaultValue('output')),
-            Parameter.ofEntry(
-                RESULTS,
-                Schema.ofObject(RESULTS).setProperties(
-                    new Map([
-                        ['name', Schema.ofString('name')],
-                        [VALUE, Parameter.EXPRESSION],
-                    ]),
-                ),
-                true,
-            ),
-        ]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
-
 interface ResultType {
     name: string;
     value: any;
 }
 
 export class GenerateEvent extends AbstractFunction {
+    private readonly signature = new FunctionSignature('GenerateEvent')
+        .setNamespace(Namespaces.SYSTEM)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(
+                    EVENT_NAME,
+                    Schema.ofString(EVENT_NAME).setDefaultValue('output'),
+                ),
+                Parameter.ofEntry(
+                    RESULTS,
+                    Schema.ofObject(RESULTS).setProperties(
+                        new Map([
+                            ['name', Schema.ofString('name')],
+                            [VALUE, Parameter.EXPRESSION],
+                        ]),
+                    ),
+                    true,
+                ),
+            ]),
+        )
+        .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
+
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {
         const events: Map<string, Map<string, any>[]> | undefined = context.getEvents();
         const args: Map<string, any> | undefined = context.getArguments();
