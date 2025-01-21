@@ -65,7 +65,7 @@ export class GetNames extends AbstractDateFunction {
 
         if (unit === 'WEEKDAYS') {
             return [1, 2, 3, 4, 5, 6, 7].map((day) =>
-                DateTime.now().setLocale(locale).set({ month: 7, day }).toFormat('EEEE'),
+                DateTime.now().setLocale(locale).set({ month: 7, year: 2024, day }).toFormat('EEEE'),
             );
         }
 
