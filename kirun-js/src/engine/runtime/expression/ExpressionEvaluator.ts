@@ -2,41 +2,45 @@ import { ExecutionException } from '../../exception/ExecutionException';
 import { LinkedList } from '../../util/LinkedList';
 import { StringBuilder } from '../../util/string/StringBuilder';
 import { StringFormatter } from '../../util/string/StringFormatter';
-import { FunctionExecutionParameters } from '../FunctionExecutionParameters';
 import { ExpressionEvaluationException } from './exception/ExpressionEvaluationException';
 import { Expression } from './Expression';
 import { ExpressionToken } from './ExpressionToken';
 import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
-import { LogicalNullishCoalescingOperator } from './operators/binary/LogicalNullishCoalescingOperator';
-import { ArithmeticAdditionOperator } from './operators/binary/ArithmeticAdditionOperator';
-import { ArithmeticDivisionOperator } from './operators/binary/ArithmeticDivisionOperator';
-import { ArithmeticIntegerDivisionOperator } from './operators/binary/ArithmeticInetgerDivisionOperator';
-import { ArithmeticModulusOperator } from './operators/binary/ArithmeticModulusOperator';
-import { ArithmeticMultiplicationOperator } from './operators/binary/ArithmeticMultiplicationOperator';
-import { ArithmeticSubtractionOperator } from './operators/binary/ArithmeticSubtractionOperator';
-import { ArrayOperator } from './operators/binary/ArrayOperator';
-import { BinaryOperator } from './operators/binary/BinaryOperator';
-import { BitwiseAndOperator } from './operators/binary/BitwiseAndOperator';
-import { BitwiseLeftShiftOperator } from './operators/binary/BitwiseLeftShiftOperator';
-import { BitwiseOrOperator } from './operators/binary/BitwiseOrOperator';
-import { BitwiseRightShiftOperator } from './operators/binary/BitwiseRightShiftOperator';
-import { BitwiseUnsignedRightShiftOperator } from './operators/binary/BitwiseUnsignedRightShiftOperator';
-import { BitwiseXorOperator } from './operators/binary/BitwiseXorOperator';
-import { LogicalAndOperator } from './operators/binary/LogicalAndOperator';
-import { LogicalEqualOperator } from './operators/binary/LogicalEqualOperator';
-import { LogicalGreaterThanEqualOperator } from './operators/binary/LogicalGreaterThanEqualOperator';
-import { LogicalGreaterThanOperator } from './operators/binary/LogicalGreaterThanOperator';
-import { LogicalLessThanEqualOperator } from './operators/binary/LogicalLessThanEqualOperator';
-import { LogicalLessThanOperator } from './operators/binary/LogicalLessThanOperator';
-import { LogicalNotEqualOperator } from './operators/binary/LogicalNotEqualOperator';
-import { LogicalOrOperator } from './operators/binary/LogicalOrOperator';
-import { ObjectOperator } from './operators/binary/ObjectOperator';
-import { ArithmeticUnaryMinusOperator } from './operators/unary/ArithmeticUnaryMinusOperator';
-import { ArithmeticUnaryPlusOperator } from './operators/unary/ArithmeticUnaryPlusOperator';
-import { BitwiseComplementOperator } from './operators/unary/BitwiseComplementOperator';
-import { LogicalNotOperator } from './operators/unary/LogicalNotOperator';
-import { UnaryOperator } from './operators/unary/UnaryOperator';
+import { LogicalNullishCoalescingOperator } from './operators/binary';
+import {
+    ArithmeticAdditionOperator,
+    ArithmeticDivisionOperator,
+    ArithmeticIntegerDivisionOperator,
+    ArithmeticModulusOperator,
+    ArithmeticMultiplicationOperator,
+    ArithmeticSubtractionOperator,
+    ArrayOperator,
+    ArrayRangeOperator,
+    BinaryOperator,
+    BitwiseAndOperator,
+    BitwiseLeftShiftOperator,
+    BitwiseOrOperator,
+    BitwiseRightShiftOperator,
+    BitwiseUnsignedRightShiftOperator,
+    BitwiseXorOperator,
+    LogicalAndOperator,
+    LogicalEqualOperator,
+    LogicalGreaterThanEqualOperator,
+    LogicalGreaterThanOperator,
+    LogicalLessThanEqualOperator,
+    LogicalLessThanOperator,
+    LogicalNotEqualOperator,
+    LogicalOrOperator,
+    ObjectOperator,
+} from './operators/binary/';
+import {
+    ArithmeticUnaryMinusOperator,
+    ArithmeticUnaryPlusOperator,
+    BitwiseComplementOperator,
+    LogicalNotOperator,
+    UnaryOperator,
+} from './operators/unary';
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
 import { Tuple2 } from '../../util/Tuples';
@@ -82,6 +86,7 @@ export class ExpressionEvaluator {
         [Operation.NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()],
 
         [Operation.ARRAY_OPERATOR, new ArrayOperator()],
+        [Operation.ARRAY_RANGE_INDEX_OPERATOR, new ArrayRangeOperator()],
         [Operation.OBJECT_OPERATOR, new ObjectOperator()],
     ]);
 
@@ -315,7 +320,7 @@ export class ExpressionEvaluator {
         if (key.length > 2 && valuesMap.has(key))
             tokens.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
         else {
-            let v: any = undefined;
+            let v: any;
             try {
                 v = LiteralTokenValueExtractor.INSTANCE.getValue(str);
             } catch (err) {

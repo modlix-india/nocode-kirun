@@ -22,3 +22,4 @@ export * from './LogicalLessThanOperator';
 export * from './LogicalOrOperator';
 export * from './ObjectOperator';
 export * from './LogicalNullishCoalescingOperator';
+export * from './ArrayRangeOperator';
