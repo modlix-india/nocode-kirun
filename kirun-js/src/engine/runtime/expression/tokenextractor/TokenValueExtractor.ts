@@ -6,7 +6,7 @@ import { ExpressionEvaluationException } from '../exception/ExpressionEvaluation
 
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
-    public static readonly REGEX_DOT: RegExp = /\./;
+    public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
 
     public getValue(token: string): any {
         let prefix: string = this.getPrefix();
@@ -71,7 +71,8 @@ export abstract class TokenValueExtractor {
 
         if (cPart === 'length') return this.getLength(token, cElement);
 
-        if (Array.isArray(cElement)) return this.handleArrayAccess(token, cPart, cElement);
+        if (typeof cElement == 'string' || Array.isArray(cElement))
+            return this.handleArrayAccess(token, cPart, cElement);
 
         return this.handleObjectAccess(token, parts, partNumber, cPart, cElement);
     }
@@ -91,8 +92,29 @@ export abstract class TokenValueExtractor {
         );
     }
 
-    private handleArrayAccess(token: string, cPart: string, cArray: any[]): any {
-        const index: number = parseInt(cPart);
+    private handleArrayAccess(token: string, cPart: string, cArray: any[] | string): any {
+        const dotDotIndex = cPart.indexOf('..');
+        if (dotDotIndex >= 0) {
+            const startIndex = cPart.substring(0, dotDotIndex);
+            const endIndex = cPart.substring(dotDotIndex + 2);
+
+            let intStart = startIndex.length == 0 ? 0 : parseInt(startIndex);
+            let intEnd = endIndex.length == 0 ? cArray.length : parseInt(endIndex);
+
+            if (isNaN(intStart) || isNaN(intEnd)) return undefined;
+
+            while (intStart < 0) intStart += cArray.length;
+            while (intEnd < 0) intEnd += cArray.length;
+
+            const cArrayType = typeof cArray;
+            if (intStart >= intEnd) return cArrayType == 'string' ? '' : [];
+
+            return cArrayType == 'string'
+                ? (cArray as string).substring(intStart, intEnd)
+                : cArray.slice(intStart, intEnd);
+        }
+
+        let index: number = parseInt(cPart);
 
         if (isNaN(index)) {
             throw new ExpressionEvaluationException(
@@ -101,7 +123,8 @@ export abstract class TokenValueExtractor {
             );
         }
 
-        if (index < 0 || index >= cArray.length) {
+        while (index < 0) index = cArray.length + index;
+        if (index >= cArray.length) {
             return undefined;
         }
 
@@ -137,7 +160,11 @@ export abstract class TokenValueExtractor {
         partNumber: number,
         jsonElement: any,
     ): void {
-        if (typeof jsonElement != 'object' || Array.isArray(jsonElement))
+        const jsonElementType = typeof jsonElement;
+        if (
+            (jsonElementType != 'object' && jsonElementType != 'string') ||
+            Array.isArray(jsonElement)
+        )
             throw new ExpressionEvaluationException(
                 token,
                 StringFormatter.format(

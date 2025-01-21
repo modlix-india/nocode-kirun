@@ -30,6 +30,7 @@ export class Operation {
     public static readonly UNARY_BITWISE_COMPLEMENT: Operation = new Operation('UN: ~', '~');
 
     public static readonly ARRAY_OPERATOR: Operation = new Operation('[');
+    public static readonly ARRAY_RANGE_INDEX_OPERATOR: Operation = new Operation('..');
     public static readonly OBJECT_OPERATOR: Operation = new Operation('.');
 
     public static readonly NULLISH_COALESCING_OPERATOR: Operation = new Operation('??');
@@ -39,7 +40,7 @@ export class Operation {
     private static readonly VALUE_OF: Map<string, Operation> = new Map([
         ['MULTIPLICATION', Operation.MULTIPLICATION],
         ['DIVISION', Operation.DIVISION],
-        ['INTEGER_DIVISON', Operation.INTEGER_DIVISION],
+        ['INTEGER_DIVISION', Operation.INTEGER_DIVISION],
         ['MOD', Operation.MOD],
         ['ADDITION', Operation.ADDITION],
         ['SUBTRACTION', Operation.SUBTRACTION],
@@ -64,6 +65,7 @@ export class Operation {
         ['UNARY_LOGICAL_NOT', Operation.UNARY_LOGICAL_NOT],
         ['UNARY_BITWISE_COMPLEMENT', Operation.UNARY_BITWISE_COMPLEMENT],
         ['ARRAY_OPERATOR', Operation.ARRAY_OPERATOR],
+        ['ARRAY_RANGE_INDEX_OPERATOR', Operation.ARRAY_RANGE_INDEX_OPERATOR],
         ['OBJECT_OPERATOR', Operation.OBJECT_OPERATOR],
         ['NULLISH_COALESCING_OPERATOR', Operation.NULLISH_COALESCING_OPERATOR],
         ['CONDITIONAL_TERNARY_OPERATOR', Operation.CONDITIONAL_TERNARY_OPERATOR],
@@ -123,6 +125,7 @@ export class Operation {
         [Operation.UNARY_BITWISE_COMPLEMENT, 1],
         [Operation.ARRAY_OPERATOR, 1],
         [Operation.OBJECT_OPERATOR, 1],
+        [Operation.ARRAY_RANGE_INDEX_OPERATOR, 2],
         [Operation.MULTIPLICATION, 2],
         [Operation.DIVISION, 2],
         [Operation.INTEGER_DIVISION, 2],
@@ -153,6 +156,7 @@ export class Operation {
             ...Array.from(Operation.LOGICAL_OPERATORS),
             ...Array.from(Operation.BITWISE_OPERATORS),
             Operation.ARRAY_OPERATOR,
+            Operation.ARRAY_RANGE_INDEX_OPERATOR,
             Operation.OBJECT_OPERATOR,
             ...Array.from(Operation.CONDITIONAL_OPERATORS),
         ].map((e) => e.getOperator()),
@@ -164,6 +168,7 @@ export class Operation {
             ...Array.from(Operation.LOGICAL_OPERATORS),
             ...Array.from(Operation.BITWISE_OPERATORS),
             Operation.ARRAY_OPERATOR,
+            Operation.ARRAY_RANGE_INDEX_OPERATOR,
             Operation.OBJECT_OPERATOR,
             ...Array.from(Operation.CONDITIONAL_OPERATORS),
         ]
@@ -192,9 +197,10 @@ export class Operation {
         .map((e) => e.length)
         .reduce((a, c) => (a > c ? a : c), 0);
 
-    private operator: string;
-    private operatorName: string;
-    private _shouldBeWrappedInSpace: boolean;
+    private readonly operator: string;
+    private readonly operatorName: string;
+    private readonly _shouldBeWrappedInSpace: boolean;
+
     public constructor(
         operator: string,
         operatorName?: string,
