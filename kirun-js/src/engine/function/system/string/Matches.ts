@@ -16,7 +16,7 @@ export class Matches extends AbstractFunction {
 
     protected static EVENT_RESULT_NAME: string = 'result';
 
-    private static signature: FunctionSignature = new FunctionSignature('Matches')
+    private readonly signature: FunctionSignature = new FunctionSignature('Matches')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             MapUtil.ofEntries(
@@ -50,7 +50,7 @@ export class Matches extends AbstractFunction {
         );
 
     public getSignature(): FunctionSignature {
-        return Matches.signature;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

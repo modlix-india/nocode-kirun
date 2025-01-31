@@ -15,7 +15,7 @@ export class Print extends AbstractFunction {
     private static readonly LOG: string = 'LOG';
     private static readonly ERROR: string = 'ERROR';
 
-    private static readonly SIGNATURE: FunctionSignature = new FunctionSignature('Print')
+    private readonly signature = new FunctionSignature('Print')
         .setNamespace(Namespaces.SYSTEM)
         .setParameters(
             new Map([
@@ -29,9 +29,8 @@ export class Print extends AbstractFunction {
             ]),
         )
         .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
-
     public getSignature(): FunctionSignature {
-        return Print.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

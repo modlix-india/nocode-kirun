@@ -13,17 +13,18 @@ import { AbstractFunction } from '../../AbstractFunction';
 export class Concatenate extends AbstractFunction {
     public static VALUE: string = 'value';
 
-    private static SCHEMA: Schema = new Schema()
-        .setName(Concatenate.VALUE)
-        .setType(new SingleType(SchemaType.STRING));
-
-    private static SIGNATURE: FunctionSignature = new FunctionSignature('Concatenate')
+    private readonly signature: FunctionSignature = new FunctionSignature('Concatenate')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
                 [
                     Concatenate.VALUE,
-                    new Parameter(Concatenate.VALUE, Concatenate.SCHEMA).setVariableArgument(true),
+                    new Parameter(
+                        Concatenate.VALUE,
+                        new Schema()
+                            .setName(Concatenate.VALUE)
+                            .setType(new SingleType(SchemaType.STRING)),
+                    ).setVariableArgument(true),
                 ],
             ]),
         )
@@ -40,7 +41,7 @@ export class Concatenate extends AbstractFunction {
     }
 
     public getSignature(): FunctionSignature {
-        return Concatenate.SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

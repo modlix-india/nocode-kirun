@@ -16,28 +16,28 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
 const VALUE = 'value';
-const SIGNATURE = new FunctionSignature('Get')
-    .setNamespace(Namespaces.SYSTEM_CTX)
-    .setParameters(
-        new Map([
-            Parameter.ofEntry(
-                NAME,
-                new Schema()
-                    .setName(NAME)
-                    .setType(TypeUtil.of(SchemaType.STRING))
-                    .setMinLength(1)
-                    .setFormat(StringFormat.REGEX)
-                    .setPattern('^[a-zA-Z_$][a-zA-Z_$0-9]*$'),
-                false,
-                ParameterType.CONSTANT,
-            ),
-        ]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofAny(VALUE)]]))]));
 
 export class Get extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Get')
+        .setNamespace(Namespaces.SYSTEM_CTX)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(
+                    NAME,
+                    new Schema()
+                        .setName(NAME)
+                        .setType(TypeUtil.of(SchemaType.STRING))
+                        .setMinLength(1)
+                        .setFormat(StringFormat.REGEX)
+                        .setPattern('^[a-zA-Z_$][a-zA-Z_$0-9]*$'),
+                    false,
+                    ParameterType.CONSTANT,
+                ),
+            ]),
+        )
+        .setEvents(new Map([Event.outputEventMapEntry(new Map([[VALUE, Schema.ofAny(VALUE)]]))]));
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

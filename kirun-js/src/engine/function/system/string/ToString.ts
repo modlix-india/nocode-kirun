@@ -23,15 +23,16 @@ export class ToString extends AbstractFunction {
         new Map([[this.EVENT_RESULT_NAME, Schema.ofString(this.EVENT_RESULT_NAME)]]),
     );
 
+    private readonly signature = new FunctionSignature('ToString')
+        .setNamespace(Namespaces.STRING)
+        .setParameters(
+            new Map([
+                [this.PARAMETER_INPUT_ANYTYPE.getParameterName(), this.PARAMETER_INPUT_ANYTYPE],
+            ]),
+        )
+        .setEvents(new Map([[this.EVENT_STRING.getName(), this.EVENT_STRING]]));
     public getSignature(): FunctionSignature {
-        return new FunctionSignature('ToString')
-            .setNamespace(Namespaces.STRING)
-            .setParameters(
-                new Map([
-                    [this.PARAMETER_INPUT_ANYTYPE.getParameterName(), this.PARAMETER_INPUT_ANYTYPE],
-                ]),
-            )
-            .setEvents(new Map([[this.EVENT_STRING.getName(), this.EVENT_STRING]]));
+        return this.signature;
     }
 
     public constructor() {

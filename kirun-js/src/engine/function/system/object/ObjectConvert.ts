@@ -24,33 +24,33 @@ export class ObjectConvert extends AbstractFunction {
     private static readonly VALUE: string = 'value';
     private static readonly CONVERSION_MODE: string = 'conversionMode';
 
+    private readonly signature: FunctionSignature = new FunctionSignature('ObjectConvert')
+        .setNamespace(Namespaces.SYSTEM_OBJECT)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(ObjectConvert.SOURCE, Schema.ofAny(ObjectConvert.SCHEMA)),
+                Parameter.ofEntry(
+                    ObjectConvert.SCHEMA,
+                    Schema.SCHEMA,
+                    false,
+                    ParameterType.CONSTANT,
+                ),
+                Parameter.ofEntry(
+                    ObjectConvert.CONVERSION_MODE,
+                    Schema.ofString(ObjectConvert.CONVERSION_MODE).setEnums(getConversionModes()),
+                ),
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.outputEventMapEntry(
+                    MapUtil.of(ObjectConvert.VALUE, Schema.ofAny(ObjectConvert.VALUE)),
+                ),
+            ]),
+        );
+
     getSignature(): FunctionSignature {
-        return new FunctionSignature('ObjectConvert')
-            .setNamespace(Namespaces.SYSTEM_OBJECT)
-            .setParameters(
-                new Map([
-                    Parameter.ofEntry(ObjectConvert.SOURCE, Schema.ofAny(ObjectConvert.SCHEMA)),
-                    Parameter.ofEntry(
-                        ObjectConvert.SCHEMA,
-                        Schema.SCHEMA,
-                        false,
-                        ParameterType.CONSTANT,
-                    ),
-                    Parameter.ofEntry(
-                        ObjectConvert.CONVERSION_MODE,
-                        Schema.ofString(ObjectConvert.CONVERSION_MODE).setEnums(
-                            getConversionModes(),
-                        ),
-                    ),
-                ]),
-            )
-            .setEvents(
-                new Map([
-                    Event.outputEventMapEntry(
-                        MapUtil.of(ObjectConvert.VALUE, Schema.ofAny(ObjectConvert.VALUE)),
-                    ),
-                ]),
-            );
+        return this.signature;
     }
 
     protected internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

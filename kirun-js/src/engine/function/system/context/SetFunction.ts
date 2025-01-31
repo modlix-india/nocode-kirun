@@ -23,23 +23,26 @@ import { AbstractFunction } from '../../AbstractFunction';
 
 const NAME = 'name';
 const VALUE = 'value';
-const SIGNATURE = new FunctionSignature('Set')
-    .setNamespace(Namespaces.SYSTEM_CTX)
-    .setParameters(
-        new Map([
-            Parameter.ofEntry(
-                NAME,
-                new Schema().setName(NAME).setType(TypeUtil.of(SchemaType.STRING)).setMinLength(1),
-                false,
-            ),
-            Parameter.ofEntry(VALUE, Schema.ofAny(VALUE)),
-        ]),
-    )
-    .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
 
 export class SetFunction extends AbstractFunction {
+    private readonly signature = new FunctionSignature('Set')
+        .setNamespace(Namespaces.SYSTEM_CTX)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(
+                    NAME,
+                    new Schema()
+                        .setName(NAME)
+                        .setType(TypeUtil.of(SchemaType.STRING))
+                        .setMinLength(1),
+                    false,
+                ),
+                Parameter.ofEntry(VALUE, Schema.ofAny(VALUE)),
+            ]),
+        )
+        .setEvents(new Map([Event.outputEventMapEntry(new Map())]));
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

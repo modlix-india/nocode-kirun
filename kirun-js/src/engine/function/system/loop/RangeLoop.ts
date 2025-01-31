@@ -15,81 +15,80 @@ const STEP = 'step';
 const VALUE = 'value';
 const INDEX = 'index';
 
-const SIGNATURE = new FunctionSignature('RangeLoop')
-    .setNamespace(Namespaces.SYSTEM_LOOP)
-    .setParameters(
-        new Map([
-            Parameter.ofEntry(
-                FROM,
-                Schema.of(
-                    FROM,
-                    SchemaType.INTEGER,
-                    SchemaType.LONG,
-                    SchemaType.FLOAT,
-                    SchemaType.DOUBLE,
-                ).setDefaultValue(0),
-            ),
-            Parameter.ofEntry(
-                TO,
-                Schema.of(
-                    TO,
-                    SchemaType.INTEGER,
-                    SchemaType.LONG,
-                    SchemaType.FLOAT,
-                    SchemaType.DOUBLE,
-                ).setDefaultValue(1),
-            ),
-            Parameter.ofEntry(
-                STEP,
-                Schema.of(
-                    STEP,
-                    SchemaType.INTEGER,
-                    SchemaType.LONG,
-                    SchemaType.FLOAT,
-                    SchemaType.DOUBLE,
-                )
-                    .setDefaultValue(1)
-                    .setNot(new Schema().setConstant(0)),
-            ),
-        ]),
-    )
-    .setEvents(
-        new Map([
-            Event.eventMapEntry(
-                Event.ITERATION,
-                new Map([
-                    [
-                        INDEX,
-                        Schema.of(
-                            INDEX,
-                            SchemaType.INTEGER,
-                            SchemaType.LONG,
-                            SchemaType.FLOAT,
-                            SchemaType.DOUBLE,
-                        ),
-                    ],
-                ]),
-            ),
-            Event.outputEventMapEntry(
-                new Map([
-                    [
-                        VALUE,
-                        Schema.of(
-                            VALUE,
-                            SchemaType.INTEGER,
-                            SchemaType.LONG,
-                            SchemaType.FLOAT,
-                            SchemaType.DOUBLE,
-                        ),
-                    ],
-                ]),
-            ),
-        ]),
-    );
-
 export class RangeLoop extends AbstractFunction {
+    private readonly signature = new FunctionSignature('RangeLoop')
+        .setNamespace(Namespaces.SYSTEM_LOOP)
+        .setParameters(
+            new Map([
+                Parameter.ofEntry(
+                    FROM,
+                    Schema.of(
+                        FROM,
+                        SchemaType.INTEGER,
+                        SchemaType.LONG,
+                        SchemaType.FLOAT,
+                        SchemaType.DOUBLE,
+                    ).setDefaultValue(0),
+                ),
+                Parameter.ofEntry(
+                    TO,
+                    Schema.of(
+                        TO,
+                        SchemaType.INTEGER,
+                        SchemaType.LONG,
+                        SchemaType.FLOAT,
+                        SchemaType.DOUBLE,
+                    ).setDefaultValue(1),
+                ),
+                Parameter.ofEntry(
+                    STEP,
+                    Schema.of(
+                        STEP,
+                        SchemaType.INTEGER,
+                        SchemaType.LONG,
+                        SchemaType.FLOAT,
+                        SchemaType.DOUBLE,
+                    )
+                        .setDefaultValue(1)
+                        .setNot(new Schema().setConstant(0)),
+                ),
+            ]),
+        )
+        .setEvents(
+            new Map([
+                Event.eventMapEntry(
+                    Event.ITERATION,
+                    new Map([
+                        [
+                            INDEX,
+                            Schema.of(
+                                INDEX,
+                                SchemaType.INTEGER,
+                                SchemaType.LONG,
+                                SchemaType.FLOAT,
+                                SchemaType.DOUBLE,
+                            ),
+                        ],
+                    ]),
+                ),
+                Event.outputEventMapEntry(
+                    new Map([
+                        [
+                            VALUE,
+                            Schema.of(
+                                VALUE,
+                                SchemaType.INTEGER,
+                                SchemaType.LONG,
+                                SchemaType.FLOAT,
+                                SchemaType.DOUBLE,
+                            ),
+                        ],
+                    ]),
+                ),
+            ]),
+        );
     public getSignature(): FunctionSignature {
-        return SIGNATURE;
+        return this.signature;
     }
 
     protected async internalExecute(context: FunctionExecutionParameters): Promise<FunctionOutput> {

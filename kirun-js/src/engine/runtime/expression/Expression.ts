@@ -21,10 +21,21 @@ export class Expression extends ExpressionToken {
         op?: Operation,
     ) {
         super(expression ? expression : '');
+        if (op?.getOperator() == '..') {
+            if (!l) l = new ExpressionTokenValue('', '');
+            else if (!r) r = new ExpressionTokenValue('', '');
+        }
         if (l) this.tokens.push(l);
         if (r) this.tokens.push(r);
         if (op) this.ops.push(op);
         this.evaluate();
+        if (
+            !this.ops.isEmpty() &&
+            this.ops.peekLast().getOperator() == '..' &&
+            this.tokens.length == 1
+        ) {
+            this.tokens.push(new ExpressionToken(''));
+        }
     }
 
     public getTokens(): LinkedList<ExpressionToken> {
@@ -197,6 +208,9 @@ export class Expression extends ExpressionToken {
             if (Operation.OPERATORS_WITHOUT_SPACE_WRAP.has(op)) {
                 if (!StringUtil.isNullOrBlank(buff)) {
                     this.tokens.push(new ExpressionToken(buff));
+                    isPrevOp = false;
+                } else if (op == '..' && this.tokens.isEmpty()) {
+                    this.tokens.push(new ExpressionToken('0'));
                     isPrevOp = false;
                 }
                 this.checkUnaryOperator(
@@ -465,7 +479,7 @@ export class Expression extends ExpressionToken {
                         0,
                         temp instanceof Expression
                             ? (temp as Expression).toString()
-                            : temp.toString(),
+                            : temp?.toString(),
                     )
                     .insert(0, '(')
                     .append(')');
