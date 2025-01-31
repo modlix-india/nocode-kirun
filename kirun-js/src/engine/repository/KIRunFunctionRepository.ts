@@ -20,6 +20,7 @@ import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
 import { Repository } from '../Repository';
+import { ValidateSchema } from '../function/system/ValidateSchema';
 
 class SystemFunctionRepository implements Repository<Function> {
     private readonly map: Map<string, Map<string, Function>>;
@@ -48,6 +49,7 @@ class SystemFunctionRepository implements Repository<Function> {
                     mapEntry(new Print()),
                     mapEntry(new Wait()),
                     mapEntry(new Join()),
+                    mapEntry(new ValidateSchema())
                 ]),
             ],
         ]);
