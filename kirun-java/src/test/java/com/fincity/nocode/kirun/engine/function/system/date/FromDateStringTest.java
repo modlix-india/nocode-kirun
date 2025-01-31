@@ -29,9 +29,9 @@ class FromDateStringTest {
                                 new JsonPrimitive("yyyy-dd")));
 
         StepVerifier.create(fromDateString.execute(parameters)
-                .map(functionOutput -> functionOutput.allResults().get(0).getResult()
+                .map(functionOutput -> functionOutput.allResults().getFirst().getResult()
                         .get(FromDateString.EVENT_TIMESTAMP_NAME).getAsString()))
-                .expectNext("2024-" + LocalDate.now().getMonthValue() + "-03T00:00:00.000Z")
-                .verifyComplete();
+            .expectNext("2024-" + String.format("%02d", LocalDate.now().getMonthValue()) + "-03T00:00:00.000Z")
+            .verifyComplete();
     }
 }
