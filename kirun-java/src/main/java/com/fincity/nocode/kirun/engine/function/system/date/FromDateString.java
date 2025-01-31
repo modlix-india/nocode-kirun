@@ -43,9 +43,9 @@ public class FromDateString extends AbstractDateFunction {
         ZonedDateTime currentTime = ZonedDateTime.now();
 
         TemporalAccessor accessor = new DateTimeFormatterBuilder().appendPattern(DateUtil.toDateTimeFormat(format))
-                .parseDefaulting(ChronoField.YEAR, currentTime.get(ChronoField.YEAR))
-                .parseDefaulting(ChronoField.MONTH_OF_YEAR, currentTime.get(ChronoField.MONTH_OF_YEAR))
-                .parseDefaulting(ChronoField.DAY_OF_MONTH, currentTime.get(ChronoField.DAY_OF_MONTH))
+                .parseDefaulting(ChronoField.YEAR_OF_ERA, currentTime.getYear())
+                .parseDefaulting(ChronoField.MONTH_OF_YEAR, currentTime.getMonthValue())
+                .parseDefaulting(ChronoField.DAY_OF_MONTH, currentTime.getDayOfMonth())
                 .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
                 .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
                 .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
