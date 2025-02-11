@@ -24,10 +24,16 @@ public class Expression extends ExpressionToken {
 	public Expression(String expression) {
 
 		super(expression);
+		System.out.println("\n=== New Expression Instance Created ===");
+        System.out.println("Expression: " + expression);
 
 		if (expression == null || expression.isBlank())
 			throw new ExpressionEvaluationException(expression, "No expression found to evaluate");
-		this.evaluate();
+			System.out.println("Starting evaluation...");
+			this.evaluate();
+			System.out.println("After evaluation - Tokens: " + tokens);
+			System.out.println("After evaluation - Ops: " + ops);
+			System.out.println("=== Expression Instance Creation Complete ===\n");
 	}
 
 	public Expression(ExpressionToken token, Operation op) {
@@ -39,9 +45,16 @@ public class Expression extends ExpressionToken {
 	public Expression(ExpressionToken l, ExpressionToken r, Operation op) {
 
 		super("");
+		if (op != null && "..".equals(op.getOperator())) {
+            if (l == null) l = new ExpressionTokenValue("",new JsonPrimitive(""));
+            if (r == null || r.getExpression().isEmpty()) r = new ExpressionTokenValue("",new JsonPrimitive(""));
+        }		
 		this.tokens.push(l);
 		this.tokens.push(r);
 		this.ops.push(op);
+		if (!this.ops.isEmpty() && "..".equals(this.ops.peekLast().getOperator()) && this.tokens.size() == 1) {
+            this.tokens.push(new ExpressionToken(""));
+        }
 	}
 
 	public LinkedList<ExpressionToken> getTokens() { // NOSONAR - LinkedList is required
@@ -53,6 +66,8 @@ public class Expression extends ExpressionToken {
 	}
 
 	private void evaluate() {
+		System.out.println("\n--- Evaluate Method Start ---");
+        System.out.println("Processing expression: " + this.expression);
 
 		final int length = this.expression.length();
 		char chr = 0;
@@ -61,11 +76,21 @@ public class Expression extends ExpressionToken {
 		String buff = null;
 		int i = 0;
 		boolean isPrevOp = false;
+		
 
 		while (i < length) {
 
 			chr = this.expression.charAt(i);
 			buff = sb.toString();
+
+			System.out.println("\nEvaluate Loop State:");
+            System.out.println("Position: " + i);
+            System.out.println("Current char: '" + chr + "'");
+            System.out.println("Current buffer: '" + buff + "'");
+            System.out.println("StringBuilder content: '" + sb + "'");
+            System.out.println("Current tokens: " + tokens);
+            System.out.println("Current ops: " + ops);
+            System.out.println("isPrevOp: " + isPrevOp);
 
 			switch (chr) {
 			case ' ': {
@@ -110,12 +135,13 @@ public class Expression extends ExpressionToken {
 				break;
 			}
 			default:
-
 				Tuple2<Integer, Boolean> result = processOthers(chr, length, sb, buff, i, isPrevOp);
+				System.out.println("result after processOthers: " + result);
 				i = result.getT1();
 				isPrevOp = result.getT2();
 				if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
 					result = process(length, sb, i);
+					//System.out.println("result after process: " + result);
 					i = result.getT1();
 					isPrevOp = result.getT2();
 				}
@@ -125,6 +151,7 @@ public class Expression extends ExpressionToken {
 		}
 
 		buff = sb.toString();
+		System.out.println("Final buffer: '" + buff + "'");
 		if (!buff.isBlank()) {
 			if (OPERATORS.contains(buff)) {
 				throw new ExpressionEvaluationException(this.expression, "Expression is ending with an operator");
@@ -132,6 +159,7 @@ public class Expression extends ExpressionToken {
 				tokens.push(new ExpressionToken(buff));
 			}
 		}
+		System.out.println("--- Evaluate Method End ---\n");
 	}
 
 	private Tuple2<Integer, Boolean> processStringLiteral(final int length, char chr, int i) {
@@ -159,9 +187,13 @@ public class Expression extends ExpressionToken {
 	}
 
 	private Tuple2<Integer, Boolean> process(final int length, StringBuilder sb, int i) {
-
+		System.out.println("\n=== Process Method Start ===");
+        System.out.println("Current position: " + i);
+        System.out.println("Expression length: " + length);
+        System.out.println("Current expression: " + this.expression);
 		int cnt = 1;
 		++i;
+		System.out.println("Starting bracket processing at position: " + i);
 		while (i < length && cnt != 0) {
 			char c = this.expression.charAt(i);
 			if (c == ']')
@@ -173,33 +205,56 @@ public class Expression extends ExpressionToken {
 				i++;
 			}
 		}
-		this.tokens.push(new Expression(sb.toString()));
-		sb.setLength(0);
-
+		System.out.println("Final buffer content: '" + sb.toString() + "'");
+        System.out.println("Creating new Expression with buffer content");
+        this.tokens.push(new Expression(sb.toString()));
+        System.out.println("Current tokens after push: " + this.tokens);
+        sb.setLength(0);
+		
+        System.out.println("=== Process Method End ===\n");
 		return Tuples.of(i, false);
 	}
 
 	private Tuple2<Integer, Boolean> processOthers(char chr, final int length, StringBuilder sb, String buff, int i,
 	        boolean isPrevOp) {
-
+				System.out.println("\n*** ProcessOthers Method Start ***");
+				System.out.println("Processing char: '" + chr + "'");
+				System.out.println("Current buffer: '" + buff + "'");
+				System.out.println("StringBuilder content: '" + sb + "'");
+				System.out.println("Position: " + i);
+				System.out.println("isPrevOp: " + isPrevOp);
 		int start = length - i;
 		start = start < Operation.BIGGEST_OPERATOR_SIZE ? start : Operation.BIGGEST_OPERATOR_SIZE;
 
 		for (int size = start; size > 0; size--) {
 			String op = this.expression.substring(i, i + size);
+			System.out.println("Checking operator: '" + op + "'");			
 			if (OPERATORS_WITHOUT_SPACE_WRAP.contains(op)) {
+				System.out.println("Found operator: " + op);
 				if (!buff.isBlank()) {
 					tokens.push(new ExpressionToken(buff));
+					System.out.println("Pushed token: " + buff);
+					isPrevOp = false;
+				} else if("..".equals(op) && tokens.isEmpty()) {
+					tokens.push(new ExpressionToken("0"));
+					System.out.println("Pushed default token '0' for range start");
 					isPrevOp = false;
 				}
+				System.out.println("Before operator check - Tokens: " + tokens);
+                System.out.println("Before operator check - Ops: " + ops);
 				checkUnaryOperator(tokens, ops, Operation.OPERATION_VALUE_OF.get(op), isPrevOp);
+				System.out.println("After operator check - Tokens: " + tokens);
+                System.out.println("After operator check - Ops: " + ops);
 				isPrevOp = true;
 				sb.setLength(0);
+				System.out.println("*** ProcessOthers Method End ***\n");
 				return Tuples.of(i + size - 1, isPrevOp);
 			}
 		}
 
 		sb.append(chr);
+		System.out.println("Appended char to buffer: '" + sb + "'");
+        System.out.println("*** ProcessOthers Method End ***\n");
 		return Tuples.of(i, false);
 	}
 
@@ -322,30 +377,47 @@ public class Expression extends ExpressionToken {
 
 	private void checkUnaryOperator(Deque<ExpressionToken> tokens, Deque<Operation> ops, Operation op,
 	        boolean isPrevOp) {
-
-		if (isPrevOp || tokens.isEmpty()) {
-			if (UNARY_OPERATORS.contains(op))
+				System.out.println("\n+++ CheckUnaryOperator Method Start +++");
+				System.out.println("Checking operator: " + op);
+				System.out.println("Current tokens: " + tokens);
+				System.out.println("Current ops: " + ops);
+				System.out.println("isPrevOp: " + isPrevOp);		
+			if (isPrevOp || tokens.isEmpty()) {
+			if (UNARY_OPERATORS.contains(op)){
 				ops.push(UNARY_MAP.get(op));
-			else
+				System.out.println("Pushed unary operator: " + op);
+
+			}else{
+				System.out.println("ERROR: Extra operator found: " + op);
 				throw new ExpressionEvaluationException(this.expression,
 				        StringFormatter.format("Extra operator $ found.", op));
+					}
 		} else {
+			System.out.println("operators inelseof unary: " + ops);
+			System.out.println("op inelseof unary: " + op);
 			while (!ops.isEmpty() && hasPrecedence(op, ops.peek())) {
+                System.out.println("Processing operator precedence");
 
 				Operation prev = ops.pop();
-
-				if (UNARY_OPERATORS.contains(prev)) {
+				System.out.println("Popped operator: " + prev);
+								if (UNARY_OPERATORS.contains(prev)) {
 					ExpressionToken l = tokens.pop();
 					tokens.push(new Expression(l, prev));
+					System.out.println("Created unary expression with operator: " + prev);
 				} else {
 					ExpressionToken r = tokens.pop();
 					ExpressionToken l = tokens.pop();
 
 					tokens.push(new Expression(l, r, prev));
+					System.out.println("Created binary expression with operator: " + prev);
 				}
+				System.out.println("Current tokens after operation: " + tokens);
+
 			}
 			ops.push(op);
+            System.out.println("Pushed operator: " + op);
 		}
+		
 	}
 
 	private boolean hasPrecedence(Operation op1, Operation op2) {

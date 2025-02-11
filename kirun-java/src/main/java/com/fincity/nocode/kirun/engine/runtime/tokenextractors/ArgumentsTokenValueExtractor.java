@@ -20,8 +20,14 @@ public class ArgumentsTokenValueExtractor extends TokenValueExtractor {
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
+		System.out.println("token: " + token);
 
-		String[] parts = token.split("\\.");
+		String[] parts = token.split(REGEX_DOT);
+
+		System.out.println("Initial Parts: ");
+		for (String part : parts) {
+			System.out.println(part);
+		}
 
 		String key = parts[1];
 		int bIndex = key.indexOf('[');

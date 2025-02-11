@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ADDITION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.AND;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ARRAY_OPERATOR;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.ARRAY_RANGE_INDEX_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_AND;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_LEFT_SHIFT;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWISE_OR;
@@ -42,6 +43,7 @@ import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.Arith
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticMultiplicationOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticSubtractionOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArrayOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArrayRangeOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BinaryOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BitwiseAndOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.BitwiseLeftShiftOperator;
@@ -103,7 +105,8 @@ public class ExpressionEvaluator {
 			Map.entry(NOT_EQUAL, new LogicalNotEqualOperator()),
 			Map.entry(NULLISH_COALESCING_OPERATOR, new LogicalNullishCoalescingOperator()),
 
-			Map.entry(ARRAY_OPERATOR, new ArrayOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
+			Map.entry(ARRAY_OPERATOR, new ArrayOperator()),
+			Map.entry(ARRAY_RANGE_INDEX_OPERATOR, new ArrayRangeOperator()), Map.entry(OBJECT_OPERATOR, new ObjectOperator())));
 
 	private static final Map<Operation, TernaryOperator> TERNARY_OPERATORS_MAP = new EnumMap<>(
 			Map.ofEntries(Map.entry(CONDITIONAL_TERNARY_OPERATOR, new ConditionalTernaryOperator())));
@@ -115,6 +118,8 @@ public class ExpressionEvaluator {
 	private ExpressionInternalValueExtractor internalTokenValueExtractor = new ExpressionInternalValueExtractor();
 
 	public ExpressionEvaluator(String expression) {
+		System.out.println("ExpressionEvaluatorStarted...");
+		//System.out.println(expression);
 		this.expression = expression;
 	}
 
@@ -124,18 +129,25 @@ public class ExpressionEvaluator {
 	}
 
 	public JsonElement evaluate(Map<String, TokenValueExtractor> valuesMap) {
+		System.out.println("ExpressionEvaluator.evaluate() started...");
+		System.out.println("Evaluating expression: " + this.expression);
+		System.out.println("ValuesMap before: " + valuesMap.keySet());
 
 		Tuple2<String, Expression> tuple = this.processNestingExpression(this.expression, valuesMap);
+		System.out.println("ProcessNestedExpression Completed" );
+		System.out.println("Tuple after processNestedOperationCompleted: " + tuple);
 		this.expression = tuple.getT1();
 		this.exp = tuple.getT2();
 		valuesMap = new HashMap<>(valuesMap);
 		valuesMap.put(this.internalTokenValueExtractor.getPrefix(), this.internalTokenValueExtractor);
+		System.out.println("ValuesMap after: " + valuesMap.keySet());
 
 		return this.evaluateExpression(exp, valuesMap);
 	}
 
 	private Tuple2<String, Expression> processNestingExpression(String expression,
 			Map<String, TokenValueExtractor> valuesMap) {
+				System.out.println("processNestingExpression() started...");
 
 		int start = 0;
 		int i = 0;
@@ -170,6 +182,7 @@ public class ExpressionEvaluator {
 		}
 
 		String newExpression = replaceNestingExpression(expression, valuesMap, tuples);
+		System.out.println("New Expression in ProcessNesting after replaceNestingExp: " + newExpression);
 
 		return Tuples.of(newExpression, new Expression(newExpression));
 	}
@@ -178,6 +191,8 @@ public class ExpressionEvaluator {
 			LinkedList<Tuple2<Integer, Integer>> tuples) {
 
 		String newExpression = expression;
+
+		System.out.println(tuples);
 
 		for (var tuple : tuples) {
 
@@ -207,9 +222,15 @@ public class ExpressionEvaluator {
 	}
 
 	private JsonElement evaluateExpression(Expression exp, Map<String, TokenValueExtractor> valuesMap) {
+		System.out.println("evaluateExpression() in ExpressionEvalutaor started...");
+		System.out.println("expression in  ExpressionEvaluator.java: " + exp);
+		System.out.println("ValuesMap in ExpressionEvaluator.java: " + valuesMap.keySet());
+
 
 		LinkedList<Operation> ops = exp.getOperations();
 		LinkedList<ExpressionToken> tokens = exp.getTokens();
+		System.out.println("Operations: " + ops);
+		System.out.println("Tokens: " + tokens);
 
 		while (!ops.isEmpty()) {
 
@@ -258,29 +279,35 @@ public class ExpressionEvaluator {
 		LinkedList<ExpressionToken> objTokens = new LinkedList<>();
 		LinkedList<Operation> objOperations = new LinkedList<>();
 
+		System.out.println("Starting processObjectOrArrayOperator...");
+
 		do {
+			System.out.println("Processing operator: " + operator + ", token: " + token);
 			objOperations.push(operator);
-			if (token instanceof Expression ex)
+			if (token instanceof Expression ex){
+				System.out.println("Evaluating nested expression: " + token);
 				objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
-			else
+			}else{
 				objTokens.push(token);
-			token = tokens.isEmpty() ? null : tokens.pop();
+			}token = tokens.isEmpty() ? null : tokens.pop();
 			operator = ops.isEmpty() ? null : ops.pop();
-		} while (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR);
+		} while (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR );
 
 		if (token != null) {
-			if (token instanceof Expression ex)
+			if (token instanceof Expression ex){
+				System.out.println("Evaluating last nested expression: " + token);
 				objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
-			else
-				objTokens.push(token);
+			}else{
+			objTokens.push(token);
 		}
-
+	}
 		if (operator != null)
 			ops.push(operator);
 
 		ExpressionToken objToken = objTokens.pop();
 
 		if (objToken instanceof ExpressionTokenValue vtoken && !vtoken.getElement().isJsonPrimitive()) {
+			System.out.println("Processed token value: " + vtoken.getElement());
 
 			final String key = System.nanoTime() + "" + Math.round(Math.random() * 1000);
 			this.internalTokenValueExtractor.addValue(key, vtoken.getElement());
@@ -293,6 +320,7 @@ public class ExpressionEvaluator {
 		while (!objTokens.isEmpty()) {
 			objToken = objTokens.pop();
 			operator = objOperations.pop();
+			System.out.println("Appending operator: " + operator.getOperator() + " and token: " + objToken);
 			sb.append(operator.getOperator())
 					.append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
 							.getAsString() : objToken.toString()));
@@ -301,14 +329,18 @@ public class ExpressionEvaluator {
 		}
 
 		String str = sb.toString();
+		System.out.println("Final expression string: " + str);
 		String key = str.substring(0, str.indexOf('.') + 1);
-		if (key.length() > 2 && valuesMap.containsKey(key))
+		if (key.length() > 2 && valuesMap.containsKey(key)){
+		System.out.println("Found key in valuesMap: " + key);
 			tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
-		else {
+		}else {
 			JsonElement v = null;
 			try {
 				v = LiteralTokenValueExtractor.INSTANCE.getValue(str);
+				System.out.println("Extracted literal value: " + v);
 			} catch (Exception ex) {
+				System.out.println("Error extracting literal value, treating as string: " + str);
 				v = new JsonPrimitive(str);
 			}
 			tokens.push(new ExpressionTokenValue(str, v));

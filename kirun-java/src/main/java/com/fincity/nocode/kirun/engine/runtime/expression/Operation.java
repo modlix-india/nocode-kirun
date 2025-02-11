@@ -22,7 +22,7 @@ public enum Operation {
 	UNARY_PLUS("UN: +", "+"), UNARY_MINUS("UN: -", "-"), UNARY_LOGICAL_NOT("UN: not", "not"),
 	UNARY_BITWISE_COMPLEMENT("UN: ~", "~"),
 
-	ARRAY_OPERATOR("["), OBJECT_OPERATOR("."),
+	ARRAY_OPERATOR("["), OBJECT_OPERATOR("."), ARRAY_RANGE_INDEX_OPERATOR(".."),
 
 	CONDITIONAL_TERNARY_OPERATOR("?"),
 
@@ -45,6 +45,7 @@ public enum Operation {
 	public static final Map<Operation, Integer> OPERATOR_PRIORITY = Collections.unmodifiableMap(new EnumMap<>(
 	        Map.ofEntries(Map.entry(UNARY_PLUS, 1), Map.entry(UNARY_MINUS, 1), Map.entry(UNARY_LOGICAL_NOT, 1),
 	                Map.entry(UNARY_BITWISE_COMPLEMENT, 1), Map.entry(ARRAY_OPERATOR, 1), Map.entry(OBJECT_OPERATOR, 1),
+					Map.entry(ARRAY_RANGE_INDEX_OPERATOR, 2),
 	                Map.entry(MULTIPLICATION, 2), Map.entry(DIVISION, 2), Map.entry(MOD, 2), Map.entry(ADDITION, 3),
 	                Map.entry(SUBTRACTION, 3), Map.entry(BITWISE_LEFT_SHIFT, 4), Map.entry(BITWISE_RIGHT_SHIFT, 4),
 	                Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, 4), Map.entry(LESS_THAN, 5), Map.entry(LESS_THAN_EQUAL, 5),
@@ -55,14 +56,14 @@ public enum Operation {
 
 	public static final Set<String> OPERATORS = Collections.unmodifiableSet(Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(),
-	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR), CONDITIONAL_OPERATORS.stream())
+	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR,ARRAY_RANGE_INDEX_OPERATOR), CONDITIONAL_OPERATORS.stream())
 	        .flatMap(Function.identity())
 	        .map(Operation::getOperator)
 	        .collect(Collectors.toSet()));
 
 	public static final Set<String> OPERATORS_WITHOUT_SPACE_WRAP = Collections.unmodifiableSet(Stream
 	        .of(ARITHMETIC_OPERATORS.stream(), LOGICAL_OPERATORS.stream(), BITWISE_OPERATORS.stream(),
-	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR), CONDITIONAL_OPERATORS.stream())
+	                Stream.of(ARRAY_OPERATOR, OBJECT_OPERATOR, ARRAY_RANGE_INDEX_OPERATOR), CONDITIONAL_OPERATORS.stream())
 	        .flatMap(Function.identity())
 	        .filter(Predicate.not(Operation::shouldBeWrappedInSpace))
 	        .map(Operation::getOperator)
