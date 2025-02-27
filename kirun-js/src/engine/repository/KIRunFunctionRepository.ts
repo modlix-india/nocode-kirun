@@ -21,7 +21,6 @@ import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
 import { Repository } from '../Repository';
 import { ValidateSchema } from '../function/system/ValidateSchema';
-import { HashData } from '../function/system/HashData';
 
 class SystemFunctionRepository implements Repository<Function> {
     private readonly map: Map<string, Map<string, Function>>;
@@ -50,8 +49,7 @@ class SystemFunctionRepository implements Repository<Function> {
                     mapEntry(new Print()),
                     mapEntry(new Wait()),
                     mapEntry(new Join()),
-                    mapEntry(new ValidateSchema()),
-                    mapEntry(new HashData())
+                    mapEntry(new ValidateSchema())
                 ]),
             ],
         ]);
