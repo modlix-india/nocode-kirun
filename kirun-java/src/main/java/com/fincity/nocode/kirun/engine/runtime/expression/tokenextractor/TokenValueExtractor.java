@@ -17,7 +17,6 @@ import com.google.gson.JsonPrimitive;
 public abstract class TokenValueExtractor {
 
     public static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
-    //public static final String REGEX_DOT = "\\.";
     public static final String REGEX_DOT = "(?<!\\.)\\.(?!\\.)";
 
 
@@ -86,21 +85,11 @@ public abstract class TokenValueExtractor {
                 StringFormatter.format("Length can't be found in token $", token));
     }
 
-    // private JsonElement handleArrayAccess(String token, String cPart, JsonArray cArray) {
-    // 	try {
-    // 		int index = Integer.parseInt(cPart);
-    // 		return (index < cArray.size()) ? cArray.get(index) : null;
-    // 	} catch (NumberFormatException ex) {
-    // 		throw new ExpressionEvaluationException(token,
-    // 				StringFormatter.format("$ couldn't be parsed into integer in $", cPart, token));
-    // 	}
-    // }
     private JsonElement handleArrayAccess(String token, String cPart, JsonElement cElement) {
 
         if (!cElement.isJsonArray() && !cElement.isJsonPrimitive()) {
             throw new ExpressionEvaluationException(token, "Element is not an array or string");
         }
-
 
         int dotDotIndex = cPart.indexOf("..");
         if (dotDotIndex >= 0) {
@@ -108,12 +97,12 @@ public abstract class TokenValueExtractor {
             String endIndexStr = cPart.substring(dotDotIndex + 2);
 
             int intStart = StringUtil.isNullOrBlank(startIndexStr) ? 0 : Integer.parseInt(startIndexStr);
+
             intStart = adjustIndex(intStart, cElement);
 
-            int intEnd = (endIndexStr == null || endIndexStr.isEmpty()) ?
+            int intEnd = endIndexStr.isEmpty() ?
                     (cElement.isJsonPrimitive() ? cElement.getAsString().length() : cElement.getAsJsonArray().size())
                     : Integer.parseInt(endIndexStr);
-
 
             intEnd = adjustIndex(intEnd, cElement);
 

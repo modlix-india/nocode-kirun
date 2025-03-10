@@ -234,8 +234,6 @@ public class ExpressionEvaluator {
                 var v3 = getValueFromToken(valuesMap, token);
                 tokens.push(applyOperation(operator, v1, v2, v3));
 
-//				else if( operator == ARRAY_RANGE_INDEX_OPERATOR){
-
             } else {
                 ExpressionToken token2 = tokens.pop();
                 var v1 = getValueFromToken(valuesMap, token2);
