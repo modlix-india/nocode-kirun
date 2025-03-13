@@ -21,6 +21,8 @@ import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
 import { Repository } from '../Repository';
 import { ValidateSchema } from '../function/system/ValidateSchema';
+import { JSONParse } from '../function/system/json/JSONParse';
+import { JSONStringify } from '../function/system/json/JSONStringify';
 
 class SystemFunctionRepository implements Repository<Function> {
     private readonly map: Map<string, Map<string, Function>>;
@@ -28,6 +30,10 @@ class SystemFunctionRepository implements Repository<Function> {
 
     public constructor() {
         this.map = new Map([
+            [
+                Namespaces.SYSTEM_JSON,
+                new Map([mapEntry(new JSONParse()), mapEntry(new JSONStringify())]),
+            ],
             [
                 Namespaces.SYSTEM_CTX,
                 new Map([mapEntry(new Create()), mapEntry(new Get()), mapEntry(new SetFunction())]),
@@ -49,7 +55,7 @@ class SystemFunctionRepository implements Repository<Function> {
                     mapEntry(new Print()),
                     mapEntry(new Wait()),
                     mapEntry(new Join()),
-                    mapEntry(new ValidateSchema())
+                    mapEntry(new ValidateSchema()),
                 ]),
             ],
         ]);
