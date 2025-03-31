@@ -7,6 +7,7 @@ import { Type } from './type/Type';
 import { isNullValue } from '../../util/NullCheck';
 import { SingleType } from './type/SingleType';
 import { MultipleType } from './type/MultipleType';
+import { UiHelper } from './uiHelper/UiHelper';;
 
 const ADDITIONAL_PROPERTY: string = 'additionalProperty';
 const ADDITIONAL_ITEMS: string = 'additionalItems';
@@ -170,7 +171,10 @@ export class Schema {
                         new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)),
                     ),
                 ],
-
+                [
+                    'uiHelper',
+                    Schema.of('uiHelper', SchemaType.OBJECT).setUiHelper(new UiHelper()),
+                ],
                 [
                     ITEMS_STRING,
                     new Schema()
@@ -389,6 +393,8 @@ export class Schema {
 
         schema.details = obj.details ? new Map(Object.entries(obj.details)) : undefined;
 
+        schema.uiHelper = obj.uiHelper ? UiHelper.from(obj.uiHelper) : undefined;
+
         return schema;
     }
 
@@ -449,6 +455,8 @@ export class Schema {
 
     private details?: Map<string, any>;
 
+    private uiHelper?: UiHelper;
+
     public constructor(schema?: Schema) {
         if (!schema) return;
 
@@ -464,7 +472,7 @@ export class Schema {
                     ? new SingleType(schema.type as SingleType)
                     : new MultipleType(schema.type as MultipleType);
         }
-
+        console.log('Schema.from', schema);
         this.anyOf = schema.anyOf?.map((x) => new Schema(x));
 
         this.allOf = schema.allOf?.map((x) => new Schema(x));
@@ -536,6 +544,8 @@ export class Schema {
         this.details = schema.details
             ? new Map(JSON.parse(JSON.stringify(Array.from(schema.details.values()))))
             : undefined;
+
+        this.uiHelper = schema.uiHelper;
     }
 
     public getTitle(): string | undefined {
@@ -853,5 +863,14 @@ export class Schema {
     public setDetails(details: Map<string, any>): Schema {
         this.details = details;
         return this;
+    }
+
+    public setUiHelper(uiHelper: UiHelper): Schema {
+        this.uiHelper = uiHelper;
+        return this;
+    }
+
+    public getUiHelper(): UiHelper | undefined {
+        return this.uiHelper;
     }
 }

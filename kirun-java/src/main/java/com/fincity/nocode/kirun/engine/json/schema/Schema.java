@@ -118,10 +118,11 @@ public class Schema implements Serializable {
 									new AdditionalType().setSchemaValue(Schema.ofRef(SCHEMA_ROOT_PATH)))),
 
 					entry("permission", ofString("permission")),
+					entry("uiHelper", Schema.ofObject("uiHelper")),
 
 					entry("details", ofObject("details"))))
 			.setRequired(List.of());
-
+			
 	public static Schema ofString(String id) {
 		return new Schema().setType(Type.of(SchemaType.STRING))
 				.setName(id);
@@ -248,6 +249,8 @@ public class Schema implements Serializable {
 
 	private Map<String, Object> details; // NOSONAR - needed as per json schema
 
+	private Map<String, Object> uiHelper;
+
 	public String getTitle() {
 
 		if (this.namespace == null || this.namespace.equals(TEMPORARY))
@@ -364,5 +367,10 @@ public class Schema implements Serializable {
 		this.permission = schema.permission;
 
 		this.details = schema.details == null ? null : Map.copyOf(schema.details);
+
+		this.uiHelper = schema.uiHelper == null ? null
+                : schema.uiHelper.entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 }
