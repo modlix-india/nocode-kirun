@@ -7,6 +7,8 @@ import {
     Type,
     TypeUtil,
 } from '../../../../../src';
+import { Minimum } from '../../../../../src/engine/function/system/math/Minimum';
+import { UiHelper } from '../../../../../src/engine/json/schema/uiHelper/UiHelper';
 
 const repo = new KIRunSchemaRepository();
 
@@ -297,3 +299,36 @@ test('Schema Validator pass with time test ', async () => {
 });
 
 const dateTimeObj = { dateTime: '2023-08-21T07:56:45+12:12' };
+
+
+test('Schema Validator fail with custom minValue and maxValue messages', async () => {
+    let intSchema: Schema = new Schema()
+        .setType(TypeUtil.of(SchemaType.INTEGER))
+        .setMinimum(10)
+        .setMaximum(20)
+        .setUiHelper(
+            new UiHelper()
+                .setMinValueMessage('Custom minValue message for {value}')
+                .setMaxValueMessage('Custom maxValue message for {value}')
+        );
+
+    let objSchema: Schema = Schema.ofObject('testObj')
+        .setProperties(
+            new Map<string, Schema>([
+                ['intSchema', intSchema],
+                ['name', Schema.ofString('name').setMinLength(5)],
+            ]),
+        )
+        .setRequired(['intSchema', 'name']);
+
+    const belowMinObj = { intSchema: 5, name: 'sampleName' };
+    const aboveMaxObj = { intSchema: 25, name: 'sampleName' };
+
+     expect(SchemaValidator.validate([], objSchema, repo, belowMinObj)).rejects.toThrow(
+        'Custom minValue message for 5',
+    );
+
+     expect(SchemaValidator.validate([], objSchema, repo, aboveMaxObj)).rejects.toThrow(
+        'Custom maxValue message for 25',
+    );
+});

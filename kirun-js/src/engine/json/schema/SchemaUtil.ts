@@ -167,5 +167,22 @@ export class SchemaUtil {
         return Promise.resolve(new Tuple2(schema, ref));
     }
 
+    public static customMessageProcessor(msg: string|undefined, value: any): string|undefined {
+        if (isNullValue(msg)) return undefined;
+
+        let index: number = 0;
+
+        while ((index = msg!.indexOf('{value}', index)) !== -1) {
+            
+            if (msg![index - 1] === '\\')
+                continue;
+            
+            msg = msg!.substring(0, index) + value + msg!.substring(index + 7);
+            index ++;
+        }
+
+        return msg;
+    }
+
     private constructor() {}
 }

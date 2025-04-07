@@ -1,10 +1,10 @@
 export class UiHelper {
     private validationMessages: { [key: string]: string } = {};
-    private componentPriority?: string;
+    private componentPreferred?: string;
 
     constructor(obj?: any) {
         this.validationMessages = obj?.validationMessages || {};
-        this.componentPriority = obj?.componentPriority;
+        this.componentPreferred = obj?.componentPreferred;
     }
 
     public setValidationMessage(type: string, message: string): UiHelper {
@@ -48,14 +48,6 @@ export class UiHelper {
         return this.getValidationMessage('pattern');
     }
 
-    public setFormatMessage(message: string): UiHelper {
-        return this.setValidationMessage('format', message);
-    }
-
-    public getFormatMessage(): string | undefined {
-        return this.getValidationMessage('format');
-    }
-
     public setMinValueMessage(message: string): UiHelper {
         return this.setValidationMessage('minimum', message);
     }
@@ -84,7 +76,7 @@ export class UiHelper {
         return this.setValidationMessage('exclusiveMinimum', message);
     }
 
-    public getExclusiveMinimumMessage(): string | undefined {
+    public getExclusiveMinMessage(): string | undefined {
         return this.getValidationMessage('exclusiveMinimum');
     }
 
@@ -95,12 +87,12 @@ export class UiHelper {
         return this.getValidationMessage('multipleOf');
     }
 
-    public getComponentPriority(): string | undefined {
-        return this.componentPriority;
+    public getComponentPreferred(): string | undefined {
+        return this.componentPreferred;
     }
 
-    public setComponentPriority(component: string): UiHelper {
-        this.componentPriority = component;
+    public setComponentPreferred(component: string): UiHelper {
+        this.componentPreferred = component;
         return this;
     }
 

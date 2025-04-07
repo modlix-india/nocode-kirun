@@ -7,16 +7,16 @@ import java.util.Optional;
 public class UiHelper {
 
     private Map<String, String> validationMessages;
-    private String componentPriority;
+    private String componentPreferred;
 
     public UiHelper() {
         this.validationMessages = new HashMap<>();
-        this.componentPriority = null;
+        this.componentPreferred = null;
     }
 
-    public UiHelper(Map<String, String> validationMessages, String componentPriority) {
+    public UiHelper(Map<String, String> validationMessages, String componentPreferred) {
         this.validationMessages = Optional.ofNullable(validationMessages).orElse(new HashMap<>());
-        this.componentPriority = componentPriority;
+        this.componentPreferred = componentPreferred;
     }
 
     public UiHelper setValidationMessage(String type, String message) {
@@ -60,14 +60,6 @@ public class UiHelper {
         return this.getValidationMessage("pattern");
     }
 
-    public UiHelper setFormatMessage(String message) {
-        return this.setValidationMessage("format", message);
-    }
-
-    public String getFormatMessage() {
-        return this.getValidationMessage("format");
-    }
-
     public UiHelper setMinValueMessage(String message) {
         return this.setValidationMessage("minimum", message);
     }
@@ -103,16 +95,17 @@ public class UiHelper {
     public UiHelper setMultipleOfMessage(String message) {
         return this.setValidationMessage("multipleOf", message);
     }
+
     public String getMultipleOfMessage() {
         return this.getValidationMessage("multipleOf");
     }
 
-    public String getComponentPriority() {
-        return componentPriority;
+    public String getComponentPreferred() {
+        return componentPreferred;
     }
 
-    public UiHelper setComponentPriority(String componentPriority) {
-        this.componentPriority = componentPriority;
+    public UiHelper setComponentPreferred(String componentPreferred) {
+        this.componentPreferred = componentPreferred;
         return this;
     }
 
@@ -133,9 +126,9 @@ public class UiHelper {
             });
         }
 
-        String componentPriority = obj.get("componentPriority") instanceof String
-                ? (String) obj.get("componentPriority")
+        String componentPreferred = obj.get("componentPreferred") instanceof String
+                ? (String) obj.get("componentPreferred")
                 : null;
-        return new UiHelper(validationMessages, componentPriority);
+        return new UiHelper(validationMessages, componentPreferred);
     }
 }

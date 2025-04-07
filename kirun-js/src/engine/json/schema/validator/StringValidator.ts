@@ -1,5 +1,6 @@
 import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
+import { SchemaUtil } from '../SchemaUtil';
 import { StringFormat } from '../string/StringFormat';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
@@ -76,12 +77,18 @@ export class StringValidator {
         if (schema.getMinLength() && length < schema.getMinLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                'Expected a minimum of ' + schema.getMinLength() + ' characters',
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getMinLengthMessage(),
+                    element,
+                ) ?? 'Expected a minimum of ' + schema.getMinLength() + ' characters',
             );
         } else if (schema.getMaxLength() && length > schema.getMaxLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                'Expected a maximum of ' + schema.getMaxLength() + ' characters',
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getMaxLengthMessage(),
+                    element,
+                ) ?? 'Expected a maximum of ' + schema.getMaxLength() + ' characters',
             );
         }
 
@@ -99,7 +106,10 @@ export class StringValidator {
         if (!matched) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not matched with the ' + message,
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getPatternMessage(),
+                    element,
+                ) ?? element.toString() + ' is not matched with the ' + message,
             );
         }
     }

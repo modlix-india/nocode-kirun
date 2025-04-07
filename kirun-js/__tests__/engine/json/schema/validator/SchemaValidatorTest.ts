@@ -174,3 +174,64 @@ test('Schema Validator Test 3', async () => {
         ),
     ).toMatchObject(obj1);
 });
+
+test('Custom message validation - 1', async () => {
+    const schema = Schema.from({
+        type: 'STRING',
+        name: 'test',
+        namespace: 'test',
+        minLength: 5,
+        uiHelper: {
+            validationMessages: {
+                minLength:
+                    'Custom minLength message is not matching {value}, you cannot use this value {value}',
+            },
+        },
+    });
+
+    const obj = '1234';
+    expect(SchemaValidator.validate(undefined, schema, repo, obj)).rejects.toThrow(
+        'Custom minLength message is not matching 1234, you cannot use this value 1234',
+    );
+});
+
+test('Custom message validation - 2', async () => {
+    const schema = Schema.from({
+        type: 'STRING',
+        name: 'test',
+        namespace: 'test',
+        maxLength: 15,
+        uiHelper: {
+            validationMessages: {
+                maxLength:
+                    'Custom maxLength message is not matching {value}, you cannot use this value {value}',
+            },
+        },
+    });
+
+    const obj = '1234567890123456';
+    expect(SchemaValidator.validate(undefined, schema, repo, obj)).rejects.toThrow(
+        'Custom maxLength message is not matching 1234567890123456, you cannot use this value 1234567890123456',
+    );
+});
+
+test('Custom message validation - 3', async () => {
+    const schema = Schema.from({
+        type: 'STRING',
+        name: 'test',
+        namespace: 'test',
+        format: 'REGEX',
+        pattern: '^[A-Z]+$',
+        uiHelper: {
+            validationMessages: {
+                pattern:
+                    'Custom pattern message is not matching {value}, you cannot use this value {value}',
+            },
+        },
+    });
+
+    const obj = 'ABCDe';
+    expect(SchemaValidator.validate(undefined, schema, repo, obj)).rejects.toThrow(
+        'Custom pattern message is not matching ABCDe, you cannot use this value ABCDe',
+    );
+});

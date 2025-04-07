@@ -64,7 +64,6 @@ test('setValidationMessage() should work correctly with multiple validation type
         .setPatternMessage('Invalid pattern!')
         .setMinValueMessage('Value too low')
         .setMaxValueMessage('Value too high')
-        .setFormatMessage('Invalid format type');
 
     expect(uiHelper.getRequiredMessage()).toBe('Required!');
     expect(uiHelper.getMinLengthMessage()).toBe('Minimum 3 characters');
@@ -72,19 +71,18 @@ test('setValidationMessage() should work correctly with multiple validation type
     expect(uiHelper.getPatternMessage()).toBe('Invalid pattern!');
     expect(uiHelper.getMinValueMessage()).toBe('Value too low');
     expect(uiHelper.getMaxValueMessage()).toBe('Value too high');
-    expect(uiHelper.getFormatMessage()).toBe('Invalid format type');
 });
 
 
-test('setComponentPriority() should set and retrieve component priority', () => {
-    const uiHelper = new UiHelper().setComponentPriority('RadioButton');
+test('setComponentPreferred() should set and retrieve component Preferred', () => {
+    const uiHelper = new UiHelper().setComponentPreferred('RadioButton');
 
-    expect(uiHelper.getComponentPriority()).toBe('RadioButton');
+    expect(uiHelper.getComponentPreferred()).toBe('RadioButton');
 });
 
-test('UiHelper.from() should initialize componentPriority if provided', () => {
-    const obj = { componentPriority: 'Dropdown' };
+test('UiHelper.from() should initialize componentPreferred if provided', () => {
+    const obj = { componentPreferred: 'Dropdown' };
     const uiHelper = UiHelper.from(obj);
 
-    expect(uiHelper?.getComponentPriority()).toBe('Dropdown');
+    expect(uiHelper?.getComponentPreferred()).toBe('Dropdown');
 });

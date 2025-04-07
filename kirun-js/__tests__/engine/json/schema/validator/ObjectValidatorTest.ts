@@ -7,6 +7,7 @@ import {
     SchemaType,
     SchemaValidator,
 } from '../../../../../src';
+import { UiHelper } from '../../../../../src/engine/json/schema/uiHelper/UiHelper';
 
 const repo = new KIRunSchemaRepository();
 
@@ -281,4 +282,27 @@ test('Schema test with object value as null for any', async () => {
 
     var res3 = await SchemaValidator.validate(undefined, filterCondition, repo, tempOb2);
     expect(res3).toStrictEqual(tempOb2);
+});
+
+test('Schema Validator should fail for missing required field with custom message', async () => {
+    const schema = Schema.from({
+        type: 'OBJECT',
+        properties: {
+            name: { type: 'STRING' },
+            age: { type: 'INTEGER' },
+        },
+        required: ['name'],
+    });
+
+    schema?.setUiHelper(
+        new UiHelper().setRequiredMessage('The {value} is required and cannot be null or undefined')
+    );
+
+    const objMissingName = {
+        age: 25,
+    };
+
+    expect(SchemaValidator.validate(undefined, schema, repo, objMissingName)).rejects.toThrow(
+        'The name is required and cannot be null or undefined',
+    );
 });

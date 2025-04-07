@@ -1,5 +1,6 @@
 import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
+import { SchemaUtil } from '../SchemaUtil';
 import { SchemaType } from '../type/SchemaType';
 import { SchemaValidationException } from './exception/SchemaValidationException';
 import { SchemaValidator } from './SchemaValidator';
@@ -66,7 +67,10 @@ export class NumberValidator {
             if (l1 % l2 != 0)
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
-                    element.toString() + ' is not multiple of ' + schema.getMultipleOf(),
+                    SchemaUtil.customMessageProcessor(
+                        schema.getUiHelper()?.getMultipleOfMessage(),
+                        element,
+                    ) ?? element.toString() + ' is not multiple of ' + schema.getMultipleOf(),
                 );
         }
     }
@@ -78,7 +82,13 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' should be greater than or equal to ' + schema.getMinimum(),
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getMinValueMessage(),
+                    element,
+                ) ??
+                    element.toString() +
+                        ' should be greater than or equal to ' +
+                        schema.getMinimum(),
             );
         }
 
@@ -88,7 +98,10 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' should be less than or equal to ' + schema.getMaximum(),
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getMaxValueMessage(),
+                    element,
+                ) ?? element.toString() + ' should be less than or equal to ' + schema.getMaximum(),
             );
         }
 
@@ -98,7 +111,10 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' should be greater than ' + schema.getExclusiveMinimum(),
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getExclusiveMinMessage(),
+                    element,
+                ) ?? element.toString() + ' should be greater than ' + schema.getExclusiveMinimum(),
             );
         }
 
@@ -108,7 +124,10 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' should be less than ' + schema.getExclusiveMaximum(),
+                SchemaUtil.customMessageProcessor(
+                    schema.getUiHelper()?.getExclusiveMaxMessage(),
+                    element,
+                ) ?? element.toString() + ' should be less than ' + schema.getExclusiveMaximum(),
             );
         }
     }

@@ -98,16 +98,22 @@ export class ObjectValidator {
         }
     }
 
-    private static checkRequired(parents: Schema[], schema: Schema, jsonObject: any) {
-        for (const key of schema.getRequired() ?? []) {
-            if (isNullValue(jsonObject[key])) {
-                throw new SchemaValidationException(
-                    SchemaValidator.path(parents),
-                    key + ' is mandatory',
-                );
-            }
+   private static checkRequired(parents: Schema[], schema: Schema, jsonObject: any) {
+    for (const key of schema.getRequired() ?? []) {
+        if (isNullValue(jsonObject[key])) {
+            const customMessage = SchemaUtil.customMessageProcessor(
+                schema.getUiHelper()?.getRequiredMessage(),
+                key,
+            );
+
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                customMessage ?? `${key} is mandatory`
+            );
         }
     }
+}
+
 
     private static async checkAdditionalProperties(
         parents: Schema[],

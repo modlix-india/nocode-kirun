@@ -6,6 +6,7 @@ import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaRef
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.util.string.StringUtil;
+import static com.fincity.nocode.kirun.engine.util.string.StringUtil.isNullOrBlank;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -15,163 +16,195 @@ import reactor.util.function.Tuples;
 
 public class ReactiveSchemaUtil {
 
-	public static final String UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH = "Unable to retrive schema from referenced path";
+    public static final String UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH = "Unable to retrive schema from referenced path";
 
-	public static final int CYCLIC_REFERENCE_LIMIT_COUNTER = 20;
+    public static final int CYCLIC_REFERENCE_LIMIT_COUNTER = 20;
 
-	public static Mono<JsonElement> getDefaultValue(Schema s, ReactiveRepository<Schema> sRepository) {
+    public static Mono<JsonElement> getDefaultValue(Schema s, ReactiveRepository<Schema> sRepository) {
 
-		if (s == null)
-			return Mono.just(JsonNull.INSTANCE);
+        if (s == null) {
+            return Mono.just(JsonNull.INSTANCE);
+        }
 
-		if (s.getConstant() != null)
-			return Mono.just(s.getConstant());
+        if (s.getConstant() != null) {
+            return Mono.just(s.getConstant());
+        }
 
-		if (s.getDefaultValue() != null)
-			return Mono.just(s.getDefaultValue());
+        if (s.getDefaultValue() != null) {
+            return Mono.just(s.getDefaultValue());
+        }
 
-		return getSchemaFromRef(s, sRepository, s.getRef(), 0)
+        return getSchemaFromRef(s, sRepository, s.getRef(), 0)
+                .flatMap(schema -> getDefaultValue(schema, sRepository))
+                .defaultIfEmpty(JsonNull.INSTANCE);
+    }
 
-				.flatMap(schema -> getDefaultValue(schema, sRepository))
+    public static Mono<Boolean> hasDefaultValueOrNullSchemaType(Schema s, ReactiveRepository<Schema> repo) {
+        if (s == null) {
+            return Mono.just(false);
+        }
 
-				.defaultIfEmpty(JsonNull.INSTANCE);
-	}
+        if (s.getConstant() != null) {
+            return Mono.just(true);
+        }
 
-	public static Mono<Boolean> hasDefaultValueOrNullSchemaType(Schema s, ReactiveRepository<Schema> repo) {
-		if (s == null)
-			return Mono.just(false);
+        if (s.getDefaultValue() != null) {
+            return Mono.just(true);
+        }
 
-		if (s.getConstant() != null)
-			return Mono.just(true);
+        if (s.getRef() == null) {
+            return Mono.just(s.getType()
+                    .getAllowedSchemaTypes()
+                    .contains(SchemaType.NULL));
+        }
+        return getSchemaFromRef(s, repo, s.getRef())
+                .flatMap(schema -> hasDefaultValueOrNullSchemaType(schema, repo))
+                .defaultIfEmpty(Boolean.FALSE);
+    }
 
-		if (s.getDefaultValue() != null)
-			return Mono.just(true);
+    public static Mono<Schema> getSchemaFromRef(Schema schema, ReactiveRepository<Schema> sRepository, String ref) {
+        return getSchemaFromRef(schema, sRepository, ref, 0);
+    }
 
-		if (s.getRef() == null) {
-			return Mono.just(s.getType()
-					.getAllowedSchemaTypes()
-					.contains(SchemaType.NULL));
-		}
-		return getSchemaFromRef(s, repo, s.getRef())
+    public static Mono<Schema> getSchemaFromRef(Schema schema, ReactiveRepository<Schema> sRepository, final String ref,
+            int iteration) {
 
-				.flatMap(schema -> hasDefaultValueOrNullSchemaType(schema, repo))
+        if (iteration == CYCLIC_REFERENCE_LIMIT_COUNTER) {
+            return Mono.error(() -> new SchemaValidationException(ref, "Schema has a cyclic reference"));
+        }
 
-				.defaultIfEmpty(Boolean.FALSE);
-	}
+        if (schema == null || ref == null || ref.isBlank()) {
+            return Mono.empty();
+        }
 
-	public static Mono<Schema> getSchemaFromRef(Schema schema, ReactiveRepository<Schema> sRepository, String ref) {
-		return getSchemaFromRef(schema, sRepository, ref, 0);
-	}
+        if (!ref.startsWith("#")) {
 
-	public static Mono<Schema> getSchemaFromRef(Schema schema, ReactiveRepository<Schema> sRepository, final String ref,
-			int iteration) {
+            return resolveExternalSchema(sRepository, ref).flatMap(tuple -> {
 
-		if (iteration == CYCLIC_REFERENCE_LIMIT_COUNTER)
-			return Mono.error(() -> new SchemaValidationException(ref, "Schema has a cyclic reference"));
+                Schema sch = tuple.getT1();
+                String updateRef = tuple.getT2();
 
-		if (schema == null || ref == null || ref.isBlank())
-			return Mono.empty();
+                String[] parts = ref.split("/");
+                int i = 1;
 
-		if (!ref.startsWith("#")) {
+                if (i == parts.length) {
+                    return Mono.just(sch);
+                }
 
-			return resolveExternalSchema(sRepository, ref).flatMap(tuple -> {
+                return resolveInternalSchema(sch, sRepository, updateRef, iteration + 1, parts, i);
+            });
+        }
 
-				Schema sch = tuple.getT1();
-				String updateRef = tuple.getT2();
+        String[] parts = ref.split("/");
+        int i = 1;
 
-				String[] parts = ref.split("/");
-				int i = 1;
+        if (i == parts.length) {
+            return Mono.just(schema);
+        }
 
-				if (i == parts.length)
-					return Mono.just(sch);
+        return resolveInternalSchema(schema, sRepository, ref, iteration + 1, parts, i);
+    }
 
-				return resolveInternalSchema(sch, sRepository, updateRef, iteration + 1, parts, i);
-			});
-		}
+    private static Mono<Schema> resolveInternalSchema(Schema sch, ReactiveRepository<Schema> sRepository, String ref, // NOSONAR
+            // Cannot split this logic as it doesn't make sense
+            int iteration, String[] parts, int index) {
 
-		String[] parts = ref.split("/");
-		int i = 1;
+        if (index == parts.length) {
+            return Mono.empty();
+        }
 
-		if (i == parts.length)
-			return Mono.just(schema);
+        return Mono.just(Tuples.of(sch, index))
+                .expand(tup -> {
 
-		return resolveInternalSchema(schema, sRepository, ref, iteration + 1, parts, i);
-	}
+                    int i = tup.getT2();
+                    if (i >= parts.length) {
+                        return Mono.empty();
+                    }
 
-	private static Mono<Schema> resolveInternalSchema(Schema sch, ReactiveRepository<Schema> sRepository, String ref, // NOSONAR
-			// Cannot split this logic as it doesn't make sense
-			int iteration, String[] parts, int index) {
+                    Schema schema = tup.getT1();
+                    if (parts[i].equals("$defs")) {
+                        i++;
 
-		if (index == parts.length)
-			return Mono.empty();
+                        if (i >= parts.length || schema.get$defs() == null || schema.get$defs()
+                                .isEmpty()) {
+                            return Mono.error(() -> new SchemaReferenceException(ref,
+                                    UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+                        }
 
-		return Mono.just(Tuples.of(sch, index))
-				.expand(tup -> {
+                        schema = schema.get$defs()
+                                .get(parts[i]);
+                    } else {
 
-					int i = tup.getT2();
-					if (i >= parts.length)
-						return Mono.empty();
+                        if (!schema.getType()
+                                .contains(SchemaType.OBJECT) || schema.getProperties() == null || schema.getProperties()
+                                .isEmpty()) {
+                            return Mono.error(() -> new SchemaReferenceException(ref,
+                                    "Cannot retrievie schema from non Object type schemas"));
+                        }
 
-					Schema schema = tup.getT1();
-					if (parts[i].equals("$defs")) {
-						i++;
+                        schema = schema.getProperties()
+                                .get(parts[i]);
+                    }
 
-						if (i >= parts.length || schema.get$defs() == null || schema.get$defs()
-								.isEmpty())
-							return Mono.error(() -> new SchemaReferenceException(ref,
-									UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+                    i++;
 
-						schema = schema.get$defs()
-								.get(parts[i]);
-					} else {
+                    final int incrementedIndex = i;
 
-						if (!schema.getType()
-								.contains(SchemaType.OBJECT) || schema.getProperties() == null || schema.getProperties()
-										.isEmpty())
-							return Mono.error(() -> new SchemaReferenceException(ref,
-									"Cannot retrievie schema from non Object type schemas"));
+                    if (schema == null) {
+                        return Mono.error(
+                                () -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+                    }
 
-						schema = schema.getProperties()
-								.get(parts[i]);
-					}
+                    if (!StringUtil.isNullOrBlank(schema.getRef())) {
+                        return getSchemaFromRef(schema, sRepository, schema.getRef(), iteration)
+                                .map(e -> Tuples.of(e, incrementedIndex))
+                                .switchIfEmpty(Mono.defer(() -> Mono.error(new SchemaReferenceException(ref,
+                                UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH))));
+                    }
 
-					i++;
+                    return Mono.just(Tuples.of(schema, incrementedIndex));
+                })
+                .last()
+                .map(Tuple2::getT1);
+    }
 
-					final int incrementedIndex = i;
+    private static Mono<Tuple2<Schema, String>> resolveExternalSchema(ReactiveRepository<Schema> sRepository,
+            String ref) {
+        String[] nms = StringUtil.splitAtFirstOccurance(ref, '/');
+        String[] nmspnm = StringUtil.splitAtLastOccurance(nms[0], '.');
 
-					if (schema == null)
-						return Mono.error(
-								() -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH));
+        return sRepository.find(nmspnm[0], nmspnm[1])
+                .flatMap(sch -> {
+                    if (nms[1] == null || nms[1].isBlank()) {
+                        return Mono.just(Tuples.of(sch, ref));
+                    }
 
-					if (!StringUtil.isNullOrBlank(schema.getRef())) {
-						return getSchemaFromRef(schema, sRepository, schema.getRef(), iteration)
-								.map(e -> Tuples.of(e, incrementedIndex))
-								.switchIfEmpty(Mono.defer(() -> Mono.error(new SchemaReferenceException(ref,
-										UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH))));
-					}
+                    return Mono.just(Tuples.of(sch, "#/" + nms[1]));
+                })
+                .switchIfEmpty(Mono
+                        .error(() -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH)));
+    }
 
-					return Mono.just(Tuples.of(schema, incrementedIndex));
-				})
-				.last()
-				.map(Tuple2::getT1);
-	}
+    public static String customMessageProcessor(String msg, Object value) {
+        if (isNullOrBlank(msg)) {
+            return null;
+        }
 
-	private static Mono<Tuple2<Schema, String>> resolveExternalSchema(ReactiveRepository<Schema> sRepository,
-			String ref) {
-		String[] nms = StringUtil.splitAtFirstOccurance(ref, '/');
-		String[] nmspnm = StringUtil.splitAtLastOccurance(nms[0], '.');
+        int index = 0;
 
-		return sRepository.find(nmspnm[0], nmspnm[1])
-				.flatMap(sch -> {
-					if (nms[1] == null || nms[1].isBlank())
-						return Mono.just(Tuples.of(sch, ref));
+        while ((index = msg.indexOf("{value}", index)) != -1) {
+            if (index > 0 && msg.charAt(index - 1) == '\\') {
+                index++;
+                continue;
+            }
 
-					return Mono.just(Tuples.of(sch, "#/" + nms[1]));
-				})
-				.switchIfEmpty(Mono
-						.error(() -> new SchemaReferenceException(ref, UNABLE_TO_RETRIVE_SCHEMA_FROM_REFERENCED_PATH)));
-	}
+            msg = msg.substring(0, index) + value + msg.substring(index + 7);
+            index++;
+        }
 
-	private ReactiveSchemaUtil() {
-	}
+        return msg;
+    }
+
+    private ReactiveSchemaUtil() {
+    }
 }
