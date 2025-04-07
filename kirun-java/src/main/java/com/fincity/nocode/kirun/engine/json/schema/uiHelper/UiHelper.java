@@ -2,21 +2,31 @@ package com.fincity.nocode.kirun.engine.json.schema.uiHelper;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class UiHelper {
 
-    private Map<String, String> validationMessages;
+    private Map<String, String> validationMessages = new HashMap<>();
     private String componentPreferred;
 
     public UiHelper() {
-        this.validationMessages = new HashMap<>();
-        this.componentPreferred = null;
     }
 
     public UiHelper(Map<String, String> validationMessages, String componentPreferred) {
-        this.validationMessages = Optional.ofNullable(validationMessages).orElse(new HashMap<>());
+        this.validationMessages = validationMessages != null ? validationMessages : new HashMap<>();
         this.componentPreferred = componentPreferred;
+    }
+
+    public UiHelper(Map<String, Object> obj) {
+        Object messagesObj = obj.get("validationMessages");
+
+        if (messagesObj instanceof Map) {
+            this.validationMessages.putAll((Map<String, String>) messagesObj);
+        }
+
+        Object componentPreferredObj = obj.get("componentPreferred");
+        if (componentPreferredObj instanceof String string) {
+            this.componentPreferred = string;
+        }
     }
 
     public UiHelper setValidationMessage(String type, String message) {
@@ -25,7 +35,7 @@ public class UiHelper {
     }
 
     public String getValidationMessage(String type) {
-        return this.validationMessages.getOrDefault(type, "");
+        return this.validationMessages.get(type);
     }
 
     public UiHelper setRequiredMessage(String message) {
@@ -110,25 +120,6 @@ public class UiHelper {
     }
 
     public static UiHelper from(Map<String, Object> obj) {
-        if (obj == null) {
-            return null;
-        }
-
-        Map<String, String> validationMessages = new HashMap<>();
-        Object messagesObj = obj.get("validationMessages");
-
-        if (messagesObj instanceof Map<?, ?>) {
-            Map<?, ?> messages = (Map<?, ?>) messagesObj;
-            messages.forEach((key, value) -> {
-                if (key instanceof String && value instanceof String) {
-                    validationMessages.put((String) key, (String) value);
-                }
-            });
-        }
-
-        String componentPreferred = obj.get("componentPreferred") instanceof String
-                ? (String) obj.get("componentPreferred")
-                : null;
-        return new UiHelper(validationMessages, componentPreferred);
+        return obj != null ? new UiHelper(obj) : null;
     }
 }
