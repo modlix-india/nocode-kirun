@@ -32,7 +32,7 @@ import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenVal
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 
-class KIRuntime extends AbstractFunction {
+export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
 
     private static readonly STEP_REGEX_PATTERN: RegExp = new RegExp(
@@ -778,5 +778,3 @@ class KIRuntime extends AbstractFunction {
         return new Tuple2(retValue, retMap);
     }
 }
-
-export { KIRuntime };
