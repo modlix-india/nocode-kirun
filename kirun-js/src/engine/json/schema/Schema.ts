@@ -62,6 +62,41 @@ export class AdditionalType {
     }
 }
 
+export default class SchemaDetails {
+
+    private preferredComponent?: string;
+    private validationMessages?: Map<string, string>;
+
+    constructor(sd: SchemaDetails | undefined) {
+        if (!sd) return;
+        this.preferredComponent = sd.preferredComponent;
+        if (sd.validationMessages)
+            this.validationMessages = new Map<string, string>(Array.from(sd.validationMessages.entries()));
+    }
+
+    public getPreferredComponent() : string | undefined {
+        return this.preferredComponent;
+    }
+
+    public setPreferredComponent(comp: string | undefined) : SchemaDetails {
+        this.preferredComponent = comp;
+        return this;
+    }
+
+    public getValidationMessages(): Map<string, string> | undefined {
+        return this.validationMessages;
+    }
+
+    public setValidationMessages(messages: Map<string, string> | undefined): SchemaDetails {
+        this.validationMessages = messages;
+        return this;
+    }
+
+    public getValidationMessage(key: string): string | undefined {
+        return this.validationMessages?.get(key);
+    }
+}
+
 export class Schema {
     public static readonly NULL: Schema = new Schema()
         .setNamespace(Namespaces.SYSTEM)
