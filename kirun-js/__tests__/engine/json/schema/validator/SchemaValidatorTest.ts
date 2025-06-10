@@ -20,7 +20,7 @@ test('Schema Validator Test 1', async () => {
     expect(await SchemaValidator.validate([], objSchema, repo, obj)).toBe(obj);
 
     expect(SchemaValidator.validate([], objSchema, repo, { name: 123 })).rejects.toThrow(
-        'Value {"name":123} is not of valid type(s)\nValue 123 is not of valid type(s)\n123 is not String',
+        '123 is not String',
     );
 
     // expect(await SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));

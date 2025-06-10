@@ -464,7 +464,7 @@ export class Schema {
         schema.$defs = Schema.fromMapOfSchemas(obj.$defs);
         schema.permission = obj.permission;
 
-        schema.details = obj.details ? SchemaDetails.from(obj.detail) : undefined;
+        schema.details = obj.details ? SchemaDetails.from(obj.details) : undefined;
 
         return schema;
     }

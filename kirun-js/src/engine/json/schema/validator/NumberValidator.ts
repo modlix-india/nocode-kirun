@@ -66,6 +66,7 @@ export class NumberValidator {
             if (l1 % l2 != 0)
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
+                    schema.getDetails()?.getValidationMessage('multipleOf') ??
                     element.toString() + ' is not multiple of ' + schema.getMultipleOf(),
                 );
         }
@@ -78,6 +79,7 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('minimum') ??
                 element.toString() + ' should be greater than or equal to ' + schema.getMinimum(),
             );
         }
@@ -88,6 +90,7 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('maximum') ??
                 element.toString() + ' should be less than or equal to ' + schema.getMaximum(),
             );
         }
@@ -98,6 +101,7 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('exclusiveMinimum') ??
                 element.toString() + ' should be greater than ' + schema.getExclusiveMinimum(),
             );
         }
@@ -108,6 +112,7 @@ export class NumberValidator {
         ) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('exclusiveMaximum') ??
                 element.toString() + ' should be less than ' + schema.getExclusiveMaximum(),
             );
         }
