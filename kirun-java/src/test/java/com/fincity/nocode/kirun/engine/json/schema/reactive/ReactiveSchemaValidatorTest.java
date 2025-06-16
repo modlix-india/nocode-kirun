@@ -205,7 +205,7 @@ class ReactiveSchemaValidatorTest {
 		schema.setType(Type.of(SchemaType.NULL));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, element))
-		        .verifyErrorMessage("Value [1,2] is not of valid type(s)\n" + "Expected a null but found [1,2]");
+		        .verifyErrorMessage("Expected a null but found [1,2]");
 
 	}
 

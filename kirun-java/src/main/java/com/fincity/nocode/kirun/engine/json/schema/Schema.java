@@ -246,7 +246,7 @@ public class Schema implements Serializable {
 	private Map<String, Schema> $defs; // NOSONAR - needed as per json schema
 	private String permission;
 
-	private Map<String, Object> details; // NOSONAR - needed as per json schema
+	private SchemaDetails details; // NOSONAR - needed as per json schema
 
 	public String getTitle() {
 
@@ -363,6 +363,6 @@ public class Schema implements Serializable {
 
 		this.permission = schema.permission;
 
-		this.details = schema.details == null ? null : Map.copyOf(schema.details);
+		this.details = schema.details == null ? null : new SchemaDetails(schema.details);
 	}
 }

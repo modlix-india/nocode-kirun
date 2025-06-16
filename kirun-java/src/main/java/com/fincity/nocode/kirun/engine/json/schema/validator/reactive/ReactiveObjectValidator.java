@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator.reactive;
 
+import static com.fincity.nocode.kirun.engine.json.schema.SchemaDetails.*;
+
 import static com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator.path;
 
 import java.util.ArrayList;
@@ -228,7 +230,9 @@ public class ReactiveObjectValidator {
 	public static void checkRequired(List<Schema> parents, Schema schema, JsonObject jsonObject) {
 		for (String key : schema.getRequired()) {
 			if (jsonObject.get(key) == null || jsonObject.get(key).isJsonNull()) {
-				throw new SchemaValidationException(path(parents), key + " is mandatory");
+				throw new SchemaValidationException(path(parents),
+						getValidationMessage(schema.getProperties() != null && schema.getProperties().get(key) != null ? schema.getProperties().get(key) : null,
+								MANDATORY, key + " is mandatory"));
 			}
 		}
 	}

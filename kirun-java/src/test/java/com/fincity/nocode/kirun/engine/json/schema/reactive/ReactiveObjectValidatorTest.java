@@ -54,8 +54,7 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-						+ "schema - [age] are additional properties which are not allowed.")
+				.expectErrorMessage("schema - schema - [age] are additional properties which are not allowed.")
 				.verify();
 	}
 
@@ -133,8 +132,7 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("age", 12);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-						+ "schema - [age] are additional properties which are not allowed.")
+				.expectErrorMessage( "schema - schema - [age] are additional properties which are not allowed.")
 				.verify();
 	}
 
@@ -226,9 +224,7 @@ class ReactiveObjectValidatorTest {
 				.subscribe(System.out::println);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-				.expectErrorMessage("schema - Value " + job.toString() + " is not of valid type(s)\n"
-						+ "schema.addSchema - Value \"" + city + "\" is not of valid type(s)\n"
-						+ "schema.addSchema - \"" + city + "\" is not a boolean")
+				.expectErrorMessage("schema - schema.addSchema - schema.addSchema - \"" + city + "\" is not a boolean")
 				.verify();
 	}
 
@@ -256,9 +252,7 @@ class ReactiveObjectValidatorTest {
 		job.addProperty("married", false);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-				.expectErrorMessage(
-						"Value {\"name\":\"surendhar\",\"phone\":13423524,\"married\":false} is not of valid type(s)\n"
-								+ "Value 13423524 is not of valid type(s)\n" + "13423524 is not String")
+				.expectErrorMessage("13423524 is not String")
 				.verify();
 	}
 

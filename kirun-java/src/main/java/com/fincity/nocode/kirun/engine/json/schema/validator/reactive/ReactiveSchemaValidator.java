@@ -131,13 +131,16 @@ public class ReactiveSchemaValidator {
 					if (lst.isEmpty())
 						return Mono.empty();
 
-					Tuple2<JsonElement, Optional<Throwable>> last = lst.get(lst.size() - 1);
+					Tuple2<JsonElement, Optional<Throwable>> last = lst.getLast();
 
-					if (last.getT2()
-							.isEmpty())
+					if (last.getT2().isEmpty())
 						return Mono.just(last.getT1());
 
 					String parentPath = path(parents);
+
+					if (lst.size() == 1 && lst.getFirst().getT2().isPresent()) {
+						return Mono.error(() ->  new SchemaValidationException(parentPath, lst.getFirst().getT2().get().getMessage()));
+					}
 
 					return Mono.error(() -> new SchemaValidationException(parentPath,
 							"Value " + element + " is not of valid type(s)", lst.stream()

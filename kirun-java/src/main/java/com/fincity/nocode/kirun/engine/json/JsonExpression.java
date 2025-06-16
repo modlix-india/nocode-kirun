@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 
 public class JsonExpression extends JsonElement {
 
-	private String expression;
+	private final String expression;
 
 	public JsonExpression(String expression) {
 		this.expression = expression;
