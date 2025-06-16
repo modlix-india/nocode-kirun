@@ -11,6 +11,8 @@ import com.fincity.nocode.kirun.engine.json.schema.validator.NumberValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonObject;
 
+import java.util.Map;
+
 class NumberValidatorTest {
 
 	@Test
@@ -156,6 +158,30 @@ class NumberValidatorTest {
 				() -> NumberValidator.validate(type, null, schema, element.get("value")));
 
 		assertEquals(element.get("value").toString() + " is not multiple of " + schema.getMultipleOf(),
+				schemaValidationException.getMessage());
+	}
+
+	@Test
+	void customMessaageTest() {
+
+		JsonObject element = new JsonObject();
+		element.addProperty("value", 10.7);
+
+		SchemaType type = SchemaType.FLOAT;
+
+		Schema schema = new Schema();
+		float number = 444.33f;
+		long value = (long) number;
+
+		schema.setType(Type.of(SchemaType.FLOAT));
+		schema.setMultipleOf(value);
+
+		schema.setDetails(new SchemaDetails().setValidationMessages(Map.of(SchemaDetails.MULTIPLE_OF, "It is not a multiple of 444.33")));
+
+		SchemaValidationException schemaValidationException = assertThrows(SchemaValidationException.class,
+				() -> NumberValidator.validate(type, null, schema, element.get("value")));
+
+		assertEquals("It is not a multiple of 444.33",
 				schemaValidationException.getMessage());
 	}
 }

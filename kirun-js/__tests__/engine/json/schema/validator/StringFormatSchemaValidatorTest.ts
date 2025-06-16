@@ -28,8 +28,6 @@ test('Schema Validator fail with date test', async () => {
     expect(SchemaValidator.validate([], objSchema, repo, obj)).rejects.toThrow('date is mandatory');
     const dateObj = { name: 'surendhar.s', date: '1999-13-12' };
     const errorMsg =
-        'Value {"name":"surendhar.s","date":"1999-13-12"} is not of valid type(s)' +
-        '\n' +
         'Type is missing in schema for declared DATE format.';
 
     expect(SchemaValidator.validate([], objSchema, repo, dateObj)).rejects.toThrow(errorMsg);
@@ -77,7 +75,7 @@ test('Schema Validator fail with time string type missing test ', async () => {
     const timeObj = { intSchema: 95, time: '22:23:61', name: 's.surendhar' };
 
     const errMsg =
-        'Value {"intSchema":95,"time":"22:23:61","name":"s.surendhar"} is not of valid type(s)\n' +
+
         'Type is missing in schema for declared TIME format.';
 
     expect(SchemaValidator.validate([], objSchema, repo, timeObj)).rejects.toThrow(errMsg);
@@ -107,8 +105,7 @@ test('Schema Validator fail with time test ', async () => {
     const timeObj = { intSchema: 95, time: '22:23:61', name: 's.surendhar' };
 
     const errMsg =
-        'Value {"intSchema":95,"time":"22:23:61","name":"s.surendhar"} is not of valid type(s)\n' +
-        'Value "22:23:61" is not of valid type(s)\n' +
+
         '22:23:61 is not matched with the time pattern';
 
     expect(SchemaValidator.validate([], objSchema, repo, timeObj)).rejects.toThrow(errMsg);
@@ -156,7 +153,7 @@ test('Schema Validator fail with email string type missing test ', async () => {
     const emailObj = { intSchema: 95, email: 'iosdjfdf123--@gmail.com', name: 's.surendhar' };
 
     const errMsg =
-        'Value {"intSchema":95,"email":"iosdjfdf123--@gmail.com","name":"s.surendhar"} is not of valid type(s)\n' +
+
         'Type is missing in schema for declared EMAIL format.';
 
     expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
@@ -186,8 +183,7 @@ test('Schema Validator fail with email test ', async () => {
     const emailObj = { intSchema: 0, email: 'asdasdf@@*.com' };
 
     const errMsg =
-        'Value {"intSchema":0,"email":"asdasdf@@*.com"} is not of valid type(s)\n' +
-        'Value "asdasdf@@*.com" is not of valid type(s)\n' +
+
         'asdasdf@@*.com is not matched with the email pattern';
 
     expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
@@ -232,7 +228,7 @@ test('Schema Validator fail with dateTime string type missing test ', async () =
     const emailObj = { intSchema: 95, dateTime: '2023-08-21T07:56:45+12:12', name: 's.surendhar' };
 
     const errMsg =
-        'Value {"intSchema":95,"dateTime":"2023-08-21T07:56:45+12:12","name":"s.surendhar"} is not of valid type(s)\n' +
+
         'Type is missing in schema for declared DATETIME format.';
 
     expect(SchemaValidator.validate([], objSchema, repo, emailObj)).rejects.toThrow(errMsg);
@@ -262,8 +258,7 @@ test('Schema Validator fail with dateTime test ', async () => {
     const dateTimeObj = { dateTime: '2023-08-221T07:56:45+12:12' };
 
     const errMsg =
-        'Value {"dateTime":"2023-08-221T07:56:45+12:12"} is not of valid type(s)\n' +
-        'Value "2023-08-221T07:56:45+12:12" is not of valid type(s)\n' +
+
         '2023-08-221T07:56:45+12:12 is not matched with the date time pattern';
 
     expect(SchemaValidator.validate([], objSchema, repo, dateTimeObj)).rejects.toThrow(errMsg);

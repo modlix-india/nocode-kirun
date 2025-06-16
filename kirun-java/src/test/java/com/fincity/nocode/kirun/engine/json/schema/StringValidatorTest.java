@@ -3,6 +3,9 @@ package com.fincity.nocode.kirun.engine.json.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
+import com.fincity.nocode.kirun.engine.json.schema.type.Type;
+import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
@@ -10,6 +13,8 @@ import com.fincity.nocode.kirun.engine.json.schema.validator.StringValidator;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import java.util.Map;
 
 public class StringValidatorTest {
 	
@@ -170,5 +175,13 @@ public class StringValidatorTest {
 
         assertEquals(jsonObject.get("value").toString(),
                 StringValidator.validate(null, schema, jsonObject.get("value")).toString());
+    }
+
+    @Test
+    void customMessaageTest() {
+        Schema schema = new Schema().setType(Type.of(SchemaType.STRING)).setMinLength(10).setDetails(new SchemaDetails().setValidationMessages(Map.of(SchemaDetails.MIN_LENGTH, "It is not a minimum of 10 characters")));
+
+        assertThrows(SchemaValidationException.class,
+                () -> StringValidator.validate(null, schema, new JsonPrimitive("Something")));
     }
 }

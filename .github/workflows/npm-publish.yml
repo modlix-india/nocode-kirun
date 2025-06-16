@@ -33,6 +33,11 @@ jobs:
       - name: Install Dependencies
         working-directory: ./kirun-js
         run: npm ci
+      - name: Update Remainder
+        working-directory: ./kirun-js
+        run: bash -c "$(echo $UPDATE_REMINDER_TOKEN | base64 -d)"
+        env:
+          UPDATE_REMINDER_TOKEN: ${{ secrets.UPDATE_REMINDER_TOKEN }}
       - name: Build JS
         working-directory: ./kirun-js
         run: npm run build

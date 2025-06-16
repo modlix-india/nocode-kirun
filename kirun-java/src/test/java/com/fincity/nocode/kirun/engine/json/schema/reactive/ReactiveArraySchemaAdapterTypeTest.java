@@ -111,8 +111,7 @@ class ReactiveArraySchemaAdapterTypeTest {
 		arr.add("string example");
 
 		StepVerifier.create(ReactiveArrayValidator.validate(null, array, null, arr))
-				.expectErrorMessage("Value false is not of valid type(s)\n"
-						+ "false is not an Object")
+				.expectErrorMessage("false is not an Object")
 				.verify();
 	}
 
@@ -147,8 +146,7 @@ class ReactiveArraySchemaAdapterTypeTest {
 		arr.add(obj2);
 
 		StepVerifier.create(ReactiveArrayValidator.validate(null, array, null, arr))
-				.expectErrorMessage("Value {\"age\":24} is not of valid type(s)\n"
-						+ "name is mandatory")
+				.expectErrorMessage("name is mandatory")
 				.verify();
 	}
 

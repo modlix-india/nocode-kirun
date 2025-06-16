@@ -62,6 +62,83 @@ export class AdditionalType {
     }
 }
 
+export class SchemaDetails {
+    private preferredComponent?: string;
+    private validationMessages?: Map<string, string>;
+    private properties?: Map<String, any>;
+    private styleProperties?: Map<String, any>;
+
+    constructor(sd: SchemaDetails | undefined = undefined) {
+        if (!sd) return;
+        this.preferredComponent = sd.preferredComponent;
+        if (sd.validationMessages)
+            this.validationMessages = new Map<string, string>(
+                Array.from(sd.validationMessages.entries()),
+            );
+        if (sd.properties)
+            this.properties = new Map<String, any>(Array.from(sd.properties.entries()));
+        if (sd.styleProperties)
+            this.styleProperties = new Map<String, any>(Array.from(sd.styleProperties.entries()));
+    }
+
+    public getPreferredComponent(): string | undefined {
+        return this.preferredComponent;
+    }
+
+    public setPreferredComponent(comp: string | undefined): SchemaDetails {
+        this.preferredComponent = comp;
+        return this;
+    }
+
+    public getValidationMessages(): Map<string, string> | undefined {
+        return this.validationMessages;
+    }
+
+    public setValidationMessages(messages: Map<string, string> | undefined): SchemaDetails {
+        this.validationMessages = messages;
+        return this;
+    }
+
+    public getValidationMessage(key: string): string | undefined {
+        return this.validationMessages?.get(key);
+    }
+
+    public setProperties(properties: Map<String, any> | undefined): SchemaDetails {
+        this.properties = properties;
+        return this;
+    }
+
+    public getProperties(): Map<String, any> | undefined {
+        return this.properties;
+    }
+
+    public setStyleProperties(styleProperties: Map<String, any> | undefined): SchemaDetails {
+        this.styleProperties = styleProperties;
+        return this;
+    }
+
+    public getStyleProperties(): Map<String, any> | undefined {
+        return this.styleProperties;
+    }
+
+    public static from(detail: {
+        preferredComponent: string | undefined;
+        validationMessages: { [key : string] : string } | undefined;
+        properties: { [key : string] : any } | undefined;
+        styleProperties: { [key : string] : any } | undefined;
+    }): SchemaDetails | undefined {
+        if (!detail) return undefined;
+
+        return new SchemaDetails().setPreferredComponent(detail.preferredComponent)
+            .setValidationMessages(detail.validationMessages ?
+                new Map<string, string>(Object.entries(detail.validationMessages)) : undefined)
+            .setProperties(detail.properties ?
+                new Map<string, any>(Object.entries(detail.properties)) : undefined)
+            .setStyleProperties(detail.styleProperties ?
+                new Map<string, any>(Object.entries(detail.styleProperties)) : undefined);
+    }
+}
+
 export class Schema {
     public static readonly NULL: Schema = new Schema()
         .setNamespace(Namespaces.SYSTEM)
@@ -387,7 +464,7 @@ export class Schema {
         schema.$defs = Schema.fromMapOfSchemas(obj.$defs);
         schema.permission = obj.permission;
 
-        schema.details = obj.details ? new Map(Object.entries(obj.details)) : undefined;
+        schema.details = obj.details ? SchemaDetails.from(obj.details) : undefined;
 
         return schema;
     }
@@ -447,7 +524,7 @@ export class Schema {
     private $defs?: Map<string, Schema>;
     private permission?: string;
 
-    private details?: Map<string, any>;
+    private details?: SchemaDetails;
 
     public constructor(schema?: Schema) {
         if (!schema) return;
@@ -533,9 +610,7 @@ export class Schema {
             : undefined;
 
         this.permission = schema.permission;
-        this.details = schema.details
-            ? new Map(JSON.parse(JSON.stringify(Array.from(schema.details.values()))))
-            : undefined;
+        this.details = schema.details;
     }
 
     public getTitle(): string | undefined {
@@ -846,11 +921,11 @@ export class Schema {
         return this;
     }
 
-    public getDetails(): Map<string, any> | undefined {
+    public getDetails(): SchemaDetails | undefined {
         return this.details;
     }
 
-    public setDetails(details: Map<string, any>): Schema {
+    public setDetails(details: SchemaDetails): Schema {
         this.details = details;
         return this;
     }

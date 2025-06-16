@@ -29,8 +29,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setRequired(List.of("value"));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage("dateTest - Value {\"value\":\"1997-11-21\"} is not of valid type(s)\n"
-		                + "dateTest.dateSchema - Type is missing in schema for declared DATE format.");
+		        .verifyErrorMessage( "dateTest - dateTest.dateSchema - Type is missing in schema for declared DATE format.");
 	}
 
 	@Test
@@ -43,9 +42,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setProperties(Map.of("value", Schema.ofInteger("intSchema")));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage("intTest - Value {\"value\":\"1997\"} is not of valid type(s)\n"
-		                + "intTest.intSchema - Value \"1997\" is not of valid type(s)\n"
-		                + "intTest.intSchema - \"1997\" is not a Integer");
+		        .verifyErrorMessage("intTest - intTest.intSchema - intTest.intSchema - \"1997\" is not a Integer");
 	}
 
 	@Test
@@ -58,8 +55,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setMinimum(2000);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage("intTest - Value {\"value\":1997} is not of valid type(s)\n"
-		                + "intTest - {\"value\":1997} is not a Integer");
+		        .verifyErrorMessage("intTest - intTest - {\"value\":1997} is not a Integer");
 	}
 
 	@Test
@@ -97,8 +93,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
 		        .verifyErrorMessage(
-		                "emailTest - Value {\"email\":\"iosdjfdf123--@gmail.com\"} is not of valid type(s)\n"
-		                        + "emailTest.emailSchema - Type is missing in schema for declared EMAIL format.");
+		                "emailTest - emailTest.emailSchema - Type is missing in schema for declared EMAIL format.");
 	}
 
 	@Test
@@ -117,10 +112,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setRequired(List.of("email"));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage(
-		                "emailTest - Value {\"email\":\"iosdjfdf123--@@gmail.com\"} is not of valid type(s)\n"
-		                        + "emailTest.emailSchema - Value \"iosdjfdf123--@@gmail.com\" is not of valid type(s)\n"
-		                        + "emailTest.emailSchema - \"iosdjfdf123--@@gmail.com\" is not matched with the email pattern");
+		        .verifyErrorMessage("emailTest - emailTest.emailSchema - emailTest.emailSchema - \"iosdjfdf123--@@gmail.com\" is not matched with the email pattern");
 	}
 
 	@Test
@@ -155,8 +147,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setRequired(List.of("time"));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage("timeTest - Value {\"time\":\"23:12:43\"} is not of valid type(s)\n"
-		                + "timeTest.timeSchema - Type is missing in schema for declared TIME format.");
+		        .verifyErrorMessage("timeTest - timeTest.timeSchema - Type is missing in schema for declared TIME format.");
 	}
 
 	@Test
@@ -175,9 +166,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setRequired(List.of("time"));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage("timeTest - Value {\"time\":\"24:12:23\"} is not of valid type(s)\n"
-		                + "timeTest.timeSchema - Value \"24:12:23\" is not of valid type(s)\n"
-		                + "timeTest.timeSchema - \"24:12:23\" is not matched with the time pattern");
+		        .verifyErrorMessage("timeTest - timeTest.timeSchema - timeTest.timeSchema - \"24:12:23\" is not matched with the time pattern");
 	}
 
 	@Test
@@ -213,9 +202,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		        .setRequired(List.of("datetime"));
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage(
-		                "datetimeTest - Value {\"datetime\":\"2023-08-21T07:56:45+12:12\"} is not of valid type(s)\n"
-		                        + "datetimeTest.dateTimeSchema - Type is missing in schema for declared DATETIME format.");
+		        .verifyErrorMessage("datetimeTest - datetimeTest.dateTimeSchema - Type is missing in schema for declared DATETIME format.");
 	}
 
 	@Test
@@ -233,10 +220,7 @@ class ReactiveStringFormatSchemaValidatorTest {
 		                .setMultipleOf(2l)))
 		        .setRequired(List.of("datetime"));
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, def))
-		        .verifyErrorMessage(
-		                "datetimeTest - Value {\"datetime\":\"2023-08-21T07:56:45s+12:12\"} is not of valid type(s)\n"
-		                        + "datetimeTest.datetimeSchema - Value \"2023-08-21T07:56:45s+12:12\" is not of valid type(s)\n"
-		                        + "datetimeTest.datetimeSchema - \"2023-08-21T07:56:45s+12:12\" is not matched with the date time pattern");
+		        .verifyErrorMessage("datetimeTest - datetimeTest.datetimeSchema - datetimeTest.datetimeSchema - \"2023-08-21T07:56:45s+12:12\" is not matched with the date time pattern");
 	}
 
 	@Test

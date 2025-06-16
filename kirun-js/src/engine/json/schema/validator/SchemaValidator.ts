@@ -198,12 +198,16 @@ export class SchemaValidator {
             }
         }
 
+        if (errors.length == 1) {
+            throw new SchemaValidationException(
+                SchemaValidator.path(parents),
+                errors[0].message);
+        }
+
         throw new SchemaValidationException(
             SchemaValidator.path(parents),
             'Value ' + JSON.stringify(element) + ' is not of valid type(s)',
             errors,
         );
     }
-
-    private constructor() {}
 }

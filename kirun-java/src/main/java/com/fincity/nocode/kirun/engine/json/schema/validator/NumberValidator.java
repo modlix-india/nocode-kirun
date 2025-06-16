@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
+import static com.fincity.nocode.kirun.engine.json.schema.SchemaDetails.*;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.validator.exception.SchemaValidationException;
 import com.google.gson.JsonElement;
@@ -45,14 +46,14 @@ public class NumberValidator {
 				if (!Double.valueOf("" + d.intValue())
 						.equals(d))
 					throw new SchemaValidationException(path(parents),
-							element.toString() + " is not multiple of " + schema.getMultipleOf());
+							getValidationMessage(schema, MULTIPLE_OF, element.toString() + " is not multiple of " + schema.getMultipleOf()));
 			} else {
 				Long l1 = Long.valueOf(n.toString());
 				Long l2 = Long.valueOf(schema.getMultipleOf()
 						.toString());
 				if (l1 % l2 != 0)
 					throw new SchemaValidationException(path(parents),
-							element.toString() + " is not multiple of " + schema.getMultipleOf());
+							getValidationMessage(schema, MULTIPLE_OF, element.toString() + " is not multiple of " + schema.getMultipleOf()));
 			}
 		}
 	}
@@ -60,22 +61,26 @@ public class NumberValidator {
 	private static void checkRange(List<Schema> parents, Schema schema, JsonElement element, Number n) {
 		if (schema.getMinimum() != null && numberCompare(n, schema.getMinimum()) < 0) {
 			throw new SchemaValidationException(path(parents),
-					element.toString() + " should be greater than or equal to " + schema.getMinimum());
+					getValidationMessage(schema, MINIMUM,
+							element.toString() + " should be greater than or equal to " + schema.getMinimum()));
 		}
 
 		if (schema.getMaximum() != null && numberCompare(n, schema.getMaximum()) > 0) {
 			throw new SchemaValidationException(path(parents),
-					element.toString() + " should be less than or equal to " + schema.getMaximum());
+					getValidationMessage(schema, MAXIMUM,
+					element.toString() + " should be less than or equal to " + schema.getMaximum()));
 		}
 
 		if (schema.getExclusiveMinimum() != null && numberCompare(n, schema.getExclusiveMinimum()) <= 0) {
 			throw new SchemaValidationException(path(parents),
-					element.toString() + " should be greater than " + schema.getExclusiveMinimum());
+					getValidationMessage(schema, EXCLUSIVE_MINIMUM,
+					element.toString() + " should be greater than " + schema.getExclusiveMinimum()));
 		}
 
 		if (schema.getExclusiveMaximum() != null && numberCompare(n, schema.getExclusiveMaximum()) > 0) {
 			throw new SchemaValidationException(path(parents),
-					element.toString() + " should be less than " + schema.getExclusiveMaximum());
+					getValidationMessage(schema, EXCLUSIVE_MAXIMUM,
+					element.toString() + " should be less than " + schema.getExclusiveMaximum()));
 		}
 	}
 

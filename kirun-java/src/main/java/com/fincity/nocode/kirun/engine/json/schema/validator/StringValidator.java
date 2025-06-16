@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.json.schema.validator;
 
+import static com.fincity.nocode.kirun.engine.json.schema.SchemaDetails.*;
+
 import static com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator.path;
 
 import java.util.List;
@@ -46,17 +48,17 @@ public class StringValidator {
 		    patternMatcher(parents, schema, element, jp, EMAIL, "email pattern");
 		} else if (schema.getPattern() != null) {
 			patternMatcher(parents, schema, element, jp, Pattern.compile(schema.getPattern()),
-			        "pattern " + schema.getPattern());
+					getValidationMessage(schema, PATTERN, "pattern " + schema.getPattern()));
 		}
 
 		int length = jp.getAsString()
 		        .length();
 		if (schema.getMinLength() != null && length < schema.getMinLength()) {
 			throw new SchemaValidationException(path(parents),
-			        "Expected a minimum of " + schema.getMinLength() + " characters");
+					getValidationMessage(schema, MIN_LENGTH, "Expected a minimum of " + schema.getMinLength() + " characters"));
 		} else if (schema.getMaxLength() != null && length > schema.getMaxLength()) {
 			throw new SchemaValidationException(path(parents),
-			        "Expected a maximum of " + schema.getMaxLength() + " characters");
+					getValidationMessage(schema, MAX_LENGTH, "Expected a maximum of " + schema.getMaxLength() + " characters"));
 		}
 		
 		return element;
