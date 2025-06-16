@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.json.schema.SchemaDetails;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -236,5 +237,18 @@ class ReactiveSchemaValidatorTest {
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, defaultValue))
 		        .expectNext(defaultValue)
 		        .verifyComplete();
+	}
+
+	@Test
+	void customMessageTest() {
+		Schema schema = Schema.ofObject("testSchema")
+				.setProperties(Map.of("stringType", new Schema().setType(Type.of(SchemaType.STRING)).setDetails(new SchemaDetails().setValidationMessages(Map.of(SchemaDetails.MANDATORY, "It is important to provide a value for String Type.")))))
+				.setRequired(List.of("stringType"));
+
+		JsonObject defaultValue = new JsonObject();
+		defaultValue.addProperty("value", "Somethin");
+
+		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, defaultValue))
+				.verifyErrorMessage("testSchema - testSchema - It is important to provide a value for String Type.");
 	}
 }
