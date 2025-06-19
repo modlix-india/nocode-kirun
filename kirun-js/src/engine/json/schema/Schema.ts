@@ -67,6 +67,8 @@ export class SchemaDetails {
     private validationMessages?: Map<string, string>;
     private properties?: Map<String, any>;
     private styleProperties?: Map<String, any>;
+    private order?: number;
+    private label?: string;
 
     constructor(sd: SchemaDetails | undefined = undefined) {
         if (!sd) return;
@@ -79,6 +81,8 @@ export class SchemaDetails {
             this.properties = new Map<String, any>(Array.from(sd.properties.entries()));
         if (sd.styleProperties)
             this.styleProperties = new Map<String, any>(Array.from(sd.styleProperties.entries()));
+        this.order = sd.order;
+        this.label = sd.label;
     }
 
     public getPreferredComponent(): string | undefined {
@@ -121,11 +125,31 @@ export class SchemaDetails {
         return this.styleProperties;
     }
 
+    public getOrder(): number | undefined {
+        return this.order;
+    }
+
+    public setOrder(order: number | undefined): SchemaDetails {
+        this.order = order;
+        return this;
+    }
+
+    public getLabel(): string | undefined {
+        return this.label;
+    }
+
+    public setLabel(label: string | undefined): SchemaDetails {
+        this.label = label;
+        return this;
+    }
+
     public static from(detail: {
         preferredComponent: string | undefined;
         validationMessages: { [key : string] : string } | undefined;
         properties: { [key : string] : any } | undefined;
         styleProperties: { [key : string] : any } | undefined;
+        order: number | undefined;
+        label: string | undefined;
     }): SchemaDetails | undefined {
         if (!detail) return undefined;
 
@@ -135,7 +159,9 @@ export class SchemaDetails {
             .setProperties(detail.properties ?
                 new Map<string, any>(Object.entries(detail.properties)) : undefined)
             .setStyleProperties(detail.styleProperties ?
-                new Map<string, any>(Object.entries(detail.styleProperties)) : undefined);
+                new Map<string, any>(Object.entries(detail.styleProperties)) : undefined)
+            .setOrder(detail.order)
+            .setLabel(detail.label);
     }
 }
 
@@ -283,6 +309,7 @@ export class Schema {
 
                 ['permission', Schema.ofString('permission')],
                 ['details', Schema.ofObject('details')],
+                ['viewDetails', Schema.ofObject('viewDetails')],
             ]),
         )
         .setRequired([]);
@@ -465,6 +492,7 @@ export class Schema {
         schema.permission = obj.permission;
 
         schema.details = obj.details ? SchemaDetails.from(obj.details) : undefined;
+        schema.viewDetails = obj.viewDetails ? SchemaDetails.from(obj.viewDetails) : undefined;
 
         return schema;
     }
@@ -525,6 +553,7 @@ export class Schema {
     private permission?: string;
 
     private details?: SchemaDetails;
+    private viewDetails?: SchemaDetails;
 
     public constructor(schema?: Schema) {
         if (!schema) return;
@@ -611,6 +640,7 @@ export class Schema {
 
         this.permission = schema.permission;
         this.details = schema.details;
+        this.viewDetails = schema.viewDetails;
     }
 
     public getTitle(): string | undefined {
@@ -927,6 +957,15 @@ export class Schema {
 
     public setDetails(details: SchemaDetails): Schema {
         this.details = details;
+        return this;
+    }
+
+    public getViewDetails(): SchemaDetails | undefined {
+        return this.viewDetails;
+    }
+
+    public setViewDetails(viewDetails: SchemaDetails): Schema {
+        this.viewDetails = viewDetails;
         return this;
     }
 }
