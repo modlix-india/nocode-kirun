@@ -119,7 +119,9 @@ public class Schema implements Serializable {
 
 					entry("permission", ofString("permission")),
 
-					entry("details", ofObject("details"))))
+					entry("details", ofObject("details")),
+					entry("viewDetails", ofObject("viewDetails"))
+					))
 			.setRequired(List.of());
 
 	public static Schema ofString(String id) {
@@ -246,7 +248,8 @@ public class Schema implements Serializable {
 	private Map<String, Schema> $defs; // NOSONAR - needed as per json schema
 	private String permission;
 
-	private SchemaDetails details; // NOSONAR - needed as per json schema
+	private SchemaDetails details;
+	private SchemaDetails viewDetails;
 
 	public String getTitle() {
 
@@ -364,5 +367,6 @@ public class Schema implements Serializable {
 		this.permission = schema.permission;
 
 		this.details = schema.details == null ? null : new SchemaDetails(schema.details);
+		this.viewDetails = schema.viewDetails == null ? null : new SchemaDetails(schema.viewDetails);
 	}
 }

@@ -27,12 +27,16 @@ public class SchemaDetails {
     private Map<String, String> validationMessages;
     private Map<String, Object> properties;
     private Map<String, Object> styleProperties;
+    private Integer order;
+    private String label;
 
     public SchemaDetails(SchemaDetails schemaDetails) {
         this.preferredComponent = schemaDetails.preferredComponent;
         this.validationMessages = schemaDetails.validationMessages;
         this.properties = schemaDetails.properties;
         this.styleProperties = schemaDetails.styleProperties;
+        this.order = schemaDetails.order;
+        this.label = schemaDetails.label;
     }
 
     public String getValidationMessage(String validationType, String defaultMessage) {
