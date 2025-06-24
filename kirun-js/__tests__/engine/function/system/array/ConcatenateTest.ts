@@ -132,9 +132,7 @@ test('Concatenate test 5', async () => {
         .setSteps(new Map([]))
         .setContext(new Map([]));
 
-    await expect(add.execute(fep)).rejects.toThrow(
-        'Value undefined is not of valid type(s)\nExpected an array but found null',
-    );
+    await expect(add.execute(fep)).rejects.toThrow("Error while executing the function System.Array.Concatenate's parameter secondSource with step name 'Unknown Step' with error : Expected an array but found null");
     // await expect(add.execute(fep)).rejects.toThrowError(
     //     new SchemaValidationException(Schema.ofString("source"),'Value undefined is not of valid type(s)\nExpected an array but found null',       );
 });

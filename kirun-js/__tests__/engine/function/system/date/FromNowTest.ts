@@ -43,9 +43,8 @@ describe('From Now', () => {
 
         const result = await new FromNow().execute(fep);
 
-        expect(result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME)).toBe(
-            'in 20 mo',
-        );
+        const retValue = result.allResults()[0].getResult().get(AbstractDateFunction.EVENT_RESULT_NAME);
+        expect(retValue == 'in 20 mo' || retValue == 'in 20 mo.').toBe(true);
     });
 
     test('should return the relative date with locale', async () => {

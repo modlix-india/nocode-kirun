@@ -1,6 +1,6 @@
 {
     "name": "@fincity/kirun-js",
-    "version": "2.14.0",
+    "version": "2.15.1",
     "description": "Javascript Runtime for Kinetic Instructions",
     "source": "src/index.ts",
     "main": "dist/index.js",
@@ -31,17 +31,17 @@
     "author": "Kiran Kumar Grandhi",
     "license": "MIT",
     "devDependencies": {
-        "@parcel/packager-ts": "^2.13.3",
-        "@parcel/transformer-typescript-types": "^2.13.3",
+        "@parcel/packager-ts": "^2.15.2",
+        "@parcel/transformer-typescript-types": "^2.15.2",
         "@tsconfig/recommended": "^1.0.8",
         "@types/jest": "^29.5.14",
-        "@types/luxon": "^3.4.2",
+        "@types/luxon": "^3.6.2",
         "jest": "^29.7.0",
-        "parcel": "^2.13.3",
-        "prettier": "3.4.2",
-        "ts-jest": "^29.2.5",
-        "ts-loader": "^9.5.1",
-        "typescript": "^5.7.2"
+        "parcel": "^2.15.2",
+        "prettier": "3.5.3",
+        "ts-jest": "^29.3.4",
+        "ts-loader": "^9.5.2",
+        "typescript": "^5.8.3"
     },
     "jest": {
         "transform": {
@@ -56,6 +56,6 @@
     },
     "dependencies": {
         "@fincity/kirun-js": "file:",
-        "luxon": "^3.5.0"
+        "luxon": "^3.6.1"
     }
 }
