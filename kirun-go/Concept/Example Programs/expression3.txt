@@ -1,0 +1,3 @@
+(Page.benches // Page.benchesInEachRow) + (Page.benches % Page.benchesInEachRow = 0 ? 0 : 1) /* This expression gives the number of rows required to arrange benches in rows by using integer divison. Also this comment is not ended which is optional for this line.
+/* This is also a perfectly valid expression even it has two lines. Since this comment is not
+treated as part of the expression. Since this is a comment started in the begining of line it expects to be ended too */

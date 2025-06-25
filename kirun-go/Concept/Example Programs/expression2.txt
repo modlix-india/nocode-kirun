@@ -1,0 +1,1 @@
+Store.user.authorities.[0..{{Page.size}}] /* Retrieves Page.size's number of elements from the array of authorities in Store.user object */
