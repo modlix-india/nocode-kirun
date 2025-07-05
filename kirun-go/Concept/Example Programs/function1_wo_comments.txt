@@ -1,0 +1,25 @@
+FUNCTION fibonacci 
+    NAMESPACE Math 
+    PARAMETERS 
+        n AS { 
+            "type" : "INTEGER"  
+          }
+    EVENTS 
+        output 
+            result AS ARRAY OF INTEGER 
+LOGIC
+create: System.Context.Create(name = "a", schema = (ARRAY OF INTEGER) WITH DEFAULT VALUE []) 
+loop: System.Loop.RangeLoop(to = Arguments.n) AFTER Steps.create.output 
+    iteration 
+        if: System.If(condition = Steps.loop.iteration.index < 2) 
+            true
+                trueInsert: System.Array.InsertLast(source = Context.a, element = Steps.loop.iteration.index)
+                : System.Context.Set(name = "Context.a", value = Steps.trueInsert.output.result) 
+            false
+                falseInsert: System.Array.InsertLast(source = Context.a, element = Context.a[Steps.rangeLoop.iteration.index - 1] + Context.a[Steps.rangeLoop.iteration.index - 2])
+                : System.Context.Set(name = "Context.a", value = Steps.falseInsert.output.result)
+    output
+        : System.GenerateEvent(results = {
+            "name": "result",
+            "value": Context.a
+        }) 
