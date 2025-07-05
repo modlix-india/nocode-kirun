@@ -8,6 +8,7 @@ import { ObjectEntries } from './ObjectEntries';
 import { ObjectKeys } from './ObjectKeys';
 import { ObjectPutValue } from './ObjectPutValue';
 import { ObjectValues } from './ObjectValues';
+import { ValidateSchema } from '../ValidateSchema';
 
 export class ObjectFunctionRepository implements Repository<Function> {
     private readonly functionObjectsIndex: { [key: string]: AbstractFunction };
@@ -21,6 +22,7 @@ export class ObjectFunctionRepository implements Repository<Function> {
             ObjectDeleteKey: new ObjectDeleteKey(),
             ObjectPutValue: new ObjectPutValue(),
             ObjectConvert: new ObjectConvert(),
+            ValidateSchema: new ValidateSchema(),
         };
         this.filterableNames = Object.values(this.functionObjectsIndex).map((e) =>
             e.getSignature().getFullName(),

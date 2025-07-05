@@ -54,8 +54,6 @@ class SystemFunctionRepository implements Repository<Function> {
                     mapEntry(new GenerateEvent()),
                     mapEntry(new Print()),
                     mapEntry(new Wait()),
-                    mapEntry(new Join()),
-                    mapEntry(new ValidateSchema()),
                 ]),
             ],
         ]);
