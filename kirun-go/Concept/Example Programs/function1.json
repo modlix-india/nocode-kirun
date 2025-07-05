@@ -1,0 +1,243 @@
+{
+  "name": "fibonaccii",
+  "namespace": "Math",
+  "parameters": {
+    "n": {
+      "parameterName": "n",
+      "schema": {
+        "type": ["INTEGER"]
+      }
+    }
+  },
+  "events": {
+    "output": {
+      "name": "output",
+      "parameters": {
+        "result": {
+          "type": ["ARRAY"],
+          "items": {
+            "type": ["INTEGER"]
+          }
+        }
+      }
+    }
+  },
+  "steps": {
+    "create": {
+      "statementName": "create",
+      "name": "Create",
+      "namespace": "System.Context",
+      "parameterMap": {
+        "name": {
+          "2JUURU6NHj9voaArLv0pS8": {
+            "key": "2JUURU6NHj9voaArLv0pS8",
+            "type": "VALUE",
+            "order": 1,
+            "value": "a"
+          }
+        },
+        "schema": {
+          "2vxDXyOakSmhiUmH4CuDED": {
+            "key": "2vxDXyOakSmhiUmH4CuDED",
+            "type": "VALUE",
+            "order": 1,
+            "value": {
+              "type": "ARRAY",
+              "items": {
+                "type": "INTEGER"
+              }
+            }
+          }
+        }
+      }
+    },
+    "loop": {
+      "statementName": "loop",
+      "name": "RangeLoop",
+      "namespace": "System.Loop",
+      "parameterMap": {
+        "to": {
+          "6RAIEdM1OAek2AKf64ucqM": {
+            "key": "6RAIEdM1OAek2AKf64ucqM",
+            "type": "EXPRESSION",
+            "expression": "Arguments.n",
+            "value": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.create.output": false,
+        "Steps.set2.output": true
+      }
+    },
+    "if": {
+      "statementName": "if",
+      "name": "If",
+      "namespace": "System",
+      "parameterMap": {
+        "condition": {
+          "C2FB54BobtFXTmLKv4v6s": {
+            "key": "C2FB54BobtFXTmLKv4v6s",
+            "type": "EXPRESSION",
+            "expression": "Steps.loop.iteration.index < 2",
+            "order": 1
+          }
+        }
+      }
+    },
+    "trueInsert": {
+      "statementName": "trueInsert",
+      "name": "InsertLast",
+      "namespace": "System.Array",
+      "parameterMap": {
+        "source": {
+          "4DzS3icjwGl7nUPvk7QUST": {
+            "key": "4DzS3icjwGl7nUPvk7QUST",
+            "type": "EXPRESSION",
+            "expression": "Context.a",
+            "order": 1
+          }
+        },
+        "element": {
+          "1sWH8NKqkdKevU7vQJk9jn": {
+            "key": "1sWH8NKqkdKevU7vQJk9jn",
+            "type": "EXPRESSION",
+            "expression": "Steps.loop.iteration.index",
+            "order": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.if.true": true
+      }
+    },
+    "set": {
+      "statementName": "set",
+      "name": "Set",
+      "namespace": "System.Context",
+      "parameterMap": {
+        "name": {
+          "UPMhlPSuFHCygh0DYa7Zc": {
+            "key": "UPMhlPSuFHCygh0DYa7Zc",
+            "type": "VALUE",
+            "order": 1,
+            "value": "Context.a"
+          }
+        },
+        "value": {
+          "1B8Bfavmym6BmbdsDesmNX": {
+            "key": "1B8Bfavmym6BmbdsDesmNX",
+            "type": "EXPRESSION",
+            "expression": "Steps.trueInsert.output.result",
+            "order": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.if.true": false
+      }
+    },
+    "set1": {
+      "statementName": "set1",
+      "name": "Set",
+      "namespace": "System.Context",
+      "parameterMap": {
+        "name": {
+          "6dYVAyspJbF82O8qJm3f2O": {
+            "key": "6dYVAyspJbF82O8qJm3f2O",
+            "type": "VALUE",
+            "order": 1,
+            "value": "Context.a"
+          }
+        },
+        "value": {
+          "fVB75EKlR6It0i7iho3oQ": {
+            "key": "fVB75EKlR6It0i7iho3oQ",
+            "type": "EXPRESSION",
+            "expression": "Steps.falseInsert.output.result",
+            "order": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.if.false": false
+      }
+    },
+    "falseInsert": {
+      "statementName": "falseInsert",
+      "name": "InsertLast",
+      "namespace": "System.Array",
+      "parameterMap": {
+        "source": {
+          "1GsJu3FbuponBIcaqI48rF": {
+            "key": "1GsJu3FbuponBIcaqI48rF",
+            "type": "EXPRESSION",
+            "expression": "Context.a",
+            "order": 1
+          }
+        },
+        "element": {
+          "53vsp50RjvhS94xdCtWWx0": {
+            "key": "53vsp50RjvhS94xdCtWWx0",
+            "type": "EXPRESSION",
+            "expression": "Context.a[Steps.loop.iteration.index - 1] + Context.a[Steps.loop.iteration.index - 2]",
+            "order": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.if.false": true
+      }
+    },
+    "set2": {
+      "statementName": "set2",
+      "name": "Set",
+      "namespace": "System.Context",
+      "parameterMap": {
+        "name": {
+          "2XVsWDK0VUQhZJ0VnJllrQ": {
+            "key": "2XVsWDK0VUQhZJ0VnJllrQ",
+            "type": "VALUE",
+            "order": 1,
+            "value": "Context.a"
+          }
+        },
+        "value": {
+          "1ksRfalqqgGfh4uZcLXDy9": {
+            "key": "1ksRfalqqgGfh4uZcLXDy9",
+            "type": "VALUE",
+            "order": 1,
+            "value": []
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.create.output": true
+      }
+    },
+    "generateEvent": {
+      "statementName": "generateEvent",
+      "name": "GenerateEvent",
+      "namespace": "System",
+      "parameterMap": {
+        "results": {
+          "8brcu20HciA9rYDPOFeef": {
+            "key": "8brcu20HciA9rYDPOFeef",
+            "type": "VALUE",
+            "value": {
+              "name": "result",
+              "value": {
+                "isExpression": true,
+                "value": "Context.a"
+              }
+            },
+            "order": 1
+          }
+        }
+      },
+      "dependentStatements": {
+        "Steps.loop.output": true
+      }
+    }
+  }
+}
