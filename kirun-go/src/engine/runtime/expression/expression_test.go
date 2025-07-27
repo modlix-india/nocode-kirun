@@ -106,3 +106,15 @@ func TestStringConcatenation(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "('1 and 2'+'3 or 4')", expr.ToString())
 }
+
+func TestSubExpression(t *testing.T) {
+	expr, err := NewExpression("{{ 1 + 2}} * 3")
+	assert.NoError(t, err)
+
+	// Debug: Print tokens and postfix tokens
+	parser := NewExpressionParser("{{ 1 + 2}} * 3")
+	err = parser.Tokenize()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "((1+2)*3)", expr.ToString())
+}

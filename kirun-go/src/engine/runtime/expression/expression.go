@@ -25,6 +25,7 @@ const (
 	TokenBoolean
 	TokenNull
 	TokenEOF
+	TokenSubExpression
 )
 
 // Token represents a parsed token
@@ -132,6 +133,41 @@ func (p *ExpressionParser) Tokenize() error {
 
 	for i < len(input) {
 		char := input[i]
+
+		// Handle sub-expressions: {{ ... }}
+		if char == '{' && i+1 < len(input) && input[i+1] == '{' {
+			start := i
+			i += 2 // Skip '{{'
+			braceCount := 1
+			innerStart := i
+			for i < len(input) {
+				if input[i] == '{' && i+1 < len(input) && input[i+1] == '{' {
+					braceCount++
+					i += 2
+					continue
+				}
+				if input[i] == '}' && i+1 < len(input) && input[i+1] == '}' {
+					braceCount--
+					if braceCount == 0 {
+						break
+					}
+					i += 2
+					continue
+				}
+				i++
+			}
+			if braceCount != 0 {
+				return fmt.Errorf("unterminated sub-expression at position %d", start)
+			}
+			inner := string(input[innerStart:i])
+			p.tokens = append(p.tokens, Token{
+				Type:     TokenSubExpression,
+				Value:    inner,
+				Position: start,
+			})
+			i += 2 // Skip '}}'
+			continue
+		}
 
 		// Skip whitespace
 		if unicode.IsSpace(char) {
@@ -356,7 +392,7 @@ func (p *ExpressionParser) ToPostfix() ([]Token, error) {
 		}
 
 		switch token.Type {
-		case TokenNumber, TokenString, TokenIdentifier, TokenBoolean, TokenNull:
+		case TokenNumber, TokenString, TokenIdentifier, TokenBoolean, TokenNull, TokenSubExpression:
 			output = append(output, token)
 
 		case TokenLeftParen:
@@ -521,6 +557,9 @@ func (es *EvaluationStack) ToString() string {
 					}
 				}
 			}
+		case TokenSubExpression:
+			// Instead of parsing and stringifying, just output as {{...}}
+			stack = append(stack, fmt.Sprintf("{{%s}}", token.Value))
 		}
 	}
 
@@ -534,16 +573,16 @@ func (es *EvaluationStack) ToString() string {
 
 // ParseExpression parses an expression and returns the evaluation stack
 func ParseExpression(expression string) (*EvaluationStack, error) {
-	// Phase 1: Process {{ }} sub-expressions first
-	processedExpression, err := ProcessNestedExpressions(expression)
-	if err != nil {
-		return nil, fmt.Errorf("nested expression processing error: %w", err)
-	}
+	// Phase 1: Process {{ }} sub-expressions first (no longer needed)
+	// processedExpression, err := ProcessNestedExpressions(expression)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("nested expression processing error: %w", err)
+	// }
 
 	// Phase 2: Parse the processed expression normally
-	parser := NewExpressionParser(processedExpression)
+	parser := NewExpressionParser(expression)
 
-	err = parser.Tokenize()
+	err := parser.Tokenize()
 	if err != nil {
 		return nil, fmt.Errorf("tokenization error: %w", err)
 	}
@@ -559,99 +598,6 @@ func ParseExpression(expression string) (*EvaluationStack, error) {
 // NewExpression creates a new expression from a string
 func NewExpression(expression string) (*EvaluationStack, error) {
 	return ParseExpression(expression)
-}
-
-// ProcessNestedExpressions finds and evaluates {{ }} sub-expressions
-func ProcessNestedExpressions(expression string) (string, error) {
-	result := expression
-
-	for {
-		// Find the first {{ }} pair
-		start := strings.Index(result, "{{")
-		if start == -1 {
-			break // No more nested expressions
-		}
-
-		end := strings.Index(result[start+2:], "}}")
-		if end == -1 {
-			return "", fmt.Errorf("unclosed nested expression starting at position %d", start)
-		}
-		end += start + 2 // Adjust for the offset
-
-		// Extract the nested expression (without {{ }})
-		nestedExpr := strings.TrimSpace(result[start+2 : end])
-		if nestedExpr == "" {
-			return "", fmt.Errorf("empty nested expression at position %d", start)
-		}
-
-		// Recursively evaluate the nested expression
-		nestedResult, err := EvaluateNestedExpression(nestedExpr)
-		if err != nil {
-			return "", fmt.Errorf("error evaluating nested expression '{{ %s }}': %w", nestedExpr, err)
-		}
-
-		// Replace {{ expression }} with the evaluated result
-		result = result[:start] + nestedResult + result[end+2:]
-	}
-
-	return result, nil
-}
-
-// EvaluateNestedExpression evaluates a nested expression and returns the string result
-func EvaluateNestedExpression(expression string) (string, error) {
-	// First recursively process any nested {{ }} within this expression
-	processedExpr, err := ProcessNestedExpressions(expression)
-	if err != nil {
-		return "", err
-	}
-
-	// Create a parser for the nested expression
-	parser := NewExpressionParser(processedExpr)
-
-	err = parser.Tokenize()
-	if err != nil {
-		return "", fmt.Errorf("tokenization error in nested expression: %w", err)
-	}
-
-	postfixTokens, err := parser.ToPostfix()
-	if err != nil {
-		return "", fmt.Errorf("postfix conversion error in nested expression: %w", err)
-	}
-
-	// For now, return a placeholder evaluation
-	// In a full implementation, you would evaluate the postfix tokens here
-	// and return the actual computed value as a string
-	evaluatedValue := EvaluatePostfixTokens(postfixTokens)
-
-	return evaluatedValue, nil
-}
-
-// EvaluatePostfixTokens evaluates postfix tokens and returns the result as a string
-// This is a simplified implementation - in practice, you'd implement full evaluation logic
-func EvaluatePostfixTokens(tokens []Token) string {
-	// Simplified evaluation for demonstration
-	// In a real implementation, this would use a stack to evaluate the postfix expression
-
-	if len(tokens) == 0 {
-		return ""
-	}
-
-	// For simple cases, just return the first token if it's a literal
-	if len(tokens) == 1 {
-		token := tokens[0]
-		switch token.Type {
-		case TokenNumber, TokenString, TokenBoolean:
-			return token.Value
-		case TokenNull:
-			return "null"
-		default:
-			return token.Value
-		}
-	}
-
-	// For complex expressions, return a placeholder
-	// TODO: Implement full postfix evaluation with operator stack
-	return "[EVALUATED_EXPRESSION]"
 }
 
 // Helper function to convert token type to string for debugging
