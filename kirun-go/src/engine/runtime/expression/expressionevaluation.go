@@ -21,6 +21,40 @@ func NewEvaluator(expression string) (*Evaluator, error) {
 	return &Evaluator{evaluationStack: evaluationStack}, nil
 }
 
+// preprocessTokens combines identifier and dot tokens into single identifier tokens
+func (e *Evaluator) preprocessTokens() []Token {
+	tokens := e.evaluationStack.tokens
+	var processedTokens []Token
+
+	i := 0
+	for i < len(tokens) {
+		// Only start combining if we see an identifier
+		if tokens[i].Type == TokenIdentifier {
+			combinedValue := tokens[i].Value
+			combinedPosition := tokens[i].Position
+			i++
+			// Combine .identifier pairs
+			for i+1 < len(tokens) && tokens[i].Type == TokenDot && tokens[i+1].Type == TokenIdentifier {
+				combinedValue += "." + tokens[i+1].Value
+				i += 2
+			}
+			processedTokens = append(processedTokens, Token{
+				Type:     TokenIdentifier,
+				Value:    combinedValue,
+				Position: combinedPosition,
+			})
+		} else if tokens[i].Type == TokenDot {
+			// Skip dot tokens as they should be combined with identifiers
+			i++
+		} else {
+			// For all other tokens (operators, parens, etc), just add as-is
+			processedTokens = append(processedTokens, tokens[i])
+			i++
+		}
+	}
+	return processedTokens
+}
+
 // objects is a map of objects, where the key is the object name and the value is a map of properties
 // the properties are, a map of property names and values,
 // For example, if you use Store.user.name then objects would be:
@@ -33,9 +67,12 @@ func NewEvaluator(expression string) (*Evaluator, error) {
 //		}
 
 func (e *Evaluator) Evaluate(extractors map[string]tokenextractor.TokenValueExtractor) (interface{}, error) {
+	// Preprocess tokens to combine identifier and dot tokens into single identifiers
+	processedTokens := e.preprocessTokens()
+
 	stack := make([]interface{}, 0)
 
-	for _, token := range e.evaluationStack.tokens {
+	for _, token := range processedTokens {
 		switch token.Type {
 		case TokenNumber:
 			val, err := parseNumber(token.Value)
@@ -139,9 +176,28 @@ func evaluateBinaryOperator(s string, left, right interface{}) (interface{}, err
 		}
 		return nil, fmt.Errorf("invalid operands for -: %T and %T", left, right)
 	case "*":
+		// Handle numeric multiplication
 		if l, ok := left.(int); ok {
 			if r, ok := right.(int); ok {
 				return l * r, nil
+			}
+		}
+		// Handle string multiplication (string * number)
+		if l, ok := left.(string); ok {
+			if r, ok := right.(int); ok {
+				if r < 0 {
+					return nil, fmt.Errorf("cannot multiply string by negative number")
+				}
+				return strings.Repeat(l, r), nil
+			}
+		}
+		// Handle string multiplication (number * string)
+		if l, ok := left.(int); ok {
+			if r, ok := right.(string); ok {
+				if l < 0 {
+					return nil, fmt.Errorf("cannot multiply string by negative number")
+				}
+				return strings.Repeat(r, l), nil
 			}
 		}
 		return nil, fmt.Errorf("invalid operands for *: %T and %T", left, right)
@@ -161,13 +217,28 @@ func evaluateBinaryOperator(s string, left, right interface{}) (interface{}, err
 }
 
 func resolveIdentifier(s string, extractors map[string]tokenextractor.TokenValueExtractor) (interface{}, error) {
-	parts := strings.Split(s, ".")
-	root, exists := extractors[parts[0]]
-	if !exists {
-		return nil, fmt.Errorf("undefined object: %s", parts[0])
+	// Find the extractor that has a prefix matching the identifier
+	var matchingExtractor tokenextractor.TokenValueExtractor
+	var matchingKey string
+	for key, extractor := range extractors {
+		// The key should end with a dot, so we need to match the prefix without the dot
+		prefixWithoutDot := key[:len(key)-1]
+		if strings.HasPrefix(s, prefixWithoutDot) {
+			matchingExtractor = extractor
+			matchingKey = key
+			break
+		}
 	}
 
-	value, err := root.GetValue(s)
+	if matchingExtractor == nil {
+		return nil, fmt.Errorf("undefined object: %s", strings.Split(s, ".")[0])
+	}
+
+	// The GetValueInternal function expects the token to start with the prefix
+	// So we need to prepend the prefix to the identifier
+	tokenWithPrefix := matchingKey + s[len(matchingKey)-1:] // matchingKey ends with dot, so we skip the first character of s
+
+	value, err := matchingExtractor.GetValue(tokenWithPrefix)
 	if err != nil {
 		return nil, fmt.Errorf("error resolving identifier: %w", err)
 	}

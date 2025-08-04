@@ -335,8 +335,7 @@ func (p *ExpressionParser) Tokenize() error {
 					i++
 				}
 				value := string(input[start:i])
-
-				// Check for boolean literals
+				// Check for boolean/null literals
 				if value == "true" || value == "false" {
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenBoolean,
@@ -356,9 +355,9 @@ func (p *ExpressionParser) Tokenize() error {
 						Position: start,
 					})
 				}
-			} else {
-				return fmt.Errorf("unexpected character '%c' at position %d", char, i)
+				continue // Ensure we don't fall through and parse the next char as a new identifier
 			}
+			return fmt.Errorf("unexpected character '%c' at position %d", char, i)
 		}
 	}
 

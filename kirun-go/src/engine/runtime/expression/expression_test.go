@@ -116,5 +116,14 @@ func TestSubExpression(t *testing.T) {
 	err = parser.Tokenize()
 	assert.NoError(t, err)
 
-	assert.Equal(t, "((1+2)*3)", expr.ToString())
+	assert.Equal(t, "({{ 1 + 2}}*3)", expr.ToString())
+}
+
+func TestExpressionWithIdentifiers(t *testing.T) {
+	expr, err := NewExpression("Store.user.name* 2")
+	assert.NoError(t, err)
+	tokens := expr.GetTokens()
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.name", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 10}, tokens[1])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 12}, tokens[2])
 }

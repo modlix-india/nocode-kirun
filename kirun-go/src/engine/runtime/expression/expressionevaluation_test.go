@@ -19,10 +19,11 @@ var store = tokenextractor.MakeTokenValueExtractor("Store.", map[string]any{
 	"user": map[string]any{
 		"name": "John Doe",
 	},
+	"number": 2,
 })
 
 func TestEvaluation_SimpleAdditionWithObjects(t *testing.T) {
-	expr, err := NewEvaluator("Store.user.name * 2")
+	expr, err := NewEvaluator("Store.user.name* Store.number")
 	assert.NoError(t, err)
 	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{
 		"Store.": store,
