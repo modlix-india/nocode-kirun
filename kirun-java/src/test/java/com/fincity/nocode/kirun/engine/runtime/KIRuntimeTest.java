@@ -3,9 +3,14 @@ package com.fincity.nocode.kirun.engine.runtime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.json.schema.type.Type;
+import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.ObjectValueSetterExtractor;
+import com.google.gson.*;
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
@@ -33,13 +38,10 @@ import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveFunction
 import com.fincity.nocode.kirun.engine.repository.reactive.KIRunReactiveSchemaRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveKIRuntime;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 class KIRuntimeTest {
 
@@ -385,5 +387,80 @@ class KIRuntimeTest {
 				new EventResult().setName("output").setResult(Map.of("result", array))
 		), out);
 	}
+
+	@Test
+	void testPrintFunctionWithVariableArguments() {
+
+		Gson gson = new GsonBuilder().registerTypeAdapter(Type.class, new Type.SchemaTypeAdapter())
+				.create();
+
+		var def = new ReactiveKIRuntime(gson.fromJson("""
+				{"name":"varArgWithNothing","namespace":"Test","steps":{"testFunction":{"statementName":"testFunction","namespace":"LocalFunction","name":"Other","parameterMap":{"eagerFields":{"one":{"type":"EXPRESSION","expression":"Store.names","key":"one","order":1}}}}}}
+				""",
+				FunctionDefinition.class), false);
+
+		var otherFunction = new ReactiveKIRuntime(gson.fromJson("""
+				{"namespace":"LocalFunction","name":"Other","steps":{"print":{"statementName":"print","namespace":"System","name":"Print","parameterMap":{"values":{"one":{"type":"EXPRESSION","expression":"Arguments.eagerFields","value":"Test","key":"one","order":1}}}}},"parameters":{"eagerFields":{"schema":{"namespace":"_","name":"eagerFields","version":1,"type":"STRING"},"parameterName":"eagerFields","variableArgument":true,"type":"EXPRESSION"}}}
+				""",
+				FunctionDefinition.class), false);
+
+
+		// Create test data
+		JsonArray names = new JsonArray();
+		names.add("kiran");
+		names.add("kumar");
+		names.add("grandhi");
+
+		JsonObject job = new JsonObject();
+		job.add("names", names);
+
+		// Mock console output
+		PrintStream originalOut = System.out;
+		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+		System.setOut(new PrintStream(outContent));
+
+		try {
+
+			class InternalRepository implements ReactiveRepository<ReactiveFunction> {
+
+				@Override
+				public Mono<ReactiveFunction> find(String namespace, String name) {
+
+					if ("LocalFunction".equals(namespace) && "Other".equals(name)) {
+						return Mono.just(otherFunction);
+					}
+					return Mono.empty();
+				}
+
+				@Override
+				public Flux<String> filter(String name) {
+					return Flux.empty();
+				}
+			}
+
+			ObjectValueSetterExtractor store = new ObjectValueSetterExtractor(
+					job,
+					"Store."
+			);
+
+			var repo = new ReactiveHybridRepository<>(new KIRunReactiveFunctionRepository(), new InternalRepository());
+
+			Mono<FunctionOutput> fo = def.execute(new ReactiveFunctionExecutionParameters(repo, new KIRunReactiveSchemaRepository())
+							.setValuesMap(Map.of(store.getPrefix(), store)));
+
+			StepVerifier.create(fo.map(FunctionOutput::allResults).map(e -> e.get(0).getResult()))
+					.expectNext(Map.of())
+					.verifyComplete();
+
+			// Verify output
+			String output = outContent.toString().trim();
+			String expected = "\"kiran\"\n\"kumar\"\n\"grandhi\"";
+			assertEquals(expected, output);
+
+		} finally {
+			System.setOut(originalOut);
+		}
+	}
+
 
 }
