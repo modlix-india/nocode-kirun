@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-// TokenType represents the type of a token
+// TokenType represents the type of token
 type TokenType int
 
 const (
@@ -103,7 +103,7 @@ var operatorMap = map[string]Operator{
 	"?": {Symbol: "?", Precedence: 12, RightAssoc: true, Unary: false},
 }
 
-// Export a copy of the operatorMap when needed
+// GetOperatorMap Export a copy of the operatorMap when needed
 func GetOperatorMap() map[string]Operator {
 	c := make(map[string]Operator)
 	for k, v := range operatorMap {
@@ -112,16 +112,16 @@ func GetOperatorMap() map[string]Operator {
 	return c
 }
 
-// ExpressionParser represents the expression parser
-type ExpressionParser struct {
+// Parser represents the expression parser
+type Parser struct {
 	input    string
 	tokens   []Token
 	position int
 }
 
-// NewExpressionParser creates a new expression parser
-func NewExpressionParser(input string) *ExpressionParser {
-	return &ExpressionParser{
+// NewParser creates a new expression parser
+func NewParser(input string) *Parser {
+	return &Parser{
 		input:    input,
 		tokens:   []Token{},
 		position: 0,
@@ -129,7 +129,7 @@ func NewExpressionParser(input string) *ExpressionParser {
 }
 
 // Tokenize converts the input string into tokens
-func (p *ExpressionParser) Tokenize() error {
+func (p *Parser) Tokenize() error {
 	i := 0
 	input := []rune(p.input)
 
@@ -303,7 +303,7 @@ func (p *ExpressionParser) Tokenize() error {
 				for prevPos >= 0 && unicode.IsSpace(input[prevPos]) {
 					prevPos--
 				}
-				// If previous character is alphanumeric, underscore, or dot, it's likely array access
+				// If the previous character is alphanumeric, underscore, or dot, it's likely array access
 				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.') {
 					isArrayAccess = true
 				}
@@ -311,7 +311,7 @@ func (p *ExpressionParser) Tokenize() error {
 
 			if !isArrayAccess && nextPos < len(input) {
 				nextChar := input[nextPos]
-				// If next char is a quote, number, or another bracket, it's likely a literal
+				// If the next char is a quote, number, or another bracket, it's likely a literal
 				if nextChar == '"' || nextChar == '\'' || unicode.IsDigit(nextChar) || nextChar == '[' || nextChar == '{' {
 					// This is an array literal - parse the entire literal
 					start := i
@@ -324,7 +324,7 @@ func (p *ExpressionParser) Tokenize() error {
 						} else if input[i] == ']' {
 							braceCount--
 						}
-						// Just advance the pointer - we'll extract the raw content
+						// Advance the pointer - we'll extract the raw content
 						i++
 					}
 
@@ -367,7 +367,7 @@ func (p *ExpressionParser) Tokenize() error {
 
 			if nextPos < len(input) {
 				nextChar := input[nextPos]
-				// If next char is a quote, it's likely an object literal
+				// If the next char is a quote, it's likely an object literal
 				if nextChar == '"' || nextChar == '\'' {
 					// This is an object literal - parse the entire literal
 					start := i
@@ -380,7 +380,7 @@ func (p *ExpressionParser) Tokenize() error {
 						} else if input[i] == '}' {
 							braceCount--
 						}
-						// Just advance the pointer - we'll extract the raw content
+						// Advance the pointer - we'll extract the raw content
 						i++
 					}
 
@@ -400,7 +400,7 @@ func (p *ExpressionParser) Tokenize() error {
 			}
 
 			// If not an object literal, treat as an error for now
-			// (since we don't have other uses for { in the current grammar)
+			// (since we don't have other uses for '{' in the current grammar)
 			return fmt.Errorf("unexpected character '{' at position %d - object literals must start with quoted keys", i)
 		case '.':
 			p.tokens = append(p.tokens, Token{
@@ -476,12 +476,12 @@ func (p *ExpressionParser) Tokenize() error {
 }
 
 // GetTokens returns the parsed tokens
-func (p *ExpressionParser) GetTokens() []Token {
+func (p *Parser) GetTokens() []Token {
 	return p.tokens
 }
 
 // ToPostfix converts the tokenized expression to postfix notation using Shunting Yard algorithm
-func (p *ExpressionParser) ToPostfix() ([]Token, error) {
+func (p *Parser) ToPostfix() ([]Token, error) {
 	if len(p.tokens) == 0 {
 		return nil, fmt.Errorf("no tokens to process")
 	}
@@ -562,7 +562,7 @@ func (p *ExpressionParser) ToPostfix() ([]Token, error) {
 			if len(operatorStack) == 0 {
 				return nil, fmt.Errorf("mismatched brackets")
 			}
-			// Remove the left bracket and add array access operator
+			// Remove the left bracket and add the array access operator
 			operatorStack = operatorStack[:len(operatorStack)-1]
 			output = append(output, Token{Type: TokenOperator, Value: "[]", Position: token.Position})
 		}
@@ -682,20 +682,14 @@ func (es *EvaluationStack) ToString() string {
 		return stack[0]
 	}
 
-	// If we have multiple items on stack, join them
+	// If we have multiple items on the stack, join them
 	return strings.Join(stack, "")
 }
 
 // ParseExpression parses an expression and returns the evaluation stack
 func ParseExpression(expression string) (*EvaluationStack, error) {
-	// Phase 1: Process {{ }} sub-expressions first (no longer needed)
-	// processedExpression, err := ProcessNestedExpressions(expression)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("nested expression processing error: %w", err)
-	// }
 
-	// Phase 2: Parse the processed expression normally
-	parser := NewExpressionParser(expression)
+	parser := NewParser(expression)
 
 	err := parser.Tokenize()
 	if err != nil {
@@ -715,7 +709,7 @@ func NewExpression(expression string) (*EvaluationStack, error) {
 	return ParseExpression(expression)
 }
 
-// Helper function to convert token type to string for debugging
+// Helper function to convert a token type to string for debugging
 func tokenTypeString(t TokenType) string {
 	switch t {
 	case TokenNumber:

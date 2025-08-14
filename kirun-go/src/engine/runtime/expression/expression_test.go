@@ -73,7 +73,7 @@ func TestIdentifierWithOperatorInName(t *testing.T) {
 }
 
 func TestExpressionParser(t *testing.T) {
-	parser := NewExpressionParser("1 + 2 * 3")
+	parser := NewParser("1 + 2 * 3")
 	err := parser.Tokenize()
 	assert.NoError(t, err)
 
@@ -232,7 +232,7 @@ func TestSubExpression(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Debug: Print tokens and postfix tokens
-	parser := NewExpressionParser("{{ 1 + 2}} * 3")
+	parser := NewParser("{{ 1 + 2}} * 3")
 	err = parser.Tokenize()
 	assert.NoError(t, err)
 
@@ -266,4 +266,105 @@ func TestExpressionWithOnlyIdentifier(t *testing.T) {
 	assert.NoError(t, err)
 	tokens := expr.GetTokens()
 	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
+}
+
+// Now testing error cases
+
+func TestTokenizationErrors(t *testing.T) {
+	// Test unterminated sub-expression
+	_, err := NewExpression("{{ 1 + 2")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated sub-expression")
+
+	// Test unterminated string literal
+	_, err = NewExpression(`"Hello world`)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated string literal")
+
+	// Test unterminated array literal
+	_, err = NewExpression("[1, 2, 3")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated array literal")
+
+	// Test unterminated object literal
+	_, err = NewExpression(`{"name": "John"`)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated object literal")
+
+	// Test invalid object literal (doesn't start with quoted key)
+	_, err = NewExpression("{name: 'John'}")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "object literals must start with quoted keys")
+
+	// Test unexpected character
+	_, err = NewExpression("1 + 2 @ 3")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unexpected character '@'")
+}
+
+func TestPostfixConversionErrors(t *testing.T) {
+	// Test mismatched parentheses
+	parser := NewParser("(1 + 2")
+	err := parser.Tokenize()
+	assert.NoError(t, err)
+
+	_, err = parser.ToPostfix()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "mismatched parentheses")
+
+	// Test mismatched parentheses (too many closing)
+	parser = NewParser("1 + 2)")
+	err = parser.Tokenize()
+	assert.NoError(t, err)
+
+	_, err = parser.ToPostfix()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "mismatched parentheses")
+}
+
+func TestNestedExpressionErrors(t *testing.T) {
+	// Test deeply nested sub-expressions
+	_, err := NewExpression("{{ {{ {{ 1 + 2 }} }}")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated sub-expression")
+
+	// Test mixed nested expressions
+	_, err = NewExpression("{{ 1 + {{ 2 + 3 }}")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated sub-expression")
+}
+
+func TestArrayLiteralErrors(t *testing.T) {
+	// Test nested array literal with mismatched brackets
+	_, err := NewExpression("[[1, 2], [3, 4")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated array literal")
+}
+
+func TestObjectLiteralErrors(t *testing.T) {
+	// Test nested object literal with mismatched braces
+	_, err := NewExpression(`{"user": {"name": "John"}`)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated object literal")
+}
+
+func TestStringLiteralErrors(t *testing.T) {
+	// Test unterminated string with escape sequence
+	_, err := NewExpression(`"Hello\nWorld`)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated string literal")
+}
+
+func TestComplexExpressionErrors(t *testing.T) {
+	// Test complex expression with multiple errors
+	_, err := NewExpression("(1 + 2 * [3, 4, 5")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unterminated array literal")
+}
+
+func TestWhitespaceAndFormattingErrors(t *testing.T) {
+	// Test expression with invalid characters in identifiers
+	_, err := NewExpression("Context.user@name")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unexpected character '@'")
 }
