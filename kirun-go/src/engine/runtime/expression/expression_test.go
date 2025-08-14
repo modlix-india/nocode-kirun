@@ -101,6 +101,84 @@ func TestStringExpression(t *testing.T) {
 	assert.Equal(t, "'1 and 2'", expr.ToString())
 }
 
+func TestArrayLiteralTokenization(t *testing.T) {
+	// Test simple array literal
+	expr, err := NewExpression("[1, 2, 3]")
+	assert.NoError(t, err)
+	assert.Equal(t, "[1, 2, 3]", expr.ToString())
+
+	// Test array literal with strings
+	expr, err = NewExpression(`["a", "b", "c"]`)
+	assert.NoError(t, err)
+	assert.Equal(t, `["a", "b", "c"]`, expr.ToString())
+
+	// Test array literal with mixed types
+	expr, err = NewExpression(`[1, "hello", true, null]`)
+	assert.NoError(t, err)
+	assert.Equal(t, `[1, "hello", true, null]`, expr.ToString())
+
+	// Test nested array literal
+	expr, err = NewExpression(`[[1, 2], [3, 4]]`)
+	assert.NoError(t, err)
+	assert.Equal(t, `[[1, 2], [3, 4]]`, expr.ToString())
+}
+
+func TestObjectLiteralTokenization(t *testing.T) {
+	// Test simple object literal
+	expr, err := NewExpression(`{"key": "value"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"key": "value"}`, expr.ToString())
+
+	// Test object literal with multiple properties
+	expr, err = NewExpression(`{"name": "John", "age": 30, "active": true}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"name": "John", "age": 30, "active": true}`, expr.ToString())
+
+	// Test nested object literal
+	expr, err = NewExpression(`{"user": {"name": "John", "settings": {"theme": "dark"}}}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"user": {"name": "John", "settings": {"theme": "dark"}}}`, expr.ToString())
+
+	// Test object with array property
+	expr, err = NewExpression(`{"tags": ["tag1", "tag2"], "count": 2}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"tags": ["tag1", "tag2"], "count": 2}`, expr.ToString())
+}
+
+func TestArrayAccessVsArrayLiteral(t *testing.T) {
+	// Test array access (should not be treated as literal)
+	expr, err := NewExpression("Context.array[0]")
+	assert.NoError(t, err)
+	assert.Equal(t, "Context.array[0]", expr.ToString())
+
+	// Test array literal
+	expr, err = NewExpression("[1, 2, 3]")
+	assert.NoError(t, err)
+	assert.Equal(t, "[1, 2, 3]", expr.ToString())
+
+	// Test mixed: array literal in expression
+	expr, err = NewExpression("Context.array + [1, 2, 3]")
+	assert.NoError(t, err)
+	assert.Equal(t, "(Context.array+[1, 2, 3])", expr.ToString())
+}
+
+func TestObjectAccessVsObjectLiteral(t *testing.T) {
+	// Test object property access (should not be treated as literal)
+	expr, err := NewExpression("Context.user.name")
+	assert.NoError(t, err)
+	assert.Equal(t, "Context.user.name", expr.ToString())
+
+	// Test object literal
+	expr, err = NewExpression(`{"name": "John"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"name": "John"}`, expr.ToString())
+
+	// Test mixed: object literal in expression
+	expr, err = NewExpression(`Context.user + {"name": "John"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `(Context.user+{"name": "John"})`, expr.ToString())
+}
+
 func TestStringConcatenation(t *testing.T) {
 	expr, err := NewExpression("'1 and 2' + \"3 or 4\"")
 	assert.NoError(t, err)
@@ -124,6 +202,26 @@ func TestExpressionWithIdentifiers(t *testing.T) {
 	assert.NoError(t, err)
 	tokens := expr.GetTokens()
 	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.name", Position: 0}, tokens[0])
-	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 10}, tokens[1])
-	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 12}, tokens[2])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 17}, tokens[1])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 15}, tokens[2])
+}
+
+func TestExpressionWithIdentifiersAndArrayOperator(t *testing.T) {
+	expr, err := NewExpression("Store.user.nos[  0 ] - Store.user.nos[ 1 ]")
+	assert.NoError(t, err)
+	tokens := expr.GetTokens()
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "0", Position: 17}, tokens[1])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 19}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 23}, tokens[3])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "1", Position: 39}, tokens[4])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 41}, tokens[5])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "-", Position: 21}, tokens[6])
+}
+
+func TestExpressionWithOnlyIdentifier(t *testing.T) {
+	expr, err := NewExpression("Store.user.nos")
+	assert.NoError(t, err)
+	tokens := expr.GetTokens()
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
 }

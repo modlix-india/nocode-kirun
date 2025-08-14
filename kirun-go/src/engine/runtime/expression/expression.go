@@ -10,7 +10,7 @@ import (
 type TokenType int
 
 const (
-	TokenNumber TokenType = iota
+	TokenNumber = iota
 	TokenString
 	TokenIdentifier
 	TokenOperator
@@ -26,6 +26,8 @@ const (
 	TokenNull
 	TokenEOF
 	TokenSubExpression
+	TokenArrayLiteral
+	TokenObjectLiteral
 )
 
 // Token represents a parsed token
@@ -103,11 +105,11 @@ var operatorMap = map[string]Operator{
 
 // Export a copy of the operatorMap when needed
 func GetOperatorMap() map[string]Operator {
-	copy := make(map[string]Operator)
+	c := make(map[string]Operator)
 	for k, v := range operatorMap {
-		copy[k] = v
+		c[k] = v
 	}
-	return copy
+	return c
 }
 
 // ExpressionParser represents the expression parser
@@ -286,6 +288,102 @@ func (p *ExpressionParser) Tokenize() error {
 			})
 			i++
 		case '[':
+			// Check if this is an array literal or array access
+			// Look ahead to see if the next non-whitespace character suggests a literal
+			nextPos := i + 1
+			for nextPos < len(input) && unicode.IsSpace(input[nextPos]) {
+				nextPos++
+			}
+
+			// Check if this bracket is preceded by an identifier (indicating array access)
+			isArrayAccess := false
+			if i > 0 {
+				prevPos := i - 1
+				// Skip backwards over whitespace
+				for prevPos >= 0 && unicode.IsSpace(input[prevPos]) {
+					prevPos--
+				}
+				// If previous character is alphanumeric, underscore, or dot, it's likely array access
+				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.') {
+					isArrayAccess = true
+				}
+			}
+
+			if !isArrayAccess && nextPos < len(input) {
+				nextChar := input[nextPos]
+				// If next char is a quote, number, or another bracket, it's likely a literal
+				if nextChar == '"' || nextChar == '\'' || unicode.IsDigit(nextChar) || nextChar == '[' || nextChar == '{' {
+					// This is an array literal - parse the entire literal
+					start := i
+					i++ // Skip opening bracket
+					braceCount := 1
+
+					for i < len(input) && braceCount > 0 {
+						if input[i] == '[' {
+							braceCount++
+						} else if input[i] == ']' {
+							braceCount--
+						} else if input[i] == '"' || input[i] == '\'' {
+							// Skip string literals within the array
+							quote := input[i]
+							i++ // Skip opening quote
+							for i < len(input) && input[i] != quote {
+								if input[i] == '\\' && i+1 < len(input) {
+									i++ // Skip escape character
+								}
+								i++
+							}
+							if i < len(input) {
+								i++ // Skip closing quote
+							}
+							continue
+						} else if input[i] == '{' {
+							// Skip object literals within the array
+							objBraceCount := 1
+							i++ // Skip opening brace
+							for i < len(input) && objBraceCount > 0 {
+								if input[i] == '{' {
+									objBraceCount++
+								} else if input[i] == '}' {
+									objBraceCount--
+								} else if input[i] == '"' || input[i] == '\'' {
+									// Skip string literals within the object
+									quote := input[i]
+									i++ // Skip opening quote
+									for i < len(input) && input[i] != quote {
+										if input[i] == '\\' && i+1 < len(input) {
+											i++ // Skip escape character
+										}
+										i++
+									}
+									if i < len(input) {
+										i++ // Skip closing quote
+									}
+									continue
+								}
+								i++
+							}
+							continue
+						}
+						i++
+					}
+
+					if braceCount != 0 {
+						return fmt.Errorf("unterminated array literal at position %d", start)
+					}
+
+					// Extract the array content (without the brackets)
+					arrayContent := string(input[start+1 : i-1])
+					p.tokens = append(p.tokens, Token{
+						Type:     TokenArrayLiteral,
+						Value:    arrayContent,
+						Position: start,
+					})
+					continue
+				}
+			}
+
+			// Regular array access
 			p.tokens = append(p.tokens, Token{
 				Type:     TokenLeftBracket,
 				Value:    "[",
@@ -299,6 +397,91 @@ func (p *ExpressionParser) Tokenize() error {
 				Position: i,
 			})
 			i++
+		case '{':
+			// Check if this is an object literal
+			// Look ahead to see if the next non-whitespace character suggests a literal
+			nextPos := i + 1
+			for nextPos < len(input) && unicode.IsSpace(input[nextPos]) {
+				nextPos++
+			}
+
+			if nextPos < len(input) {
+				nextChar := input[nextPos]
+				// If next char is a quote, it's likely an object literal
+				if nextChar == '"' || nextChar == '\'' {
+					// This is an object literal - parse the entire literal
+					start := i
+					i++ // Skip opening brace
+					braceCount := 1
+
+					for i < len(input) && braceCount > 0 {
+						if input[i] == '{' {
+							braceCount++
+						} else if input[i] == '}' {
+							braceCount--
+						} else if input[i] == '"' || input[i] == '\'' {
+							// Skip string literals within the object
+							quote := input[i]
+							i++ // Skip opening quote
+							for i < len(input) && input[i] != quote {
+								if input[i] == '\\' && i+1 < len(input) {
+									i++ // Skip escape character
+								}
+								i++
+							}
+							if i < len(input) {
+								i++ // Skip closing quote
+							}
+							continue
+						} else if input[i] == '[' {
+							// Skip array literals within the object
+							arrBraceCount := 1
+							i++ // Skip opening bracket
+							for i < len(input) && arrBraceCount > 0 {
+								if input[i] == '[' {
+									arrBraceCount++
+								} else if input[i] == ']' {
+									arrBraceCount--
+								} else if input[i] == '"' || input[i] == '\'' {
+									// Skip string literals within the array
+									quote := input[i]
+									i++ // Skip opening quote
+									for i < len(input) && input[i] != quote {
+										if input[i] == '\\' && i+1 < len(input) {
+											i++ // Skip escape character
+										}
+										i++
+									}
+									if i < len(input) {
+										i++ // Skip closing quote
+									}
+									continue
+								}
+								i++
+							}
+							continue
+						}
+						i++
+					}
+
+					if braceCount != 0 {
+						return fmt.Errorf("unterminated object literal at position %d", start)
+					}
+
+					// Extract the object content (without the braces)
+					objectContent := string(input[start+1 : i-1])
+					p.tokens = append(p.tokens, Token{
+						Type:     TokenObjectLiteral,
+						Value:    objectContent,
+						Position: start,
+					})
+					continue
+				}
+			}
+
+			// If not an object literal, treat as an error for now
+			// (since we don't have other uses for { in the current grammar)
+			return fmt.Errorf("unexpected character '{' at position %d - object literals must start with quoted keys", i)
 		case '.':
 			p.tokens = append(p.tokens, Token{
 				Type:     TokenDot,
@@ -331,7 +514,8 @@ func (p *ExpressionParser) Tokenize() error {
 			// Identifiers and keywords
 			if unicode.IsLetter(char) || char == '_' {
 				start := i
-				for i < len(input) && (unicode.IsLetter(input[i]) || unicode.IsDigit(input[i]) || input[i] == '_') {
+				for i < len(input) && (unicode.IsLetter(input[i]) || unicode.IsDigit(input[i]) ||
+					input[i] == '_' || input[i] == '$' || input[i] == '.') {
 					i++
 				}
 				value := string(input[start:i])
@@ -391,7 +575,7 @@ func (p *ExpressionParser) ToPostfix() ([]Token, error) {
 		}
 
 		switch token.Type {
-		case TokenNumber, TokenString, TokenIdentifier, TokenBoolean, TokenNull, TokenSubExpression:
+		case TokenNumber, TokenString, TokenIdentifier, TokenBoolean, TokenNull, TokenSubExpression, TokenArrayLiteral, TokenObjectLiteral:
 			output = append(output, token)
 
 		case TokenLeftParen:
@@ -559,6 +743,12 @@ func (es *EvaluationStack) ToString() string {
 		case TokenSubExpression:
 			// Instead of parsing and stringifying, just output as {{...}}
 			stack = append(stack, fmt.Sprintf("{{%s}}", token.Value))
+		case TokenArrayLiteral:
+			// Array literal: [content]
+			stack = append(stack, fmt.Sprintf("[%s]", token.Value))
+		case TokenObjectLiteral:
+			// Object literal: {content}
+			stack = append(stack, fmt.Sprintf("{%s}", token.Value))
 		}
 	}
 
@@ -630,6 +820,12 @@ func tokenTypeString(t TokenType) string {
 		return "BOOL"
 	case TokenNull:
 		return "NULL"
+	case TokenSubExpression:
+		return "SUBEXPR"
+	case TokenArrayLiteral:
+		return "ARRAY"
+	case TokenObjectLiteral:
+		return "OBJECT"
 	case TokenEOF:
 		return "EOF"
 	default:
