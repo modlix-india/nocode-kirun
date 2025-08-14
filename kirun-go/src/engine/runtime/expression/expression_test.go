@@ -98,7 +98,7 @@ func TestExpressionParserWithAnd(t *testing.T) {
 func TestStringExpression(t *testing.T) {
 	expr, err := NewExpression("'1 and 2'")
 	assert.NoError(t, err)
-	assert.Equal(t, "'1 and 2'", expr.ToString())
+	assert.Equal(t, `"1 and 2"`, expr.ToString())
 }
 
 func TestArrayLiteralTokenization(t *testing.T) {
@@ -117,10 +117,20 @@ func TestArrayLiteralTokenization(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `[1, "hello", true, null]`, expr.ToString())
 
+	// Test array literal with newlines in string values
+	expr, err = NewExpression(`["line1", "line2\nwith newline", "line3"]`)
+	assert.NoError(t, err)
+	assert.Equal(t, `["line1", "line2\nwith newline", "line3"]`, expr.ToString())
+
 	// Test nested array literal
 	expr, err = NewExpression(`[[1, 2], [3, 4]]`)
 	assert.NoError(t, err)
 	assert.Equal(t, `[[1, 2], [3, 4]]`, expr.ToString())
+
+	// Test nested array literal with newlines
+	expr, err = NewExpression(`[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`)
+	assert.NoError(t, err)
+	assert.Equal(t, `[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`, expr.ToString())
 }
 
 func TestObjectLiteralTokenization(t *testing.T) {
@@ -133,6 +143,16 @@ func TestObjectLiteralTokenization(t *testing.T) {
 	expr, err = NewExpression(`{"name": "John", "age": 30, "active": true}`)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"name": "John", "age": 30, "active": true}`, expr.ToString())
+
+	// Test object literal with newlines in string values
+	expr, err = NewExpression(`{"description": "This is a\nmulti-line\ndescription", "name": "John"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"description": "This is a\nmulti-line\ndescription", "name": "John"}`, expr.ToString())
+
+	// Test object literal with newlines in array values
+	expr, err = NewExpression(`{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`)
+	assert.NoError(t, err)
+	assert.Equal(t, `{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`, expr.ToString())
 
 	// Test nested object literal
 	expr, err = NewExpression(`{"user": {"name": "John", "settings": {"theme": "dark"}}}`)
@@ -182,7 +202,29 @@ func TestObjectAccessVsObjectLiteral(t *testing.T) {
 func TestStringConcatenation(t *testing.T) {
 	expr, err := NewExpression("'1 and 2' + \"3 or 4\"")
 	assert.NoError(t, err)
-	assert.Equal(t, "('1 and 2'+'3 or 4')", expr.ToString())
+	assert.Equal(t, `("1 and 2"+"3 or 4")`, expr.ToString())
+}
+
+func TestStringLiteralsWithNewlines(t *testing.T) {
+	// Test string literal with newline escape sequence
+	expr, err := NewExpression(`"Hello\nWorld"`)
+	assert.NoError(t, err)
+	assert.Equal(t, `"Hello\nWorld"`, expr.ToString())
+
+	// Test string literal with tab escape sequence
+	expr, err = NewExpression(`"Hello\tWorld"`)
+	assert.NoError(t, err)
+	assert.Equal(t, `"Hello\tWorld"`, expr.ToString())
+
+	// Test string literal with carriage return escape sequence
+	expr, err = NewExpression(`"Hello\rWorld"`)
+	assert.NoError(t, err)
+	assert.Equal(t, `"Hello\rWorld"`, expr.ToString())
+
+	// Test string literal with backslash escape sequence
+	expr, err = NewExpression(`"Hello\\World"`)
+	assert.NoError(t, err)
+	assert.Equal(t, `"Hello\\World"`, expr.ToString())
 }
 
 func TestSubExpression(t *testing.T) {

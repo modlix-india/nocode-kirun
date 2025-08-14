@@ -323,48 +323,8 @@ func (p *ExpressionParser) Tokenize() error {
 							braceCount++
 						} else if input[i] == ']' {
 							braceCount--
-						} else if input[i] == '"' || input[i] == '\'' {
-							// Skip string literals within the array
-							quote := input[i]
-							i++ // Skip opening quote
-							for i < len(input) && input[i] != quote {
-								if input[i] == '\\' && i+1 < len(input) {
-									i++ // Skip escape character
-								}
-								i++
-							}
-							if i < len(input) {
-								i++ // Skip closing quote
-							}
-							continue
-						} else if input[i] == '{' {
-							// Skip object literals within the array
-							objBraceCount := 1
-							i++ // Skip opening brace
-							for i < len(input) && objBraceCount > 0 {
-								if input[i] == '{' {
-									objBraceCount++
-								} else if input[i] == '}' {
-									objBraceCount--
-								} else if input[i] == '"' || input[i] == '\'' {
-									// Skip string literals within the object
-									quote := input[i]
-									i++ // Skip opening quote
-									for i < len(input) && input[i] != quote {
-										if input[i] == '\\' && i+1 < len(input) {
-											i++ // Skip escape character
-										}
-										i++
-									}
-									if i < len(input) {
-										i++ // Skip closing quote
-									}
-									continue
-								}
-								i++
-							}
-							continue
 						}
+						// Just advance the pointer - we'll extract the raw content
 						i++
 					}
 
@@ -419,48 +379,8 @@ func (p *ExpressionParser) Tokenize() error {
 							braceCount++
 						} else if input[i] == '}' {
 							braceCount--
-						} else if input[i] == '"' || input[i] == '\'' {
-							// Skip string literals within the object
-							quote := input[i]
-							i++ // Skip opening quote
-							for i < len(input) && input[i] != quote {
-								if input[i] == '\\' && i+1 < len(input) {
-									i++ // Skip escape character
-								}
-								i++
-							}
-							if i < len(input) {
-								i++ // Skip closing quote
-							}
-							continue
-						} else if input[i] == '[' {
-							// Skip array literals within the object
-							arrBraceCount := 1
-							i++ // Skip opening bracket
-							for i < len(input) && arrBraceCount > 0 {
-								if input[i] == '[' {
-									arrBraceCount++
-								} else if input[i] == ']' {
-									arrBraceCount--
-								} else if input[i] == '"' || input[i] == '\'' {
-									// Skip string literals within the array
-									quote := input[i]
-									i++ // Skip opening quote
-									for i < len(input) && input[i] != quote {
-										if input[i] == '\\' && i+1 < len(input) {
-											i++ // Skip escape character
-										}
-										i++
-									}
-									if i < len(input) {
-										i++ // Skip closing quote
-									}
-									continue
-								}
-								i++
-							}
-							continue
 						}
+						// Just advance the pointer - we'll extract the raw content
 						i++
 					}
 
@@ -468,7 +388,7 @@ func (p *ExpressionParser) Tokenize() error {
 						return fmt.Errorf("unterminated object literal at position %d", start)
 					}
 
-					// Extract the object content (without the braces)
+					// Extract the object content (without the braces) - preserve all whitespace and newlines
 					objectContent := string(input[start+1 : i-1])
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenObjectLiteral,
@@ -699,8 +619,14 @@ func (es *EvaluationStack) ToString() string {
 		case TokenNumber, TokenIdentifier, TokenBoolean, TokenNull:
 			stack = append(stack, token.Value)
 		case TokenString:
-			// Wrap string values in quotes
-			stack = append(stack, fmt.Sprintf("'%s'", token.Value))
+			// Preserve the original string format with double quotes and escape sequences
+			// We need to re-escape special characters and quotes to maintain the original format
+			escapedValue := strings.ReplaceAll(token.Value, "\\", "\\\\")
+			escapedValue = strings.ReplaceAll(escapedValue, "\"", "\\\"")
+			escapedValue = strings.ReplaceAll(escapedValue, "\n", "\\n")
+			escapedValue = strings.ReplaceAll(escapedValue, "\t", "\\t")
+			escapedValue = strings.ReplaceAll(escapedValue, "\r", "\\r")
+			stack = append(stack, fmt.Sprintf("\"%s\"", escapedValue))
 		case TokenOperator, TokenDot:
 			if len(stack) < 2 {
 				// Handle unary operators
