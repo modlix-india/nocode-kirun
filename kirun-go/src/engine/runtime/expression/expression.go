@@ -30,6 +30,27 @@ const (
 	TokenObjectLiteral
 )
 
+var TokenName = map[TokenType]string{
+	TokenNumber:        "Number",
+	TokenString:        "String",
+	TokenIdentifier:    "Identifier",
+	TokenOperator:      "Operator",
+	TokenLeftParen:     "Left Parenthesis",
+	TokenRightParen:    "Right Parenthesis",
+	TokenLeftBracket:   "Left Bracket",
+	TokenRightBracket:  "Right Bracket",
+	TokenComma:         "Comma",
+	TokenDot:           "Dot",
+	TokenQuestion:      "Question",
+	TokenColon:         "Colon",
+	TokenBoolean:       "Boolean",
+	TokenNull:          "Null",
+	TokenEOF:           "EOF",
+	TokenSubExpression: "Sub Expression",
+	TokenArrayLiteral:  "Array Literal",
+	TokenObjectLiteral: "Object Literal",
+}
+
 // Token represents a parsed token
 type Token struct {
 	Type     TokenType
@@ -319,9 +340,10 @@ func (p *Parser) Tokenize() error {
 					braceCount := 1
 
 					for i < len(input) && braceCount > 0 {
-						if input[i] == '[' {
+						switch input[i] {
+						case '[':
 							braceCount++
-						} else if input[i] == ']' {
+						case ']':
 							braceCount--
 						}
 						// Advance the pointer - we'll extract the raw content
@@ -341,6 +363,31 @@ func (p *Parser) Tokenize() error {
 					})
 					continue
 				}
+			}
+
+			// For array access, we need to validate bracket matching
+			if isArrayAccess {
+				start := i
+				i++ // Skip opening bracket
+				braceCount := 1
+
+				// Track brackets to ensure proper matching
+				for i < len(input) && braceCount > 0 {
+					switch input[i] {
+					case '[':
+						braceCount++
+					case ']':
+						braceCount--
+					}
+					i++
+				}
+
+				if braceCount != 0 {
+					return fmt.Errorf("unterminated array access at position %d", start)
+				}
+
+				// Go back to the opening bracket to tokenize it properly
+				i = start
 			}
 
 			// Regular array access
@@ -602,7 +649,7 @@ func (es *EvaluationStack) GetTokens() []Token {
 func (es *EvaluationStack) String() string {
 	var parts []string
 	for _, token := range es.tokens {
-		parts = append(parts, fmt.Sprintf("%s:%s", tokenTypeString(token.Type), token.Value))
+		parts = append(parts, fmt.Sprintf("Token[%s]: %s", TokenName[token.Type], token.Value))
 	}
 	return strings.Join(parts, " ")
 }
@@ -707,48 +754,4 @@ func ParseExpression(expression string) (*EvaluationStack, error) {
 // NewExpression creates a new expression from a string
 func NewExpression(expression string) (*EvaluationStack, error) {
 	return ParseExpression(expression)
-}
-
-// Helper function to convert a token type to string for debugging
-func tokenTypeString(t TokenType) string {
-	switch t {
-	case TokenNumber:
-		return "NUM"
-	case TokenString:
-		return "STR"
-	case TokenIdentifier:
-		return "ID"
-	case TokenOperator:
-		return "OP"
-	case TokenLeftParen:
-		return "("
-	case TokenRightParen:
-		return ")"
-	case TokenLeftBracket:
-		return "["
-	case TokenRightBracket:
-		return "]"
-	case TokenComma:
-		return ","
-	case TokenDot:
-		return "."
-	case TokenQuestion:
-		return "?"
-	case TokenColon:
-		return ":"
-	case TokenBoolean:
-		return "BOOL"
-	case TokenNull:
-		return "NULL"
-	case TokenSubExpression:
-		return "SUBEXPR"
-	case TokenArrayLiteral:
-		return "ARRAY"
-	case TokenObjectLiteral:
-		return "OBJECT"
-	case TokenEOF:
-		return "EOF"
-	default:
-		return "UNKNOWN"
-	}
 }

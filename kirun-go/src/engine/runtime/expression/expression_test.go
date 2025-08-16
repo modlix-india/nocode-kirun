@@ -368,3 +368,32 @@ func TestWhitespaceAndFormattingErrors(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected character '@'")
 }
+
+func TestMismatchBrackets(t *testing.T) {
+	// Test mismatched brackets during postfix conversion
+	parser := NewParser("Store.user.name[2 + 3] + 4]")
+	err := parser.Tokenize()
+	assert.NoError(t, err)
+
+	_, err = parser.ToPostfix()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "mismatched brackets")
+}
+
+func TestMissingEndingBracket(t *testing.T) {
+	// Test missing ending bracket in array literal (not array access)
+	_, err := NewExpression("Store.user.name[2")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "tokenization error: unterminated array access at position 15")
+}
+
+func TestStringMethods(t *testing.T) {
+	expr, _ := NewExpression(`2 or false`)
+	assert.Equal(t, "Token[Number]: 2 Token[Boolean]: false Token[Operator]: or", expr.String())
+}
+
+func TestPositiveUnaryOperator(t *testing.T) {
+	expr, err := NewExpression("+2")
+	assert.NoError(t, err)
+	assert.Equal(t, "(+2)", expr.ToString())
+}
