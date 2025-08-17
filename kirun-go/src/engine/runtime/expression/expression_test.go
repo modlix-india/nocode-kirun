@@ -1,6 +1,7 @@
 package expression
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -396,4 +397,16 @@ func TestPositiveUnaryOperator(t *testing.T) {
 	expr, err := NewExpression("+2")
 	assert.NoError(t, err)
 	assert.Equal(t, "(+2)", expr.ToString())
+}
+
+func TestAllBracketsToSubExpressions(t *testing.T) {
+
+	parser := NewParser("Store.user.numbers[{{Store.user.number[(4 + Store.user.what) * 12]}}]")
+	err := parser.Tokenize()
+	assert.NoError(t, err)
+	postfix, err := parser.ToPostfix()
+
+	for _, token := range postfix {
+		fmt.Printf("%15s: %s\n", TokenName[token.Type], token.Value)
+	}
 }
