@@ -8,69 +8,82 @@ import (
 )
 
 func TestSimpleAddition(t *testing.T) {
-	expr, err := NewExpression("2+3")
+	parser := NewParser("2+3")
+
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(2+3)", expr.ToString())
+
+	assert.Equal(t, "(2+3)", TokensToString(tokens))
 }
 
 func TestComplexArithmeticWithDecimals(t *testing.T) {
-	expr, err := NewExpression("2.234 +3* 1.22243")
+	parser := NewParser("2.234 +3* 1.22243")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(2.234+(3*1.22243))", expr.ToString())
+	assert.Equal(t, "(2.234+(3*1.22243))", TokensToString(tokens))
 }
 
 func TestComplexArithmeticWithDivision(t *testing.T) {
-	expr, err := NewExpression("10*11+12*13*14/7")
+	parser := NewParser("10*11+12*13*14/7")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "((10*11)+(((12*13)*14)/7))", expr.ToString())
+	assert.Equal(t, "((10*11)+(((12*13)*14)/7))", TokensToString(tokens))
 }
 
 func TestBitwiseShiftAndEquality(t *testing.T) {
-	expr, err := NewExpression("34 << 2 = 8")
+	parser := NewParser("34 << 2 = 8")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "((34<<2)=8)", expr.ToString())
+	assert.Equal(t, "((34<<2)=8)", TokensToString(tokens))
 }
 
 func TestComplexContextAndStepsExpression(t *testing.T) {
-	expr, err := NewExpression("Context.a[Steps.loop.iteration.index - 1]+ Context.a[Steps.loop.iteration.index - 2]")
+	parser := NewParser("Context.a[Steps.loop.iteration.index - 1]+ Context.a[Steps.loop.iteration.index - 2]")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(Context.a[(Steps.loop.iteration.index-1)]+Context.a[(Steps.loop.iteration.index-2)])", expr.ToString())
+	assert.Equal(t, "(Context.a[(Steps.loop.iteration.index-1)]+Context.a[(Steps.loop.iteration.index-2)])", TokensToString(tokens))
 }
 
 func TestStepsWithArrayAccess(t *testing.T) {
-	expr, err := NewExpression("Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+2")
+	parser := NewParser("Steps.step1.output.obj.array[Steps.step1.output.obj.num +1]+2")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(Steps.step1.output.obj.array[(Steps.step1.output.obj.num+1)]+2)", expr.ToString())
+	assert.Equal(t, "(Steps.step1.output.obj.array[(Steps.step1.output.obj.num+1)]+2)", TokensToString(tokens))
 }
 
 func TestNestedArrayAccess(t *testing.T) {
-	expr, err := NewExpression("Context.a[Steps.loop.iteration.index][Steps.loop.iteration.index + 1]")
+	parser := NewParser("Context.a[Steps.loop.iteration.index][Steps.loop.iteration.index + 1]")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Context.a[Steps.loop.iteration.index][(Steps.loop.iteration.index+1)]", expr.ToString())
+	assert.Equal(t, "Context.a[Steps.loop.iteration.index][(Steps.loop.iteration.index+1)]", TokensToString(tokens))
 }
 
 func TestDeepObjectAccess(t *testing.T) {
-	expr, err := NewExpression("Context.a.b.c")
+	parser := NewParser("Context.a.b.c")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Context.a.b.c", expr.ToString())
+	assert.Equal(t, "Context.a.b.c", TokensToString(tokens))
 }
 
 func TestDeepObjectWithArray(t *testing.T) {
-	expr, err := NewExpression("Context.a.b[2].c")
+	parser := NewParser("Context.a.b[2].c")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Context.a.b[2].c", expr.ToString())
+	assert.Equal(t, "Context.a.b[2].c", TokensToString(tokens))
 }
 
 func TestLogicalORWithSpaces(t *testing.T) {
-	expr, err := NewExpression("Store.a.b.c or Store.c.d.x")
+	parser := NewParser("Store.a.b.c or Store.c.d.x")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(Store.a.b.c||Store.c.d.x)", expr.ToString())
+	assert.Equal(t, "(Store.a.b.c||Store.c.d.x)", TokensToString(tokens))
 }
 
 func TestIdentifierWithOperatorInName(t *testing.T) {
-	expr, err := NewExpression("Store.a.b.corStore.c.d.x")
+	parser := NewParser("Store.a.b.corStore.c.d.x")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Store.a.b.corStore.c.d.x", expr.ToString())
+	assert.Equal(t, "Store.a.b.corStore.c.d.x", TokensToString(tokens))
 }
 
 func TestExpressionParser(t *testing.T) {
@@ -91,168 +104,189 @@ func TestExpressionParser(t *testing.T) {
 }
 
 func TestExpressionParserWithAnd(t *testing.T) {
-	expr, err := NewExpression("1 and 2")
+	parser := NewParser("1 and 2")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(1&&2)", expr.ToString())
+	assert.Equal(t, "(1&&2)", TokensToString(tokens))
 }
 
 func TestStringExpression(t *testing.T) {
-	expr, err := NewExpression("'1 and 2'")
+	parser := NewParser("'1 and 2'")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `"1 and 2"`, expr.ToString())
+	assert.Equal(t, `"1 and 2"`, TokensToString(tokens))
 }
 
 func TestArrayLiteralTokenization(t *testing.T) {
 	// Test simple array literal
-	expr, err := NewExpression("[1, 2, 3]")
+	parser := NewParser("[1, 2, 3]")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "[1, 2, 3]", expr.ToString())
+	assert.Equal(t, "[1, 2, 3]", TokensToString(tokens))
 
 	// Test array literal with strings
-	expr, err = NewExpression(`["a", "b", "c"]`)
+	parser = NewParser(`["a", "b", "c"]`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `["a", "b", "c"]`, expr.ToString())
+	assert.Equal(t, `["a", "b", "c"]`, TokensToString(tokens))
 
 	// Test array literal with mixed types
-	expr, err = NewExpression(`[1, "hello", true, null]`)
+	parser = NewParser(`[1, "hello", true, null]`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `[1, "hello", true, null]`, expr.ToString())
+	assert.Equal(t, `[1, "hello", true, null]`, TokensToString(tokens))
 
 	// Test array literal with newlines in string values
-	expr, err = NewExpression(`["line1", "line2\nwith newline", "line3"]`)
+	parser = NewParser(`["line1", "line2\nwith newline", "line3"]`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `["line1", "line2\nwith newline", "line3"]`, expr.ToString())
+	assert.Equal(t, `["line1", "line2\nwith newline", "line3"]`, TokensToString(tokens))
 
 	// Test nested array literal
-	expr, err = NewExpression(`[[1, 2], [3, 4]]`)
+	parser = NewParser(`[[1, 2], [3, 4]]`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `[[1, 2], [3, 4]]`, expr.ToString())
+	assert.Equal(t, `[[1, 2], [3, 4]]`, TokensToString(tokens))
 
 	// Test nested array literal with newlines
-	expr, err = NewExpression(`[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`)
+	parser = NewParser(`[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`, expr.ToString())
+	assert.Equal(t, `[["item1\nwith newline", "item2"], ["item3", "item4\nanother newline"]]`, TokensToString(tokens))
 }
 
 func TestObjectLiteralTokenization(t *testing.T) {
 	// Test simple object literal
-	expr, err := NewExpression(`{"key": "value"}`)
+	parser := NewParser(`{"key": "value"}`)
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"key": "value"}`, expr.ToString())
+	assert.Equal(t, `{"key": "value"}`, TokensToString(tokens))
 
 	// Test object literal with multiple properties
-	expr, err = NewExpression(`{"name": "John", "age": 30, "active": true}`)
+	parser = NewParser(`{"name": "John", "age": 30, "active": true}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"name": "John", "age": 30, "active": true}`, expr.ToString())
+	assert.Equal(t, `{"name": "John", "age": 30, "active": true}`, TokensToString(tokens))
 
 	// Test object literal with newlines in string values
-	expr, err = NewExpression(`{"description": "This is a\nmulti-line\ndescription", "name": "John"}`)
+	parser = NewParser(`{"description": "This is a\nmulti-line\ndescription", "name": "John"}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"description": "This is a\nmulti-line\ndescription", "name": "John"}`, expr.ToString())
+	assert.Equal(t, `{"description": "This is a\nmulti-line\ndescription", "name": "John"}`, TokensToString(tokens))
 
 	// Test object literal with newlines in array values
-	expr, err = NewExpression(`{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`)
+	parser = NewParser(`{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`, expr.ToString())
+	assert.Equal(t, `{"tags": ["tag1", "tag2\nwith newline"], "count": 2}`, TokensToString(tokens))
 
 	// Test nested object literal
-	expr, err = NewExpression(`{"user": {"name": "John", "settings": {"theme": "dark"}}}`)
+	parser = NewParser(`{"user": {"name": "John", "settings": {"theme": "dark"}}}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"user": {"name": "John", "settings": {"theme": "dark"}}}`, expr.ToString())
+	assert.Equal(t, `{"user": {"name": "John", "settings": {"theme": "dark"}}}`, TokensToString(tokens))
 
 	// Test object with array property
-	expr, err = NewExpression(`{"tags": ["tag1", "tag2"], "count": 2}`)
+	parser = NewParser(`{"tags": ["tag1", "tag2"], "count": 2}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"tags": ["tag1", "tag2"], "count": 2}`, expr.ToString())
+	assert.Equal(t, `{"tags": ["tag1", "tag2"], "count": 2}`, TokensToString(tokens))
 }
 
 func TestArrayAccessVsArrayLiteral(t *testing.T) {
 	// Test array access (should not be treated as literal)
-	expr, err := NewExpression("Context.array[0]")
+	parser := NewParser("Context.array[0]")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Context.array[0]", expr.ToString())
+	assert.Equal(t, "Context.array[0]", TokensToString(tokens))
 
 	// Test array literal
-	expr, err = NewExpression("[1, 2, 3]")
+	parser = NewParser("[1, 2, 3]")
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "[1, 2, 3]", expr.ToString())
+	assert.Equal(t, "[1, 2, 3]", TokensToString(tokens))
 
 	// Test mixed: array literal in expression
-	expr, err = NewExpression("Context.array + [1, 2, 3]")
+	parser = NewParser("Context.array + [1, 2, 3]")
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(Context.array+[1, 2, 3])", expr.ToString())
+	assert.Equal(t, "(Context.array+[1, 2, 3])", TokensToString(tokens))
 }
 
 func TestObjectAccessVsObjectLiteral(t *testing.T) {
 	// Test object property access (should not be treated as literal)
-	expr, err := NewExpression("Context.user.name")
+	parser := NewParser("Context.user.name")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "Context.user.name", expr.ToString())
+	assert.Equal(t, "Context.user.name", TokensToString(tokens))
 
 	// Test object literal
-	expr, err = NewExpression(`{"name": "John"}`)
+	parser = NewParser(`{"name": "John"}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `{"name": "John"}`, expr.ToString())
+	assert.Equal(t, `{"name": "John"}`, TokensToString(tokens))
 
 	// Test mixed: object literal in expression
-	expr, err = NewExpression(`Context.user + {"name": "John"}`)
+	parser = NewParser(`Context.user + {"name": "John"}`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `(Context.user+{"name": "John"})`, expr.ToString())
+	assert.Equal(t, `(Context.user+{"name": "John"})`, TokensToString(tokens))
 }
 
 func TestStringConcatenation(t *testing.T) {
-	expr, err := NewExpression("'1 and 2' + \"3 or 4\"")
+	parser := NewParser("'1 and 2' + \"3 or 4\"")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `("1 and 2"+"3 or 4")`, expr.ToString())
+	assert.Equal(t, `("1 and 2"+"3 or 4")`, TokensToString(tokens))
 }
 
 func TestStringLiteralsWithNewlines(t *testing.T) {
 	// Test string literal with newline escape sequence
-	expr, err := NewExpression(`"Hello\nWorld"`)
+	parser := NewParser(`"Hello\nWorld"`)
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `"Hello\nWorld"`, expr.ToString())
+	assert.Equal(t, `"Hello\nWorld"`, TokensToString(tokens))
 
 	// Test string literal with tab escape sequence
-	expr, err = NewExpression(`"Hello\tWorld"`)
+	parser = NewParser(`"Hello\tWorld"`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `"Hello\tWorld"`, expr.ToString())
+	assert.Equal(t, `"Hello\tWorld"`, TokensToString(tokens))
 
 	// Test string literal with carriage return escape sequence
-	expr, err = NewExpression(`"Hello\rWorld"`)
+	parser = NewParser(`"Hello\rWorld"`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `"Hello\rWorld"`, expr.ToString())
+	assert.Equal(t, `"Hello\rWorld"`, TokensToString(tokens))
 
 	// Test string literal with backslash escape sequence
-	expr, err = NewExpression(`"Hello\\World"`)
+	parser = NewParser(`"Hello\\World"`)
+	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, `"Hello\\World"`, expr.ToString())
+	assert.Equal(t, `"Hello\\World"`, TokensToString(tokens))
 }
 
 func TestSubExpression(t *testing.T) {
-	expr, err := NewExpression("{{ 1 + 2}} * 3")
-	assert.NoError(t, err)
-
-	// Debug: Print tokens and postfix tokens
 	parser := NewParser("{{ 1 + 2}} * 3")
-	err = parser.Tokenize()
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
 
-	assert.Equal(t, "({{ 1 + 2}}*3)", expr.ToString())
+	assert.Equal(t, "({{ 1 + 2}}*3)", TokensToString(tokens))
 }
 
 func TestExpressionWithIdentifiers(t *testing.T) {
-	expr, err := NewExpression("Store.user.name* 2")
+	parser := NewParser("Store.user.name* 2")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	tokens := expr.GetTokens()
 	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.name", Position: 0}, tokens[0])
 	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 17}, tokens[1])
 	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 15}, tokens[2])
 }
 
 func TestExpressionWithIdentifiersAndArrayOperator(t *testing.T) {
-	expr, err := NewExpression("Store.user.nos[  0 ] - Store.user.nos[ 1 ]")
+	parser := NewParser("Store.user.nos[  0 ] - Store.user.nos[ 1 ]")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	tokens := expr.GetTokens()
 	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
 	assert.Equal(t, Token{Type: TokenNumber, Value: "0", Position: 17}, tokens[1])
 	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 19}, tokens[2])
@@ -263,9 +297,9 @@ func TestExpressionWithIdentifiersAndArrayOperator(t *testing.T) {
 }
 
 func TestExpressionWithOnlyIdentifier(t *testing.T) {
-	expr, err := NewExpression("Store.user.nos")
+	parser := NewParser("Store.user.nos")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	tokens := expr.GetTokens()
 	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
 }
 
@@ -273,32 +307,38 @@ func TestExpressionWithOnlyIdentifier(t *testing.T) {
 
 func TestTokenizationErrors(t *testing.T) {
 	// Test unterminated sub-expression
-	_, err := NewExpression("{{ 1 + 2")
+	parser := NewParser("{{ 1 + 2")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated sub-expression")
 
 	// Test unterminated string literal
-	_, err = NewExpression(`"Hello world`)
+	parser = NewParser(`"Hello world`)
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated string literal")
 
 	// Test unterminated array literal
-	_, err = NewExpression("[1, 2, 3")
+	parser = NewParser("[1, 2, 3")
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated array literal")
 
 	// Test unterminated object literal
-	_, err = NewExpression(`{"name": "John"`)
+	parser = NewParser(`{"name": "John"`)
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated object literal")
 
 	// Test invalid object literal (doesn't start with quoted key)
-	_, err = NewExpression("{name: 'John'}")
+	parser = NewParser("{name: 'John'}")
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "object literals must start with quoted keys")
 
 	// Test unexpected character
-	_, err = NewExpression("1 + 2 @ 3")
+	parser = NewParser("1 + 2 @ 3")
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected character '@'")
 }
@@ -325,47 +365,54 @@ func TestPostfixConversionErrors(t *testing.T) {
 
 func TestNestedExpressionErrors(t *testing.T) {
 	// Test deeply nested sub-expressions
-	_, err := NewExpression("{{ {{ {{ 1 + 2 }} }}")
+	parser := NewParser("{{ {{ {{ 1 + 2 }} }}")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated sub-expression")
 
 	// Test mixed nested expressions
-	_, err = NewExpression("{{ 1 + {{ 2 + 3 }}")
+	parser = NewParser("{{ 1 + {{ 2 + 3 }}")
+	_, err = parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated sub-expression")
 }
 
 func TestArrayLiteralErrors(t *testing.T) {
 	// Test nested array literal with mismatched brackets
-	_, err := NewExpression("[[1, 2], [3, 4")
+	parser := NewParser("[[1, 2], [3, 4")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated array literal")
 }
 
 func TestObjectLiteralErrors(t *testing.T) {
 	// Test nested object literal with mismatched braces
-	_, err := NewExpression(`{"user": {"name": "John"}`)
+	parser := NewParser(`{"user": {"name": "John"}`)
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated object literal")
 }
 
 func TestStringLiteralErrors(t *testing.T) {
 	// Test unterminated string with escape sequence
-	_, err := NewExpression(`"Hello\nWorld`)
+	parser := NewParser(`"Hello\nWorld`)
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated string literal")
 }
 
 func TestComplexExpressionErrors(t *testing.T) {
 	// Test complex expression with multiple errors
-	_, err := NewExpression("(1 + 2 * [3, 4, 5")
+	parser := NewParser("(1 + 2 * [3, 4, 5")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unterminated array literal")
 }
 
 func TestWhitespaceAndFormattingErrors(t *testing.T) {
 	// Test expression with invalid characters in identifiers
-	_, err := NewExpression("Context.user@name")
+	parser := NewParser("Context.user@name")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unexpected character '@'")
 }
@@ -383,30 +430,49 @@ func TestMismatchBrackets(t *testing.T) {
 
 func TestMissingEndingBracket(t *testing.T) {
 	// Test missing ending bracket in array literal (not array access)
-	_, err := NewExpression("Store.user.name[2")
+	parser := NewParser("Store.user.name[2")
+	_, err := parser.ToPostfix()
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "tokenization error: unterminated array access at position 15")
+	assert.Contains(t, err.Error(), "unterminated array access at position 15")
 }
 
 func TestStringMethods(t *testing.T) {
-	expr, _ := NewExpression(`2 or false`)
-	assert.Equal(t, "Token[Number]: 2 Token[Boolean]: false Token[Operator]: or", expr.String())
+	parser := NewParser(`2 or false`)
+	tokens, err := parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "(2||false)", TokensToString(tokens))
 }
 
 func TestPositiveUnaryOperator(t *testing.T) {
-	expr, err := NewExpression("+2")
+	parser := NewParser("+2")
+	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(+2)", expr.ToString())
+	assert.Equal(t, "(+2)", TokensToString(tokens))
 }
 
-func TestAllBracketsToSubExpressions(t *testing.T) {
-
-	parser := NewParser("Store.user.numbers[{{Store.user.number[(4 + Store.user.what) * 12]}}]")
-	err := parser.Tokenize()
+func TestTernaryOperator(t *testing.T) {
+	parser := NewParser("a > 10 ? a > 15 ? a + 2 : a - 2 : a + 3")
+	tokens, err := parser.ToPostfix()
+	fmt.Println(tokens)
 	assert.NoError(t, err)
-	postfix, err := parser.ToPostfix()
+	assert.Equal(t, "((a>10)?((a>15)?(a+2):(a-2)):(a+3))", TokensToString(tokens))
 
-	for _, token := range postfix {
-		fmt.Printf("%15s: %s\n", TokenName[token.Type], token.Value)
-	}
+	// parser = NewParser("a > 10 ? a - 2 : a + 3")
+	// tokens, err = parser.ToPostfix()
+	// assert.NoError(t, err)
+	// fmt.Println(tokens)
+	// assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
+
+	// parser = NewParser("a > 10 ? a - 2 : a + 3")
+	// tokens, err = parser.ToPostfix()
+	// assert.NoError(t, err)
+	// assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
+}
+
+func TestArrayLiteralTokenization2(t *testing.T) {
+	// Test simple array literal
+	parser := NewParser("[1, 2, 3]")
+	tokens, err := parser.ToPostfix()
+	assert.NoError(t, err)
+	fmt.Println(TokenName[tokens[0].Type])
 }

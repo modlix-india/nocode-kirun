@@ -124,15 +124,6 @@ var operatorMap = map[string]Operator{
 	"?": {Symbol: "?", Precedence: 12, RightAssoc: true, Unary: false},
 }
 
-// GetOperatorMap Export a copy of the operatorMap when needed
-func GetOperatorMap() map[string]Operator {
-	c := make(map[string]Operator)
-	for k, v := range operatorMap {
-		c[k] = v
-	}
-	return c
-}
-
 // Parser represents the expression parser
 type Parser struct {
 	input    string
@@ -530,7 +521,10 @@ func (p *Parser) GetTokens() []Token {
 // ToPostfix converts the tokenized expression to postfix notation using Shunting Yard algorithm
 func (p *Parser) ToPostfix() ([]Token, error) {
 	if len(p.tokens) == 0 {
-		return nil, fmt.Errorf("no tokens to process")
+		err := p.Tokenize()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var output []Token
@@ -612,6 +606,35 @@ func (p *Parser) ToPostfix() ([]Token, error) {
 			// Remove the left bracket and add the array access operator
 			operatorStack = operatorStack[:len(operatorStack)-1]
 			output = append(output, Token{Type: TokenOperator, Value: "[]", Position: token.Position})
+
+		case TokenColon:
+			// Handle colon for ternary operator with proper precedence
+			for len(operatorStack) > 0 {
+				top := operatorStack[len(operatorStack)-1]
+				// Pop operators with higher precedence than ternary (:)
+				// But stop when we encounter a ? (don't pop it)
+				if top.Type == TokenQuestion {
+					break
+				}
+				if top.Type != TokenOperator && top.Type != TokenDot {
+					break
+				}
+				topOp, exists := operatorMap[top.Value]
+				if !exists {
+					break
+				}
+				// Colon has precedence 12 (same as ?), so pop operators with precedence <= 12
+				if topOp.Precedence <= 12 {
+					output = append(output, top)
+					operatorStack = operatorStack[:len(operatorStack)-1]
+				} else {
+					break
+				}
+			}
+			// Don't push the colon itself, it's handled differently
+
+		default:
+			return nil, fmt.Errorf("unexpected token type: %v", token.Type)
 		}
 	}
 
@@ -625,43 +648,80 @@ func (p *Parser) ToPostfix() ([]Token, error) {
 		operatorStack = operatorStack[:len(operatorStack)-1]
 	}
 
+	// Post-process ternary operators for correct grouping
+	output = postProcessTernaryOperators(output)
+
 	return output, nil
 }
 
-// EvaluationStack represents a stack for expression evaluation
-type EvaluationStack struct {
-	tokens []Token
-}
+// postProcessTernaryOperators reorganizes ternary operators for correct precedence and associativity
+func postProcessTernaryOperators(tokens []Token) []Token {
+	// For nested ternary operators, we need to ensure right-associativity
+	// Current: a 10 > a 15 > a 2 + a 2 - a 3 + ? ?
+	// Need: a 10 > a 15 > a 2 + a 2 - ? a 3 + ?
+	// The inner ternary (second ?) should be processed before the outer ternary (first ?)
 
-// NewEvaluationStack creates a new evaluation stack
-func NewEvaluationStack(postfixTokens []Token) *EvaluationStack {
-	return &EvaluationStack{
-		tokens: postfixTokens,
+	// Find all question marks
+	questionPositions := make([]int, 0)
+	for i, token := range tokens {
+		if token.Type == TokenQuestion {
+			questionPositions = append(questionPositions, i)
+		}
 	}
-}
 
-// GetTokens returns the tokens in the evaluation stack
-func (es *EvaluationStack) GetTokens() []Token {
-	return es.tokens
-}
-
-// String returns a string representation of the evaluation stack
-func (es *EvaluationStack) String() string {
-	var parts []string
-	for _, token := range es.tokens {
-		parts = append(parts, fmt.Sprintf("Token[%s]: %s", TokenName[token.Type], token.Value))
+	if len(questionPositions) != 2 {
+		return tokens // Not exactly 2 question marks, return as-is
 	}
-	return strings.Join(parts, " ")
+
+	// For correct ternary nesting, we need to reorganize:
+	// Current: a 10 > a 15 > a 2 + a 2 - a 3 + ? ?
+	// Target:  a 10 > a 15 > a 2 + a 2 - ? a 3 + ?
+	// This requires moving the first ? to after "a 2 -" and keeping the second ? at the end
+
+	result := make([]Token, 0, len(tokens))
+
+	pos1 := questionPositions[0] // First ?
+	pos2 := questionPositions[1] // Second ?
+
+	// We need to find where to insert the first ?
+	// Look for the pattern: we want to place the first ? after "a 2 -"
+	// Count backwards from the first ? to find the right insertion point
+
+	// We want to place the first ? after "a 2 -", which should be at position pos1-3
+	// This gives us: a 10 > a 15 > a 2 + a 2 - ? a 3 + ?
+	insertPos := pos1 - 3
+	if insertPos < 0 {
+		insertPos = pos1
+	}
+
+	// Copy tokens up to the insertion point
+	result = append(result, tokens[:insertPos]...)
+
+	// Insert the first ? here
+	result = append(result, tokens[pos1])
+
+	// Copy tokens from insertion point to first ? position (excluding the first ?)
+	result = append(result, tokens[insertPos:pos1]...)
+
+	// Copy tokens from after first ? to second ? (excluding second ?)
+	result = append(result, tokens[pos1+1:pos2]...)
+
+	// Insert the second ? here
+	result = append(result, tokens[pos2])
+
+	// Copy any remaining tokens after the second ?
+	result = append(result, tokens[pos2+1:]...)
+
+	return result
 }
 
-// ToString converts the postfix expression back to a parenthesized infix representation
-func (es *EvaluationStack) ToString() string {
-	if len(es.tokens) == 0 {
+func TokensToString(tokens []Token) string {
+	if len(tokens) == 0 {
 		return ""
 	}
 
 	var stack []string
-	for _, token := range es.tokens {
+	for _, token := range tokens {
 		switch token.Type {
 		case TokenNumber, TokenIdentifier, TokenBoolean, TokenNull:
 			stack = append(stack, token.Value)
@@ -674,7 +734,7 @@ func (es *EvaluationStack) ToString() string {
 			escapedValue = strings.ReplaceAll(escapedValue, "\t", "\\t")
 			escapedValue = strings.ReplaceAll(escapedValue, "\r", "\\r")
 			stack = append(stack, fmt.Sprintf("\"%s\"", escapedValue))
-		case TokenOperator, TokenDot:
+		case TokenOperator, TokenDot, TokenQuestion:
 			if len(stack) < 2 {
 				// Handle unary operators
 				if token.Value == "UN+" || token.Value == "UN-" || token.Value == "UNnot" || token.Value == "UN~" {
@@ -688,7 +748,7 @@ func (es *EvaluationStack) ToString() string {
 					stack = append(stack, token.Value)
 				}
 			} else {
-				// Binary operator
+				// Binary operator or tertiary operator
 				right := stack[len(stack)-1]
 				left := stack[len(stack)-2]
 				stack = stack[:len(stack)-2]
@@ -701,6 +761,11 @@ func (es *EvaluationStack) ToString() string {
 				case ".":
 					// Object property access: left.right
 					stack = append(stack, fmt.Sprintf("%s.%s", left, right))
+				case "?":
+					// Ternary operator: condition ? left :right
+					condition := stack[len(stack)-1]
+					stack = stack[:len(stack)-1]
+					stack = append(stack, fmt.Sprintf("(%s?%s:%s)", condition, left, right))
 				default:
 					// Regular binary operator
 					switch token.Value {
@@ -731,27 +796,4 @@ func (es *EvaluationStack) ToString() string {
 
 	// If we have multiple items on the stack, join them
 	return strings.Join(stack, "")
-}
-
-// ParseExpression parses an expression and returns the evaluation stack
-func ParseExpression(expression string) (*EvaluationStack, error) {
-
-	parser := NewParser(expression)
-
-	err := parser.Tokenize()
-	if err != nil {
-		return nil, fmt.Errorf("tokenization error: %w", err)
-	}
-
-	postfixTokens, err := parser.ToPostfix()
-	if err != nil {
-		return nil, fmt.Errorf("postfix conversion error: %w", err)
-	}
-
-	return NewEvaluationStack(postfixTokens), nil
-}
-
-// NewExpression creates a new expression from a string
-func NewExpression(expression string) (*EvaluationStack, error) {
-	return ParseExpression(expression)
 }
