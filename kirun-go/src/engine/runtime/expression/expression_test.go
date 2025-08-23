@@ -457,16 +457,16 @@ func TestTernaryOperator(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "((a>10)?((a>15)?(a+2):(a-2)):(a+3))", TokensToString(tokens))
 
-	// parser = NewParser("a > 10 ? a - 2 : a + 3")
-	// tokens, err = parser.ToPostfix()
-	// assert.NoError(t, err)
-	// fmt.Println(tokens)
-	// assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
+	parser = NewParser("a > 10 ? a - 2 : a + 3")
+	tokens, err = parser.ToPostfix()
+	assert.NoError(t, err)
+	fmt.Println(tokens)
+	assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
 
-	// parser = NewParser("a > 10 ? a - 2 : a + 3")
-	// tokens, err = parser.ToPostfix()
-	// assert.NoError(t, err)
-	// assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
+	parser = NewParser("a > 10 ? a - 2 : a + 3")
+	tokens, err = parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
 }
 
 func TestArrayLiteralTokenization2(t *testing.T) {
@@ -475,4 +475,21 @@ func TestArrayLiteralTokenization2(t *testing.T) {
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
 	fmt.Println(TokenName[tokens[0].Type])
+}
+
+func TestArrayLiteralObjectLiteralComplexLiterals(t *testing.T) {
+	parser := NewParser("[1, 2, 3]")
+	tokens, err := parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "Array Literal", TokenName[tokens[0].Type])
+
+	parser = NewParser("[1, 2, { 'x' :\"Value\", \"array\": [{ 'a' : null, 'b': true'}, 23] }]")
+	tokens, err = parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "Array Literal", TokenName[tokens[0].Type])
+
+	parser = NewParser("[1, 2, { 'x' :\"Value\", \"array\": [{ 'a' : null, 'b': true'}, 23] }][a+2]")
+	tokens, err = parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "[1, 2, { 'x' :\"Value\", \"array\": [{ 'a' : null, 'b': true'}, 23] }][(a+2)]", TokensToString(tokens))
 }
