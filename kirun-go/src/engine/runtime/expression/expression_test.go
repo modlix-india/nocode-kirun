@@ -1,7 +1,6 @@
 package expression
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -322,7 +321,7 @@ func TestTokenizationErrors(t *testing.T) {
 	parser = NewParser("[1, 2, 3")
 	_, err = parser.ToPostfix()
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unterminated array literal")
+	assert.Contains(t, err.Error(), "unterminated '[' at position 0")
 
 	// Test unterminated object literal
 	parser = NewParser(`{"name": "John"`)
@@ -382,7 +381,7 @@ func TestArrayLiteralErrors(t *testing.T) {
 	parser := NewParser("[[1, 2], [3, 4")
 	_, err := parser.ToPostfix()
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unterminated array literal")
+	assert.Contains(t, err.Error(), "unterminated '[' at position 0")
 }
 
 func TestObjectLiteralErrors(t *testing.T) {
@@ -406,7 +405,7 @@ func TestComplexExpressionErrors(t *testing.T) {
 	parser := NewParser("(1 + 2 * [3, 4, 5")
 	_, err := parser.ToPostfix()
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unterminated array literal")
+	assert.Contains(t, err.Error(), "unterminated '[' at position 9")
 }
 
 func TestWhitespaceAndFormattingErrors(t *testing.T) {
@@ -433,7 +432,7 @@ func TestMissingEndingBracket(t *testing.T) {
 	parser := NewParser("Store.user.name[2")
 	_, err := parser.ToPostfix()
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unterminated array access at position 15")
+	assert.Contains(t, err.Error(), "unterminated '[' at position 15")
 }
 
 func TestStringMethods(t *testing.T) {
@@ -453,14 +452,12 @@ func TestPositiveUnaryOperator(t *testing.T) {
 func TestTernaryOperator(t *testing.T) {
 	parser := NewParser("a > 10 ? a > 15 ? a + 2 : a - 2 : a + 3")
 	tokens, err := parser.ToPostfix()
-	fmt.Println(tokens)
 	assert.NoError(t, err)
 	assert.Equal(t, "((a>10)?((a>15)?(a+2):(a-2)):(a+3))", TokensToString(tokens))
 
 	parser = NewParser("a > 10 ? a - 2 : a + 3")
 	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
-	fmt.Println(tokens)
 	assert.Equal(t, "((a>10)?(a-2):(a+3))", TokensToString(tokens))
 
 	parser = NewParser("a > 10 ? a - 2 : a + 3")
@@ -474,7 +471,7 @@ func TestArrayLiteralTokenization2(t *testing.T) {
 	parser := NewParser("[1, 2, 3]")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	fmt.Println(TokenName[tokens[0].Type])
+	assert.Equal(t, "Array Literal", TokenName[tokens[0].Type])
 }
 
 func TestArrayLiteralObjectLiteralComplexLiterals(t *testing.T) {
@@ -492,4 +489,21 @@ func TestArrayLiteralObjectLiteralComplexLiterals(t *testing.T) {
 	tokens, err = parser.ToPostfix()
 	assert.NoError(t, err)
 	assert.Equal(t, "[1, 2, { 'x' :\"Value\", \"array\": [{ 'a' : null, 'b': true'}, 23] }][(a+2)]", TokensToString(tokens))
+}
+
+func TestArrayLiteralObjectLiteralComplexLiterals2(t *testing.T) {
+	parser := NewParser("[true, 2, true][0]")
+	tokens, err := parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "Array Literal", TokenName[tokens[0].Type])
+	assert.Equal(t, "Number", TokenName[tokens[1].Type])
+	assert.Equal(t, "Operator", TokenName[tokens[2].Type])
+	assert.Equal(t, "[true, 2, true][0]", TokensToString(tokens))
+}
+
+func TestObjectLiteralTokenization2(t *testing.T) {
+	expr1 := NewParser("{'name': 'John', 'age': 30}['name']")
+	tokens, err := expr1.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "{'name': 'John', 'age': 30}[\"name\"]", TokensToString(tokens))
 }

@@ -300,15 +300,8 @@ func (p *Parser) Tokenize() error {
 			})
 			i++
 		case '[':
-			// Check if this is an array literal or array access
-			// Look ahead to see if the next non-whitespace character suggests a literal
-			nextPos := i + 1
-			for nextPos < len(input) && unicode.IsSpace(input[nextPos]) {
-				nextPos++
-			}
 
-			// Check if this bracket is preceded by an identifier (indicating array access)
-			isArrayAccess := false
+			isArrayObjectAccess := false
 			if i > 0 {
 				prevPos := i - 1
 				// Skip backwards over whitespace
@@ -316,78 +309,58 @@ func (p *Parser) Tokenize() error {
 					prevPos--
 				}
 				// If the previous character is alphanumeric, underscore, or dot, it's likely array access
-				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.') {
-					isArrayAccess = true
+				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.' || input[prevPos] == ']' || input[prevPos] == '}') {
+					isArrayObjectAccess = true
 				}
 			}
 
-			if !isArrayAccess && nextPos < len(input) {
-				nextChar := input[nextPos]
-				// If the next char is a quote, number, or another bracket, it's likely a literal
-				if nextChar == '"' || nextChar == '\'' || unicode.IsDigit(nextChar) || nextChar == '[' || nextChar == '{' {
-					// This is an array literal - parse the entire literal
-					start := i
-					i++ // Skip opening bracket
-					braceCount := 1
+			count := 1
+			j := i + 1
+			isLiteral := false
+			for j < len(input) {
+				switch input[j] {
+				case '[':
+					count++
+				case ']':
+					count--
+				}
+				if count == 0 {
+					break
+				} else if count > 1 || (!unicode.IsDigit(input[j])) {
+					isLiteral = true
+				}
+				j++
+			}
 
-					for i < len(input) && braceCount > 0 {
-						switch input[i] {
-						case '[':
-							braceCount++
-						case ']':
-							braceCount--
-						}
-						// Advance the pointer - we'll extract the raw content
-						i++
-					}
+			if count != 0 {
+				return fmt.Errorf("unterminated '[' at position %d", i)
+			}
 
-					if braceCount != 0 {
-						return fmt.Errorf("unterminated array literal at position %d", start)
-					}
-
-					// Extract the array content (without the brackets)
-					arrayContent := string(input[start+1 : i-1])
+			if isArrayObjectAccess {
+				p.tokens = append(p.tokens, Token{
+					Type:     TokenLeftBracket,
+					Value:    "[",
+					Position: i,
+				})
+				i++
+			} else {
+				endSquareBracket := j
+				if isLiteral || (len(input) > endSquareBracket+1 && input[endSquareBracket+1] == '[') {
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenArrayLiteral,
-						Value:    arrayContent,
-						Position: start,
+						Value:    string(input[i+1 : endSquareBracket]),
+						Position: i,
 					})
-					continue
-				}
-			}
-
-			// For array access, we need to validate bracket matching
-			if isArrayAccess {
-				start := i
-				i++ // Skip opening bracket
-				braceCount := 1
-
-				// Track brackets to ensure proper matching
-				for i < len(input) && braceCount > 0 {
-					switch input[i] {
-					case '[':
-						braceCount++
-					case ']':
-						braceCount--
-					}
+					i = endSquareBracket + 1
+				} else {
+					p.tokens = append(p.tokens, Token{
+						Type:     TokenLeftBracket,
+						Value:    "[",
+						Position: i,
+					})
 					i++
 				}
-
-				if braceCount != 0 {
-					return fmt.Errorf("unterminated array access at position %d", start)
-				}
-
-				// Go back to the opening bracket to tokenize it properly
-				i = start
 			}
-
-			// Regular array access
-			p.tokens = append(p.tokens, Token{
-				Type:     TokenLeftBracket,
-				Value:    "[",
-				Position: i,
-			})
-			i++
 		case ']':
 			p.tokens = append(p.tokens, Token{
 				Type:     TokenRightBracket,
