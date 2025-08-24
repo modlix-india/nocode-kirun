@@ -463,6 +463,13 @@ func (p *Parser) Tokenize() error {
 						Value:    value,
 						Position: start,
 					})
+				} else if value == "not" || value == "and" || value == "or" {
+					// Treat keyword operators as operators
+					p.tokens = append(p.tokens, Token{
+						Type:     TokenOperator,
+						Value:    value,
+						Position: start,
+					})
 				} else {
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenIdentifier,
@@ -715,7 +722,7 @@ func TokensToString(tokens []Token) string {
 						operand := stack[len(stack)-1]
 						stack = stack[:len(stack)-1]
 						op := strings.TrimPrefix(token.Value, "UN")
-						stack = append(stack, fmt.Sprintf("(%s%s)", op, operand))
+						stack = append(stack, fmt.Sprintf("%s(%s)", op, operand))
 					}
 				} else {
 					stack = append(stack, token.Value)

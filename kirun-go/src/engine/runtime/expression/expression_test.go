@@ -446,7 +446,7 @@ func TestPositiveUnaryOperator(t *testing.T) {
 	parser := NewParser("+2")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, "(+2)", TokensToString(tokens))
+	assert.Equal(t, "+(2)", TokensToString(tokens))
 }
 
 func TestTernaryOperator(t *testing.T) {
@@ -506,4 +506,17 @@ func TestObjectLiteralTokenization2(t *testing.T) {
 	tokens, err := expr1.ToPostfix()
 	assert.NoError(t, err)
 	assert.Equal(t, "{'name': 'John', 'age': 30}[\"name\"]", TokensToString(tokens))
+}
+
+func TestDoubleUnaryOperator(t *testing.T) {
+
+	expr1 := NewParser("--1")
+	tokens, err := expr1.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "-(-(1))", TokensToString(tokens))
+
+	expr1 = NewParser("not not 1")
+	tokens, err = expr1.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "not(not(1))", TokensToString(tokens))
 }
