@@ -1,6 +1,7 @@
 package expression
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -61,6 +62,15 @@ func TestDeepObjectAccess(t *testing.T) {
 	parser := NewParser("Context.a.b.c")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
+	fmt.Println(tokens)
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Context", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "a", Position: 8}, tokens[1])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 7}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "b", Position: 10}, tokens[3])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 9}, tokens[4])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "c", Position: 12}, tokens[5])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 11}, tokens[6])
+
 	assert.Equal(t, "Context.a.b.c", TokensToString(tokens))
 }
 
@@ -277,29 +287,46 @@ func TestExpressionWithIdentifiers(t *testing.T) {
 	parser := NewParser("Store.user.name* 2")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.name", Position: 0}, tokens[0])
-	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 17}, tokens[1])
-	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 15}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "user", Position: 6}, tokens[1])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 5}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "name", Position: 11}, tokens[3])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 10}, tokens[4])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "2", Position: 17}, tokens[5])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "*", Position: 15}, tokens[6])
 }
 
 func TestExpressionWithIdentifiersAndArrayOperator(t *testing.T) {
 	parser := NewParser("Store.user.nos[  0 ] - Store.user.nos[ 1 ]")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
-	assert.Equal(t, Token{Type: TokenNumber, Value: "0", Position: 17}, tokens[1])
-	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 19}, tokens[2])
-	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 23}, tokens[3])
-	assert.Equal(t, Token{Type: TokenNumber, Value: "1", Position: 39}, tokens[4])
-	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 41}, tokens[5])
-	assert.Equal(t, Token{Type: TokenOperator, Value: "-", Position: 21}, tokens[6])
+
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "user", Position: 6}, tokens[1])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 5}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "nos", Position: 11}, tokens[3])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 10}, tokens[4])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "0", Position: 17}, tokens[5])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 19}, tokens[6])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store", Position: 23}, tokens[7])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "user", Position: 29}, tokens[8])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 28}, tokens[9])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "nos", Position: 34}, tokens[10])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 33}, tokens[11])
+	assert.Equal(t, Token{Type: TokenNumber, Value: "1", Position: 39}, tokens[12])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "[]", Position: 41}, tokens[13])
+	assert.Equal(t, Token{Type: TokenOperator, Value: "-", Position: 21}, tokens[14])
 }
 
 func TestExpressionWithOnlyIdentifier(t *testing.T) {
 	parser := NewParser("Store.user.nos")
 	tokens, err := parser.ToPostfix()
 	assert.NoError(t, err)
-	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store.user.nos", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "Store", Position: 0}, tokens[0])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "user", Position: 6}, tokens[1])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 5}, tokens[2])
+	assert.Equal(t, Token{Type: TokenIdentifier, Value: "nos", Position: 11}, tokens[3])
+	assert.Equal(t, Token{Type: TokenDot, Value: ".", Position: 10}, tokens[4])
 }
 
 // Now testing error cases

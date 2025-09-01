@@ -446,7 +446,7 @@ func (p *Parser) Tokenize() error {
 			if unicode.IsLetter(char) || char == '_' {
 				start := i
 				for i < len(input) && (unicode.IsLetter(input[i]) || unicode.IsDigit(input[i]) ||
-					input[i] == '_' || input[i] == '$' || input[i] == '.') {
+					input[i] == '_' || input[i] == '$') {
 					i++
 				}
 				value := string(input[start:i])
@@ -571,7 +571,33 @@ func (p *Parser) ToPostfix() ([]Token, error) {
 			operatorStack = append(operatorStack, token)
 
 		case TokenLeftBracket:
-			// Array access - treat as operator
+			// Array access - treat as operator with precedence checking
+			currentOp, exists := operatorMap["["]
+			if !exists {
+				return nil, fmt.Errorf("unknown operator: [")
+			}
+
+			// Pop operators with higher or equal precedence (same logic as other operators)
+			for len(operatorStack) > 0 {
+				top := operatorStack[len(operatorStack)-1]
+				if top.Type != TokenOperator && top.Type != TokenQuestion && top.Type != TokenDot {
+					break
+				}
+
+				topOp, exists := operatorMap[top.Value]
+				if !exists {
+					break
+				}
+
+				if (!currentOp.RightAssoc && topOp.Precedence <= currentOp.Precedence) ||
+					(currentOp.RightAssoc && topOp.Precedence < currentOp.Precedence) {
+					output = append(output, top)
+					operatorStack = operatorStack[:len(operatorStack)-1]
+				} else {
+					break
+				}
+			}
+
 			operatorStack = append(operatorStack, token)
 
 		case TokenRightBracket:
