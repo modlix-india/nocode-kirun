@@ -547,3 +547,10 @@ func TestDoubleUnaryOperator(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "not(not(1))", TokensToString(tokens))
 }
+
+func TestUnaryOperators(t *testing.T) {
+	expr1 := NewParser("not not Arguments.b")
+	tokens, err := expr1.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "not(not(Arguments.b))", TokensToString(tokens))
+}

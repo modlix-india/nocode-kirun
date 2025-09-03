@@ -68,60 +68,60 @@ type Operator struct {
 
 // operatorMap defines all operators with their precedence (lower number = higher precedence)
 var operatorMap = map[string]Operator{
-	// Highest precedence - Unary operators
-	"UN+":   {Symbol: "+", Precedence: 1, RightAssoc: true, Unary: true},
-	"UN-":   {Symbol: "-", Precedence: 1, RightAssoc: true, Unary: true},
-	"UNnot": {Symbol: "not", Precedence: 1, RightAssoc: true, Unary: true},
-	"UN~":   {Symbol: "~", Precedence: 1, RightAssoc: true, Unary: true},
-
-	// Array/Object operators
+	// Highest precedence - Array/Object operators
 	"[": {Symbol: "[", Precedence: 1, RightAssoc: false, Unary: false},
 	".": {Symbol: ".", Precedence: 1, RightAssoc: false, Unary: false},
 
+	// Unary operators
+	"UN+":   {Symbol: "+", Precedence: 2, RightAssoc: true, Unary: true},
+	"UN-":   {Symbol: "-", Precedence: 2, RightAssoc: true, Unary: true},
+	"UNnot": {Symbol: "not", Precedence: 2, RightAssoc: true, Unary: true},
+	"UN~":   {Symbol: "~", Precedence: 2, RightAssoc: true, Unary: true},
+
 	// Array Range and Arithmetic multiplication/division
-	"..": {Symbol: "..", Precedence: 2, RightAssoc: false, Unary: false},
-	"*":  {Symbol: "*", Precedence: 2, RightAssoc: false, Unary: false},
-	"/":  {Symbol: "/", Precedence: 2, RightAssoc: false, Unary: false},
-	"//": {Symbol: "//", Precedence: 2, RightAssoc: false, Unary: false},
-	"%":  {Symbol: "%", Precedence: 2, RightAssoc: false, Unary: false},
+	"..": {Symbol: "..", Precedence: 3, RightAssoc: false, Unary: false},
+	"*":  {Symbol: "*", Precedence: 3, RightAssoc: false, Unary: false},
+	"/":  {Symbol: "/", Precedence: 3, RightAssoc: false, Unary: false},
+	"//": {Symbol: "//", Precedence: 3, RightAssoc: false, Unary: false},
+	"%":  {Symbol: "%", Precedence: 3, RightAssoc: false, Unary: false},
 
 	// Arithmetic addition/subtraction
-	"+": {Symbol: "+", Precedence: 3, RightAssoc: false, Unary: false},
-	"-": {Symbol: "-", Precedence: 3, RightAssoc: false, Unary: false},
+	"+": {Symbol: "+", Precedence: 4, RightAssoc: false, Unary: false},
+	"-": {Symbol: "-", Precedence: 4, RightAssoc: false, Unary: false},
 
 	// Bitwise Shift
-	"<<":  {Symbol: "<<", Precedence: 4, RightAssoc: false, Unary: false},
-	">>":  {Symbol: ">>", Precedence: 4, RightAssoc: false, Unary: false},
-	">>>": {Symbol: ">>>", Precedence: 4, RightAssoc: false, Unary: false},
+	"<<":  {Symbol: "<<", Precedence: 5, RightAssoc: false, Unary: false},
+	">>":  {Symbol: ">>", Precedence: 5, RightAssoc: false, Unary: false},
+	">>>": {Symbol: ">>>", Precedence: 5, RightAssoc: false, Unary: false},
 
 	// Comparison
-	"<":  {Symbol: "<", Precedence: 5, RightAssoc: false, Unary: false},
-	"<=": {Symbol: "<=", Precedence: 5, RightAssoc: false, Unary: false},
-	">":  {Symbol: ">", Precedence: 5, RightAssoc: false, Unary: false},
-	">=": {Symbol: ">=", Precedence: 5, RightAssoc: false, Unary: false},
+	"<":  {Symbol: "<", Precedence: 6, RightAssoc: false, Unary: false},
+	"<=": {Symbol: "<=", Precedence: 6, RightAssoc: false, Unary: false},
+	">":  {Symbol: ">", Precedence: 6, RightAssoc: false, Unary: false},
+	">=": {Symbol: ">=", Precedence: 6, RightAssoc: false, Unary: false},
 
 	// Equality
-	"=":  {Symbol: "=", Precedence: 6, RightAssoc: false, Unary: false},
-	"!=": {Symbol: "!=", Precedence: 6, RightAssoc: false, Unary: false},
+	"=":  {Symbol: "=", Precedence: 7, RightAssoc: false, Unary: false},
+	"!=": {Symbol: "!=", Precedence: 7, RightAssoc: false, Unary: false},
 
 	// Bitwise AND
-	"&": {Symbol: "&", Precedence: 7, RightAssoc: false, Unary: false},
+	"&": {Symbol: "&", Precedence: 8, RightAssoc: false, Unary: false},
 
 	// Bitwise XOR
-	"^": {Symbol: "^", Precedence: 8, RightAssoc: false, Unary: false},
+	"^": {Symbol: "^", Precedence: 9, RightAssoc: false, Unary: false},
 
 	// Bitwise OR
-	"|": {Symbol: "|", Precedence: 9, RightAssoc: false, Unary: false},
+	"|": {Symbol: "|", Precedence: 10, RightAssoc: false, Unary: false},
 
 	// Logical AND
-	"and": {Symbol: "and", Precedence: 10, RightAssoc: false, Unary: false},
+	"and": {Symbol: "and", Precedence: 11, RightAssoc: false, Unary: false},
 
 	// Logical OR and Nullish Coalescing
-	"or": {Symbol: "or", Precedence: 11, RightAssoc: false, Unary: false},
-	"??": {Symbol: "??", Precedence: 11, RightAssoc: false, Unary: false},
+	"or": {Symbol: "or", Precedence: 12, RightAssoc: false, Unary: false},
+	"??": {Symbol: "??", Precedence: 12, RightAssoc: false, Unary: false},
 
 	// Lowest precedence - Conditional Ternary
-	"?": {Symbol: "?", Precedence: 12, RightAssoc: true, Unary: false},
+	"?": {Symbol: "?", Precedence: 13, RightAssoc: true, Unary: false},
 }
 
 // Parser represents the expression parser
@@ -450,14 +450,18 @@ func (p *Parser) Tokenize() error {
 					i++
 				}
 				value := string(input[start:i])
-				// Check for boolean/null literals
-				if value == "true" || value == "false" {
+
+				// Check if the previous token was a dot - if so, treat as identifier (property name)
+				isAfterDot := len(p.tokens) > 0 && p.tokens[len(p.tokens)-1].Type == TokenDot
+
+				// Check for boolean/null literals (but not if after a dot)
+				if !isAfterDot && (value == "true" || value == "false") {
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenBoolean,
 						Value:    value,
 						Position: start,
 					})
-				} else if value == "null" || value == "nil" || value == "undefined" {
+				} else if !isAfterDot && (value == "null" || value == "nil" || value == "undefined") {
 					p.tokens = append(p.tokens, Token{
 						Type:     TokenNull,
 						Value:    value,
