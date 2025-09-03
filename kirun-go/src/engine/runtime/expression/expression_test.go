@@ -554,3 +554,16 @@ func TestUnaryOperators(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "not(not(Arguments.b))", TokensToString(tokens))
 }
+
+func TestExpressionInSquareBrackets(t *testing.T) {
+	parser := NewParser("(Arguments.f ?? Arguments.e)[1+1-1].num")
+	tokens, err := parser.ToPostfix()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "(Arguments.f??Arguments.e)[((1+1)-1)].num", TokensToString(tokens))
+
+	parser = NewParser("Arguments.e[1+1-1].num")
+	tokens, err = parser.ToPostfix()
+	assert.NoError(t, err)
+	assert.Equal(t, "Arguments.e[((1+1)-1)].num", TokensToString(tokens))
+}

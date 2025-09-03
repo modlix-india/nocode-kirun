@@ -308,8 +308,8 @@ func (p *Parser) Tokenize() error {
 				for prevPos >= 0 && unicode.IsSpace(input[prevPos]) {
 					prevPos--
 				}
-				// If the previous character is alphanumeric, underscore, or dot, it's likely array access
-				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.' || input[prevPos] == ']' || input[prevPos] == '}') {
+				// If the previous character is alphanumeric, underscore, dot, or closing parenthesis/bracket, it's likely array access
+				if prevPos >= 0 && (unicode.IsLetter(input[prevPos]) || unicode.IsDigit(input[prevPos]) || input[prevPos] == '_' || input[prevPos] == '$' || input[prevPos] == '.' || input[prevPos] == ']' || input[prevPos] == '}' || input[prevPos] == ')') {
 					isArrayObjectAccess = true
 				}
 			}
