@@ -890,7 +890,7 @@ func TestEvaluation_PartialPathEvaluation(t *testing.T) {
 
 	// Test 2: Null coalescing with array access
 	expr2 := NewEvaluatorString("(Arguments.f ?? Arguments.e)[1+1-1].num")
-	fmt.Println(expr2.evaluationStack)
+
 	result2, err := expr2.Evaluate(extractors)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, result2) // e[1].num = 2
@@ -904,6 +904,7 @@ func TestEvaluation_PartialPathEvaluation(t *testing.T) {
 func TestEvaluation_BackslashEscape(t *testing.T) {
 	// Test backslash escape in strings
 	expr := NewEvaluatorString("'\\maza'")
+	fmt.Println(expr.evaluationStack)
 	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{})
 	assert.NoError(t, err)
 	assert.Equal(t, "\\maza", result)
