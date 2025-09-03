@@ -138,7 +138,7 @@ func (e *Evaluator) Evaluate(extractors map[string]tokenextractor.TokenValueExtr
 				operand := stack[len(stack)-1]
 				stack = stack[:len(stack)-1]
 
-				result, err := evaluateUnaryOperator(op.Symbol, operand, extractors)
+				result, err := evaluateUnaryOperator(op.Symbol, operand)
 				if err != nil {
 					return nil, err
 				}
@@ -208,7 +208,7 @@ func identiferValue(identifier string, extractors map[string]tokenextractor.Toke
 	return val.GetStore()
 }
 
-func evaluateUnaryOperator(op string, operand interface{}, extractors map[string]tokenextractor.TokenValueExtractor) (interface{}, error) {
+func evaluateUnaryOperator(op string, operand interface{}) (interface{}, error) {
 	switch op {
 	case "-":
 		if v, ok := operand.(int); ok {
@@ -536,10 +536,18 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 	}
 
 	switch arr := leftVal.(type) {
+	case string:
+		if rightString, ok := right.(string); ok && rightString == "length" {
+			return len(arr), nil
+		}
+		return nil, fmt.Errorf("cannot index into type string with %T key, expected int", right)
 	case []interface{}:
 		// Array indexing
 		index, ok := right.(int)
 		if !ok {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, fmt.Errorf("cannot index into type []interface{} with %T key, expected int", right)
 		}
 		if index < 0 || index >= len(arr) {
@@ -550,6 +558,9 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 	case []string:
 		index, ok := right.(int)
 		if !ok {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, fmt.Errorf("cannot index into type []string with %T key, expected int", right)
 		}
 		if index < 0 || index >= len(arr) {
@@ -560,6 +571,9 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 	case []int:
 		index, ok := right.(int)
 		if !ok {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, fmt.Errorf("cannot index into type []int with %T key, expected int", right)
 		}
 		if index < 0 || index >= len(arr) {
@@ -571,6 +585,9 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 
 		index, ok := right.(int)
 		if !ok {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, fmt.Errorf("cannot index into type []float64 with %T key, expected int", right)
 		}
 		if index < 0 || index >= len(arr) {
@@ -582,6 +599,9 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 
 		index, ok := right.(int)
 		if !ok {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, fmt.Errorf("cannot index into type []bool with %T key, expected int", right)
 		}
 		if index < 0 || index >= len(arr) {
@@ -597,6 +617,9 @@ func evaluateArrayObjectAccess(left, rightIdentifier interface{}, extractors map
 		}
 		value, exists := arr[key]
 		if !exists {
+			if rightString, ok := right.(string); ok && rightString == "length" {
+				return len(arr), nil
+			}
 			return nil, nil // Return nil for non-existent keys
 		}
 		return value, nil

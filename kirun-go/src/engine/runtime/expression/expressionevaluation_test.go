@@ -793,16 +793,16 @@ func TestEvaluation_LogicalOperators(t *testing.T) {
 	assert.False(t, result16.(bool))
 
 	// Test 17: Array length (not currently supported)
-	// expr17 := NewEvaluatorString("Arguments.array.length")
-	// result17, err := expr17.Evaluate(extractors)
-	// assert.NoError(t, err)
-	// assert.Equal(t, 5, result17)
+	expr17 := NewEvaluatorString("Arguments.array.length")
+	result17, err := expr17.Evaluate(extractors)
+	assert.NoError(t, err)
+	assert.Equal(t, 5, result17)
 
 	// Test 18: Object length (not currently supported)
-	// expr18 := NewEvaluatorString("Arguments.object.length")
-	// result18, err := expr18.Evaluate(extractors)
-	// assert.NoError(t, err)
-	// assert.Equal(t, 5, result18)
+	expr18 := NewEvaluatorString("Arguments.object.length")
+	result18, err := expr18.Evaluate(extractors)
+	assert.NoError(t, err)
+	assert.Equal(t, 5, result18)
 
 	// Test 19: Logical AND
 	expr19 := NewEvaluatorString("Arguments.object and Arguments.array")
@@ -823,16 +823,16 @@ func TestEvaluation_LogicalOperators(t *testing.T) {
 	assert.False(t, result21.(bool))
 
 	// Test 22: Ternary operator (not currently supported)
-	// expr22 := NewEvaluatorString("Arguments.object ? 3 : 4")
-	// result22, err := expr22.Evaluate(extractors)
-	// assert.NoError(t, err)
-	// assert.Equal(t, 3, result22)
+	expr22 := NewEvaluatorString("Arguments.object ? 3 : 4")
+	result22, err := expr22.Evaluate(extractors)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, result22)
 
 	// Test 23: Ternary operator with negation (not currently supported)
-	// expr23 := NewEvaluatorString("not Arguments.object ? 3 : 4")
-	// result23, err := expr23.Evaluate(extractors)
-	// assert.NoError(t, err)
-	// assert.Equal(t, 4, result23)
+	expr23 := NewEvaluatorString("not Arguments.object ? 3 : 4")
+	result23, err := expr23.Evaluate(extractors)
+	assert.NoError(t, err)
+	assert.Equal(t, 4, result23)
 
 	// Test 24: Array equality
 	expr24 := NewEvaluatorString("Arguments.array = Arguments.array2")
@@ -841,10 +841,10 @@ func TestEvaluation_LogicalOperators(t *testing.T) {
 	assert.True(t, result24.(bool))
 
 	// Test 25: Ternary operator with zero (not currently supported)
-	// expr25 := NewEvaluatorString("Arguments.number0 ? 3 : 4")
-	// result25, err := expr25.Evaluate(extractors)
-	// assert.NoError(t, err)
-	// assert.Equal(t, 4, result25)
+	expr25 := NewEvaluatorString("Arguments.number0 ? 3 : 4")
+	result25, err := expr25.Evaluate(extractors)
+	assert.NoError(t, err)
+	assert.Equal(t, 4, result25)
 }
 
 func TestEvaluation_PartialPathEvaluation(t *testing.T) {
@@ -903,7 +903,7 @@ func TestEvaluation_PartialPathEvaluation(t *testing.T) {
 
 func TestEvaluation_BackslashEscape(t *testing.T) {
 	// Test backslash escape in strings
-	expr := NewEvaluatorString("'\\maza'")
+	expr := NewEvaluatorString("'\\\\maza'")
 	fmt.Println(expr.evaluationStack)
 	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{})
 	assert.NoError(t, err)
@@ -987,4 +987,41 @@ func TestEvaluation_ObjectAccess(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 8, result)
+}
+
+func TestFloatingNumbers(t *testing.T) {
+	atv := tokenextractor.MakeTokenValueExtractor("Arguments.", map[string]interface{}{
+		"a": 1.5,
+	})
+	expr := NewEvaluatorString("Arguments.a + 1.5")
+	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{
+		"Arguments.": atv,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 3.0, result)
+}
+
+func TestFloatingNumberArrayIndexing(t *testing.T) {
+	atv := tokenextractor.MakeTokenValueExtractor("Arguments.", map[string]interface{}{
+		"a": []float64{1.5, 2.5, 3.5},
+	})
+	expr := NewEvaluatorString("Arguments.a[1]")
+	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{
+		"Arguments.": atv,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 2.5, result)
+}
+
+func TestFloatingNumberObjectIndexing(t *testing.T) {
+	atv := tokenextractor.MakeTokenValueExtractor("Arguments.", map[string]interface{}{
+		"a": map[string]interface{}{"b": 1.5, "c": 2.5, "d": 3.5},
+	})
+	expr := NewEvaluatorString("-Arguments.a['b']")
+	fmt.Println(expr.evaluationStack)
+	result, err := expr.Evaluate(map[string]tokenextractor.TokenValueExtractor{
+		"Arguments.": atv,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, -1.5, result)
 }
