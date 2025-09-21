@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package schema;
+
+import "google/protobuf/any.proto";
+
+option go_package = "/proto/generated/schema";
+
+// SchemaType enum representing different data types
+enum SchemaType {
+  SCHEMA_TYPE_UNSPECIFIED = 0;
+  INTEGER = 1;
+  LONG = 2;
+  FLOAT = 3;
+  DOUBLE = 4;
+  STRING = 5;
+  OBJECT = 6;
+  ARRAY = 7;
+  BOOLEAN = 8;
+  NULL = 9;
+}
+
+// StringFormat enum for string validation formats
+enum StringFormat {
+  STRING_FORMAT_UNSPECIFIED = 0;
+  DATETIME = 1;
+  TIME = 2;
+  DATE = 3;
+  EMAIL = 4;
+  REGEX = 5;
+}
+
+// AdditionalType represents additional properties or items configuration
+message AdditionalType {
+  oneof value {
+    bool boolean_value = 1;
+    Schema schema_value = 2;
+  }
+}
+
+// SchemaDetails contains metadata and UI-specific information for schemas
+message SchemaDetails {
+  string preferred_component = 1;
+  map<string, string> validation_messages = 2;
+  map<string, google.protobuf.Any> properties = 3;
+  map<string, google.protobuf.Any> style_properties = 4;
+  int32 order = 5;
+  string label = 6;
+}
+
+// Type represents a single schema type
+message SingleType {
+  SchemaType type = 1;
+}
+
+// MultipleType represents multiple possible schema types
+message MultipleType {
+  repeated SchemaType types = 1;
+}
+
+// Type union for representing either single or multiple types
+message Type {
+  oneof type_union {
+    SingleType single_type = 1;
+    MultipleType multiple_type = 2;
+  }
+}
+
+// ArraySchemaType represents array item schemas (single or tuple)
+message ArraySchemaType {
+  oneof schema_union {
+    Schema single_schema = 1;
+    TupleSchema tuple_schema = 2;
+  }
+}
+
+// TupleSchema represents a tuple of schemas for array items
+message TupleSchema {
+  repeated Schema schemas = 1;
+}
+
+// Main Schema message representing a JSON schema
+message Schema {
+  // Basic identification
+  string namespace = 1;
+  string name = 2;
+  int32 version = 3;
+  string ref = 4;
+
+  // Type information
+  Type type = 5;
+  repeated Schema any_of = 6;
+  repeated Schema all_of = 7;
+  repeated Schema one_of = 8;
+  Schema not = 9;
+
+  // Documentation and examples
+  string description = 10;
+  repeated google.protobuf.Any examples = 11;
+  google.protobuf.Any default_value = 12;
+  string comment = 13;
+  repeated google.protobuf.Any enums = 14;
+  google.protobuf.Any constant = 15;
+
+  // String validation
+  string pattern = 16;
+  StringFormat format = 17;
+  int32 min_length = 18;
+  int32 max_length = 19;
+
+  // Number validation
+  double multiple_of = 20;
+  double minimum = 21;
+  double maximum = 22;
+  double exclusive_minimum = 23;
+  double exclusive_maximum = 24;
+
+  // Object validation
+  map<string, Schema> properties = 25;
+  AdditionalType additional_properties = 26;
+  repeated string required = 27;
+  Schema property_names = 28;
+  int32 min_properties = 29;
+  int32 max_properties = 30;
+  map<string, Schema> pattern_properties = 31;
+
+  // Array validation
+  ArraySchemaType items = 32;
+  AdditionalType additional_items = 33;
+  Schema contains = 34;
+  int32 min_contains = 35;
+  int32 max_contains = 36;
+  int32 min_items = 37;
+  int32 max_items = 38;
+  bool unique_items = 39;
+
+  // Definitions and metadata
+  map<string, Schema> defs = 40;
+  string permission = 41;
+  SchemaDetails details = 42;
+  SchemaDetails view_details = 43;
+}
