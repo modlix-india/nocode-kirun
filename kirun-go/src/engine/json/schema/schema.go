@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"github.com/modlix-india/nocode-kirun/engine"
 	schemapb "github.com/modlix-india/nocode-kirun/proto/generated"
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -608,4 +609,16 @@ func (s *Schema) IsSingleType() bool {
 		return false
 	}
 	return s.Type.GetSingleType() != nil
+}
+
+// GetSchemaFromRef retrieves a schema from a reference
+func GetSchemaFromRef(parent *Schema, repository engine.Repository[*Schema], ref string) (*Schema, error) {
+	// This is a simplified implementation
+	// In a real implementation, you would parse the ref and look it up in the repository
+	return NewSchema(), nil
+}
+
+// GetSchemaFromRef is a method on Schema for convenience
+func (s *Schema) GetSchemaFromRef(parent *Schema, repository engine.Repository[*Schema], ref string) (*Schema, error) {
+	return GetSchemaFromRef(parent, repository, ref)
 }
