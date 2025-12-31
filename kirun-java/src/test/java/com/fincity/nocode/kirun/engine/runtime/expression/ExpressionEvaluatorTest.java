@@ -648,6 +648,101 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("Test.bigNumber = Test.bigNumber2");
 		assertEquals(new JsonPrimitive(true), ev.evaluate(Map.of(tte.getPrefix(), tte)));
 	}
+
+	@Test
+	void testTernaryExpressionWithDisplayValueEqualityCheck() {
+
+		ExpressionEvaluator ev;
+
+		// Test when displayValue = "0" -> should return "1"
+		JsonObject job1 = new JsonObject();
+		job1.addProperty("displayValue", "0");
+		TestTokenValueExtractor tte1 = new TestTokenValueExtractor(job1);
+		ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+		assertEquals(new JsonPrimitive("1"), ev.evaluate(Map.of(tte1.getPrefix(), tte1)));
+
+		// Test when displayValue = "1" -> should return "11"
+		JsonObject job2 = new JsonObject();
+		job2.addProperty("displayValue", "1");
+		TestTokenValueExtractor tte2 = new TestTokenValueExtractor(job2);
+		ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+		assertEquals(new JsonPrimitive("11"), ev.evaluate(Map.of(tte2.getPrefix(), tte2)));
+
+		// Test when displayValue = "5" -> should return "51"
+		JsonObject job3 = new JsonObject();
+		job3.addProperty("displayValue", "5");
+		TestTokenValueExtractor tte3 = new TestTokenValueExtractor(job3);
+		ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+		assertEquals(new JsonPrimitive("51"), ev.evaluate(Map.of(tte3.getPrefix(), tte3)));
+
+		// Test when displayValue = "10" -> should return "101"
+		JsonObject job4 = new JsonObject();
+		job4.addProperty("displayValue", "10");
+		TestTokenValueExtractor tte4 = new TestTokenValueExtractor(job4);
+		ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+		assertEquals(new JsonPrimitive("101"), ev.evaluate(Map.of(tte4.getPrefix(), tte4)));
+
+		// Test ((Test.displayValue = '0') ? '1' : (Test.displayValue + '1'))
+		JsonObject job5 = new JsonObject();
+		job5.addProperty("displayValue", "1");
+		TestTokenValueExtractor tte5 = new TestTokenValueExtractor(job5);
+		ev = new ExpressionEvaluator("((Test.displayValue = '0') ? '1' : (Test.displayValue + '1'))");
+		assertEquals(new JsonPrimitive("11"), ev.evaluate(Map.of(tte5.getPrefix(), tte5)));
+
+		// Test (((Test.displayValue = '0') ? '1' : (Test.displayValue + '1')))
+		JsonObject job6 = new JsonObject();
+		job6.addProperty("displayValue", "1");
+		TestTokenValueExtractor tte6 = new TestTokenValueExtractor(job6);
+		ev = new ExpressionEvaluator("(((Test.displayValue = '0') ? '1' : (Test.displayValue + '1')))");
+		assertEquals(new JsonPrimitive("11"), ev.evaluate(Map.of(tte6.getPrefix(), tte6)));
+
+		// Test (((Test.displayValue = '0')) ? '1' : (((Test.displayValue) + '1')))
+		JsonObject job7 = new JsonObject();
+		job7.addProperty("displayValue", "1");
+		TestTokenValueExtractor tte7 = new TestTokenValueExtractor(job7);
+		ev = new ExpressionEvaluator("(((Test.displayValue = '0')) ? '1' : (((Test.displayValue) + '1')))");
+		assertEquals(new JsonPrimitive("11"), ev.evaluate(Map.of(tte7.getPrefix(), tte7)));
+	}
+
+	@Test
+	void testUnaryMinusOperator() {
+
+		ExpressionEvaluator ev;
+
+		// Simple negative number
+		ev = new ExpressionEvaluator("-5");
+		assertEquals(new JsonPrimitive(-5), ev.evaluate(Map.of()));
+
+		// Negative variable using subtraction from zero
+		JsonObject job1 = new JsonObject();
+		job1.addProperty("value", 10);
+		TestTokenValueExtractor tte1 = new TestTokenValueExtractor(job1);
+		ev = new ExpressionEvaluator("0 - Test.value");
+		assertEquals(new JsonPrimitive(-10), ev.evaluate(Map.of(tte1.getPrefix(), tte1)));
+
+		// Negative in expression: (a + (0 - b)) = 5 + (-3) = 2
+		JsonObject job3 = new JsonObject();
+		job3.addProperty("a", 5);
+		job3.addProperty("b", 3);
+		TestTokenValueExtractor tte3 = new TestTokenValueExtractor(job3);
+		ev = new ExpressionEvaluator("Test.a + (0 - Test.b)");
+		assertEquals(new JsonPrimitive(2), ev.evaluate(Map.of(tte3.getPrefix(), tte3)));
+
+		// Multiplication with negative: a * -1
+		JsonObject job4 = new JsonObject();
+		job4.addProperty("a", 5);
+		TestTokenValueExtractor tte4 = new TestTokenValueExtractor(job4);
+		ev = new ExpressionEvaluator("Test.a * -1");
+		assertEquals(new JsonPrimitive(-5), ev.evaluate(Map.of(tte4.getPrefix(), tte4)));
+
+		// Parenthesized negative number
+		ev = new ExpressionEvaluator("(-5)");
+		assertEquals(new JsonPrimitive(-5), ev.evaluate(Map.of()));
+
+		// Negative number in complex expression
+		ev = new ExpressionEvaluator("10 + (-5) * 2");
+		assertEquals(new JsonPrimitive(0), ev.evaluate(Map.of()));
+	}
 }
 
 class TestTokenValueExtractor extends TokenValueExtractor {

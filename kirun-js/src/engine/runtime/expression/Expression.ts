@@ -13,6 +13,10 @@ export class Expression extends ExpressionToken {
     private tokens: LinkedList<ExpressionToken> = new LinkedList();
     // Data structure for storing operations
     private ops: LinkedList<Operation> = new LinkedList();
+    
+    // Cached arrays for fast evaluation (avoids LinkedList traversal)
+    private cachedTokensArray?: ExpressionToken[];
+    private cachedOpsArray?: Operation[];
 
     public constructor(
         expression?: string,
@@ -44,6 +48,21 @@ export class Expression extends ExpressionToken {
 
     public getOperations(): LinkedList<Operation> {
         return this.ops;
+    }
+    
+    // Fast array access for evaluation (cached)
+    public getTokensArray(): ExpressionToken[] {
+        if (!this.cachedTokensArray) {
+            this.cachedTokensArray = this.tokens.toArray();
+        }
+        return this.cachedTokensArray;
+    }
+    
+    public getOperationsArray(): Operation[] {
+        if (!this.cachedOpsArray) {
+            this.cachedOpsArray = this.ops.toArray();
+        }
+        return this.cachedOpsArray;
     }
 
     private evaluate(): void {
@@ -345,11 +364,8 @@ export class Expression extends ExpressionToken {
                 'Missing a closed parenthesis',
             );
 
-        while (
-            subExp.length() > 2 &&
-            subExp.charAt(0) == '(' &&
-            subExp.charAt(subExp.length() - 1) == ')'
-        ) {
+        // Only remove outer parentheses if they actually match
+        while (subExp.length() > 2 && this.hasMatchingOuterParentheses(subExp.toString())) {
             subExp.deleteCharAt(0);
             subExp.setLength(subExp.length() - 1);
         }
@@ -419,6 +435,22 @@ export class Expression extends ExpressionToken {
             throw new Error('Unknown operators provided');
         }
         return pre2 < pre1;
+    }
+
+    private hasMatchingOuterParentheses(str: string): boolean {
+        if (str.length < 2 || str.charAt(0) !== '(' || str.charAt(str.length - 1) !== ')') {
+            return false;
+        }
+        // Check if the first '(' matches the last ')'
+        // by verifying that the nesting level never drops to 0 before the end
+        let level = 0;
+        for (let i = 0; i < str.length - 1; i++) {
+            const ch = str.charAt(i);
+            if (ch === '(') level++;
+            else if (ch === ')') level--;
+            if (level === 0) return false; // First paren closed before end
+        }
+        return level === 1; // Should be 1 just before the last ')'
     }
 
     public toString(): string {

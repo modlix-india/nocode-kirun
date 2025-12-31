@@ -21,18 +21,22 @@ public class ContextTokenValueExtractor extends TokenValueExtractor {
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
-		String[] parts = token.split("\\.");
+		String[] cachedParts = splitPath(token);
 
-		String key = parts[1];
+		String key = cachedParts[1];
 		int bIndex = key.indexOf('[');
 		int fromIndex = 2;
+		
+		// If we need to modify parts, create a copy to avoid corrupting the cache
 		if (bIndex != -1) {
+			String[] parts = cachedParts.clone();
 			key = parts[1].substring(0, bIndex);
 			parts[1] = parts[1].substring(bIndex);
-			fromIndex = 1;
+			return retrieveElementFrom(token, parts, 1, context.getOrDefault(key, ContextElement.NULL)
+					.getElement());
 		}
 
-		return retrieveElementFrom(token, parts, fromIndex, context.getOrDefault(key, ContextElement.NULL)
+		return retrieveElementFrom(token, cachedParts, fromIndex, context.getOrDefault(key, ContextElement.NULL)
 				.getElement());
 	}
 

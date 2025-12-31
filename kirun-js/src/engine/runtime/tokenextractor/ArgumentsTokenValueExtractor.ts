@@ -12,13 +12,14 @@ export class ArgumentsTokenValueExtractor extends TokenValueExtractor {
     }
 
     protected getValueInternal(token: string): any {
-        let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
+        let parts: string[] = TokenValueExtractor.splitPath(token);
 
         let key: string = parts[1];
         let bIndex: number = key.indexOf('[');
         let fromIndex = 2;
         if (bIndex != -1) {
             key = parts[1].substring(0, bIndex);
+            parts = [...parts]; // Copy since we're modifying
             parts[1] = parts[1].substring(bIndex);
             fromIndex = 1;
         }

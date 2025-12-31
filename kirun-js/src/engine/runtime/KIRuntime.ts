@@ -47,6 +47,9 @@ export class KIRuntime extends AbstractFunction {
     private fd: FunctionDefinition;
 
     private debugMode: boolean = false;
+    
+    // Cache for function lookups to avoid repeated async calls
+    private functionCache: Map<string, Function> = new Map();
 
     public constructor(fd: FunctionDefinition, debugMode: boolean = false) {
         super();
@@ -67,13 +70,37 @@ export class KIRuntime extends AbstractFunction {
         return this.fd;
     }
 
+    private async getCachedFunction(
+        fRepo: Repository<Function>,
+        namespace: string,
+        name: string,
+    ): Promise<Function | undefined> {
+        const key = `${namespace}.${name}`;
+        if (this.functionCache.has(key)) {
+            return this.functionCache.get(key);
+        }
+        const fun = await fRepo.find(namespace, name);
+        if (fun) {
+            this.functionCache.set(key, fun);
+        }
+        return fun;
+    }
+
     public async getExecutionPlan(
         fRepo: Repository<Function>,
         sRepo: Repository<Schema>,
     ): Promise<ExecutionGraph<string, StatementExecution>> {
         let g: ExecutionGraph<string, StatementExecution> = new ExecutionGraph();
-        for (let s of Array.from(this.fd.getSteps().values()))
-            g.addVertex(await this.prepareStatementExecution(s, fRepo, sRepo));
+        
+        // Parallelize statement preparation
+        const statements = Array.from(this.fd.getSteps().values());
+        const statementExecutions = await Promise.all(
+            statements.map((s) => this.prepareStatementExecution(s, fRepo, sRepo))
+        );
+        
+        for (const se of statementExecutions) {
+            g.addVertex(se);
+        }
 
         let unresolved = this.makeEdges(g);
 
@@ -117,11 +144,6 @@ export class KIRuntime extends AbstractFunction {
             console.log(`EID: ${inContext.getExecutionId()} ${eGraph?.toString()}`);
         }
 
-        // if (logger.isDebugEnabled()) {
-        // 	logger.debug(StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
-        // 	logger.debug(eGraph.toString());
-        // }
-
         let messages: string[] = eGraph
             .getVerticesData()
             .filter((e) => e.getMessages().length)
@@ -157,13 +179,19 @@ export class KIRuntime extends AbstractFunction {
             (!executionQue.isEmpty() || !branchQue.isEmpty()) &&
             !inContext.getEvents()?.has(Event.OUTPUT)
         ) {
+            const prevExecQueSize = executionQue.length;
+            const prevBranchQueSize = branchQue.length;
+            
             await this.processBranchQue(inContext, executionQue, branchQue);
             await this.processExecutionQue(inContext, executionQue, branchQue);
 
-            inContext.setCount(inContext.getCount() + 1);
+            // Only increment count when actual work was done
+            if (prevExecQueSize !== executionQue.length || prevBranchQueSize !== branchQue.length) {
+                inContext.setCount(inContext.getCount() + 1);
 
-            if (inContext.getCount() == KIRuntime.MAX_EXECUTION_ITERATIONS)
-                throw new KIRuntimeException('Execution locked in an infinite loop');
+                if (inContext.getCount() == KIRuntime.MAX_EXECUTION_ITERATIONS)
+                    throw new KIRuntimeException('Execution locked in an infinite loop');
+            }
         }
 
         if (!eGraph.isSubGraph() && !inContext.getEvents()?.size) {
@@ -192,19 +220,44 @@ export class KIRuntime extends AbstractFunction {
             >
         >,
     ) {
-        if (!executionQue.isEmpty()) {
-            let vertex: GraphVertex<string, StatementExecution> = executionQue.pop();
+        if (executionQue.isEmpty()) return;
 
-            if (!(await this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!)))
-                executionQue.add(vertex);
-            else
-                await this.executeVertex(
-                    vertex,
-                    inContext,
-                    branchQue,
-                    executionQue,
-                    inContext.getFunctionRepository(),
-                );
+        // Collect all vertices from the queue
+        const allVertices: GraphVertex<string, StatementExecution>[] = [];
+        while (!executionQue.isEmpty()) {
+            allVertices.push(executionQue.pop());
+        }
+
+        // Separate ready and not-ready vertices
+        const readyVertices: GraphVertex<string, StatementExecution>[] = [];
+        const notReadyVertices: GraphVertex<string, StatementExecution>[] = [];
+
+        for (const vertex of allVertices) {
+            if (this.allDependenciesResolvedVertex(vertex, inContext.getSteps()!)) {
+                readyVertices.push(vertex);
+            } else {
+                notReadyVertices.push(vertex);
+            }
+        }
+
+        // Add not-ready vertices back to the queue
+        for (const vertex of notReadyVertices) {
+            executionQue.add(vertex);
+        }
+
+        // Execute all ready vertices in parallel
+        if (readyVertices.length > 0) {
+            await Promise.all(
+                readyVertices.map((vertex) =>
+                    this.executeVertex(
+                        vertex,
+                        inContext,
+                        branchQue,
+                        executionQue,
+                        inContext.getFunctionRepository(),
+                    )
+                )
+            );
         }
     }
 
@@ -220,17 +273,40 @@ export class KIRuntime extends AbstractFunction {
             >
         >,
     ) {
-        if (branchQue.length) {
-            let branch: Tuple4<
-                ExecutionGraph<string, StatementExecution>,
-                Tuple2<string, string>[],
-                FunctionOutput,
-                GraphVertex<string, StatementExecution>
-            > = branchQue.pop();
+        if (!branchQue.length) return;
 
-            if (!(await this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!)))
-                branchQue.add(branch);
-            else await this.executeBranch(inContext, executionQue, branch);
+        // Collect all branches from the queue
+        const allBranches: Tuple4<
+            ExecutionGraph<string, StatementExecution>,
+            Tuple2<string, string>[],
+            FunctionOutput,
+            GraphVertex<string, StatementExecution>
+        >[] = [];
+        
+        while (branchQue.length) {
+            allBranches.push(branchQue.pop());
+        }
+
+        // Separate ready and not-ready branches
+        const readyBranches: typeof allBranches = [];
+        const notReadyBranches: typeof allBranches = [];
+
+        for (const branch of allBranches) {
+            if (this.allDependenciesResolvedTuples(branch.getT2(), inContext.getSteps()!)) {
+                readyBranches.push(branch);
+            } else {
+                notReadyBranches.push(branch);
+            }
+        }
+
+        // Add not-ready branches back to the queue
+        for (const branch of notReadyBranches) {
+            branchQue.add(branch);
+        }
+
+        // Execute all ready branches (sequentially since they may have shared state)
+        for (const branch of readyBranches) {
+            await this.executeBranch(inContext, executionQue, branch);
         }
     }
 
@@ -246,13 +322,21 @@ export class KIRuntime extends AbstractFunction {
     ) {
         let vertex: GraphVertex<string, StatementExecution> = branch.getT4();
         let nextOutput: EventResult | undefined = undefined;
+        
+        // Pre-compute statement names to delete - avoid recalculating each iteration
+        const statementsToDelete = branch
+            .getT1()
+            .getVerticesData()
+            .map((e) => e.getStatement().getStatementName());
 
         do {
-            branch
-                .getT1()
-                .getVerticesData()
-                .map((e) => e.getStatement().getStatementName())
-                .forEach((e) => inContext.getSteps()?.delete(e));
+            // Clear previous iteration's step outputs
+            const steps = inContext.getSteps();
+            if (steps) {
+                for (const statementName of statementsToDelete) {
+                    steps.delete(statementName);
+                }
+            }
 
             await this.executeGraph(branch.getT1(), inContext);
             nextOutput = branch.getT3().next();
@@ -285,10 +369,12 @@ export class KIRuntime extends AbstractFunction {
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
         if (nextOutput?.getName() == Event.OUTPUT && vertex.getOutVertices().has(Event.OUTPUT)) {
-            (vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []).forEach(async (e) => {
-                if (await this.allDependenciesResolvedVertex(e, inContext.getSteps()!))
+            const outVertices = Array.from(vertex?.getOutVertices()?.get(Event.OUTPUT) ?? []);
+            for (const e of outVertices) {
+                if (this.allDependenciesResolvedVertex(e, inContext.getSteps()!)) {
                     executionQue.add(e);
-            });
+                }
+            }
         }
     }
 
@@ -317,10 +403,12 @@ export class KIRuntime extends AbstractFunction {
                 })
                 .every((e) => !isNullValue(e) && e !== false);
 
-            if (!allTrue) return;
+            if (!allTrue) {
+                return;
+            }
         }
 
-        let fun: Function | undefined = await fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = await this.getCachedFunction(fRepo, s.getNamespace(), s.getName());
 
         if (!fun) {
             throw new KIRuntimeException(
@@ -413,17 +501,23 @@ export class KIRuntime extends AbstractFunction {
 
         if (!isOutput) {
             let subGraph = vertex.getSubGraphOfType(er.getName());
-            let unResolvedDependencies: Tuple2<string, string>[] = this.makeEdges(subGraph).getT1();
+            let unResolvedDependencies: Tuple2<string, string>[] = [];
+            if (!subGraph.areEdgesBuilt()) {
+                unResolvedDependencies = this.makeEdges(subGraph).getT1();
+                subGraph.setEdgesBuilt(true);
+            }
             branchQue.push(new Tuple4(subGraph, unResolvedDependencies, result, vertex));
         } else {
             let out: Set<GraphVertex<string, StatementExecution>> | undefined = vertex
                 .getOutVertices()
                 .get(Event.OUTPUT);
-            if (out)
-                out.forEach(async (e) => {
-                    if (await this.allDependenciesResolvedVertex(e, inContext.getSteps()!))
+            if (out) {
+                for (const e of Array.from(out)) {
+                    if (this.allDependenciesResolvedVertex(e, inContext.getSteps()!)) {
                         executionQue.add(e);
-                });
+                    }
+                }
+            }
         }
     }
 
@@ -433,22 +527,20 @@ export class KIRuntime extends AbstractFunction {
     ): Map<string, any> {
         if (!result) return result;
 
-        return Array.from(result.entries())
-            .map((e) => new Tuple2(e[0], this.resolveInternalExpression(e[1], inContext)))
-            .reduce((a, c) => {
-                a.set(c.getT1(), c.getT2());
-                return a;
-            }, new Map());
+        const resolved = new Map<string, any>();
+        for (const [key, value] of result.entries()) {
+            resolved.set(key, this.resolveInternalExpression(value, inContext));
+        }
+        return resolved;
     }
 
     private resolveInternalExpression(value: any, inContext: FunctionExecutionParameters): any {
         if (isNullValue(value) || typeof value != 'object') return value;
 
         if (value instanceof JsonExpression) {
-            let exp: ExpressionEvaluator = new ExpressionEvaluator(
+            return new ExpressionEvaluator(
                 (value as JsonExpression).getExpression(),
-            );
-            return exp.evaluate(inContext.getValuesMap());
+            ).evaluate(inContext.getValuesMap());
         }
 
         if (Array.isArray(value)) {
@@ -490,16 +582,18 @@ export class KIRuntime extends AbstractFunction {
         vertex: GraphVertex<string, StatementExecution>,
         output: Map<string, Map<string, Map<string, any>>>,
     ): boolean {
-        if (!vertex.getInVertices().size) return true;
+        const inVertices = vertex.getInVertices();
+        if (!inVertices.size) return true;
 
-        return (
-            Array.from(vertex.getInVertices()).filter((e) => {
-                let stepName: string = e.getT1().getData().getStatement().getStatementName();
-                let type: string = e.getT2();
-
-                return !(output.has(stepName) && output.get(stepName)?.has(type));
-            }).length == 0
-        );
+        // Use for..of directly instead of Array.from + filter
+        for (const e of inVertices) {
+            const stepName = e.getT1().getData().getStatement().getStatementName();
+            const type = e.getT2();
+            if (!(output.has(stepName) && output.get(stepName)?.has(type))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private getArgumentsFromParametersMap(
@@ -507,35 +601,33 @@ export class KIRuntime extends AbstractFunction {
         s: Statement,
         paramSet: Map<string, Parameter>,
     ): Map<string, any> {
-        return Array.from(s.getParameterMap().entries())
-            .map((e) => {
-                let prList: ParameterReference[] = Array.from(e[1]?.values() ?? []);
+        const args = new Map<string, any>();
+        
+        for (const [paramName, paramRefMap] of s.getParameterMap().entries()) {
+            const prList: ParameterReference[] = Array.from(paramRefMap?.values() ?? []);
 
-                let ret: any = undefined;
+            if (!prList?.length) continue;
 
-                if (!prList?.length) return new Tuple2(e[0], ret);
+            const pDef: Parameter | undefined = paramSet.get(paramName);
+            if (!pDef) continue;
 
-                let pDef: Parameter | undefined = paramSet.get(e[0]);
+            let ret: any;
+            if (pDef.isVariableArgument()) {
+                ret = prList
+                    .sort((a, b) => (a.getOrder() ?? 0) - (b.getOrder() ?? 0))
+                    .filter((r) => !isNullValue(r))
+                    .map((r) => this.parameterReferenceEvaluation(inContext, r))
+                    .flatMap((r) => (Array.isArray(r) ? r : [r]));
+            } else {
+                ret = this.parameterReferenceEvaluation(inContext, prList[0]);
+            }
 
-                if (!pDef) return new Tuple2(e[0], undefined);
-
-                if (pDef.isVariableArgument()) {
-                    ret = prList
-                        .sort((a, b) => (a.getOrder() ?? 0) - (b.getOrder() ?? 0))
-                        .filter((r) => !isNullValue(r))
-                        .map((r) => this.parameterReferenceEvaluation(inContext, r))
-                        .flatMap((r) => (Array.isArray(r) ? r : [r]));
-                } else {
-                    ret = this.parameterReferenceEvaluation(inContext, prList[0]);
-                }
-
-                return new Tuple2(e[0], ret);
-            })
-            .filter((e) => !isNullValue(e.getT2()))
-            .reduce((a, c) => {
-                a.set(c.getT1(), c.getT2());
-                return a;
-            }, new Map());
+            if (!isNullValue(ret)) {
+                args.set(paramName, ret);
+            }
+        }
+        
+        return args;
     }
 
     private parameterReferenceEvaluation(
@@ -550,8 +642,7 @@ export class KIRuntime extends AbstractFunction {
             ref.getType() == ParameterReferenceType.EXPRESSION &&
             !StringUtil.isNullOrBlank(ref.getExpression())
         ) {
-            let exp: ExpressionEvaluator = new ExpressionEvaluator(ref.getExpression() ?? '');
-            ret = exp.evaluate(inContext.getValuesMap());
+            ret = new ExpressionEvaluator(ref.getExpression() ?? '').evaluate(inContext.getValuesMap());
         }
         return ret;
     }
@@ -563,7 +654,7 @@ export class KIRuntime extends AbstractFunction {
     ): Promise<StatementExecution> {
         let se: StatementExecution = new StatementExecution(s);
 
-        let fun: Function | undefined = await fRepo.find(s.getNamespace(), s.getName());
+        let fun: Function | undefined = await this.getCachedFunction(fRepo, s.getNamespace(), s.getName());
 
         if (!fun) {
             se.addMessage(

@@ -8,6 +8,7 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
     private outVertices: Map<string, Set<GraphVertex<K, T>>> = new Map();
     private inVertices: Set<Tuple2<GraphVertex<K, T>, string>> = new Set();
     private graph: ExecutionGraph<K, T>;
+    private subGraphCache: Map<string, ExecutionGraph<K, T>> = new Map();
 
     public constructor(graph: ExecutionGraph<K, T>, data: T) {
         this.data = data;
@@ -78,6 +79,12 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
     }
 
     public getSubGraphOfType(type: string): ExecutionGraph<K, T> {
+        // Check cache first
+        const cached = this.subGraphCache.get(type);
+        if (cached) {
+            return cached;
+        }
+
         let subGraph: ExecutionGraph<K, T> = new ExecutionGraph(true);
 
         var typeVertices = new LinkedList(Array.from(this.outVertices.get(type) ?? []));
@@ -94,6 +101,8 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
                 });
         }
 
+        // Cache for reuse
+        this.subGraphCache.set(type, subGraph);
         return subGraph;
     }
 

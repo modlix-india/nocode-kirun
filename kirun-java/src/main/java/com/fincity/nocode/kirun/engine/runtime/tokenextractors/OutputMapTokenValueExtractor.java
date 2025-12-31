@@ -20,7 +20,7 @@ public class OutputMapTokenValueExtractor extends TokenValueExtractor {
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
-		String[] parts = token.split("\\.");
+		String[] parts = splitPath(token);
 
 		int ind = 1;
 

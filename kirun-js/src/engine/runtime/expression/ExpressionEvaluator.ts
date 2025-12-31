@@ -1,6 +1,5 @@
 import { ExecutionException } from '../../exception/ExecutionException';
 import { LinkedList } from '../../util/LinkedList';
-import { StringBuilder } from '../../util/string/StringBuilder';
 import { StringFormatter } from '../../util/string/StringFormatter';
 import { ExpressionEvaluationException } from './exception/ExpressionEvaluationException';
 import { Expression } from './Expression';
@@ -49,6 +48,21 @@ import { TernaryOperator } from './operators/ternary/TernaryOperator';
 import { ExpressionInternalValueExtractor } from './tokenextractor/ExpressionInternalValueExtractor';
 
 export class ExpressionEvaluator {
+    // Static cache for parsed expressions to avoid re-parsing the same expression
+    private static expressionCache: Map<string, Expression> = new Map();
+    
+    // Counter for generating unique keys (faster than Date.now() + random)
+    private static keyCounter = 0;
+
+    private static getCachedExpression(expressionString: string): Expression {
+        let exp = ExpressionEvaluator.expressionCache.get(expressionString);
+        if (!exp) {
+            exp = new Expression(expressionString);
+            ExpressionEvaluator.expressionCache.set(expressionString, exp);
+        }
+        return exp;
+    }
+
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
         [Operation.UNARY_BITWISE_COMPLEMENT, new BitwiseComplementOperator()],
         [Operation.UNARY_LOGICAL_NOT, new LogicalNotOperator()],
@@ -94,6 +108,226 @@ export class ExpressionEvaluator {
         ExpressionEvaluator.UNARY_OPERATORS_MAP.keys(),
     );
 
+    // ==================== FAST PATH DETECTION CACHES ====================
+    
+    // Expression pattern types for fast path routing
+    private static readonly PATTERN_UNKNOWN = 0;
+    private static readonly PATTERN_LITERAL = 1;
+    private static readonly PATTERN_SIMPLE_PATH = 2;
+    private static readonly PATTERN_SIMPLE_ARRAY_ACCESS = 3;
+    private static readonly PATTERN_SIMPLE_COMPARISON = 4;
+    private static readonly PATTERN_SIMPLE_TERNARY = 5;
+    
+    // Cache for expression pattern detection
+    private static patternCache: Map<string, number> = new Map();
+    
+    // Regex patterns for fast detection (compiled once)
+    private static readonly LITERAL_TRUE = 'true';
+    private static readonly LITERAL_FALSE = 'false';
+    private static readonly LITERAL_NULL = 'null';
+    private static readonly LITERAL_UNDEFINED = 'undefined';
+    private static readonly NUMBER_REGEX = /^-?\d+(\.\d+)?$/;
+    private static readonly SINGLE_QUOTE_STRING_REGEX = /^'([^'\\]|\\.)*'$/;
+    private static readonly DOUBLE_QUOTE_STRING_REGEX = /^"([^"\\]|\\.)*"$/;
+    
+    // Simple path regex: Store.path.to.value or Store.path[0].value (no nested expressions)
+    private static readonly SIMPLE_PATH_REGEX = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[\d+\])*$/;
+    
+    // Detect expression pattern type for fast path routing
+    private static detectPattern(exp: Expression): number {
+        const expStr = exp.getExpression();
+        
+        // Check cache
+        const cached = ExpressionEvaluator.patternCache.get(expStr);
+        if (cached !== undefined) return cached;
+        
+        let pattern = ExpressionEvaluator.PATTERN_UNKNOWN;
+        
+        // 1. Check for literals (no parsing needed)
+        if (expStr === ExpressionEvaluator.LITERAL_TRUE || 
+            expStr === ExpressionEvaluator.LITERAL_FALSE ||
+            expStr === ExpressionEvaluator.LITERAL_NULL ||
+            expStr === ExpressionEvaluator.LITERAL_UNDEFINED ||
+            ExpressionEvaluator.NUMBER_REGEX.test(expStr) ||
+            ExpressionEvaluator.SINGLE_QUOTE_STRING_REGEX.test(expStr) ||
+            ExpressionEvaluator.DOUBLE_QUOTE_STRING_REGEX.test(expStr)) {
+            pattern = ExpressionEvaluator.PATTERN_LITERAL;
+        }
+        // 2. Check for simple path (must have dot, no complex operators)
+        // Exclude expressions with range operator '..' or nested expressions '{{'
+        else if (expStr.includes('.') && !expStr.includes('{{') && !expStr.includes('..')) {
+            const ops = exp.getOperationsArray();
+            const tokens = exp.getTokensArray();
+            
+            // Must have only OBJECT_OPERATOR or ARRAY_OPERATOR
+            let isSimplePath = ops.length > 0;
+            for (const op of ops) {
+                if (op !== Operation.OBJECT_OPERATOR && op !== Operation.ARRAY_OPERATOR) {
+                    isSimplePath = false;
+                    break;
+                }
+            }
+            
+            // No tokens can be nested expressions
+            if (isSimplePath) {
+                for (const token of tokens) {
+                    if (token instanceof Expression) {
+                        isSimplePath = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isSimplePath) {
+                pattern = ExpressionEvaluator.PATTERN_SIMPLE_PATH;
+            } else {
+                // 3. Check for simple ternary: condition ? value1 : value2
+                pattern = ExpressionEvaluator.detectTernaryOrComparison(exp, ops);
+            }
+        }
+        // Check for range operator expressions (need full evaluation)
+        else if (expStr.includes('..')) {
+            pattern = ExpressionEvaluator.PATTERN_UNKNOWN;
+        }
+        // 4. Check ternary/comparison for expressions without dots
+        else if (!expStr.includes('{{')) {
+            const ops = exp.getOperationsArray();
+            pattern = ExpressionEvaluator.detectTernaryOrComparison(exp, ops);
+        }
+        
+        ExpressionEvaluator.patternCache.set(expStr, pattern);
+        return pattern;
+    }
+    
+    // Detect simple ternary or comparison patterns
+    private static detectTernaryOrComparison(exp: Expression, ops: Operation[]): number {
+        const tokens = exp.getTokensArray();
+        
+        // Check for nested expressions in tokens
+        for (const token of tokens) {
+            if (token instanceof Expression) {
+                return ExpressionEvaluator.PATTERN_UNKNOWN;
+            }
+        }
+        
+        // Check for simple ternary: exactly one CONDITIONAL_TERNARY_OPERATOR and simple tokens
+        if (ops.length === 1 && ops[0] === Operation.CONDITIONAL_TERNARY_OPERATOR) {
+            return ExpressionEvaluator.PATTERN_SIMPLE_TERNARY;
+        }
+        
+        // Check for simple comparison: exactly one EQUAL or NOT_EQUAL
+        if (ops.length === 1 && (ops[0] === Operation.EQUAL || ops[0] === Operation.NOT_EQUAL)) {
+            return ExpressionEvaluator.PATTERN_SIMPLE_COMPARISON;
+        }
+        
+        return ExpressionEvaluator.PATTERN_UNKNOWN;
+    }
+
+    // ==================== FAST PATH EVALUATORS ====================
+    
+    // Fast path for literals
+    private static evaluateLiteral(expStr: string): any {
+        if (expStr === ExpressionEvaluator.LITERAL_TRUE) return true;
+        if (expStr === ExpressionEvaluator.LITERAL_FALSE) return false;
+        if (expStr === ExpressionEvaluator.LITERAL_NULL) return null;
+        if (expStr === ExpressionEvaluator.LITERAL_UNDEFINED) return undefined;
+        
+        // Number
+        if (ExpressionEvaluator.NUMBER_REGEX.test(expStr)) {
+            return expStr.includes('.') ? Number.parseFloat(expStr) : Number.parseInt(expStr, 10);
+        }
+        
+        // Quoted string - just remove quotes (no escape processing to match original behavior)
+        // The LiteralTokenValueExtractor also doesn't process escapes for non-standard sequences
+        if (ExpressionEvaluator.SINGLE_QUOTE_STRING_REGEX.test(expStr)) {
+            return expStr.slice(1, -1);
+        }
+        if (ExpressionEvaluator.DOUBLE_QUOTE_STRING_REGEX.test(expStr)) {
+            return expStr.slice(1, -1);
+        }
+        
+        return undefined;
+    }
+    
+    // Fast path for simple paths (Store.path.to.value)
+    private evaluateSimplePath(exp: Expression, valuesMap: Map<string, TokenValueExtractor>): any {
+        const pathStr = exp.getExpression();
+        const dotIdx = pathStr.indexOf('.');
+        if (dotIdx === -1) return undefined;
+        
+        const prefix = pathStr.substring(0, dotIdx + 1);
+        const extractor = valuesMap.get(prefix);
+        if (!extractor) return undefined;
+        
+        return extractor.getValue(pathStr);
+    }
+    
+    // Fast path for simple comparisons (path = value, path != value)
+    private evaluateSimpleComparison(
+        exp: Expression, 
+        valuesMap: Map<string, TokenValueExtractor>
+    ): any {
+        const ops = exp.getOperationsArray();
+        const tokens = exp.getTokensArray();
+        
+        if (tokens.length !== 2 || ops.length !== 1) return undefined;
+        
+        const v1 = this.getTokenValue(tokens[1], valuesMap);
+        const v2 = this.getTokenValue(tokens[0], valuesMap);
+        
+        if (ops[0] === Operation.EQUAL) {
+            return v1 == v2;
+        } else if (ops[0] === Operation.NOT_EQUAL) {
+            return v1 != v2;
+        }
+        
+        return undefined;
+    }
+    
+    // Fast path for simple ternary (condition ? value1 : value2)
+    private evaluateSimpleTernary(
+        exp: Expression, 
+        valuesMap: Map<string, TokenValueExtractor>
+    ): any {
+        const tokens = exp.getTokensArray();
+        
+        if (tokens.length !== 3) return undefined;
+        
+        const condition = this.getTokenValue(tokens[2], valuesMap);
+        const trueValue = this.getTokenValue(tokens[1], valuesMap);
+        const falseValue = this.getTokenValue(tokens[0], valuesMap);
+        
+        return condition ? trueValue : falseValue;
+    }
+    
+    // Helper to get value from a token (for fast paths)
+    private getTokenValue(token: ExpressionToken, valuesMap: Map<string, TokenValueExtractor>): any {
+        if (token instanceof ExpressionTokenValue) {
+            return token.getElement();
+        }
+        
+        const tokenStr = token.getExpression();
+        
+        // Check if it's a literal
+        const literalVal = ExpressionEvaluator.evaluateLiteral(tokenStr);
+        if (literalVal !== undefined || tokenStr === 'undefined' || tokenStr === 'null') {
+            return literalVal;
+        }
+        
+        // Check if it's a path
+        const dotIdx = tokenStr.indexOf('.');
+        if (dotIdx !== -1) {
+            const prefix = tokenStr.substring(0, dotIdx + 1);
+            const extractor = valuesMap.get(prefix);
+            if (extractor) {
+                return extractor.getValue(tokenStr);
+            }
+        }
+        
+        // Fall back to literal extractor
+        return LiteralTokenValueExtractor.INSTANCE.getValue(tokenStr);
+    }
+
     private expression: string;
     private exp?: Expression;
     private internalTokenValueExtractor: ExpressionInternalValueExtractor =
@@ -113,8 +347,34 @@ export class ExpressionEvaluator {
             this.expression,
             valuesMap,
         );
+        
         this.expression = tuple.getT1();
         this.exp = tuple.getT2();
+        
+        // Detect pattern type for fast path routing
+        const pattern = ExpressionEvaluator.detectPattern(this.exp);
+        
+        // Fast path 1: Literals (true, false, numbers, strings)
+        if (pattern === ExpressionEvaluator.PATTERN_LITERAL) {
+            return ExpressionEvaluator.evaluateLiteral(this.expression);
+        }
+        
+        // Fast path 2: Simple paths (Store.path.to.value)
+        if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_PATH) {
+            return this.evaluateSimplePath(this.exp, valuesMap);
+        }
+        
+        // Fast path 3: Simple comparison (path = value)
+        if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_COMPARISON) {
+            return this.evaluateSimpleComparison(this.exp, valuesMap);
+        }
+        
+        // Fast path 4: Simple ternary (condition ? value1 : value2)
+        if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_TERNARY) {
+            return this.evaluateSimpleTernary(this.exp, valuesMap);
+        }
+        
+        // Full evaluation path for complex expressions
         valuesMap = new Map(valuesMap.entries());
         valuesMap.set(
             this.internalTokenValueExtractor.getPrefix(),
@@ -158,7 +418,7 @@ export class ExpressionEvaluator {
 
         let newExpression = this.replaceNestingExpression(expression, valuesMap, tuples);
 
-        return new Tuple2(newExpression, new Expression(newExpression));
+        return new Tuple2(newExpression, ExpressionEvaluator.getCachedExpression(newExpression));
     }
 
     private replaceNestingExpression(
@@ -188,7 +448,7 @@ export class ExpressionEvaluator {
     }
 
     public getExpression(): Expression {
-        if (!this.exp) this.exp = new Expression(this.expression);
+        if (!this.exp) this.exp = ExpressionEvaluator.getCachedExpression(this.expression);
 
         return this.exp;
     }
@@ -198,65 +458,105 @@ export class ExpressionEvaluator {
     }
 
     private evaluateExpression(exp: Expression, valuesMap: Map<string, TokenValueExtractor>): any {
-        let ops: LinkedList<Operation> = exp.getOperations();
-        let tokens: LinkedList<ExpressionToken> = exp.getTokens();
+        // Use cached arrays for fast evaluation (no LinkedList traversal)
+        const opsArray: Operation[] = exp.getOperationsArray();
+        const tokensSource: ExpressionToken[] = exp.getTokensArray();
+        const workingStack: ExpressionToken[] = [];
+        
+        // Context for tracking indices - passed to helper methods
+        const ctx = { opIdx: 0, srcIdx: 0 };
+        
+        // Pop from working stack first (LIFO for results), then from source array
+        const popToken = (): ExpressionToken => {
+            if (workingStack.length > 0) {
+                return workingStack.pop()!;
+            }
+            return tokensSource[ctx.srcIdx++];
+        };
+        
+        // Pop operation from source array
+        const popOp = (): Operation | undefined => {
+            if (ctx.opIdx >= opsArray.length) return undefined;
+            return opsArray[ctx.opIdx++];
+        };
+        
+        // Peek at next operation without consuming
+        const peekOp = (): Operation | undefined => {
+            if (ctx.opIdx >= opsArray.length) return undefined;
+            return opsArray[ctx.opIdx];
+        };
+        
+        // Check if there are more tokens available
+        const hasMoreTokens = (): boolean => {
+            return workingStack.length > 0 || ctx.srcIdx < tokensSource.length;
+        };
 
-        while (!ops.isEmpty()) {
-            let operator: Operation = ops.pop();
-            let token: ExpressionToken = tokens.pop();
+        while (ctx.opIdx < opsArray.length) {
+            let operator: Operation = popOp()!;
+            let token: ExpressionToken = popToken();
 
             if (ExpressionEvaluator.UNARY_OPERATORS_MAP_KEY_SET.has(operator)) {
-                tokens.push(
+                workingStack.push(
                     this.applyUnaryOperation(operator, this.getValueFromToken(valuesMap, token)),
                 );
             } else if (
                 operator == Operation.OBJECT_OPERATOR ||
                 operator == Operation.ARRAY_OPERATOR
             ) {
-                this.processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
+                this.processObjectOrArrayOperatorIndexed(
+                    valuesMap, opsArray, tokensSource, workingStack, ctx, operator, token, popToken, popOp, peekOp, hasMoreTokens
+                );
             } else if (operator == Operation.CONDITIONAL_TERNARY_OPERATOR) {
-                const token2: ExpressionToken = tokens.pop();
-                const token3: ExpressionToken = tokens.pop();
+                const token2: ExpressionToken = popToken();
+                const token3: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token3);
                 let v2 = this.getValueFromToken(valuesMap, token2);
                 let v3 = this.getValueFromToken(valuesMap, token);
-                tokens.push(this.applyTernaryOperation(operator, v1, v2, v3));
+                workingStack.push(this.applyTernaryOperation(operator, v1, v2, v3));
             } else {
-                const token2: ExpressionToken = tokens.pop();
+                const token2: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token2);
                 let v2 = this.getValueFromToken(valuesMap, token);
-                tokens.push(this.applyBinaryOperation(operator, v1, v2));
+                workingStack.push(this.applyBinaryOperation(operator, v1, v2));
             }
         }
+        
+        // Collect remaining source tokens
+        while (ctx.srcIdx < tokensSource.length) {
+            workingStack.push(tokensSource[ctx.srcIdx++]);
+        }
 
-        if (tokens.isEmpty())
+        if (workingStack.length === 0)
             throw new ExecutionException(
                 StringFormatter.format('Expression : $ evaluated to null', exp),
             );
 
-        if (tokens.size() != 1)
+        if (workingStack.length !== 1)
             throw new ExecutionException(
-                StringFormatter.format('Expression : $ evaluated multiple values $', exp, tokens),
+                StringFormatter.format('Expression : $ evaluated multiple values $', exp, workingStack),
             );
 
-        const token: ExpressionToken = tokens.get(0);
+        const token: ExpressionToken = workingStack[0];
         if (token instanceof ExpressionTokenValue) return token.getElement();
-        else if (!(token instanceof Expression)) return this.getValueFromToken(valuesMap, token);
-
-        throw new ExecutionException(
-            StringFormatter.format('Expression : $ evaluated to $', exp, tokens.get(0)),
-        );
+        if (token instanceof Expression) return this.evaluateExpression(token, valuesMap);
+        return this.getValueFromToken(valuesMap, token);
     }
 
-    private processObjectOrArrayOperator(
+    private processObjectOrArrayOperatorIndexed(
         valuesMap: Map<string, TokenValueExtractor>,
-        ops: LinkedList<Operation>,
-        tokens: LinkedList<ExpressionToken>,
-        operator?: Operation,
-        token?: ExpressionToken,
+        opsArray: Operation[],
+        tokensSource: ExpressionToken[],
+        workingStack: ExpressionToken[],
+        ctx: { opIdx: number; srcIdx: number },
+        operator: Operation | undefined,
+        token: ExpressionToken | undefined,
+        popToken: () => ExpressionToken,
+        popOp: () => Operation | undefined,
+        peekOp: () => Operation | undefined,
+        hasMoreTokens: () => boolean,
     ): void {
-        const objTokens: LinkedList<ExpressionToken> = new LinkedList();
-        const objOperations: LinkedList<Operation> = new LinkedList();
+        const objTokens: ExpressionToken[] = [];
+        const objOperations: Operation[] = [];
 
         if (!operator || !token) return;
 
@@ -270,8 +570,9 @@ export class ExpressionEvaluator {
                     ),
                 );
             else if (token) objTokens.push(token);
-            token = tokens.isEmpty() ? undefined : tokens.pop();
-            operator = ops.isEmpty() ? undefined : ops.pop();
+            
+            token = hasMoreTokens() ? popToken() : undefined;
+            operator = popOp();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
 
         if (token) {
@@ -285,40 +586,42 @@ export class ExpressionEvaluator {
             else objTokens.push(token);
         }
 
-        if (operator) ops.push(operator);
+        // If we consumed an operator that's not OBJECT/ARRAY, put the index back
+        if (operator !== undefined) {
+            ctx.opIdx--;
+        }
 
-        let objToken: ExpressionToken = objTokens.pop();
+        // Process collected tokens and operations (in reverse order since we used push)
+        let objTokenIdx = objTokens.length - 1;
+        let objOpIdx = objOperations.length - 1;
+        
+        let objToken: ExpressionToken = objTokens[objTokenIdx--];
 
         if (
             objToken instanceof ExpressionTokenValue &&
             typeof objToken.getTokenValue() === 'object'
         ) {
-            const key = new Date().getTime() + '' + Math.round(Math.random() * 1000);
+            const key = '_k' + (ExpressionEvaluator.keyCounter++);
             this.internalTokenValueExtractor.addValue(key, objToken.getTokenValue());
             objToken = new ExpressionToken(ExpressionInternalValueExtractor.PREFIX + key);
         }
 
-        let sb: StringBuilder = new StringBuilder(
-            objToken instanceof ExpressionTokenValue
+        // Use string concatenation instead of StringBuilder (V8 optimizes this well)
+        let str: string = objToken instanceof ExpressionTokenValue
+            ? objToken.getTokenValue()
+            : objToken.toString();
+
+        while (objTokenIdx >= 0) {
+            objToken = objTokens[objTokenIdx--];
+            operator = objOperations[objOpIdx--];
+            const tokenVal = objToken instanceof ExpressionTokenValue
                 ? objToken.getTokenValue()
-                : objToken.toString(),
-        );
-
-        while (!objTokens.isEmpty()) {
-            objToken = objTokens.pop();
-            operator = objOperations.pop();
-            sb.append(operator.getOperator()).append(
-                objToken instanceof ExpressionTokenValue
-                    ? objToken.getTokenValue()
-                    : objToken.toString(),
-            );
-            if (operator == Operation.ARRAY_OPERATOR) sb.append(']');
+                : objToken.toString();
+            str = str + operator!.getOperator() + tokenVal + (operator == Operation.ARRAY_OPERATOR ? ']' : '');
         }
-
-        let str: string = sb.toString();
         let key: string = str.substring(0, str.indexOf('.') + 1);
         if (key.length > 2 && valuesMap.has(key))
-            tokens.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
+            workingStack.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
         else {
             let v: any;
             try {
@@ -326,7 +629,7 @@ export class ExpressionEvaluator {
             } catch (err) {
                 v = str;
             }
-            tokens.push(new ExpressionTokenValue(str, v));
+            workingStack.push(new ExpressionTokenValue(str, v));
         }
     }
 
@@ -434,3 +737,5 @@ export class ExpressionEvaluator {
         return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
     }
 }
+
+
