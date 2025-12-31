@@ -4,44 +4,6 @@ import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
 
-// Simple performance timer for token value extraction
-class TVEPerfTimer {
-    private static timings: Map<string, { count: number; total: number }> = new Map();
-    private static enabled = false;
-    
-    static enable() { this.enabled = true; }
-    static disable() { this.enabled = false; }
-    static isEnabled() { return this.enabled; }
-    
-    static start(label: string): number {
-        return this.enabled ? performance.now() : 0;
-    }
-    
-    static end(label: string, startTime: number) {
-        if (!this.enabled) return;
-        const elapsed = performance.now() - startTime;
-        const existing = this.timings.get(label) || { count: 0, total: 0 };
-        existing.count++;
-        existing.total += elapsed;
-        this.timings.set(label, existing);
-    }
-    
-    static report() {
-        if (!this.enabled) return;
-        console.log('\n=== TokenValueExtractor Performance ===');
-        const sorted = Array.from(this.timings.entries())
-            .sort((a, b) => b[1].total - a[1].total);
-        for (const [label, { count, total }] of sorted) {
-            console.log(`${label}: ${total.toFixed(2)}ms (${count} calls, avg ${(total/count).toFixed(3)}ms)`);
-        }
-        console.log('========================================\n');
-    }
-    
-    static reset() { this.timings.clear(); }
-}
-
-export { TVEPerfTimer };
-
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
@@ -75,7 +37,6 @@ export abstract class TokenValueExtractor {
     }
 
     public getValue(token: string): any {
-        const t0 = TVEPerfTimer.start('getValue');
         let prefix: string = this.getPrefix();
 
         if (!token.startsWith(prefix))
@@ -88,7 +49,6 @@ export abstract class TokenValueExtractor {
             const parentValue = this.getValueInternal(parentPart);
 
             if (!isNullValue(parentValue?.['__index'])) {
-                TVEPerfTimer.end('getValue', t0);
                 return parentValue['__index'];
             }
             if (parentPart.endsWith(']')) {
@@ -96,19 +56,15 @@ export abstract class TokenValueExtractor {
                     parentPart.lastIndexOf('[') + 1,
                     parentPart.length - 1,
                 );
-                const indexInt = parseInt(indexString);
-                TVEPerfTimer.end('getValue', t0);
+                const indexInt = Number.parseInt(indexString);
                 if (isNaN(indexInt)) return indexString;
                 return indexInt;
             } else {
-                TVEPerfTimer.end('getValue', t0);
                 return parentPart.substring(parentPart.lastIndexOf('.') + 1);
             }
         }
 
-        const result = this.getValueInternal(token);
-        TVEPerfTimer.end('getValue', t0);
-        return result;
+        return this.getValueInternal(token);
     }
 
     protected retrieveElementFrom(

@@ -1,43 +1,5 @@
 import { ExecutionException } from '../../exception/ExecutionException';
 import { LinkedList } from '../../util/LinkedList';
-
-// Simple performance timer for expression evaluation
-class ExprPerfTimer {
-    private static timings: Map<string, { count: number; total: number }> = new Map();
-    private static enabled = false;
-    
-    static enable() { this.enabled = true; }
-    static disable() { this.enabled = false; }
-    static isEnabled() { return this.enabled; }
-    
-    static start(label: string): number {
-        return this.enabled ? performance.now() : 0;
-    }
-    
-    static end(label: string, startTime: number) {
-        if (!this.enabled) return;
-        const elapsed = performance.now() - startTime;
-        const existing = this.timings.get(label) || { count: 0, total: 0 };
-        existing.count++;
-        existing.total += elapsed;
-        this.timings.set(label, existing);
-    }
-    
-    static report() {
-        if (!this.enabled) return;
-        console.log('\n=== Expression Evaluator Performance ===');
-        const sorted = Array.from(this.timings.entries())
-            .sort((a, b) => b[1].total - a[1].total);
-        for (const [label, { count, total }] of sorted) {
-            console.log(`${label}: ${total.toFixed(2)}ms (${count} calls, avg ${(total/count).toFixed(3)}ms)`);
-        }
-        console.log('=========================================\n');
-    }
-    
-    static reset() { this.timings.clear(); }
-}
-
-export { ExprPerfTimer };
 import { StringFormatter } from '../../util/string/StringFormatter';
 import { ExpressionEvaluationException } from './exception/ExpressionEvaluationException';
 import { Expression } from './Expression';
@@ -381,14 +343,10 @@ export class ExpressionEvaluator {
     }
 
     public evaluate(valuesMap: Map<string, TokenValueExtractor>): any {
-        const t0 = ExprPerfTimer.start('evaluate');
-        
-        const t1 = ExprPerfTimer.start('processNestingExpression');
         const tuple: Tuple2<string, Expression> = this.processNestingExpression(
             this.expression,
             valuesMap,
         );
-        ExprPerfTimer.end('processNestingExpression', t1);
         
         this.expression = tuple.getT1();
         this.exp = tuple.getT2();
@@ -398,38 +356,22 @@ export class ExpressionEvaluator {
         
         // Fast path 1: Literals (true, false, numbers, strings)
         if (pattern === ExpressionEvaluator.PATTERN_LITERAL) {
-            const t2 = ExprPerfTimer.start('evaluateLiteral');
-            const result = ExpressionEvaluator.evaluateLiteral(this.expression);
-            ExprPerfTimer.end('evaluateLiteral', t2);
-            ExprPerfTimer.end('evaluate', t0);
-            return result;
+            return ExpressionEvaluator.evaluateLiteral(this.expression);
         }
         
         // Fast path 2: Simple paths (Store.path.to.value)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_PATH) {
-            const t2 = ExprPerfTimer.start('evaluateSimplePath');
-            const result = this.evaluateSimplePath(this.exp, valuesMap);
-            ExprPerfTimer.end('evaluateSimplePath', t2);
-            ExprPerfTimer.end('evaluate', t0);
-            return result;
+            return this.evaluateSimplePath(this.exp, valuesMap);
         }
         
         // Fast path 3: Simple comparison (path = value)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_COMPARISON) {
-            const t2 = ExprPerfTimer.start('evaluateSimpleComparison');
-            const result = this.evaluateSimpleComparison(this.exp, valuesMap);
-            ExprPerfTimer.end('evaluateSimpleComparison', t2);
-            ExprPerfTimer.end('evaluate', t0);
-            return result;
+            return this.evaluateSimpleComparison(this.exp, valuesMap);
         }
         
         // Fast path 4: Simple ternary (condition ? value1 : value2)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_TERNARY) {
-            const t2 = ExprPerfTimer.start('evaluateSimpleTernary');
-            const result = this.evaluateSimpleTernary(this.exp, valuesMap);
-            ExprPerfTimer.end('evaluateSimpleTernary', t2);
-            ExprPerfTimer.end('evaluate', t0);
-            return result;
+            return this.evaluateSimpleTernary(this.exp, valuesMap);
         }
         
         // Full evaluation path for complex expressions
@@ -439,9 +381,7 @@ export class ExpressionEvaluator {
             this.internalTokenValueExtractor,
         );
 
-        const result = this.evaluateExpression(this.exp, valuesMap);
-        ExprPerfTimer.end('evaluate', t0);
-        return result;
+        return this.evaluateExpression(this.exp, valuesMap);
     }
 
     private processNestingExpression(
@@ -518,8 +458,6 @@ export class ExpressionEvaluator {
     }
 
     private evaluateExpression(exp: Expression, valuesMap: Map<string, TokenValueExtractor>): any {
-        const t0 = ExprPerfTimer.start('evaluateExpression');
-        
         // Use cached arrays for fast evaluation (no LinkedList traversal)
         const opsArray: Operation[] = exp.getOperationsArray();
         const tokensSource: ExpressionToken[] = exp.getTokensArray();
@@ -558,36 +496,28 @@ export class ExpressionEvaluator {
             let token: ExpressionToken = popToken();
 
             if (ExpressionEvaluator.UNARY_OPERATORS_MAP_KEY_SET.has(operator)) {
-                const t1 = ExprPerfTimer.start('op.unary');
                 workingStack.push(
                     this.applyUnaryOperation(operator, this.getValueFromToken(valuesMap, token)),
                 );
-                ExprPerfTimer.end('op.unary', t1);
             } else if (
                 operator == Operation.OBJECT_OPERATOR ||
                 operator == Operation.ARRAY_OPERATOR
             ) {
-                const t2 = ExprPerfTimer.start('op.objectArray');
                 this.processObjectOrArrayOperatorIndexed(
                     valuesMap, opsArray, tokensSource, workingStack, ctx, operator, token, popToken, popOp, peekOp, hasMoreTokens
                 );
-                ExprPerfTimer.end('op.objectArray', t2);
             } else if (operator == Operation.CONDITIONAL_TERNARY_OPERATOR) {
-                const t3 = ExprPerfTimer.start('op.ternary');
                 const token2: ExpressionToken = popToken();
                 const token3: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token3);
                 let v2 = this.getValueFromToken(valuesMap, token2);
                 let v3 = this.getValueFromToken(valuesMap, token);
                 workingStack.push(this.applyTernaryOperation(operator, v1, v2, v3));
-                ExprPerfTimer.end('op.ternary', t3);
             } else {
-                const t4 = ExprPerfTimer.start('op.binary');
                 const token2: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token2);
                 let v2 = this.getValueFromToken(valuesMap, token);
                 workingStack.push(this.applyBinaryOperation(operator, v1, v2));
-                ExprPerfTimer.end('op.binary', t4);
             }
         }
         
@@ -607,13 +537,9 @@ export class ExpressionEvaluator {
             );
 
         const token: ExpressionToken = workingStack[0];
-        let result: any;
-        if (token instanceof ExpressionTokenValue) result = token.getElement();
-        else if (token instanceof Expression) result = this.evaluateExpression(token, valuesMap);
-        else result = this.getValueFromToken(valuesMap, token);
-        
-        ExprPerfTimer.end('evaluateExpression', t0);
-        return result;
+        if (token instanceof ExpressionTokenValue) return token.getElement();
+        if (token instanceof Expression) return this.evaluateExpression(token, valuesMap);
+        return this.getValueFromToken(valuesMap, token);
     }
 
     private processObjectOrArrayOperatorIndexed(
