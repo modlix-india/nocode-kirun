@@ -241,11 +241,8 @@ export class ExpressionEvaluator {
 
         const token: ExpressionToken = tokens.get(0);
         if (token instanceof ExpressionTokenValue) return token.getElement();
-        else if (!(token instanceof Expression)) return this.getValueFromToken(valuesMap, token);
-
-        throw new ExecutionException(
-            StringFormatter.format('Expression : $ evaluated to $', exp, tokens.get(0)),
-        );
+        else if (token instanceof Expression) return this.evaluateExpression(token, valuesMap);
+        else return this.getValueFromToken(valuesMap, token);
     }
 
     private processObjectOrArrayOperator(

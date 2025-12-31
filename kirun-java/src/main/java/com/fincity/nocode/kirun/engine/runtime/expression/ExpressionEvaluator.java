@@ -252,10 +252,10 @@ public class ExpressionEvaluator {
         ExpressionToken token = tokens.get(0);
         if (token instanceof ExpressionTokenValue etv)
             return etv.getElement();
-        else if (!(token instanceof Expression))
+        else if (token instanceof Expression ex)
+            return evaluateExpression(ex, valuesMap);
+        else
             return getValueFromToken(valuesMap, token);
-
-        throw new ExecutionException(StringFormatter.format("Expression : $ evaluated to $", exp, tokens.get(0)));
     }
 
     private void processObjectOrArrayOperator(Map<String, TokenValueExtractor> valuesMap, LinkedList<Operation> ops,
