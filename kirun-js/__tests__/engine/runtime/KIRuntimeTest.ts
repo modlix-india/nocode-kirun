@@ -1,4 +1,6 @@
-import { KIRuntime } from '../../../src/engine/runtime/KIRuntime';
+import { KIRuntime, PerfTimer } from '../../../src/engine/runtime/KIRuntime';
+import { ExprPerfTimer } from '../../../src/engine/runtime/expression/ExpressionEvaluator';
+import { TVEPerfTimer } from '../../../src/engine/runtime/expression/tokenextractor/TokenValueExtractor';
 import { EventResult } from '../../../src/engine/model/EventResult';
 import { Event } from '../../../src/engine/model/Event';
 import { FunctionDefinition } from '../../../src/engine/model/FunctionDefinition';
@@ -23,6 +25,14 @@ import { Function } from '../../../src/engine/function/Function';
 import { MapUtil } from '../../../src';
 
 test('KIRuntime Test 1', async () => {
+    // Enable performance timing
+    PerfTimer.enable();
+    ExprPerfTimer.enable();
+    TVEPerfTimer.enable();
+    PerfTimer.reset();
+    ExprPerfTimer.reset();
+    TVEPerfTimer.reset();
+    
     let start = new Date().getTime();
     let num: number = 7000;
     let array: number[] = [];
@@ -170,7 +180,18 @@ test('KIRuntime Test 1', async () => {
             ).setArguments(new Map([['Count', num]])),
         )
     ).allResults();
-    //console.log('KIRunt Logic : ' + (new Date().getTime() - start));
+    console.log('KIRuntime Logic : ' + (new Date().getTime() - start) + 'ms');
+    
+    // Print performance reports
+    PerfTimer.report();
+    ExprPerfTimer.report();
+    TVEPerfTimer.report();
+    
+    // Disable timing
+    PerfTimer.disable();
+    ExprPerfTimer.disable();
+    TVEPerfTimer.disable();
+    
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });
 

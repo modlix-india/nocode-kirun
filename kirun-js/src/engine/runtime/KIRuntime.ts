@@ -32,6 +32,47 @@ import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenVal
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 
+// Performance timing utilities
+class PerfTimer {
+    private static timings: Map<string, { count: number; total: number }> = new Map();
+    private static enabled = false;
+    
+    static enable() { this.enabled = true; }
+    static disable() { this.enabled = false; }
+    static isEnabled() { return this.enabled; }
+    
+    static start(label: string): number {
+        return this.enabled ? performance.now() : 0;
+    }
+    
+    static end(label: string, startTime: number) {
+        if (!this.enabled) return;
+        const elapsed = performance.now() - startTime;
+        const existing = this.timings.get(label) || { count: 0, total: 0 };
+        existing.count++;
+        existing.total += elapsed;
+        this.timings.set(label, existing);
+    }
+    
+    static report() {
+        if (!this.enabled) return;
+        console.log('\n=== KIRuntime Performance Report ===');
+        const sorted = Array.from(this.timings.entries())
+            .sort((a, b) => b[1].total - a[1].total);
+        for (const [label, { count, total }] of sorted) {
+            console.log(`${label}: ${total.toFixed(2)}ms (${count} calls, avg ${(total/count).toFixed(3)}ms)`);
+        }
+        console.log('=====================================\n');
+    }
+    
+    static reset() {
+        this.timings.clear();
+    }
+}
+
+// Export for external access
+export { PerfTimer };
+
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
 
@@ -116,6 +157,8 @@ export class KIRuntime extends AbstractFunction {
     protected async internalExecute(
         inContext: FunctionExecutionParameters,
     ): Promise<FunctionOutput> {
+        const t0 = PerfTimer.start('internalExecute');
+        
         if (!inContext.getContext()) inContext.setContext(new Map());
 
         if (!inContext.getEvents()) inContext.setEvents(new Map());
@@ -135,10 +178,12 @@ export class KIRuntime extends AbstractFunction {
             console.log(`EID: ${inContext.getExecutionId()} Parameters: `, inContext);
         }
 
+        const t1 = PerfTimer.start('getExecutionPlan');
         let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
             inContext.getFunctionRepository(),
             inContext.getSchemaRepository(),
         );
+        PerfTimer.end('getExecutionPlan', t1);
 
         if (this.debugMode) {
             console.log(`EID: ${inContext.getExecutionId()} ${eGraph?.toString()}`);
@@ -161,7 +206,12 @@ export class KIRuntime extends AbstractFunction {
             );
         }
 
-        return await this.executeGraph(eGraph, inContext);
+        const t2 = PerfTimer.start('executeGraph');
+        const result = await this.executeGraph(eGraph, inContext);
+        PerfTimer.end('executeGraph', t2);
+        
+        PerfTimer.end('internalExecute', t0);
+        return result;
     }
 
     private async executeGraph(
@@ -397,9 +447,11 @@ export class KIRuntime extends AbstractFunction {
         executionQue: LinkedList<GraphVertex<string, StatementExecution>>,
         fRepo: Repository<Function>,
     ) {
+        const t0 = PerfTimer.start('executeVertex');
         let s: Statement = vertex.getData().getStatement();
 
         if (s.getExecuteIftrue().size) {
+            const t1 = PerfTimer.start('executeIfTrue');
             const allTrue = (Array.from(s.getExecuteIftrue().entries()) ?? [])
                 .filter((e) => e[1])
                 .map(([e]) => {
@@ -407,11 +459,17 @@ export class KIRuntime extends AbstractFunction {
                     return v;
                 })
                 .every((e) => !isNullValue(e) && e !== false);
+            PerfTimer.end('executeIfTrue', t1);
 
-            if (!allTrue) return;
+            if (!allTrue) {
+                PerfTimer.end('executeVertex', t0);
+                return;
+            }
         }
 
+        const t2 = PerfTimer.start('getCachedFunction');
         let fun: Function | undefined = await this.getCachedFunction(fRepo, s.getNamespace(), s.getName());
+        PerfTimer.end('getCachedFunction', t2);
 
         if (!fun) {
             throw new KIRuntimeException(
@@ -421,11 +479,13 @@ export class KIRuntime extends AbstractFunction {
 
         let paramSet: Map<string, Parameter> | undefined = fun?.getSignature().getParameters();
 
+        const t3 = PerfTimer.start('getArgumentsFromParametersMap');
         let args: Map<string, any> = this.getArgumentsFromParametersMap(
             inContext,
             s,
             paramSet ?? new Map(),
         );
+        PerfTimer.end('getArgumentsFromParametersMap', t3);
 
         if (this.debugMode) {
             console.log(
@@ -472,7 +532,9 @@ export class KIRuntime extends AbstractFunction {
                 .setExecutionContext(inContext.getExecutionContext());
         }
 
+        const t4 = PerfTimer.start('fun.execute');
         let result: FunctionOutput = await fun.execute(fep);
+        PerfTimer.end('fun.execute', t4);
 
         let er: EventResult | undefined = result.next();
 
@@ -522,6 +584,7 @@ export class KIRuntime extends AbstractFunction {
                 }
             }
         }
+        PerfTimer.end('executeVertex', t0);
     }
 
     private resolveInternalExpressions(
@@ -607,7 +670,9 @@ export class KIRuntime extends AbstractFunction {
         const args = new Map<string, any>();
         
         for (const [paramName, paramRefMap] of s.getParameterMap().entries()) {
+            const t1 = PerfTimer.start('args.arrayFrom');
             const prList: ParameterReference[] = Array.from(paramRefMap?.values() ?? []);
+            PerfTimer.end('args.arrayFrom', t1);
 
             if (!prList?.length) continue;
 
@@ -616,13 +681,17 @@ export class KIRuntime extends AbstractFunction {
 
             let ret: any;
             if (pDef.isVariableArgument()) {
+                const t2 = PerfTimer.start('args.varArgProcessing');
                 ret = prList
                     .sort((a, b) => (a.getOrder() ?? 0) - (b.getOrder() ?? 0))
                     .filter((r) => !isNullValue(r))
                     .map((r) => this.parameterReferenceEvaluation(inContext, r))
                     .flatMap((r) => (Array.isArray(r) ? r : [r]));
+                PerfTimer.end('args.varArgProcessing', t2);
             } else {
+                const t3 = PerfTimer.start('args.singleParamEval');
                 ret = this.parameterReferenceEvaluation(inContext, prList[0]);
+                PerfTimer.end('args.singleParamEval', t3);
             }
 
             if (!isNullValue(ret)) {
@@ -637,16 +706,22 @@ export class KIRuntime extends AbstractFunction {
         inContext: FunctionExecutionParameters,
         ref: ParameterReference,
     ): any {
+        const t0 = PerfTimer.start('parameterReferenceEvaluation');
         let ret: any = undefined;
 
         if (ref.getType() == ParameterReferenceType.VALUE) {
+            const t1 = PerfTimer.start('paramRef.resolveInternal');
             ret = this.resolveInternalExpression(ref.getValue(), inContext);
+            PerfTimer.end('paramRef.resolveInternal', t1);
         } else if (
             ref.getType() == ParameterReferenceType.EXPRESSION &&
             !StringUtil.isNullOrBlank(ref.getExpression())
         ) {
+            const t2 = PerfTimer.start('paramRef.exprEvaluate');
             ret = new ExpressionEvaluator(ref.getExpression() ?? '').evaluate(inContext.getValuesMap());
+            PerfTimer.end('paramRef.exprEvaluate', t2);
         }
+        PerfTimer.end('parameterReferenceEvaluation', t0);
         return ret;
     }
 

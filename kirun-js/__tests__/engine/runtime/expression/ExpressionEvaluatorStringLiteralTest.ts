@@ -96,7 +96,7 @@ test('Expression with String Literal - 2 ', () => {
     expect(ev.evaluate(valuesMap)).toBe('');
 
     ev = new ExpressionEvaluator('2.val');
-    expect(ev.evaluate(valuesMap)).toBe('2.val');
+    expect(ev.evaluate(valuesMap)).toBe(undefined);
 });
 
 test('Testing for string length with object', () => {

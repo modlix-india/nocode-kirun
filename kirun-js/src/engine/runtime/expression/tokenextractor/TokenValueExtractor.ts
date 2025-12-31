@@ -4,12 +4,53 @@ import { StringFormatter } from '../../../util/string/StringFormatter';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { ExpressionEvaluationException } from '../exception/ExpressionEvaluationException';
 
+// Simple performance timer for token value extraction
+class TVEPerfTimer {
+    private static timings: Map<string, { count: number; total: number }> = new Map();
+    private static enabled = false;
+    
+    static enable() { this.enabled = true; }
+    static disable() { this.enabled = false; }
+    static isEnabled() { return this.enabled; }
+    
+    static start(label: string): number {
+        return this.enabled ? performance.now() : 0;
+    }
+    
+    static end(label: string, startTime: number) {
+        if (!this.enabled) return;
+        const elapsed = performance.now() - startTime;
+        const existing = this.timings.get(label) || { count: 0, total: 0 };
+        existing.count++;
+        existing.total += elapsed;
+        this.timings.set(label, existing);
+    }
+    
+    static report() {
+        if (!this.enabled) return;
+        console.log('\n=== TokenValueExtractor Performance ===');
+        const sorted = Array.from(this.timings.entries())
+            .sort((a, b) => b[1].total - a[1].total);
+        for (const [label, { count, total }] of sorted) {
+            console.log(`${label}: ${total.toFixed(2)}ms (${count} calls, avg ${(total/count).toFixed(3)}ms)`);
+        }
+        console.log('========================================\n');
+    }
+    
+    static reset() { this.timings.clear(); }
+}
+
+export { TVEPerfTimer };
+
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
     
     // Cache for parsed paths to avoid repeated regex splits
     private static pathCache: Map<string, string[]> = new Map();
+    
+    // Cache for parsed bracket segments to avoid repeated regex splits
+    private static bracketCache: Map<string, string[]> = new Map();
     
     protected static splitPath(token: string): string[] {
         let parts = TokenValueExtractor.pathCache.get(token);
@@ -19,8 +60,22 @@ export abstract class TokenValueExtractor {
         }
         return parts;
     }
+    
+    // Parse bracket segments with caching
+    private static parseBracketSegment(segment: string): string[] {
+        let cached = TokenValueExtractor.bracketCache.get(segment);
+        if (!cached) {
+            cached = segment
+                .split(TokenValueExtractor.REGEX_SQUARE_BRACKETS)
+                .map((e) => e.trim())
+                .filter((e) => !StringUtil.isNullOrBlank(e));
+            TokenValueExtractor.bracketCache.set(segment, cached);
+        }
+        return cached;
+    }
 
     public getValue(token: string): any {
+        const t0 = TVEPerfTimer.start('getValue');
         let prefix: string = this.getPrefix();
 
         if (!token.startsWith(prefix))
@@ -33,6 +88,7 @@ export abstract class TokenValueExtractor {
             const parentValue = this.getValueInternal(parentPart);
 
             if (!isNullValue(parentValue?.['__index'])) {
+                TVEPerfTimer.end('getValue', t0);
                 return parentValue['__index'];
             }
             if (parentPart.endsWith(']')) {
@@ -41,35 +97,93 @@ export abstract class TokenValueExtractor {
                     parentPart.length - 1,
                 );
                 const indexInt = parseInt(indexString);
+                TVEPerfTimer.end('getValue', t0);
                 if (isNaN(indexInt)) return indexString;
                 return indexInt;
-            } else return parentPart.substring(parentPart.lastIndexOf('.') + 1);
+            } else {
+                TVEPerfTimer.end('getValue', t0);
+                return parentPart.substring(parentPart.lastIndexOf('.') + 1);
+            }
         }
 
-        return this.getValueInternal(token);
+        const result = this.getValueInternal(token);
+        TVEPerfTimer.end('getValue', t0);
+        return result;
     }
 
     protected retrieveElementFrom(
         token: string,
         parts: string[],
-        partNumber: number,
+        startPart: number,
         jsonElement: any,
     ): any {
-        if (isNullValue(jsonElement)) return undefined;
-
-        if (parts.length == partNumber) return jsonElement;
-
-        let bElement: any = parts[partNumber]
-            .split(TokenValueExtractor.REGEX_SQUARE_BRACKETS)
-            .map((e) => e.trim())
-            .filter((e) => !StringUtil.isNullOrBlank(e))
-            .reduce(
-                (a, c) =>
-                    this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a),
-                jsonElement,
-            );
-
-        return this.retrieveElementFrom(token, parts, partNumber + 1, bElement);
+        // Iterative version - avoids recursive call overhead
+        let current = jsonElement;
+        
+        for (let partNumber = startPart; partNumber < parts.length; partNumber++) {
+            if (isNullValue(current)) return undefined;
+            
+            // Use cached bracket segment parsing
+            const segments = TokenValueExtractor.parseBracketSegment(parts[partNumber]);
+            
+            for (const segment of segments) {
+                current = this.resolveSegmentFast(token, parts, partNumber, segment, current);
+                if (current === undefined) return undefined;
+            }
+        }
+        
+        return current;
+    }
+    
+    // Fast path for common cases - inline to avoid function call overhead
+    private resolveSegmentFast(
+        token: string,
+        parts: string[],
+        partNumber: number,
+        segment: string,
+        element: any,
+    ): any {
+        if (element === null || element === undefined) return undefined;
+        
+        // Fast path: simple property access on object (most common case)
+        if (typeof element === 'object' && !Array.isArray(element)) {
+            if (segment in element) {
+                return element[segment];
+            }
+            // Check for 'length' on object
+            if (segment === 'length') {
+                return Object.keys(element).length;
+            }
+            return element[segment];
+        }
+        
+        // Fast path: array index access
+        if (Array.isArray(element)) {
+            // Check for 'length' first
+            if (segment === 'length') return element.length;
+            
+            // Only use fast path for pure integer strings (no range operators like '..')
+            // Note: parseInt('2..4', 10) incorrectly returns 2, so we need to validate first
+            if (/^-?\d+$/.test(segment)) {
+                const idx = Number.parseInt(segment, 10);
+                const actualIdx = idx < 0 ? element.length + idx : idx;
+                return actualIdx >= 0 && actualIdx < element.length ? element[actualIdx] : undefined;
+            }
+        }
+        
+        // Fast path: string access
+        if (typeof element === 'string') {
+            if (segment === 'length') return element.length;
+            // Only use fast path for pure integer strings
+            if (/^-?\d+$/.test(segment)) {
+                const idx = Number.parseInt(segment, 10);
+                const actualIdx = idx < 0 ? element.length + idx : idx;
+                return actualIdx >= 0 && actualIdx < element.length ? element[actualIdx] : undefined;
+            }
+        }
+        
+        // Fall back to full handling for edge cases (range operator, etc.)
+        return this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, segment, element);
     }
 
     protected resolveForEachPartOfTokenWithBrackets(
