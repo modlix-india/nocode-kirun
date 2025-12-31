@@ -7,6 +7,18 @@ import { ExpressionEvaluationException } from '../exception/ExpressionEvaluation
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
+    
+    // Cache for parsed paths to avoid repeated regex splits
+    private static pathCache: Map<string, string[]> = new Map();
+    
+    protected static splitPath(token: string): string[] {
+        let parts = TokenValueExtractor.pathCache.get(token);
+        if (!parts) {
+            parts = token.split(TokenValueExtractor.REGEX_DOT);
+            TokenValueExtractor.pathCache.set(token, parts);
+        }
+        return parts;
+    }
 
     public getValue(token: string): any {
         let prefix: string = this.getPrefix();

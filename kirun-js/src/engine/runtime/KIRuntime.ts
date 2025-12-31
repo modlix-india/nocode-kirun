@@ -585,16 +585,18 @@ export class KIRuntime extends AbstractFunction {
         vertex: GraphVertex<string, StatementExecution>,
         output: Map<string, Map<string, Map<string, any>>>,
     ): boolean {
-        if (!vertex.getInVertices().size) return true;
+        const inVertices = vertex.getInVertices();
+        if (!inVertices.size) return true;
 
-        return (
-            Array.from(vertex.getInVertices()).filter((e) => {
-                let stepName: string = e.getT1().getData().getStatement().getStatementName();
-                let type: string = e.getT2();
-
-                return !(output.has(stepName) && output.get(stepName)?.has(type));
-            }).length == 0
-        );
+        // Use for..of directly instead of Array.from + filter
+        for (const e of inVertices) {
+            const stepName = e.getT1().getData().getStatement().getStatementName();
+            const type = e.getT2();
+            if (!(output.has(stepName) && output.get(stepName)?.has(type))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private getArgumentsFromParametersMap(

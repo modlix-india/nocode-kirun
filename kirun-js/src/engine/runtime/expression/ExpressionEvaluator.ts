@@ -210,63 +210,105 @@ export class ExpressionEvaluator {
     }
 
     private evaluateExpression(exp: Expression, valuesMap: Map<string, TokenValueExtractor>): any {
-        // Clone lists to avoid mutating the original Expression (enables caching)
-        let ops: LinkedList<Operation> = exp.getOperations().clone();
-        let tokens: LinkedList<ExpressionToken> = exp.getTokens().clone();
+        // Use cached arrays for fast evaluation (no LinkedList traversal)
+        const opsArray: Operation[] = exp.getOperationsArray();
+        const tokensSource: ExpressionToken[] = exp.getTokensArray();
+        const workingStack: ExpressionToken[] = [];
+        
+        // Context for tracking indices - passed to helper methods
+        const ctx = { opIdx: 0, srcIdx: 0 };
+        
+        // Pop from working stack first (LIFO for results), then from source array
+        const popToken = (): ExpressionToken => {
+            if (workingStack.length > 0) {
+                return workingStack.pop()!;
+            }
+            return tokensSource[ctx.srcIdx++];
+        };
+        
+        // Pop operation from source array
+        const popOp = (): Operation | undefined => {
+            if (ctx.opIdx >= opsArray.length) return undefined;
+            return opsArray[ctx.opIdx++];
+        };
+        
+        // Peek at next operation without consuming
+        const peekOp = (): Operation | undefined => {
+            if (ctx.opIdx >= opsArray.length) return undefined;
+            return opsArray[ctx.opIdx];
+        };
+        
+        // Check if there are more tokens available
+        const hasMoreTokens = (): boolean => {
+            return workingStack.length > 0 || ctx.srcIdx < tokensSource.length;
+        };
 
-        while (!ops.isEmpty()) {
-            let operator: Operation = ops.pop();
-            let token: ExpressionToken = tokens.pop();
+        while (ctx.opIdx < opsArray.length) {
+            let operator: Operation = popOp()!;
+            let token: ExpressionToken = popToken();
 
             if (ExpressionEvaluator.UNARY_OPERATORS_MAP_KEY_SET.has(operator)) {
-                tokens.push(
+                workingStack.push(
                     this.applyUnaryOperation(operator, this.getValueFromToken(valuesMap, token)),
                 );
             } else if (
                 operator == Operation.OBJECT_OPERATOR ||
                 operator == Operation.ARRAY_OPERATOR
             ) {
-                this.processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
+                this.processObjectOrArrayOperatorIndexed(
+                    valuesMap, opsArray, tokensSource, workingStack, ctx, operator, token, popToken, popOp, peekOp, hasMoreTokens
+                );
             } else if (operator == Operation.CONDITIONAL_TERNARY_OPERATOR) {
-                const token2: ExpressionToken = tokens.pop();
-                const token3: ExpressionToken = tokens.pop();
+                const token2: ExpressionToken = popToken();
+                const token3: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token3);
                 let v2 = this.getValueFromToken(valuesMap, token2);
                 let v3 = this.getValueFromToken(valuesMap, token);
-                tokens.push(this.applyTernaryOperation(operator, v1, v2, v3));
+                workingStack.push(this.applyTernaryOperation(operator, v1, v2, v3));
             } else {
-                const token2: ExpressionToken = tokens.pop();
+                const token2: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token2);
                 let v2 = this.getValueFromToken(valuesMap, token);
-                tokens.push(this.applyBinaryOperation(operator, v1, v2));
+                workingStack.push(this.applyBinaryOperation(operator, v1, v2));
             }
         }
+        
+        // Collect remaining source tokens
+        while (ctx.srcIdx < tokensSource.length) {
+            workingStack.push(tokensSource[ctx.srcIdx++]);
+        }
 
-        if (tokens.isEmpty())
+        if (workingStack.length === 0)
             throw new ExecutionException(
                 StringFormatter.format('Expression : $ evaluated to null', exp),
             );
 
-        if (tokens.size() != 1)
+        if (workingStack.length !== 1)
             throw new ExecutionException(
-                StringFormatter.format('Expression : $ evaluated multiple values $', exp, tokens),
+                StringFormatter.format('Expression : $ evaluated multiple values $', exp, workingStack),
             );
 
-        const token: ExpressionToken = tokens.get(0);
+        const token: ExpressionToken = workingStack[0];
         if (token instanceof ExpressionTokenValue) return token.getElement();
         else if (token instanceof Expression) return this.evaluateExpression(token, valuesMap);
         else return this.getValueFromToken(valuesMap, token);
     }
 
-    private processObjectOrArrayOperator(
+    private processObjectOrArrayOperatorIndexed(
         valuesMap: Map<string, TokenValueExtractor>,
-        ops: LinkedList<Operation>,
-        tokens: LinkedList<ExpressionToken>,
-        operator?: Operation,
-        token?: ExpressionToken,
+        opsArray: Operation[],
+        tokensSource: ExpressionToken[],
+        workingStack: ExpressionToken[],
+        ctx: { opIdx: number; srcIdx: number },
+        operator: Operation | undefined,
+        token: ExpressionToken | undefined,
+        popToken: () => ExpressionToken,
+        popOp: () => Operation | undefined,
+        peekOp: () => Operation | undefined,
+        hasMoreTokens: () => boolean,
     ): void {
-        const objTokens: LinkedList<ExpressionToken> = new LinkedList();
-        const objOperations: LinkedList<Operation> = new LinkedList();
+        const objTokens: ExpressionToken[] = [];
+        const objOperations: Operation[] = [];
 
         if (!operator || !token) return;
 
@@ -280,8 +322,9 @@ export class ExpressionEvaluator {
                     ),
                 );
             else if (token) objTokens.push(token);
-            token = tokens.isEmpty() ? undefined : tokens.pop();
-            operator = ops.isEmpty() ? undefined : ops.pop();
+            
+            token = hasMoreTokens() ? popToken() : undefined;
+            operator = popOp();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
 
         if (token) {
@@ -295,9 +338,16 @@ export class ExpressionEvaluator {
             else objTokens.push(token);
         }
 
-        if (operator) ops.push(operator);
+        // If we consumed an operator that's not OBJECT/ARRAY, put the index back
+        if (operator !== undefined) {
+            ctx.opIdx--;
+        }
 
-        let objToken: ExpressionToken = objTokens.pop();
+        // Process collected tokens and operations (in reverse order since we used push)
+        let objTokenIdx = objTokens.length - 1;
+        let objOpIdx = objOperations.length - 1;
+        
+        let objToken: ExpressionToken = objTokens[objTokenIdx--];
 
         if (
             objToken instanceof ExpressionTokenValue &&
@@ -314,10 +364,10 @@ export class ExpressionEvaluator {
                 : objToken.toString(),
         );
 
-        while (!objTokens.isEmpty()) {
-            objToken = objTokens.pop();
-            operator = objOperations.pop();
-            sb.append(operator.getOperator()).append(
+        while (objTokenIdx >= 0) {
+            objToken = objTokens[objTokenIdx--];
+            operator = objOperations[objOpIdx--];
+            sb.append(operator!.getOperator()).append(
                 objToken instanceof ExpressionTokenValue
                     ? objToken.getTokenValue()
                     : objToken.toString(),
@@ -328,7 +378,7 @@ export class ExpressionEvaluator {
         let str: string = sb.toString();
         let key: string = str.substring(0, str.indexOf('.') + 1);
         if (key.length > 2 && valuesMap.has(key))
-            tokens.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
+            workingStack.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
         else {
             let v: any;
             try {
@@ -336,7 +386,7 @@ export class ExpressionEvaluator {
             } catch (err) {
                 v = str;
             }
-            tokens.push(new ExpressionTokenValue(str, v));
+            workingStack.push(new ExpressionTokenValue(str, v));
         }
     }
 
@@ -444,4 +494,5 @@ export class ExpressionEvaluator {
         return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
     }
 }
+
 

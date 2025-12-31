@@ -13,6 +13,10 @@ export class Expression extends ExpressionToken {
     private tokens: LinkedList<ExpressionToken> = new LinkedList();
     // Data structure for storing operations
     private ops: LinkedList<Operation> = new LinkedList();
+    
+    // Cached arrays for fast evaluation (avoids LinkedList traversal)
+    private cachedTokensArray?: ExpressionToken[];
+    private cachedOpsArray?: Operation[];
 
     public constructor(
         expression?: string,
@@ -44,6 +48,21 @@ export class Expression extends ExpressionToken {
 
     public getOperations(): LinkedList<Operation> {
         return this.ops;
+    }
+    
+    // Fast array access for evaluation (cached)
+    public getTokensArray(): ExpressionToken[] {
+        if (!this.cachedTokensArray) {
+            this.cachedTokensArray = this.tokens.toArray();
+        }
+        return this.cachedTokensArray;
+    }
+    
+    public getOperationsArray(): Operation[] {
+        if (!this.cachedOpsArray) {
+            this.cachedOpsArray = this.ops.toArray();
+        }
+        return this.cachedOpsArray;
     }
 
     private evaluate(): void {
