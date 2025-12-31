@@ -49,6 +49,18 @@ import { TernaryOperator } from './operators/ternary/TernaryOperator';
 import { ExpressionInternalValueExtractor } from './tokenextractor/ExpressionInternalValueExtractor';
 
 export class ExpressionEvaluator {
+    // Static cache for parsed expressions to avoid re-parsing the same expression
+    private static expressionCache: Map<string, Expression> = new Map();
+
+    private static getCachedExpression(expressionString: string): Expression {
+        let exp = ExpressionEvaluator.expressionCache.get(expressionString);
+        if (!exp) {
+            exp = new Expression(expressionString);
+            ExpressionEvaluator.expressionCache.set(expressionString, exp);
+        }
+        return exp;
+    }
+
     private static readonly UNARY_OPERATORS_MAP: Map<Operation, UnaryOperator> = new Map([
         [Operation.UNARY_BITWISE_COMPLEMENT, new BitwiseComplementOperator()],
         [Operation.UNARY_LOGICAL_NOT, new LogicalNotOperator()],
@@ -158,7 +170,7 @@ export class ExpressionEvaluator {
 
         let newExpression = this.replaceNestingExpression(expression, valuesMap, tuples);
 
-        return new Tuple2(newExpression, new Expression(newExpression));
+        return new Tuple2(newExpression, ExpressionEvaluator.getCachedExpression(newExpression));
     }
 
     private replaceNestingExpression(
@@ -188,7 +200,7 @@ export class ExpressionEvaluator {
     }
 
     public getExpression(): Expression {
-        if (!this.exp) this.exp = new Expression(this.expression);
+        if (!this.exp) this.exp = ExpressionEvaluator.getCachedExpression(this.expression);
 
         return this.exp;
     }
@@ -198,8 +210,9 @@ export class ExpressionEvaluator {
     }
 
     private evaluateExpression(exp: Expression, valuesMap: Map<string, TokenValueExtractor>): any {
-        let ops: LinkedList<Operation> = exp.getOperations();
-        let tokens: LinkedList<ExpressionToken> = exp.getTokens();
+        // Clone lists to avoid mutating the original Expression (enables caching)
+        let ops: LinkedList<Operation> = exp.getOperations().clone();
+        let tokens: LinkedList<ExpressionToken> = exp.getTokens().clone();
 
         while (!ops.isEmpty()) {
             let operator: Operation = ops.pop();
@@ -431,3 +444,4 @@ export class ExpressionEvaluator {
         return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
     }
 }
+

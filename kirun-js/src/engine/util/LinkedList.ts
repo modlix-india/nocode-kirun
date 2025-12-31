@@ -120,6 +120,10 @@ export class LinkedList<T> {
         return arr;
     }
 
+    public clone(): LinkedList<T> {
+        return new LinkedList(this.toArray());
+    }
+
     public peek(): T {
         if (!this.head) {
             throw new Error('List is empty so cannot peak');
