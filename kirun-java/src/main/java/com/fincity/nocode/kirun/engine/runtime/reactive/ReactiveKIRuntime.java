@@ -277,14 +277,35 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 		if (executionQue.isEmpty())
 			return Mono.just(false);
 
-		var vertex = executionQue.pop();
+		// Collect all vertices from the queue
+		List<GraphVertex<String, StatementExecution>> allVertices = new ArrayList<>();
+		while (!executionQue.isEmpty()) {
+			allVertices.add(executionQue.pop());
+		}
 
-		if (!allDependenciesResolved(vertex, inContext.getSteps())) {
-			executionQue.add(vertex);
+		// Separate ready and not-ready vertices
+		List<GraphVertex<String, StatementExecution>> readyVertices = new ArrayList<>();
+		List<GraphVertex<String, StatementExecution>> notReadyVertices = new ArrayList<>();
+
+		for (GraphVertex<String, StatementExecution> vertex : allVertices) {
+			if (allDependenciesResolved(vertex, inContext.getSteps())) {
+				readyVertices.add(vertex);
+			} else {
+				notReadyVertices.add(vertex);
+			}
+		}
+
+		// Re-add not-ready vertices back to the queue
+		executionQue.addAll(notReadyVertices);
+
+		// Execute all ready vertices in parallel
+		if (readyVertices.isEmpty()) {
 			return Mono.just(false);
 		}
 
-		return executeVertex(vertex, inContext, branchQue, executionQue);
+		return Flux.fromIterable(readyVertices)
+				.flatMap(vertex -> executeVertex(vertex, inContext, branchQue, executionQue))
+				.then(Mono.just(true));
 	}
 
 	private Mono<Boolean> processBranchQue(ReactiveFunctionExecutionParameters inContext,
@@ -371,11 +392,14 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 							.equals(Event.OUTPUT) && vertex.getOutVertices()
 									.containsKey(Event.OUTPUT)) {
 
-						vertex.getOutVertices()
-								.get(Event.OUTPUT)
-								.stream()
-								.filter(x -> this.allDependenciesResolved(x, inContext.getSteps()))
-								.forEach(executionQue::add);
+						// Synchronize access to executionQue to avoid race conditions in parallel execution
+						synchronized (executionQue) {
+							vertex.getOutVertices()
+									.get(Event.OUTPUT)
+									.stream()
+									.filter(x -> this.allDependenciesResolved(x, inContext.getSteps()))
+									.forEach(executionQue::add);
+						}
 					}
 
 					return true;
@@ -514,10 +538,14 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 						Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
 								.get(Event.OUTPUT);
-						if (out != null)
-							out.stream()
-									.filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
-									.forEach(executionQue::add);
+						if (out != null) {
+							// Synchronize access to executionQue to avoid race conditions in parallel execution
+							synchronized (executionQue) {
+								out.stream()
+										.filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
+										.forEach(executionQue::add);
+							}
+						}
 					}
 
 					return Mono.just(true);

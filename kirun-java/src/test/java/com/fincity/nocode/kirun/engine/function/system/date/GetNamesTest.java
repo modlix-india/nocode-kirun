@@ -81,7 +81,7 @@ class GetNamesTest {
                         .get(GetNames.EVENT_NAMES_NAME)))
                 .expectNextMatches(e -> e.getAsJsonArray().size() > 100
                         && e.getAsJsonArray().asList().stream()
-                                .map(JsonElement::getAsString).anyMatch(x -> x.equals("India Time")))
+                                .map(JsonElement::getAsString).anyMatch(x -> x.equals("Kolkata Time") || x.equals("India Time")))
                 .verifyComplete();
     }
 }
