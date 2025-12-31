@@ -84,6 +84,9 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 	private final boolean debugMode;
 
 	private final StringBuilder sb = new StringBuilder();
+	
+	// Cache for resolved functions to avoid repeated lookups
+	private final Map<String, ReactiveFunction> functionCache = new ConcurrentHashMap<>();
 
 	public ReactiveKIRuntime(FunctionDefinition fd) {
 		this(fd, false);
@@ -103,6 +106,19 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 	public FunctionSignature getSignature() {
 
 		return this.fd;
+	}
+	
+	/**
+	 * Get a function from cache or repository. Caches the result for future lookups.
+	 */
+	private Mono<ReactiveFunction> getCachedFunction(ReactiveRepository<ReactiveFunction> fRepo, String namespace, String name) {
+		String key = namespace + "." + name;
+		ReactiveFunction cached = functionCache.get(key);
+		if (cached != null) {
+			return Mono.just(cached);
+		}
+		return fRepo.find(namespace, name)
+				.doOnNext(fun -> functionCache.put(key, fun));
 	}
 
 	public Mono<ExecutionGraph<String, StatementExecution>> getExecutionPlan(ReactiveRepository<ReactiveFunction> fRepo,
@@ -396,8 +412,8 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 				return Mono.just(true);
 		}
 
-		Mono<ReactiveFunction> monoFunction = inContext.getFunctionRepository()
-				.find(s.getNamespace(), s.getName());
+		Mono<ReactiveFunction> monoFunction = getCachedFunction(inContext.getFunctionRepository(),
+				s.getNamespace(), s.getName());
 
 		return monoFunction.flatMap(fun -> {
 
@@ -653,7 +669,7 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 			ReactiveRepository<Schema> sRepo) {
 		// Breaking this execution doesn't make sense.
 
-		return fRepo.find(s.getNamespace(), s.getName())
+		return getCachedFunction(fRepo, s.getNamespace(), s.getName())
 				.map(ReactiveFunction::getSignature)
 				.map(FunctionSignature::getParameters)
 				.flatMap(paramSet -> {

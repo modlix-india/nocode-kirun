@@ -20,6 +20,10 @@ public class Expression extends ExpressionToken {
 
     private LinkedList<ExpressionToken> tokens = new LinkedList<>();
     private LinkedList<Operation> ops = new LinkedList<>();
+    
+    // Cached arrays for non-destructive evaluation
+    private ExpressionToken[] tokensArray;
+    private Operation[] opsArray;
 
     public Expression(String expression) {
 
@@ -56,6 +60,26 @@ public class Expression extends ExpressionToken {
 
     public LinkedList<Operation> getOperations() {// NOSONAR - LinkedList is required
         return this.ops;
+    }
+    
+    /**
+     * Get tokens as a cached array for non-destructive evaluation.
+     */
+    public ExpressionToken[] getTokensArray() {
+        if (tokensArray == null) {
+            tokensArray = tokens.toArray(new ExpressionToken[0]);
+        }
+        return tokensArray;
+    }
+    
+    /**
+     * Get operations as a cached array for non-destructive evaluation.
+     */
+    public Operation[] getOpsArray() {
+        if (opsArray == null) {
+            opsArray = ops.toArray(new Operation[0]);
+        }
+        return opsArray;
     }
 
     private void evaluate() {
