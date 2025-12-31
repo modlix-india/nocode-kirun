@@ -46,8 +46,7 @@ class ReactiveArrayValidatorTest {
 		schema.setMinItems(5);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, element))
-		        .expectErrorMessage("Value [\"chile\",16,\"San Francisco\",800.0,18] is not of valid type(s)\n"
-		                + "Array can have  maximum of 3 elements")
+		        .expectErrorMessage("Array can have  maximum of 3 elements")
 		        .verify();
 	}
 

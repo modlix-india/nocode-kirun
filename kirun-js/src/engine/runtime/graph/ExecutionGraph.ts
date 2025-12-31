@@ -5,9 +5,18 @@ import { GraphVertexType } from './GraphVertexType';
 export class ExecutionGraph<K, T extends GraphVertexType<K>> {
     private nodeMap: Map<K, GraphVertex<K, T>> = new Map();
     private isSubGrph: boolean;
+    private edgesBuilt: boolean = false;
 
     public constructor(isSubGrph: boolean = false) {
         this.isSubGrph = isSubGrph;
+    }
+
+    public areEdgesBuilt(): boolean {
+        return this.edgesBuilt;
+    }
+
+    public setEdgesBuilt(built: boolean): void {
+        this.edgesBuilt = built;
     }
 
     public getVerticesData(): T[] {

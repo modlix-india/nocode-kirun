@@ -76,11 +76,13 @@ export class StringValidator {
         if (schema.getMinLength() && length < schema.getMinLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('minLength') ??
                 'Expected a minimum of ' + schema.getMinLength() + ' characters',
             );
         } else if (schema.getMaxLength() && length > schema.getMaxLength()!) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('maxLength') ??
                 'Expected a maximum of ' + schema.getMaxLength() + ' characters',
             );
         }
@@ -99,6 +101,7 @@ export class StringValidator {
         if (!matched) {
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
+                schema.getDetails()?.getValidationMessage('pattern') ??
                 element.toString() + ' is not matched with the ' + message,
             );
         }

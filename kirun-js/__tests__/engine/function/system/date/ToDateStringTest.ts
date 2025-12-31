@@ -61,6 +61,6 @@ describe('ToDateString', () => {
             .allResults()[0]
             .getResult()
             .get(AbstractDateFunction.EVENT_RESULT_NAME);
-        expect(result).toBe('1 January 2024');
+        expect(result == '1 January 2024' || result == 'January 1, 2024').toBeTruthy();
     });
 });

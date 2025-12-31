@@ -170,7 +170,8 @@ test('KIRuntime Test 1', async () => {
             ).setArguments(new Map([['Count', num]])),
         )
     ).allResults();
-    //console.log('KIRunt Logic : ' + (new Date().getTime() - start));
+    console.log('KIRuntime Logic : ' + (new Date().getTime() - start) + 'ms');
+    
     expect(out[0].getResult().get('result')).toStrictEqual(array);
 });
 

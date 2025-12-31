@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -19,8 +21,27 @@ public abstract class TokenValueExtractor {
     public static final String REGEX_SQUARE_BRACKETS = "[\\[\\]]";
     public static final String REGEX_DOT = "(?<!\\.)\\.(?!\\.)";
 
+    // Cache for split paths to avoid repeated regex splitting
+    private static final Map<String, String[]> pathCache = new ConcurrentHashMap<>();
+    
+    // Cache for bracket segments
+    private static final Map<String, String[]> bracketCache = new ConcurrentHashMap<>();
 
     private static final String LENGTH = "length";
+    
+    /**
+     * Split a token by dots and cache the result.
+     */
+    protected static String[] splitPath(String token) {
+        return pathCache.computeIfAbsent(token, t -> t.split(REGEX_DOT));
+    }
+    
+    /**
+     * Split a segment by brackets and cache the result.
+     */
+    protected static String[] splitBrackets(String segment) {
+        return bracketCache.computeIfAbsent(segment, s -> s.split(REGEX_SQUARE_BRACKETS));
+    }
 
     public JsonElement getValue(String token) {
 

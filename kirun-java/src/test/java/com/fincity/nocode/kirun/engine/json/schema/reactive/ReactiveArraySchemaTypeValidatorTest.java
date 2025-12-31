@@ -90,9 +90,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		arr.add("surendhar");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
-		        .expectErrorMessage("schema - Value [1,2,3,4,\"surendhar\"] is not of valid type(s)\n"
-		                + "schema.item - Value \"surendhar\" is not of valid type(s)\n"
-		                + "schema.item - \"surendhar\" is not a Integer")
+		        .expectErrorMessage("schema - schema.item - schema.item - \"surendhar\" is not a Integer")
 		        .verify();
 
 	}
@@ -132,9 +130,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		arr.add("surendhar");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
-		        .expectErrorMessage("schema - Value [1,2,3,4,\"surendhar\"] is not of valid type(s)\n"
-		                + "schema.item - Value \"surendhar\" is not of valid type(s)\n"
-		                + "schema.item - \"surendhar\" is not a Integer")
+		        .expectErrorMessage("schema - schema.item - schema.item - \"surendhar\" is not a Integer")
 		        .verify();
 	}
 
@@ -177,8 +173,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		arr.add("asd");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
-		        .expectErrorMessage("schema - Value [1,\"surendhar\",false,\"asd\"] is not of valid type(s)\n"
-		                + "schema - Expected an array with only 3 but found 4")
+		        .expectErrorMessage( "schema - schema - Expected an array with only 3 but found 4")
 		        .verify();
 	}
 
@@ -200,8 +195,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		arr.add("additional");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
-		        .expectErrorMessage("schema - Value [1,\"surendhar\",false,\"additional\"] is not of valid type(s)\n"
-		                + "schema - Expected an array with only 3 but found 4")
+		        .expectErrorMessage( "schema - schema - Expected an array with only 3 but found 4")
 		        .verify();
 	}
 
@@ -275,9 +269,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		arr.add("additional");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
-		        .expectErrorMessage("schema - Value [1,2,3,4,\"additional\"] is not of valid type(s)\n"
-		                + "schema.item - Value \"additional\" is not of valid type(s)\n"
-		                + "schema.item - \"additional\" is not a Integer")
+		        .expectErrorMessage("schema - schema.item - schema.item - \"additional\" is not a Integer")
 		        .verify();
 	}
 
@@ -304,7 +296,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
 		        .expectErrorMessage(
-		                "schema - Value [1,\"surendhar\",false,\"additional\",true,1] is not of valid type(s)\nschema.stringSchema - Value true is not of valid type(s)\nschema.stringSchema - true is not String")
+		                "schema - schema.stringSchema - schema.stringSchema - true is not String")
 		        .verify();
 
 	}
@@ -373,9 +365,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, arr))
 		        .expectErrorMessage(
-		                "schema - Value [1,\"surendhar\",false,{\"company\":\"fincity\",\"area\":\"indiranagar\"},{},[1,2]] is not of valid type(s)\n"
-		                        + "schema.objSchema - Value [1,2] is not of valid type(s)\n"
-		                        + "schema.objSchema - [1,2] is not an Object")
+		                "schema - schema.objSchema - schema.objSchema - [1,2] is not an Object")
 		        .verify();
 	}
 
@@ -436,8 +426,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		job.add("name");
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("Value [1,1,2,\"name\"] is not of valid type(s)\n"
-		                + "Value \"name\" is not of valid type(s)\n" + "\"name\" is not a Integer")
+		        .expectErrorMessage( "\"name\" is not a Integer")
 		        .verify();
 
 	}
@@ -469,8 +458,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		job.add(true);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("Value [1,1,2,true] is not of valid type(s)\n"
-		                + "Value true is not of valid type(s)\n" + "true is not a Integer")
+		        .expectErrorMessage("true is not a Integer")
 		        .verify();
 	}
 
@@ -503,8 +491,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		job.add(2.34);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("Value [1,\"asd\",false,2.34] is not of valid type(s)\n"
-		                + "Value 2.34 is not of valid type(s)\n" + "2.34 is not an Object")
+		        .expectErrorMessage( "2.34 is not an Object")
 		        .verify();
 	}
 
@@ -538,8 +525,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		job.add(2.34);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("Value [1,\"asd\",false,2.34] is not of valid type(s)\n"
-		                + "Expected an array with only 3 but found 4")
+		        .expectErrorMessage("Expected an array with only 3 but found 4")
 		        .verify();
 	}
 
@@ -616,9 +602,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 		job.add(jo);
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
-		        .expectErrorMessage("Value [1,\"asd\",{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
-		                + "Value {\"name\":\"thinking\",\"age\":1} is not of valid type(s)\n"
-		                + "{\"name\":\"thinking\",\"age\":1} is not a boolean")
+		        .expectErrorMessage("{\"name\":\"thinking\",\"age\":1} is not a boolean")
 		        .verify();
 	}
 
@@ -656,8 +640,7 @@ class ReactiveArraySchemaTypeValidatorTest {
 
 		StepVerifier.create(ReactiveSchemaValidator.validate(null, schema, null, job))
 		        .expectErrorMessage(
-		                "Value [1,\"asd\",false,{\"name\":\"thinking\",\"age\":1}] is not of valid type(s)\n"
-		                        + "Expected an array with only 3 but found 4")
+		                "Expected an array with only 3 but found 4")
 		        .verify();
 	}
 

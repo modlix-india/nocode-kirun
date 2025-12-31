@@ -103,6 +103,7 @@ export class ObjectValidator {
             if (isNullValue(jsonObject[key])) {
                 throw new SchemaValidationException(
                     SchemaValidator.path(parents),
+                    schema.getProperties()?.get(key)?.getDetails()?.getValidationMessage('mandatory') ??
                     key + ' is mandatory',
                 );
             }
@@ -212,6 +213,4 @@ export class ObjectValidator {
             );
         }
     }
-
-    private constructor() {}
 }

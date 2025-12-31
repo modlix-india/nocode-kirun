@@ -15,13 +15,16 @@ import reactor.util.function.Tuples;
 
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(exclude = { "graph", "outVertices", "inVertices" })
+@EqualsAndHashCode(exclude = { "graph", "outVertices", "inVertices", "subGraphCache" })
 public class GraphVertex<K, T extends GraphVertexType<K>> {
 
 	private T data;
 	private Map<String, Set<GraphVertex<K, T>>> outVertices = new ConcurrentHashMap<>();
 	private Set<Tuple2<GraphVertex<K, T>, String>> inVertices = new HashSet<>();
 	private ExecutionGraph<K, T> graph;
+	
+	// Cache for subgraphs to avoid repeated creation
+	private Map<String, ExecutionGraph<K, T>> subGraphCache = new ConcurrentHashMap<>();
 
 	public GraphVertex(ExecutionGraph<K, T> graph, T data) {
 
@@ -64,12 +67,20 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 	}
 
 	public ExecutionGraph<K, T> getSubGraphOfType(String type) {
+		// Check cache first
+		ExecutionGraph<K, T> cached = subGraphCache.get(type);
+		if (cached != null) {
+			return cached;
+		}
 
 		ExecutionGraph<K, T> subGraph = new ExecutionGraph<>(true);
 		
 		Set<GraphVertex<K, T>> set = outVertices.get(type);
 		
-		if (set == null) return subGraph;
+		if (set == null) {
+			subGraphCache.put(type, subGraph);
+			return subGraph;
+		}
 
 		var typeVertices = new LinkedList<>(set);
 
@@ -90,6 +101,8 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 			        });
 		}
 
+		// Cache the subgraph
+		subGraphCache.put(type, subGraph);
 		return subGraph;
 	}
 

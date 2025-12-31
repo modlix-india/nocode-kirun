@@ -558,3 +558,69 @@ test('backslash escape', () => {
     let ev = new ExpressionEvaluator("'\\maza'");
     expect(ev.evaluate(new Map())).toBe('\\maza');
 });
+
+test('ternary expression with displayValue equality check', () => {
+    // Test when displayValue = "0" -> should return "1"
+    let ttv = new TestTokenValueExtractor({ displayValue: '0' });
+    let ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('1');
+
+    // Test when displayValue = "1" -> should return "11"
+    ttv = new TestTokenValueExtractor({ displayValue: '1' });
+    ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('11');
+
+    // Test when displayValue = "5" -> should return "51"
+    ttv = new TestTokenValueExtractor({ displayValue: '5' });
+    ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('51');
+
+    // Test when displayValue = "10" -> should return "101"
+    ttv = new TestTokenValueExtractor({ displayValue: '10' });
+    ev = new ExpressionEvaluator("(Test.displayValue = '0') ? '1' : (Test.displayValue + '1')");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('101');
+
+    // Test ((Test.displayValue = '0') ? '1' : (Test.displayValue + '1'))
+    ttv = new TestTokenValueExtractor({ displayValue: '1' });
+    ev = new ExpressionEvaluator("((Test.displayValue = '0') ? '1' : (Test.displayValue + '1'))");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('11');
+
+    // Test (((Test.displayValue = '0') ? '1' : (Test.displayValue + '1')))
+    ttv = new TestTokenValueExtractor({ displayValue: '1' });
+    ev = new ExpressionEvaluator("(((Test.displayValue = '0') ? '1' : (Test.displayValue + '1')))");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('11');
+
+    // Test (((Test.displayValue = '0')) ? '1' : (((Test.displayValue) + '1')))
+    ttv = new TestTokenValueExtractor({ displayValue: '1' });
+    ev = new ExpressionEvaluator("(((Test.displayValue = '0')) ? '1' : (((Test.displayValue) + '1')))");
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('11');
+});
+
+test('unary minus operator', () => {
+    // Simple negative number
+    let ev = new ExpressionEvaluator('-5');
+    expect(ev.evaluate(new Map())).toBe(-5);
+
+    // Negative variable using subtraction from zero
+    let ttv = new TestTokenValueExtractor({ value: 10 });
+    ev = new ExpressionEvaluator('0 - Test.value');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(-10);
+
+    // Negative in expression: (a + (0 - b)) = 5 + (-3) = 2
+    ttv = new TestTokenValueExtractor({ a: 5, b: 3 });
+    ev = new ExpressionEvaluator('Test.a + (0 - Test.b)');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(2);
+
+    // Multiplication with negative: a * -1
+    ttv = new TestTokenValueExtractor({ a: 5 });
+    ev = new ExpressionEvaluator('Test.a * -1');
+    expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe(-5);
+
+    // Parenthesized negative number
+    ev = new ExpressionEvaluator('(-5)');
+    expect(ev.evaluate(new Map())).toBe(-5);
+
+    // Negative number in complex expression
+    ev = new ExpressionEvaluator('10 + (-5) * 2');
+    expect(ev.evaluate(new Map())).toBe(0);
+});

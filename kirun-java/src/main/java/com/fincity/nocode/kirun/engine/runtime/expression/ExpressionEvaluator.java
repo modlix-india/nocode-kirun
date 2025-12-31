@@ -29,6 +29,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_MINUS;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.UNARY_PLUS;
 
+import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -79,6 +80,16 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 public class ExpressionEvaluator {
+
+    // Static cache for parsed expressions to avoid re-parsing
+    private static final Map<String, Expression> expressionCache = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    // Counter for generating unique keys for internal values
+    private static int keyCounter = 0;
+    
+    private static Expression getCachedExpression(String expressionString) {
+        return expressionCache.computeIfAbsent(expressionString, Expression::new);
+    }
 
     private static final Map<Operation, UnaryOperator> UNARY_OPERATORS_MAP = new EnumMap<>(Map.of(
             UNARY_BITWISE_COMPLEMENT, new BitwiseComplementOperator(), UNARY_LOGICAL_NOT, new LogicalNotOperator(),
@@ -176,7 +187,7 @@ public class ExpressionEvaluator {
 
         String newExpression = replaceNestingExpression(expression, valuesMap, tuples);
 
-        return Tuples.of(newExpression, new Expression(newExpression));
+        return Tuples.of(newExpression, getCachedExpression(newExpression));
     }
 
     private String replaceNestingExpression(String expression, Map<String, TokenValueExtractor> valuesMap,
@@ -202,7 +213,7 @@ public class ExpressionEvaluator {
     public Expression getExpression() {
 
         if (this.exp == null)
-            this.exp = new Expression(this.expression);
+            this.exp = getCachedExpression(this.expression);
 
         return this.exp;
     }
@@ -212,66 +223,76 @@ public class ExpressionEvaluator {
     }
 
     private JsonElement evaluateExpression(Expression exp, Map<String, TokenValueExtractor> valuesMap) {
-
-        LinkedList<Operation> ops = exp.getOperations();
-        LinkedList<ExpressionToken> tokens = exp.getTokens();
-
-        while (!ops.isEmpty()) {
-
-            Operation operator = ops.pop();
-            ExpressionToken token = tokens.pop();
+        // Use cached arrays for non-destructive evaluation
+        Operation[] opsArray = exp.getOpsArray();
+        ExpressionToken[] tokensSource = exp.getTokensArray();
+        Deque<ExpressionToken> workingStack = new LinkedList<>();
+        
+        // Context for tracking indices
+        int[] ctx = {0, 0}; // opIdx, srcIdx
+        
+        while (ctx[0] < opsArray.length) {
+            Operation operator = opsArray[ctx[0]++];
+            ExpressionToken token = workingStack.isEmpty() ? tokensSource[ctx[1]++] : workingStack.pop();
 
             if (UNARY_OPERATORS_MAP_KEY_SET.contains(operator)) {
-                tokens.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
+                workingStack.push(applyOperation(operator, getValueFromToken(valuesMap, token)));
             } else if (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR) {
-                processObjectOrArrayOperator(valuesMap, ops, tokens, operator, token);
+                processObjectOrArrayOperatorIndexed(valuesMap, opsArray, tokensSource, workingStack, ctx, operator, token);
             } else if (operator == CONDITIONAL_TERNARY_OPERATOR) {
-                ExpressionToken token2 = tokens.pop();
-                ExpressionToken token3 = tokens.pop();
+                ExpressionToken token2 = workingStack.isEmpty() ? tokensSource[ctx[1]++] : workingStack.pop();
+                ExpressionToken token3 = workingStack.isEmpty() ? tokensSource[ctx[1]++] : workingStack.pop();
 
                 var v1 = getValueFromToken(valuesMap, token3);
                 var v2 = getValueFromToken(valuesMap, token2);
                 var v3 = getValueFromToken(valuesMap, token);
-                tokens.push(applyOperation(operator, v1, v2, v3));
-
+                workingStack.push(applyOperation(operator, v1, v2, v3));
             } else {
-                ExpressionToken token2 = tokens.pop();
+                ExpressionToken token2 = workingStack.isEmpty() ? tokensSource[ctx[1]++] : workingStack.pop();
                 var v1 = getValueFromToken(valuesMap, token2);
                 var v2 = getValueFromToken(valuesMap, token);
-                tokens.push(applyOperation(operator, v1, v2));
+                workingStack.push(applyOperation(operator, v1, v2));
             }
         }
+        
+        // Collect remaining source tokens
+        while (ctx[1] < tokensSource.length) {
+            workingStack.push(tokensSource[ctx[1]++]);
+        }
 
-        if (tokens.isEmpty())
+        if (workingStack.isEmpty())
             throw new ExecutionException(StringFormatter.format("Expression : $ evaluated to null", exp));
 
-        if (tokens.size() != 1)
+        if (workingStack.size() != 1)
             throw new ExecutionException(
-                    StringFormatter.format("Expression : $ evaluated multiple values $", exp, tokens));
+                    StringFormatter.format("Expression : $ evaluated multiple values $", exp, workingStack));
 
-        ExpressionToken token = tokens.get(0);
+        ExpressionToken token = workingStack.peek();
         if (token instanceof ExpressionTokenValue etv)
             return etv.getElement();
-        else if (!(token instanceof Expression))
+        else if (token instanceof Expression ex)
+            return evaluateExpression(ex, valuesMap);
+        else
             return getValueFromToken(valuesMap, token);
-
-        throw new ExecutionException(StringFormatter.format("Expression : $ evaluated to $", exp, tokens.get(0)));
     }
 
-    private void processObjectOrArrayOperator(Map<String, TokenValueExtractor> valuesMap, LinkedList<Operation> ops,
-                                              LinkedList<ExpressionToken> tokens, Operation operator, ExpressionToken token) {
-        LinkedList<ExpressionToken> objTokens = new LinkedList<>();
-        LinkedList<Operation> objOperations = new LinkedList<>();
+    private void processObjectOrArrayOperatorIndexed(Map<String, TokenValueExtractor> valuesMap, 
+            Operation[] opsArray, ExpressionToken[] tokensSource, Deque<ExpressionToken> workingStack,
+            int[] ctx, Operation operator, ExpressionToken token) {
+        
+        Deque<ExpressionToken> objTokens = new LinkedList<>();
+        Deque<Operation> objOperations = new LinkedList<>();
 
         do {
             objOperations.push(operator);
             if (token instanceof Expression ex) {
                 objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
-            } else {
+            } else if (token != null) {
                 objTokens.push(token);
             }
-            token = tokens.isEmpty() ? null : tokens.pop();
-            operator = ops.isEmpty() ? null : ops.pop();
+            token = (workingStack.isEmpty() && ctx[1] < tokensSource.length) ? tokensSource[ctx[1]++] : 
+                    (!workingStack.isEmpty() ? workingStack.pop() : null);
+            operator = ctx[0] < opsArray.length ? opsArray[ctx[0]++] : null;
         } while (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR);
 
         if (token != null) {
@@ -281,14 +302,14 @@ public class ExpressionEvaluator {
                 objTokens.push(token);
             }
         }
+        // If we consumed an operator that's not OBJECT/ARRAY, put the index back
         if (operator != null)
-            ops.push(operator);
+            ctx[0]--;
 
         ExpressionToken objToken = objTokens.pop();
 
         if (objToken instanceof ExpressionTokenValue vtoken && !vtoken.getElement().isJsonPrimitive()) {
-
-            final String key = System.nanoTime() + "" + Math.round(Math.random() * 1000);
+            final String key = "_k" + (keyCounter++);
             this.internalTokenValueExtractor.addValue(key, vtoken.getElement());
             objToken = new ExpressionToken(ExpressionInternalValueExtractor.PREFIX + key);
         }
@@ -309,7 +330,7 @@ public class ExpressionEvaluator {
         String str = sb.toString();
         String key = str.substring(0, str.indexOf('.') + 1);
         if (key.length() > 2 && valuesMap.containsKey(key)) {
-            tokens.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
+            workingStack.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
         } else {
             JsonElement v = null;
             try {
@@ -317,7 +338,7 @@ public class ExpressionEvaluator {
             } catch (Exception ex) {
                 v = new JsonPrimitive(str);
             }
-            tokens.push(new ExpressionTokenValue(str, v));
+            workingStack.push(new ExpressionTokenValue(str, v));
         }
     }
 

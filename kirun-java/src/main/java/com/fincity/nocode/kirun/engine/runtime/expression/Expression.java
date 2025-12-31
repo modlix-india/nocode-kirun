@@ -20,6 +20,10 @@ public class Expression extends ExpressionToken {
 
     private LinkedList<ExpressionToken> tokens = new LinkedList<>();
     private LinkedList<Operation> ops = new LinkedList<>();
+    
+    // Cached arrays for non-destructive evaluation
+    private ExpressionToken[] tokensArray;
+    private Operation[] opsArray;
 
     public Expression(String expression) {
 
@@ -56,6 +60,26 @@ public class Expression extends ExpressionToken {
 
     public LinkedList<Operation> getOperations() {// NOSONAR - LinkedList is required
         return this.ops;
+    }
+    
+    /**
+     * Get tokens as a cached array for non-destructive evaluation.
+     */
+    public ExpressionToken[] getTokensArray() {
+        if (tokensArray == null) {
+            tokensArray = tokens.toArray(new ExpressionToken[0]);
+        }
+        return tokensArray;
+    }
+    
+    /**
+     * Get operations as a cached array for non-destructive evaluation.
+     */
+    public Operation[] getOpsArray() {
+        if (opsArray == null) {
+            opsArray = ops.toArray(new Operation[0]);
+        }
+        return opsArray;
     }
 
     private void evaluate() {
@@ -302,7 +326,8 @@ public class Expression extends ExpressionToken {
         if (inChr != ')')
             throw new ExpressionEvaluationException(this.expression, "Missing a closed parenthesis");
 
-        while (subExp.length() > 2 && subExp.charAt(0) == '(' && subExp.charAt(subExp.length() - 1) == ')') {
+        // Only remove outer parentheses if they actually match
+        while (subExp.length() > 2 && hasMatchingOuterParentheses(subExp.toString())) {
             subExp.deleteCharAt(0);
             subExp.setLength(subExp.length() - 1);
         }
@@ -365,6 +390,22 @@ public class Expression extends ExpressionToken {
         int pre2 = OPERATOR_PRIORITY.get(op2);
 
         return pre2 < pre1;
+    }
+
+    private boolean hasMatchingOuterParentheses(String str) {
+        if (str.length() < 2 || str.charAt(0) != '(' || str.charAt(str.length() - 1) != ')') {
+            return false;
+        }
+        // Check if the first '(' matches the last ')'
+        // by verifying that the nesting level never drops to 0 before the end
+        int level = 0;
+        for (int i = 0; i < str.length() - 1; i++) {
+            char ch = str.charAt(i);
+            if (ch == '(') level++;
+            else if (ch == ')') level--;
+            if (level == 0) return false; // First paren closed before end
+        }
+        return level == 1; // Should be 1 just before the last ')'
     }
 
     @Override

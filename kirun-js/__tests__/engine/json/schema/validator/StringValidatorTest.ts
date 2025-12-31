@@ -1,4 +1,4 @@
-import { Schema, SchemaType, StringFormat, TypeUtil } from '../../../../../src';
+import { Schema, SchemaType, SchemaValidator, StringFormat, TypeUtil } from '../../../../../src';
 import { StringValidator } from '../../../../../src';
 
 test('String valid case', async () => {
@@ -122,4 +122,20 @@ test('String email valid case', async () => {
     let schema: Schema = new Schema().setFormat(StringFormat.EMAIL);
 
     expect(StringValidator.validate([], schema, value)).toBe(value);
+});
+
+
+test('String custom message', async () => {
+    const schema = Schema.from({
+        type: "STRING",
+        minLength: 10,
+        details: {
+            validationMessages: {
+                minLength: "You must enter something with minimum of ten characters"
+            }
+        }
+    })
+
+    expect(async () => SchemaValidator.validate([], schema!, undefined, "asdf"))
+        .rejects.toThrowError("You must enter something with minimum of ten characters");
 });
