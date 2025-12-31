@@ -17,8 +17,19 @@ jobs:
           distribution: "oracle"
       - name: Configure GPG
         run: |
+          # Import GPG key
           echo "${{ secrets.MAVEN_GPG_PRIVATE_KEY }}" | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
+          # Configure gpg-agent for non-interactive use
+          mkdir -p ~/.gnupg
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf || echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
+          chmod 600 ~/.gnupg/gpg.conf ~/.gnupg/gpg-agent.conf
+          # Reload gpg-agent
+          gpg-connect-agent reloadagent /bye || true
+          # Kill any existing gpg-agent and start fresh
+          gpgconf --kill gpg-agent || true
+          gpgconf --launch gpg-agent || true
       - name: Configure Maven Settings
         run: |
           mkdir -p ~/.m2
@@ -35,7 +46,7 @@ jobs:
           EOF
       - name: Deploy with Maven
         working-directory: ./kirun-java
-        run: mvn -B clean deploy -Pci-cd
+        run: mvn -B clean deploy -Pci-cd -Dgpg.passphrase="${{ secrets.MAVEN_GPG_PASSPHRASE }}"
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
