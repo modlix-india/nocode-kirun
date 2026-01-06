@@ -3,6 +3,7 @@ import { Repository } from '../../../Repository';
 import { AbstractFunction } from '../../AbstractFunction';
 import { Function } from '../../Function';
 import { ObjectConvert } from './ObjectConvert';
+import { ObjectMake } from './ObjectMake';
 import { ObjectDeleteKey } from './ObjectDeleteKey';
 import { ObjectEntries } from './ObjectEntries';
 import { ObjectKeys } from './ObjectKeys';
@@ -21,6 +22,7 @@ export class ObjectFunctionRepository implements Repository<Function> {
             ObjectDeleteKey: new ObjectDeleteKey(),
             ObjectPutValue: new ObjectPutValue(),
             ObjectConvert: new ObjectConvert(),
+            ObjectMake: new ObjectMake(),
         };
         this.filterableNames = Object.values(this.functionObjectsIndex).map((e) =>
             e.getSignature().getFullName(),
