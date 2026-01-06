@@ -16,6 +16,7 @@ import { Print } from '../function/system/Print';
 import { StringFunctionRepository } from '../function/system/string/StringFunctionRepository';
 import { DateFunctionRepository } from '../function/system/date/DateFunctionRepository';
 import { Wait } from '../function/system/Wait';
+import { Make } from '../function/system/Make';
 import { HybridRepository } from '../HybridRepository';
 import { Namespaces } from '../namespaces/Namespaces';
 import mapEntry from '../util/mapEntry';
@@ -56,6 +57,7 @@ class SystemFunctionRepository implements Repository<Function> {
                     mapEntry(new Wait()),
                     mapEntry(new Join()),
                     mapEntry(new ValidateSchema()),
+                    mapEntry(new Make()),
                 ]),
             ],
         ]);
