@@ -15,7 +15,7 @@ public abstract class AbstractObjectFunction extends AbstractReactiveFunction {
 
 	private static final String VALUE = "value";
 
-	private FunctionSignature signature;
+	private final FunctionSignature signature;
 
 	protected AbstractObjectFunction(String functionName, Schema schema) {
 
