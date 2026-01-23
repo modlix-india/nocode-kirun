@@ -825,7 +825,7 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] < 500 or Test.obj[\"count\"] = 100");
 		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
 
-		ev = new ExpressionEvaluator("not Test.obj[\"mail.props.port\"] < 500");
+		ev = new ExpressionEvaluator("not (Test.obj[\"mail.props.port\"] < 500)");
 		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
 
 		// Mixed bracket and dot notation

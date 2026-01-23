@@ -286,18 +286,18 @@ public class ExpressionEvaluator {
         do {
             objOperations.push(operator);
             if (token instanceof Expression ex) {
-                objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
+                objTokens.push(new ExpressionTokenValue(ex.getExpression(), this.evaluateExpression(ex, valuesMap)));
             } else if (token != null) {
                 objTokens.push(token);
             }
-            token = (workingStack.isEmpty() && ctx[1] < tokensSource.length) ? tokensSource[ctx[1]++] : 
+            token = (workingStack.isEmpty() && ctx[1] < tokensSource.length) ? tokensSource[ctx[1]++] :
                     (!workingStack.isEmpty() ? workingStack.pop() : null);
             operator = ctx[0] < opsArray.length ? opsArray[ctx[0]++] : null;
         } while (operator == OBJECT_OPERATOR || operator == ARRAY_OPERATOR);
 
         if (token != null) {
             if (token instanceof Expression ex) {
-                objTokens.push(new ExpressionTokenValue(token.toString(), this.evaluateExpression(ex, valuesMap)));
+                objTokens.push(new ExpressionTokenValue(ex.getExpression(), this.evaluateExpression(ex, valuesMap)));
             } else {
                 objTokens.push(token);
             }
@@ -320,9 +320,23 @@ public class ExpressionEvaluator {
         while (!objTokens.isEmpty()) {
             objToken = objTokens.pop();
             operator = objOperations.pop();
-            sb.append(operator.getOperator())
-                    .append((objToken instanceof ExpressionTokenValue etv ? etv.getTokenValue()
-                            .getAsString() : objToken.toString()));
+            String tokenStr;
+            if (objToken instanceof ExpressionTokenValue etv) {
+                String originalExpr = etv.getExpression();
+                String evaluatedValue = etv.getTokenValue().getAsString();
+                // Preserve quotes for bracket notation with quoted keys containing dots (like ["mail.props.port"])
+                // Only preserve when the key contains dots, to distinguish from simple bracket access like ["length"]
+                if (operator == ARRAY_OPERATOR && originalExpr != null && !originalExpr.isEmpty()
+                        && (originalExpr.charAt(0) == '"' || originalExpr.charAt(0) == '\'')
+                        && evaluatedValue.contains(".")) {
+                    tokenStr = originalExpr;
+                } else {
+                    tokenStr = evaluatedValue;
+                }
+            } else {
+                tokenStr = objToken.toString();
+            }
+            sb.append(operator.getOperator()).append(tokenStr);
             if (operator == ARRAY_OPERATOR)
                 sb.append(']');
         }
