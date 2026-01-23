@@ -102,9 +102,17 @@ export class Expression extends ExpressionToken {
                 }
                 case "'":
                 case '"': {
-                    let result: Tuple2<number, boolean> = this.processStringLiteral(length, chr, i);
-                    i = result.getT1();
-                    isPrevOp = result.getT2();
+                    // If we're inside a bracket (ARRAY_OPERATOR was just added),
+                    // don't treat quotes as string literals - they're part of the bracket notation
+                    if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
+                        let result: Tuple2<number, boolean> = this.process(length, sb, i);
+                        i = result.getT1();
+                        isPrevOp = result.getT2();
+                    } else {
+                        let result: Tuple2<number, boolean> = this.processStringLiteral(length, chr, i);
+                        i = result.getT1();
+                        isPrevOp = result.getT2();
+                    }
                     break;
                 }
                 case '?': {

@@ -37,3 +37,31 @@ test('Expression Test', () => {
     opInTheName = new Expression('Store.a.b.corStore.c.d.x');
     expect(opInTheName.toString()).toBe('(Store.(a.(b.(corStore.(c.(d.x))))))');
 });
+
+test('Expression with bracket notation and quoted keys', () => {
+    // Test bracket notation with quoted keys containing dots
+    let expr = new Expression('Context.obj["mail.props.port"]');
+    expect(expr.toString()).toBe('(Context.(obj["mail.props.port"]))');
+
+    // Test with single quotes
+    expr = new Expression("Context.obj['api.key.secret']");
+    expect(expr.toString()).toBe("(Context.(obj['api.key.secret']))");
+
+    // Test with comparison operators
+    expr = new Expression('Context.obj["mail.props.port"] = 587');
+    expect(expr.toString()).toBe('((Context.(obj["mail.props.port"]))=587)');
+
+    expr = new Expression('Context.obj["mail.props.port"] != 500');
+    expect(expr.toString()).toBe('((Context.(obj["mail.props.port"]))!=500)');
+
+    expr = new Expression('Context.obj["mail.props.port"] > 500');
+    expect(expr.toString()).toBe('((Context.(obj["mail.props.port"]))>500)');
+
+    // Test with ternary operator
+    expr = new Expression('Context.obj["mail.props.port"] > 500 ? "high" : "low"');
+    expect(expr.toString()).toBe('(((Context.(obj["mail.props.port"]))>500)?"high":"low")');
+
+    // Test mix of bracket and dot notation
+    expr = new Expression('Context.obj["mail.props.port"].value');
+    expect(expr.toString()).toBe('(Context.(obj["mail.props.port"].value))');
+});
