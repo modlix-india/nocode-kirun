@@ -7,20 +7,55 @@ import { ExpressionEvaluationException } from '../exception/ExpressionEvaluation
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
-    
+
     // Cache for parsed paths to avoid repeated regex splits
     private static pathCache: Map<string, string[]> = new Map();
-    
+
     // Cache for parsed bracket segments to avoid repeated regex splits
     private static bracketCache: Map<string, string[]> = new Map();
-    
-    protected static splitPath(token: string): string[] {
+
+    public static splitPath(token: string): string[] {
         let parts = TokenValueExtractor.pathCache.get(token);
         if (!parts) {
-            parts = token.split(TokenValueExtractor.REGEX_DOT);
+            parts = TokenValueExtractor.splitPathInternal(token);
             TokenValueExtractor.pathCache.set(token, parts);
         }
         return parts;
+    }
+
+    private static splitPathInternal(token: string): string[] {
+        const parts: string[] = [];
+        let start = 0;
+        let inBracket = false;
+
+        for (let i = 0; i < token.length; i++) {
+            const c = token.charAt(i);
+
+            if (c === '[') {
+                inBracket = true;
+            } else if (c === ']') {
+                inBracket = false;
+            } else if (c === '.' && !inBracket && !TokenValueExtractor.isDoubleDot(token, i)) {
+                // Found a separator dot
+                if (i > start) {
+                    parts.push(token.substring(start, i));
+                }
+                start = i + 1;
+            }
+        }
+
+        // Add the last part
+        if (start < token.length) {
+            parts.push(token.substring(start));
+        }
+
+        return parts;
+    }
+
+    private static isDoubleDot(str: string, pos: number): boolean {
+        // Check if this dot is part of a ".." range operator
+        return (pos > 0 && str.charAt(pos - 1) === '.') ||
+               (pos < str.length - 1 && str.charAt(pos + 1) === '.');
     }
     
     // Parse bracket segments with caching
@@ -100,7 +135,12 @@ export abstract class TokenValueExtractor {
         element: any,
     ): any {
         if (element === null || element === undefined) return undefined;
-        
+
+        // Skip fast path for quoted segments - they need quote stripping
+        if (segment.startsWith('"') || segment.startsWith("'")) {
+            return this.resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, segment, element);
+        }
+
         // Fast path: simple property access on object (most common case)
         if (typeof element === 'object' && !Array.isArray(element)) {
             if (segment in element) {
@@ -220,15 +260,17 @@ export abstract class TokenValueExtractor {
         cPart: string,
         cObject: any,
     ): any {
-        if (cPart.startsWith('"')) {
-            if (!cPart.endsWith('"') || cPart.length == 1 || cPart.length == 2) {
+        // Handle both single and double quoted keys
+        if (cPart.startsWith('"') || cPart.startsWith("'")) {
+            const quoteChar = cPart[0];
+            if (!cPart.endsWith(quoteChar) || cPart.length == 1 || cPart.length == 2) {
                 throw new ExpressionEvaluationException(
                     token,
-                    StringFormatter.format('$ is missing a double quote or empty key found', token),
+                    StringFormatter.format('$ is missing a closing quote or empty key found', token),
                 );
             }
 
-            cPart = cPart.substring(1, parts.length - 2);
+            cPart = cPart.substring(1, cPart.length - 1);
         }
 
         this.checkIfObject(token, parts, partNumber, cObject);

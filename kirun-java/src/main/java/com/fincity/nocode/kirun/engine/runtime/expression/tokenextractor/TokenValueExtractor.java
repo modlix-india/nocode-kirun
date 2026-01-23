@@ -1,5 +1,7 @@
 package com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -23,17 +25,53 @@ public abstract class TokenValueExtractor {
 
     // Cache for split paths to avoid repeated regex splitting
     private static final Map<String, String[]> pathCache = new ConcurrentHashMap<>();
-    
+
     // Cache for bracket segments
     private static final Map<String, String[]> bracketCache = new ConcurrentHashMap<>();
 
     private static final String LENGTH = "length";
-    
+
     /**
      * Split a token by dots and cache the result.
+     * Enhanced to handle bracket notation with keys containing dots.
      */
     protected static String[] splitPath(String token) {
-        return pathCache.computeIfAbsent(token, t -> t.split(REGEX_DOT));
+        return pathCache.computeIfAbsent(token, TokenValueExtractor::splitPathInternal);
+    }
+
+    private static String[] splitPathInternal(String token) {
+        List<String> parts = new ArrayList<>();
+        int start = 0;
+        boolean inBracket = false;
+
+        for (int i = 0; i < token.length(); i++) {
+            char c = token.charAt(i);
+
+            if (c == '[') {
+                inBracket = true;
+            } else if (c == ']') {
+                inBracket = false;
+            } else if (c == '.' && !inBracket && !isDoubleDot(token, i)) {
+                // Found a separator dot
+                if (i > start) {
+                    parts.add(token.substring(start, i));
+                }
+                start = i + 1;
+            }
+        }
+
+        // Add the last part
+        if (start < token.length()) {
+            parts.add(token.substring(start));
+        }
+
+        return parts.toArray(new String[0]);
+    }
+
+    private static boolean isDoubleDot(String str, int pos) {
+        // Check if this dot is part of a ".." range operator
+        return (pos > 0 && str.charAt(pos - 1) == '.') ||
+               (pos < str.length() - 1 && str.charAt(pos + 1) == '.');
     }
     
     /**
@@ -178,10 +216,12 @@ public abstract class TokenValueExtractor {
     private JsonElement handleObjectAccess(String token, String[] parts, int partNumber, String cPart,
                                            JsonElement cObject) {
 
-        if (cPart.startsWith("\"")) {
-            if (!cPart.endsWith("\"") || cPart.length() == 1 || cPart.length() == 2)
+        // Handle both single and double quoted keys
+        if (cPart.startsWith("\"") || cPart.startsWith("'")) {
+            char quoteChar = cPart.charAt(0);
+            if (!cPart.endsWith(String.valueOf(quoteChar)) || cPart.length() == 1 || cPart.length() == 2)
                 throw new ExpressionEvaluationException(token,
-                        StringFormatter.format("$ is missing a double quote or empty key found", token));
+                        StringFormatter.format("$ is missing a closing quote or empty key found", token));
 
             cPart = cPart.substring(1, cPart.length() - 1);
         }

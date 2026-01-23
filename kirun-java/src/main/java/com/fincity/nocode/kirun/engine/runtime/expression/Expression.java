@@ -117,10 +117,17 @@ public class Expression extends ExpressionToken {
                     throw new ExpressionEvaluationException(this.expression, "Extra closing square bracket found");
                 }
                 case '\'', '"': {
-
-                    Tuple2<Integer, Boolean> result = processStringLiteral(length, chr, i);
-                    i = result.getT1();
-                    isPrevOp = result.getT2();
+                    // If we're inside a bracket (ARRAY_OPERATOR was just added),
+                    // don't treat quotes as string literals - they're part of the bracket notation
+                    if (isPrevOp && this.ops.peek() == Operation.ARRAY_OPERATOR) {
+                        Tuple2<Integer, Boolean> result = process(length, sb, i);
+                        i = result.getT1();
+                        isPrevOp = result.getT2();
+                    } else {
+                        Tuple2<Integer, Boolean> result = processStringLiteral(length, chr, i);
+                        i = result.getT1();
+                        isPrevOp = result.getT2();
+                    }
                     break;
                 }
                 case '?': {
