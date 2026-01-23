@@ -44,7 +44,7 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
     @Override
     protected JsonElement getValueInternal(String token) {
 
-        String[] parts = token.split(TokenValueExtractor.REGEX_DOT);
+        String[] parts = TokenValueExtractor.splitPath(token);
         return this.retrieveElementFrom(token, parts, 1, getStore());
 
     }
