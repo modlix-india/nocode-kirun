@@ -16,7 +16,7 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
         this.prefix = prefix;
     }
     protected getValueInternal(token: string) {
-        let parts: string[] = token.split(TokenValueExtractor.REGEX_DOT);
+        let parts: string[] = TokenValueExtractor.splitPath(token);
         return this.retrieveElementFrom(token, parts, 1, this.store);
     }
 

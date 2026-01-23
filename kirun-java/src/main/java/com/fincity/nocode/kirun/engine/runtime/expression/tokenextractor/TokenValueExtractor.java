@@ -43,20 +43,32 @@ public abstract class TokenValueExtractor {
         List<String> parts = new ArrayList<>();
         int start = 0;
         boolean inBracket = false;
+        boolean inQuotedBracket = false;
 
         for (int i = 0; i < token.length(); i++) {
             char c = token.charAt(i);
 
             if (c == '[') {
                 inBracket = true;
+                // Check if the bracket content is quoted (for dotted keys like ["mail.props.port"])
+                if (i + 1 < token.length()) {
+                    char nextChar = token.charAt(i + 1);
+                    inQuotedBracket = (nextChar == '"' || nextChar == '\'');
+                }
             } else if (c == ']') {
                 inBracket = false;
-            } else if (c == '.' && !inBracket && !isDoubleDot(token, i)) {
-                // Found a separator dot
-                if (i > start) {
-                    parts.add(token.substring(start, i));
+                inQuotedBracket = false;
+            } else if (c == '.' && !isDoubleDot(token, i)) {
+                // Only skip dot splitting inside brackets if the content is quoted.
+                // This allows proper handling of both dotted keys like ["mail.props.port"]
+                // and malformed paths like [2.val] (which should be [2].val).
+                if (!inBracket || !inQuotedBracket) {
+                    // Found a separator dot
+                    if (i > start) {
+                        parts.add(token.substring(start, i));
+                    }
+                    start = i + 1;
                 }
-                start = i + 1;
             }
         }
 
