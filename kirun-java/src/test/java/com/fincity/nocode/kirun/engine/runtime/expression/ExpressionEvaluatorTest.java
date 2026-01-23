@@ -743,6 +743,112 @@ class ExpressionEvaluatorTest {
 		ev = new ExpressionEvaluator("10 + (-5) * 2");
 		assertEquals(new JsonPrimitive(0), ev.evaluate(Map.of()));
 	}
+
+	@Test
+	void testBracketNotationWithDottedKeys() {
+		// Test comprehensive bracket notation with dotted keys
+		JsonObject obj = new JsonObject();
+		obj.addProperty("mail.props.port", 587);
+		obj.addProperty("mail.props.host", "smtp.example.com");
+		obj.addProperty("api.key.secret", "secret123");
+		obj.addProperty("simple", "value");
+		obj.addProperty("count", 100);
+
+		JsonArray arr = new JsonArray();
+		arr.add(10);
+		arr.add(20);
+		arr.add(30);
+
+		JsonObject nested = new JsonObject();
+		nested.addProperty("field.with.dots", "nestedValue");
+
+		JsonObject testData = new JsonObject();
+		testData.add("obj", obj);
+		testData.add("arr", arr);
+		testData.add("nested", nested);
+
+		TestTokenValueExtractor extractor = new TestTokenValueExtractor(testData);
+		Map<String, TokenValueExtractor> extractorMap = Map.of(extractor.getPrefix(), extractor);
+
+		ExpressionEvaluator ev;
+
+		// Basic bracket notation with dotted keys
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"]");
+		assertEquals(new JsonPrimitive(587), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("Test.obj['mail.props.host']");
+		assertEquals(new JsonPrimitive("smtp.example.com"), ev.evaluate(extractorMap));
+
+		// Comparison operators
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] = 587");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] != 500");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] > 500");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] >= 587");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] < 600");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] <= 587");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		// Arithmetic operators
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] + 13");
+		assertEquals(new JsonPrimitive(600), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] - 87");
+		assertEquals(new JsonPrimitive(500), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("Test.obj[\"count\"] * 2");
+		assertEquals(new JsonPrimitive(200), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("Test.obj[\"count\"] / 4");
+		assertEquals(new JsonPrimitive(25), ev.evaluate(extractorMap));
+
+		// Ternary operator
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] > 500 ? \"high\" : \"low\"");
+		assertEquals(new JsonPrimitive("high"), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] < 500 ? \"high\" : \"low\"");
+		assertEquals(new JsonPrimitive("low"), ev.evaluate(extractorMap));
+
+		// Logical operators
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] > 500 and Test.obj[\"count\"] = 100");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] < 500 or Test.obj[\"count\"] = 100");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("not Test.obj[\"mail.props.port\"] < 500");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		// Mixed bracket and dot notation
+		ev = new ExpressionEvaluator("Test.nested[\"field.with.dots\"]");
+		assertEquals(new JsonPrimitive("nestedValue"), ev.evaluate(extractorMap));
+
+		// Array bracket notation with comparison (pre-existing functionality)
+		ev = new ExpressionEvaluator("Test.arr[0] = 10");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.arr[1] + Test.arr[2]");
+		assertEquals(new JsonPrimitive(50), ev.evaluate(extractorMap));
+
+		// Complex expressions
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.port\"] + Test.obj[\"count\"]");
+		assertEquals(new JsonPrimitive(687), ev.evaluate(extractorMap));
+
+		ev = new ExpressionEvaluator("(Test.obj[\"mail.props.port\"] > 500) and (Test.obj[\"count\"] < 200)");
+		assertTrue(ev.evaluate(extractorMap).getAsBoolean());
+
+		ev = new ExpressionEvaluator("Test.obj[\"mail.props.host\"] + \":587\"");
+		assertEquals(new JsonPrimitive("smtp.example.com:587"), ev.evaluate(extractorMap));
+	}
 }
 
 class TestTokenValueExtractor extends TokenValueExtractor {

@@ -74,3 +74,75 @@ test('TokenValueExtractor Test', () => {
     token = 'a.b.darr[2].length';
     expect(extractor.retrieveElementFrom(token, token.split(new RegExp('\\.')), 1, a)).toBe(4);
 });
+
+test('Bracket notation with dotted keys', () => {
+    // Test bracket notation with keys containing dots
+    const config: any = {
+        'mail.props.port': 587,
+        'mail.props.host': 'smtp.example.com',
+        'api.key.secret': 'secret123',
+        simple: 'value',
+    };
+
+    const obj: any = { config };
+
+    // Access splitPath via reflection since it's protected
+    const splitPath = (TokenValueExtractor as any).splitPath;
+
+    // Test with double quotes
+    let token = 'config["mail.props.port"]';
+    expect(extractor.retrieveElementFrom(token, splitPath(token), 0, obj)).toBe(587);
+
+    // Test with single quotes
+    token = "config['mail.props.host']";
+    expect(extractor.retrieveElementFrom(token, splitPath(token), 0, obj)).toBe('smtp.example.com');
+
+    // Test nested bracket notation with dots
+    token = "config['api.key.secret']";
+    expect(extractor.retrieveElementFrom(token, splitPath(token), 0, obj)).toBe('secret123');
+
+    // Test mix of dot and bracket notation
+    const nested = { 'field.with.dots': 'nestedValue' };
+    config.nested = nested;
+
+    token = "config.nested['field.with.dots']";
+    expect(extractor.retrieveElementFrom(token, splitPath(token), 0, obj)).toBe('nestedValue');
+
+    // Test that regular dot notation still works
+    token = 'config.simple';
+    expect(extractor.retrieveElementFrom(token, splitPath(token), 0, obj)).toBe('value');
+});
+
+test('splitPath correctly handles bracket notation', () => {
+    // Access splitPath via reflection since it's protected
+    const splitPath = (TokenValueExtractor as any).splitPath;
+
+    let parts: string[];
+
+    parts = splitPath("Context.obj['mail.props.port']");
+    expect(parts.length).toBe(2);
+    expect(parts[0]).toBe('Context');
+    expect(parts[1]).toBe("obj['mail.props.port']");
+
+    parts = splitPath("Context.obj['mail.props.port'].value");
+    expect(parts.length).toBe(3);
+    expect(parts[0]).toBe('Context');
+    expect(parts[1]).toBe("obj['mail.props.port']");
+    expect(parts[2]).toBe('value');
+
+    parts = splitPath("Steps.source.output['field.name']");
+    expect(parts.length).toBe(3);
+    expect(parts[0]).toBe('Steps');
+    expect(parts[1]).toBe('source');
+    expect(parts[2]).toBe("output['field.name']");
+
+    // Test that range operator (..) is preserved
+    parts = splitPath('array[0..5]');
+    expect(parts.length).toBe(1);
+    expect(parts[0]).toBe('array[0..5]');
+
+    // Test multiple bracket notations
+    parts = splitPath("obj['key.one']['key.two']");
+    expect(parts.length).toBe(1);
+    expect(parts[0]).toBe("obj['key.one']['key.two']");
+});
