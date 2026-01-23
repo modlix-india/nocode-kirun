@@ -860,7 +860,7 @@ class TestTokenValueExtractor extends TokenValueExtractor {
 
 	@Override
 	protected JsonElement getValueInternal(String token) {
-		return this.retrieveElementFrom(token, token.split(TokenValueExtractor.REGEX_DOT), 1, store);
+		return this.retrieveElementFrom(token, TokenValueExtractor.splitPath(token), 1, store);
 	}
 
 	@Override
