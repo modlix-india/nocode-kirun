@@ -144,6 +144,7 @@ export class Operation {
         [Operation.BITWISE_AND, 7],
         [Operation.BITWISE_XOR, 8],
         [Operation.BITWISE_OR, 9],
+        [Operation.NOT, 10], // NOT has same precedence as AND, lower than comparisons
         [Operation.AND, 10],
         [Operation.OR, 11],
         [Operation.NULLISH_COALESCING_OPERATOR, 11],

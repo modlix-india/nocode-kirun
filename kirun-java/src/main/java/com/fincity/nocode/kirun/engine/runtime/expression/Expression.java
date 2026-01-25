@@ -25,33 +25,105 @@ public class Expression extends ExpressionToken {
     private ExpressionToken[] tokensArray;
     private Operation[] opsArray;
 
+    /**
+     * Create a ternary expression with condition, trueExpr, and falseExpr.
+     * Using push() to maintain compatibility with evaluator (push adds to head).
+     * Tokens will be in order: [falseExpr, trueExpr, condition] from head to tail.
+     */
+    public static Expression createTernary(ExpressionToken condition, ExpressionToken trueExpr, ExpressionToken falseExpr) {
+        Expression expr = new Expression("", null, null, null, true);
+        // Push in reverse order so get() returns them correctly
+        // push(condition) -> head=condition
+        // push(trueExpr) -> head=trueExpr, trueExpr.next=condition  
+        // push(falseExpr) -> head=falseExpr, falseExpr.next=trueExpr.next=condition
+        // get(0)=falseExpr, get(1)=trueExpr, get(2)=condition
+        expr.tokens.push(condition);
+        expr.tokens.push(trueExpr);
+        expr.tokens.push(falseExpr);
+        expr.ops.push(Operation.CONDITIONAL_TERNARY_OPERATOR);
+        return expr;
+    }
+
+    /**
+     * Create a leaf expression (identifier/number) without re-parsing.
+     * Used by the parser for leaf nodes.
+     */
+    public static Expression createLeaf(String value) {
+        // Pass the value as the expression string - it will be used by toString()
+        // Use skipParsing=true to avoid parsing
+        Expression expr = new Expression(value, null, null, null, true);
+        // Push a token for the leaf value - the evaluator needs at least one token
+        expr.tokens.push(new ExpressionToken(value));
+        return expr;
+    }
+
     public Expression(String expression) {
+        this(expression, null, null, null, false);
+    }
 
-        super(expression);
-
-        if (expression == null || expression.isBlank())
+    public Expression(String expression, ExpressionToken l, ExpressionToken r, Operation op, boolean skipParsing) {
+        super(expression != null ? expression : "");
+        
+        // If we have left/right tokens and operation, construct directly (for AST building)
+        // Using push() to maintain compatibility with evaluator (push adds to head).
+        // For binary ops: push(left), push(right) -> get(0)=right, get(1)=left
+        // This should happen even if skipParsing is true (parser creates expressions this way)
+        if (l != null || r != null || op != null) {
+            if (op != null && "..".equals(op.getOperator())) {
+                // For range operator, handle missing operands
+                // Note: Don't check r.getExpression().isEmpty() for Expression objects
+                // because parser-created expressions have empty expression strings
+                if (l == null) l = new ExpressionTokenValue("", new JsonPrimitive(""));
+                if (r == null || (!(r instanceof Expression) && r.getExpression().isEmpty())) {
+                    r = new ExpressionTokenValue("", new JsonPrimitive(""));
+                }
+            }
+            if (l != null) this.tokens.push(l);
+            if (r != null) this.tokens.push(r);
+            if (op != null) this.ops.push(op);
+            // For constructed expressions, don't re-parse
+            return;
+        }
+        
+        // If skipParsing is true and we don't have tokens/ops, don't parse (used by createLeaf/createTernary)
+        if (skipParsing) {
+            return;
+        }
+        
+        // If we have an expression string, parse it
+        if (expression != null && !expression.isBlank()) {
+            // Try the new parser first, fall back to old parser if it fails
+            try {
+                ExpressionParser parser = new ExpressionParser(expression);
+                Expression parsed = parser.parse();
+                // Copy tokens and operations from parsed expression
+                // Create new LinkedLists to avoid sharing references
+                this.tokens = new LinkedList<>(parsed.getTokens());
+                this.ops = new LinkedList<>(parsed.getOperations());
+                // Ensure we have the correct structure - if parser succeeded, we should have ops
+                if (this.ops.isEmpty() && !this.tokens.isEmpty()) {
+                    // Parser created structure but no ops - this shouldn't happen, but fall back
+                    this.tokens.clear();
+                    this.evaluate();
+                }
+            } catch (Exception e) {
+                // Fall back to old parser if new one fails (for backward compatibility during migration)
+                this.evaluate();
+                if (!this.ops.isEmpty() && "..".equals(this.ops.peekLast().getOperator()) && this.tokens.size() == 1) {
+                    this.tokens.push(new ExpressionToken(""));
+                }
+            }
+        } else {
             throw new ExpressionEvaluationException(expression, "No expression found to evaluate");
-        this.evaluate();
-        if (!this.ops.isEmpty() && "..".equals(this.ops.peekLast().getOperator()) && this.tokens.size() == 1)
-            this.tokens.push(new ExpressionToken(""));
+        }
     }
 
     public Expression(ExpressionToken token, Operation op) {
-        super("");
-        this.tokens.push(token);
-        this.ops.push(op);
+        this("", token, null, op, false);
     }
 
     public Expression(ExpressionToken l, ExpressionToken r, Operation op) {
-
-        super("");
-        if (op != null && "..".equals(op.getOperator())) {
-            if (l == null) l = new ExpressionTokenValue("", new JsonPrimitive(""));
-            if (r == null || r.getExpression().isEmpty()) r = new ExpressionTokenValue("", new JsonPrimitive(""));
-        }
-        this.tokens.push(l);
-        this.tokens.push(r);
-        this.ops.push(op);
+        this("", l, r, op, false);
     }
 
     public LinkedList<ExpressionToken> getTokens() { // NOSONAR - LinkedList is required
@@ -191,7 +263,9 @@ public class Expression extends ExpressionToken {
 
         Tuple2<Integer, Boolean> result = Tuples.of(j, false);
         String str = strConstant.toString();
-        this.tokens.push(new ExpressionTokenValue(str, new JsonPrimitive(str)));
+        // Preserve quotes in the expression field for bracket notation
+        String quotedExpression = chr + str + chr;
+        this.tokens.push(new ExpressionTokenValue(quotedExpression, new JsonPrimitive(str)));
         return result;
     }
 
@@ -392,10 +466,20 @@ public class Expression extends ExpressionToken {
     }
 
     private boolean hasPrecedence(Operation op1, Operation op2) {
-
         int pre1 = OPERATOR_PRIORITY.get(op1);
         int pre2 = OPERATOR_PRIORITY.get(op2);
-
+        
+        // For left-associative operators with same precedence, combine the previous
+        // operation before adding the new one. This ensures 5 - 1 - 2 is parsed as
+        // (5-1) - 2, not 5 - (1-2).
+        // Exception: OBJECT_OPERATOR and ARRAY_OPERATOR should NOT combine -
+        // they need to stay flat for path building (e.g., a.b.c).
+        if (pre2 == pre1) {
+            return op2 != Operation.OBJECT_OPERATOR &&
+                   op2 != Operation.ARRAY_OPERATOR &&
+                   op1 != Operation.OBJECT_OPERATOR &&
+                   op1 != Operation.ARRAY_OPERATOR;
+        }
         return pre2 < pre1;
     }
 
@@ -415,63 +499,345 @@ public class Expression extends ExpressionToken {
         return level == 1; // Should be 1 just before the last ')'
     }
 
+    /**
+     * Simple recursive toString() that walks the AST tree.
+     * The tree structure is in the tokens LinkedList:
+     * - For Expression('', left, right, op): tokens[0] = left, tokens[1] = right
+     * - For leaf nodes: just the expression string
+     * 
+     * Handles both tree structure (single operation) and flat structure (multiple operations from old parser).
+     */
     @Override
     public String toString() {
-
-        if (ops.isEmpty()) {
-            if (this.tokens.size() == 1)
-                return this.tokens.get(0)
-                        .toString();
-            return "Error: No tokens";
+        // If we have operations, always format from tokens/ops (new parser structure)
+        // This ensures proper formatting with parentheses
+        if (!this.ops.isEmpty()) {
+            // If there's only one operation, use tree-based formatting (new parser structure)
+            if (this.ops.size() == 1) {
+                Operation op = this.ops.get(0);
+                
+                // Unary operation: (operator operand)
+                if (op.getOperator().startsWith("UN: ")) {
+                    return this.formatUnaryOperation(op);
+                }
+                
+                // Ternary operation: (condition ? trueExpr : falseExpr)
+                if (op == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+                    return this.formatTernaryOperation();
+                }
+                
+                // Binary operation
+                return this.formatBinaryOperation(op);
+            }
+            
+            // Multiple operations: use old parser's flat structure logic
+            // This handles expressions parsed by the old parser that create a flat list
+            return this.formatFlatStructure();
         }
-
+        
+        // Leaf node: no operations, just return the token
+        if (this.tokens.size() == 1) {
+            return this.tokenToString(this.tokens.get(0));
+        }
+        // Handle special case: expression string without parsed structure
+        // Only use expression field if we have no tokens/ops (unparsed expression)
+        // This should only happen if the parser completely failed and old parser also failed
+        if (this.tokens.isEmpty() && this.ops.isEmpty() && this.expression != null && !this.expression.isEmpty()) {
+            return this.expression;
+        }
+        // If we have tokens but no ops, this shouldn't happen - it means parser failed
+        // But old parser should have created ops. Return error to help debug
+        return "Error: No operations but has tokens";
+    }
+    
+    /**
+     * Format expression with multiple operations (flat structure from old parser).
+     * This builds the string by processing operations in order.
+     */
+    private String formatFlatStructure() {
+        // For flat structure from old parser, we need to build the expression with proper parentheses
+        // The old parser creates a flat list, but we should still format it with parentheses
+        // If we can't format properly, don't fall back to expression field - that loses parentheses
         StringBuilder sb = new StringBuilder();
         int ind = 0;
         for (int i = 0; i < this.ops.size(); i++) {
-
-            if (this.ops.get(i)
-                    .getOperator()
-                    .startsWith("UN: ")) {
+            Operation op = this.ops.get(i);
+            
+            if (op.getOperator().startsWith("UN: ")) {
+                if (ind >= this.tokens.size()) {
+                    return "Error: Not enough tokens for unary operation";
+                }
                 sb.append("(")
-                        .append(this.ops.get(i)
-                                .getOperator()
-                                .substring(4))
-                        .append(this.tokens.get(ind))
+                        .append(op.getOperator().substring(4))
+                        .append(this.tokenToString(this.tokens.get(ind)))
                         .append(")");
                 ind++;
-            } else if (ops.get(i) == Operation.CONDITIONAL_TERNARY_OPERATOR) {
-
-                sb.insert(0, this.tokens.get(ind++));
-                sb.insert(0, ":");
-                sb.insert(0, this.tokens.get(ind++));
-                sb.insert(0, "?");
-                sb.insert(0, this.tokens.get(ind++))
-                        .append(")");
-                sb.insert(0, "(");
-
-            } else if (ops.get(i) == Operation.ARRAY_RANGE_INDEX_OPERATOR && this.tokens.size() == 1) {
-
-                sb.insert(0, this.ops.get(i)
-                        .getOperator());
-                sb.insert(0, this.tokens.get(ind++));
-
-                sb.insert(0, "(").append(")");
-
-            } else {
-
-                if (ind == 0) {
-                    sb.insert(0, this.tokens.get(ind++));
+            } else if (op == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+                if (ind + 2 >= this.tokens.size()) {
+                    return "Error: Not enough tokens for ternary operation";
                 }
-                sb.insert(0, this.ops.get(i)
-                        .getOperator());
-                if (ind < this.tokens.size())
-                    sb.insert(0, this.tokens.get(ind++));
-                sb.insert(0, "(")
-                        .append(")");
+                sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                sb.insert(0, ":");
+                sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                sb.insert(0, "?");
+                sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                sb.insert(0, "(");
+                sb.append(")");
+            } else if (op == Operation.ARRAY_RANGE_INDEX_OPERATOR && this.tokens.size() == 1) {
+                if (ind >= this.tokens.size()) {
+                    return "Error: Not enough tokens for range operation";
+                }
+                sb.insert(0, op.getOperator());
+                sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                sb.insert(0, "(");
+                sb.append(")");
+            } else {
+                // Binary operation - always add parentheses
+                if (ind == 0 && ind < this.tokens.size()) {
+                    sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                }
+                sb.insert(0, op.getOperator());
+                if (ind < this.tokens.size()) {
+                    sb.insert(0, this.tokenToString(this.tokens.get(ind++)));
+                }
+                sb.insert(0, "(");
+                sb.append(")");
             }
         }
-
+        
+        // If we couldn't build anything, this is an error
+        if (sb.length() == 0) {
+            return "Error: Could not format flat structure";
+        }
+        
         return sb.toString();
+    }
+
+    /**
+     * Format a unary operation: (operator operand)
+     */
+    private String formatUnaryOperation(Operation op) {
+        ExpressionToken operand = this.tokens.get(0);
+        String operandStr = this.tokenToString(operand);
+        return "(" + op.getOperator().substring(4) + operandStr + ")";
+    }
+
+    /**
+     * Format a ternary operation: (condition ? trueExpr : falseExpr)
+     * Note: With push() order, tokens are [falseExpr, trueExpr, condition]
+     */
+    private String formatTernaryOperation() {
+        // Safety check: ensure we have at least 3 tokens for ternary operation
+        if (this.tokens.size() < 3) {
+            // Fall back to expression string if available
+            if (this.expression != null && !this.expression.isEmpty()) {
+                return this.expression;
+            }
+            return "Error: Invalid ternary expression";
+        }
+        
+        // With push() order: get(0)=falseExpr, get(1)=trueExpr, get(2)=condition
+        ExpressionToken falseExpr = this.tokens.get(0);
+        ExpressionToken trueExpr = this.tokens.get(1);
+        ExpressionToken condition = this.tokens.get(2);
+        
+        String conditionStr = this.tokenToString(condition);
+        String trueStr = this.tokenToString(trueExpr);
+        String falseStr = this.tokenToString(falseExpr);
+        
+        return "(" + conditionStr + "?" + trueStr + ":" + falseStr + ")";
+    }
+
+    /**
+     * Format a binary operation based on operator type
+     * Note: With push() order, tokens are [right, left] (push(left), push(right) -> get(0)=right)
+     */
+    private String formatBinaryOperation(Operation op) {
+        // Safety check: ensure we have at least 2 tokens for binary operation
+        if (this.tokens.size() < 2) {
+            // Single token case - just return the token (shouldn't happen for binary ops)
+            if (this.tokens.size() == 1) {
+                return this.tokenToString(this.tokens.get(0));
+            }
+            // No tokens - this is an error, but try to format from expression if available
+            if (this.expression != null && !this.expression.isEmpty()) {
+                return this.expression;
+            }
+            return "Error: Invalid binary expression";
+        }
+        
+        // With push() order: get(0)=right, get(1)=left
+        ExpressionToken right = this.tokens.get(0);
+        ExpressionToken left = this.tokens.get(1);
+        
+        // ARRAY_OPERATOR: left[index] - NO outer parens, brackets are enough
+        if (op == Operation.ARRAY_OPERATOR) {
+            String leftStr = this.tokenToString(left);
+            String indexStr = this.formatArrayIndex(right);
+            // Ensure the index string has proper quotes if it's a quoted string
+            // If the index is an Expression with a quoted expression field, use that
+            if (right instanceof Expression rightExpr) {
+                String rightExprStr = rightExpr.getExpression();
+                if (rightExprStr != null && rightExprStr.length() > 0) {
+                    char firstChar = rightExprStr.charAt(0);
+                    if ((firstChar == '"' || firstChar == '\'') && !indexStr.startsWith(String.valueOf(firstChar))) {
+                        // The formatArrayIndex lost the quotes, restore them
+                        if (rightExprStr.endsWith(String.valueOf(firstChar))) {
+                            indexStr = rightExprStr;
+                        } else {
+                            indexStr = rightExprStr + firstChar;
+                        }
+                    }
+                }
+            }
+            return leftStr + "[" + indexStr + "]";
+        }
+        
+        // OBJECT_OPERATOR: left.right or left.(right) if right has operations
+        if (op == Operation.OBJECT_OPERATOR) {
+            String leftStr = this.tokenToString(left);
+            String rightStr = this.tokenToString(right);
+            
+            // Check what operation the right side has
+            if (right instanceof Expression) {
+                Expression rightExpr = (Expression) right;
+                LinkedList<Operation> rightOps = rightExpr.getOperations();
+                if (!rightOps.isEmpty()) {
+                    Operation rightOp = rightOps.get(0);
+                    // ARRAY_OPERATOR doesn't add outer parens, so we need to wrap
+                    // OBJECT_OPERATOR and other ops already add parens in their toString()
+                    if (rightOp == Operation.ARRAY_OPERATOR) {
+                        return "(" + leftStr + ".(" + rightStr + "))";
+                    } else {
+                        // Other ops (like OBJECT_OPERATOR) already include parens
+                        return "(" + leftStr + "." + rightStr + ")";
+                    }
+                }
+            }
+            
+            // No operations - simple identifier
+            return "(" + leftStr + "." + rightStr + ")";
+        }
+        
+        // ARRAY_RANGE_INDEX_OPERATOR: (start..end)
+        if (op == Operation.ARRAY_RANGE_INDEX_OPERATOR) {
+            String leftStr = this.tokenToString(left);
+            String rightStr = this.tokenToString(right);
+            return "(" + leftStr + ".." + rightStr + ")";
+        }
+        
+        // Other binary operators: (left op right)
+        String leftStr = this.tokenToString(left);
+        String rightStr = this.tokenToString(right);
+        return "(" + leftStr + op.getOperator() + rightStr + ")";
+    }
+
+    /**
+     * Convert a token to string, handling nested expressions recursively
+     */
+    private String tokenToString(ExpressionToken token) {
+        if (token instanceof Expression) {
+            return token.toString();
+        }
+        
+        // Check if token is an ExpressionTokenValue
+        if (token instanceof ExpressionTokenValue) {
+            ExpressionTokenValue etv = (ExpressionTokenValue) token;
+            String originalExpr = etv.getExpression();
+            // If it's a quoted string, use the original expression with quotes
+            if (originalExpr != null && originalExpr.length() > 0) {
+                char firstChar = originalExpr.charAt(0);
+                if (firstChar == '"' || firstChar == '\'') {
+                    // Ensure it has the closing quote
+                    if (originalExpr.endsWith(String.valueOf(firstChar))) {
+                        return originalExpr;
+                    } else {
+                        // Add missing closing quote
+                        return originalExpr + firstChar;
+                    }
+                }
+            }
+        }
+        
+        return token.toString();
+    }
+
+    /**
+     * Format array index, preserving quotes for bracket notation
+     */
+    private String formatArrayIndex(ExpressionToken token) {
+        if (token instanceof Expression) {
+            Expression expr = (Expression) token;
+            // First, check if the Expression's original expression string is a quoted string
+            // This is the most reliable source since it's the original string passed to the constructor
+            String exprStr = expr.getExpression();
+            if (exprStr != null && exprStr.length() > 0) {
+                char firstChar = exprStr.charAt(0);
+                if (firstChar == '"' || firstChar == '\'') {
+                    // The original expression string has quotes, use it (ensure it has closing quote)
+                    // Always ensure it has the closing quote - the parser might have lost it
+                    if (!exprStr.endsWith(String.valueOf(firstChar))) {
+                        return exprStr + firstChar;
+                    }
+                    return exprStr;
+                }
+            }
+            // Check if this is a simple quoted string (no operations, single token)
+            if (expr.getOperations().isEmpty() && expr.getTokens().size() == 1) {
+                ExpressionToken innerToken = expr.getTokens().get(0);
+                // Check if innerToken is an ExpressionTokenValue with quoted expression
+                if (innerToken instanceof ExpressionTokenValue) {
+                    ExpressionTokenValue etv = (ExpressionTokenValue) innerToken;
+                    String originalExpr = etv.getExpression();
+                    if (originalExpr != null && originalExpr.length() > 0) {
+                        char firstChar = originalExpr.charAt(0);
+                        // If it starts with a quote, ensure it ends with the same quote
+                        if (firstChar == '"' || firstChar == '\'') {
+                            if (!originalExpr.endsWith(String.valueOf(firstChar))) {
+                                return originalExpr + firstChar;
+                            }
+                            return originalExpr;
+                        }
+                    }
+                }
+            }
+            // For more complex expressions, use toString() but try to preserve quotes
+            String result = expr.toString();
+            // If result doesn't start with quote but should, try to restore from expression field
+            if (exprStr != null && exprStr.length() > 0) {
+                char firstChar = exprStr.charAt(0);
+                if ((firstChar == '"' || firstChar == '\'') && !result.startsWith(String.valueOf(firstChar))) {
+                    // The toString() lost the quotes, restore them from the original expression
+                    if (!exprStr.endsWith(String.valueOf(firstChar))) {
+                        return exprStr + firstChar;
+                    }
+                    return exprStr;
+                }
+            }
+            return result;
+        }
+        
+        // Check if token is an ExpressionTokenValue with quoted expression
+        if (token instanceof ExpressionTokenValue) {
+            ExpressionTokenValue etv = (ExpressionTokenValue) token;
+            String originalExpr = etv.getExpression();
+            if (originalExpr != null) {
+                // Check if it starts and ends with the same quote character
+                if ((originalExpr.startsWith("\"") && originalExpr.endsWith("\"")) ||
+                    (originalExpr.startsWith("'") && originalExpr.endsWith("'"))) {
+                    return originalExpr;
+                }
+                // If it starts with a quote but doesn't end with one, add the closing quote
+                if (originalExpr.startsWith("\"") && !originalExpr.endsWith("\"")) {
+                    return originalExpr + "\"";
+                }
+                if (originalExpr.startsWith("'") && !originalExpr.endsWith("'")) {
+                    return originalExpr + "'";
+                }
+            }
+        }
+        
+        return token.toString();
     }
 
     @Override

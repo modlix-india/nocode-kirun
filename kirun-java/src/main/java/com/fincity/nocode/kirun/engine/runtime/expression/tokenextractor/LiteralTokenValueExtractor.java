@@ -53,6 +53,22 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 					return new JsonPrimitive(intNum);
 				return new JsonPrimitive(num);
 			} else {
+				// Check if the part after the dot is numeric (for decimal numbers like "2.5")
+				// If not, treat the entire token as a string literal (e.g., "2.val")
+				String afterDot = token.substring(ind + 1);
+				boolean isNumeric = true;
+				for (int i = 0; i < afterDot.length(); i++) {
+					char c = afterDot.charAt(i);
+					if (!Character.isDigit(c)) {
+						isNumeric = false;
+						break;
+					}
+				}
+				
+				if (!isNumeric) {
+					// Not a number - return as string literal
+					return new JsonPrimitive(token);
+				}
 
 				Double d = Double.parseDouble(token);
 				Float f = d.floatValue();
@@ -64,9 +80,8 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 						: new JsonPrimitive(d);
 			}
 		} catch (Exception ex) {
-
-			throw new ExpressionEvaluationException(token,
-					StringFormatter.format("Unable to parse the literal or expression $", token));
+			// If parsing fails, treat as string literal
+			return new JsonPrimitive(token);
 		}
 	}
 
