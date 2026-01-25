@@ -2,8 +2,6 @@ import { KIRuntimeException } from '../../../exception/KIRuntimeException';
 import { isNullValue } from '../../../util/NullCheck';
 import { duplicate } from '../../../util/duplicate';
 import { StringFormatter } from '../../../util/string/StringFormatter';
-import { Expression } from '../Expression';
-import { ExpressionTokenValue } from '../ExpressionTokenValue';
 import { Operation } from '../Operation';
 import { TokenValueExtractor } from './TokenValueExtractor';
 
@@ -44,38 +42,143 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
         overwrite: boolean,
         deleteOnNull: boolean,
     ) {
-        const exp = new Expression(stringToken);
-        const tokens = exp.getTokens();
-        tokens.removeLast();
-        const ops = exp.getOperations();
-
-        let op = ops.removeLast();
-        let token = tokens.removeLast();
-        let mem =
-            token instanceof ExpressionTokenValue
-                ? (token as ExpressionTokenValue).getElement()
-                : token.getExpression();
-
-        let el = this.store;
-
-        while (!ops.isEmpty()) {
-            if (op == Operation.OBJECT_OPERATOR) {
-                el = this.getDataFromObject(el, mem, ops.peekLast());
-            } else {
-                el = this.getDataFromArray(el, mem, ops.peekLast());
-            }
-
-            op = ops.removeLast();
-            token = tokens.removeLast();
-            mem =
-                token instanceof ExpressionTokenValue
-                    ? (token as ExpressionTokenValue).getElement()
-                    : token.getExpression();
+        // Use TokenValueExtractor.splitPath to get path segments instead of Expression parsing
+        // This is more reliable as it directly handles the path string
+        const parts = TokenValueExtractor.splitPath(stringToken);
+        
+        if (parts.length < 2) {
+            throw new KIRuntimeException(
+                StringFormatter.format('Invalid path: $', stringToken),
+            );
         }
-
-        if (op == Operation.OBJECT_OPERATOR)
-            this.putDataInObject(el, mem, value, overwrite, deleteOnNull);
-        else this.putDataInArray(el, mem, value, overwrite, deleteOnNull);
+        
+        // Start from index 1 (skip the prefix like 'Store')
+        let el = this.store;
+        
+        // Navigate to the parent of the final element
+        for (let i = 1; i < parts.length - 1; i++) {
+            const part = parts[i];
+            const nextPart = parts[i + 1];
+            
+            // Parse bracket segments within this part
+            const segments = this.parseBracketSegments(part);
+            
+            for (let j = 0; j < segments.length; j++) {
+                const segment = segments[j];
+                const isLastSegment = (i === parts.length - 2 && j === segments.length - 1);
+                const nextOp = isLastSegment ? this.getOpForSegment(parts[parts.length - 1]) : this.getOpForSegment(nextPart);
+                
+                if (this.isArrayIndex(segment)) {
+                    el = this.getDataFromArray(el, segment, nextOp);
+                } else {
+                    el = this.getDataFromObject(el, this.stripQuotes(segment), nextOp);
+                }
+            }
+        }
+        
+        // Handle the final part (set the value)
+        const finalPart = parts[parts.length - 1];
+        const finalSegments = this.parseBracketSegments(finalPart);
+        
+        // Navigate through all but the last segment of the final part
+        for (let j = 0; j < finalSegments.length - 1; j++) {
+            const segment = finalSegments[j];
+            const nextOp = this.isArrayIndex(finalSegments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
+            
+            if (this.isArrayIndex(segment)) {
+                el = this.getDataFromArray(el, segment, nextOp);
+            } else {
+                el = this.getDataFromObject(el, this.stripQuotes(segment), nextOp);
+            }
+        }
+        
+        // Set the final value
+        const lastSegment = finalSegments[finalSegments.length - 1];
+        if (this.isArrayIndex(lastSegment)) {
+            this.putDataInArray(el, lastSegment, value, overwrite, deleteOnNull);
+        } else {
+            this.putDataInObject(el, this.stripQuotes(lastSegment), value, overwrite, deleteOnNull);
+        }
+    }
+    
+    /**
+     * Parse a path segment that may contain bracket notation.
+     * E.g., "addresses[0]" -> ["addresses", "0"]
+     * E.g., 'obj["key"]' -> ["obj", "key"]
+     */
+    private parseBracketSegments(part: string): string[] {
+        const segments: string[] = [];
+        let start = 0;
+        let i = 0;
+        
+        while (i < part.length) {
+            if (part[i] === '[') {
+                if (i > start) {
+                    segments.push(part.substring(start, i));
+                }
+                // Find matching ]
+                let end = i + 1;
+                let inQuote = false;
+                let quoteChar = '';
+                while (end < part.length) {
+                    if (inQuote) {
+                        if (part[end] === quoteChar && part[end - 1] !== '\\') {
+                            inQuote = false;
+                        }
+                    } else {
+                        if (part[end] === '"' || part[end] === "'") {
+                            inQuote = true;
+                            quoteChar = part[end];
+                        } else if (part[end] === ']') {
+                            break;
+                        }
+                    }
+                    end++;
+                }
+                // Extract bracket content (without the brackets)
+                segments.push(part.substring(i + 1, end));
+                start = end + 1;
+                i = start;
+            } else {
+                i++;
+            }
+        }
+        
+        if (start < part.length) {
+            segments.push(part.substring(start));
+        }
+        
+        return segments.length > 0 ? segments : [part];
+    }
+    
+    /**
+     * Check if a segment is an array index (numeric)
+     */
+    private isArrayIndex(segment: string): boolean {
+        // Check if it's a pure number (possibly negative)
+        return /^-?\d+$/.test(segment);
+    }
+    
+    /**
+     * Strip quotes from a segment if present
+     */
+    private stripQuotes(segment: string): string {
+        if ((segment.startsWith('"') && segment.endsWith('"')) ||
+            (segment.startsWith("'") && segment.endsWith("'"))) {
+            return segment.substring(1, segment.length - 1);
+        }
+        return segment;
+    }
+    
+    /**
+     * Determine the operation type for the next segment
+     */
+    private getOpForSegment(segment: string): Operation {
+        // Check if the segment starts with a bracket or is a pure number
+        if (this.isArrayIndex(segment) || segment.startsWith('[')) {
+            return Operation.ARRAY_OPERATOR;
+        }
+        return Operation.OBJECT_OPERATOR;
     }
 
     private getDataFromArray(el: any, mem: string, nextOp: Operation): any {

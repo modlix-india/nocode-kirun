@@ -7,6 +7,7 @@ import { ExpressionEvaluationException } from './exception/ExpressionEvaluationE
 import { ExpressionToken } from './ExpressionToken';
 import { ExpressionTokenValue } from './ExpressionTokenValue';
 import { Operation } from './Operation';
+import { ExpressionParser } from './ExpressionParser';
 
 export class Expression extends ExpressionToken {
     // Data structure for storing tokens
@@ -18,27 +19,88 @@ export class Expression extends ExpressionToken {
     private cachedTokensArray?: ExpressionToken[];
     private cachedOpsArray?: Operation[];
 
+    /**
+     * Create a ternary expression with condition, trueExpr, and falseExpr.
+     * Using push() to maintain compatibility with evaluator (push adds to head).
+     * Tokens will be in order: [falseExpr, trueExpr, condition] from head to tail.
+     */
+    public static createTernary(condition: ExpressionToken, trueExpr: ExpressionToken, falseExpr: ExpressionToken): Expression {
+        const expr = new Expression('', undefined, undefined, undefined, true);
+        // Push in reverse order so get() returns them correctly
+        // push(condition) -> head=condition
+        // push(trueExpr) -> head=trueExpr, trueExpr.next=condition  
+        // push(falseExpr) -> head=falseExpr, falseExpr.next=trueExpr.next=condition
+        // get(0)=falseExpr, get(1)=trueExpr, get(2)=condition
+        expr.tokens.push(condition);
+        expr.tokens.push(trueExpr);
+        expr.tokens.push(falseExpr);
+        expr.ops.push(Operation.CONDITIONAL_TERNARY_OPERATOR);
+        return expr;
+    }
+
+    /**
+     * Create a leaf expression (identifier/number) without re-parsing.
+     * Used by the parser for leaf nodes.
+     */
+    public static createLeaf(value: string): Expression {
+        const expr = new Expression('', undefined, undefined, undefined, true);
+        expr.expression = value;
+        // Push a token for the leaf value - the evaluator needs at least one token
+        expr.tokens.push(new ExpressionToken(value));
+        return expr;
+    }
+
     public constructor(
         expression?: string,
         l?: ExpressionToken,
         r?: ExpressionToken,
         op?: Operation,
+        skipParsing?: boolean,
     ) {
         super(expression ? expression : '');
-        if (op?.getOperator() == '..') {
-            if (!l) l = new ExpressionTokenValue('', '');
-            else if (!r) r = new ExpressionTokenValue('', '');
+        
+        // If skipParsing is true, don't do anything (used by createLeaf/createTernary)
+        if (skipParsing) {
+            return;
         }
-        if (l) this.tokens.push(l);
-        if (r) this.tokens.push(r);
-        if (op) this.ops.push(op);
-        this.evaluate();
-        if (
-            !this.ops.isEmpty() &&
-            this.ops.peekLast().getOperator() == '..' &&
-            this.tokens.length == 1
-        ) {
-            this.tokens.push(new ExpressionToken(''));
+        
+        // If we have left/right tokens and operation, construct directly (for AST building)
+        // Using push() to maintain compatibility with evaluator (push adds to head).
+        // For binary ops: push(left), push(right) -> get(0)=right, get(1)=left
+        if (l !== undefined || r !== undefined || op !== undefined) {
+            if (op?.getOperator() == '..') {
+                if (!l) l = new ExpressionTokenValue('', '');
+                else if (!r) r = new ExpressionTokenValue('', '');
+            }
+            if (l) this.tokens.push(l);
+            if (r) this.tokens.push(r);
+            if (op) this.ops.push(op);
+            // For constructed expressions, don't re-parse
+            return;
+        }
+        
+        // If we have an expression string, use the new parser
+        if (expression && expression.trim().length > 0) {
+            try {
+                const parser = new ExpressionParser(expression);
+                const parsed = parser.parse();
+                // Copy tokens and operations from parsed expression
+                this.tokens = parsed.getTokens();
+                this.ops = parsed.getOperations();
+                // Invalidate cache
+                this.cachedTokensArray = undefined;
+                this.cachedOpsArray = undefined;
+            } catch (error) {
+                // Fall back to old parser if new one fails (for backward compatibility during migration)
+                this.evaluate();
+                if (
+                    !this.ops.isEmpty() &&
+                    this.ops.peekLast().getOperator() == '..' &&
+                    this.tokens.length == 1
+                ) {
+                    this.tokens.push(new ExpressionToken(''));
+                }
+            }
         }
     }
 
@@ -442,6 +504,17 @@ export class Expression extends ExpressionToken {
         if (!pre1 || !pre2) {
             throw new Error('Unknown operators provided');
         }
+        // For left-associative operators with same precedence, combine the previous
+        // operation before adding the new one. This ensures 5 - 1 - 2 is parsed as
+        // (5-1) - 2, not 5 - (1-2).
+        // Exception: OBJECT_OPERATOR and ARRAY_OPERATOR should NOT combine -
+        // they need to stay flat for path building (e.g., a.b.c).
+        if (pre2 === pre1) {
+            return op2 !== Operation.OBJECT_OPERATOR &&
+                   op2 !== Operation.ARRAY_OPERATOR &&
+                   op1 !== Operation.OBJECT_OPERATOR &&
+                   op1 !== Operation.ARRAY_OPERATOR;
+        }
         return pre2 < pre1;
     }
 
@@ -461,72 +534,195 @@ export class Expression extends ExpressionToken {
         return level === 1; // Should be 1 just before the last ')'
     }
 
+    /**
+     * Simple recursive toString() that walks the AST tree.
+     * The tree structure is in the tokens LinkedList:
+     * - For Expression('', left, right, op): tokens[0] = left, tokens[1] = right
+     * - For leaf nodes: just the expression string
+     */
     public toString(): string {
+        // Leaf node: no operations, just return the token
         if (this.ops.isEmpty()) {
-            if (this.tokens.size() == 1) return this.tokens.get(0).toString();
+            if (this.tokens.size() == 1) {
+                return this.tokenToString(this.tokens.get(0));
+            }
+            // Handle special case: expression string without parsed structure
+            if (this.expression && this.expression.length > 0) {
+                return this.expression;
+            }
             return 'Error: No tokens';
         }
 
-        let sb: StringBuilder = new StringBuilder();
-        let ind: number = 0;
+        // Get the single operation and its operands
+        const op = this.ops.get(0);
+        
+        // Unary operation: (operator operand)
+        if (op.getOperator().startsWith('UN: ')) {
+            return this.formatUnaryOperation(op);
+        }
+        
+        // Ternary operation: (condition ? trueExpr : falseExpr)
+        if (op == Operation.CONDITIONAL_TERNARY_OPERATOR) {
+            return this.formatTernaryOperation();
+        }
+        
+        // Binary operation
+        return this.formatBinaryOperation(op);
+    }
 
-        const ops: Operation[] = this.ops.toArray();
-        const tokens: ExpressionToken[] = this.tokens.toArray();
+    /**
+     * Format a unary operation: (operator operand)
+     */
+    private formatUnaryOperation(op: Operation): string {
+        const operand = this.tokens.get(0);
+        const operandStr = this.tokenToString(operand);
+        return '(' + op.getOperator().substring(4) + operandStr + ')';
+    }
 
-        for (let i = 0; i < ops.length; i++) {
-            if (ops[i].getOperator().startsWith('UN: ')) {
-                sb.append('(')
-                    .append(ops[i].getOperator().substring(4))
-                    .append(
-                        tokens[ind] instanceof Expression
-                            ? (tokens[ind] as Expression).toString()
-                            : tokens[ind],
-                    )
-                    .append(')');
-                ind++;
-            } else if (ops[i] == Operation.CONDITIONAL_TERNARY_OPERATOR) {
-                let temp: ExpressionToken = tokens[ind++];
-                sb.insert(
-                    0,
-                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
-                );
-                sb.insert(0, ':');
-                temp = tokens[ind++];
-                sb.insert(
-                    0,
-                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
-                );
-                sb.insert(0, '?');
-                temp = tokens[ind++];
-                sb.insert(
-                    0,
-                    temp instanceof Expression ? (temp as Expression).toString() : temp.toString(),
-                ).append(')');
-                sb.insert(0, '(');
-            } else {
-                if (ind == 0) {
-                    const temp: ExpressionToken = tokens[ind++];
-                    sb.insert(
-                        0,
-                        temp instanceof Expression
-                            ? (temp as Expression).toString()
-                            : temp.toString(),
-                    );
+    /**
+     * Format a ternary operation: (condition ? trueExpr : falseExpr)
+     * Note: With push() order, tokens are [falseExpr, trueExpr, condition]
+     */
+    private formatTernaryOperation(): string {
+        // With push() order: get(0)=falseExpr, get(1)=trueExpr, get(2)=condition
+        const falseExpr = this.tokens.get(0);
+        const trueExpr = this.tokens.get(1);
+        const condition = this.tokens.get(2);
+        
+        const conditionStr = this.tokenToString(condition);
+        const trueStr = this.tokenToString(trueExpr);
+        const falseStr = this.tokenToString(falseExpr);
+        
+        return '(' + conditionStr + '?' + trueStr + ':' + falseStr + ')';
+    }
+
+    /**
+     * Format a binary operation based on operator type
+     * Note: With push() order, tokens are [right, left] (push(left), push(right) -> get(0)=right)
+     */
+    private formatBinaryOperation(op: Operation): string {
+        // Safety check: ensure we have at least 2 tokens for binary operation
+        if (this.tokens.size() < 2) {
+            // Fall back to expression string if available
+            if (this.expression && this.expression.length > 0) {
+                return this.expression;
+            }
+            // Single token case - just return the token
+            if (this.tokens.size() === 1) {
+                return this.tokenToString(this.tokens.get(0));
+            }
+            return 'Error: Invalid binary expression';
+        }
+        
+        // With push() order: get(0)=right, get(1)=left
+        const right = this.tokens.get(0);
+        const left = this.tokens.get(1);
+        
+        // ARRAY_OPERATOR: left[index] - NO outer parens, brackets are enough
+        if (op == Operation.ARRAY_OPERATOR) {
+            const leftStr = this.tokenToString(left);
+            const indexStr = this.formatArrayIndex(right);
+            return leftStr + '[' + indexStr + ']';
+        }
+        
+        // OBJECT_OPERATOR: left.right or left.(right) if right has operations
+        if (op == Operation.OBJECT_OPERATOR) {
+            const leftStr = this.tokenToString(left);
+            const rightStr = this.tokenToString(right);
+            
+            // Check what operation the right side has
+            if (right instanceof Expression) {
+                const rightOps = right.getOperations();
+                if (!rightOps.isEmpty()) {
+                    const rightOp = rightOps.get(0);
+                    // ARRAY_OPERATOR doesn't add outer parens, so we need to wrap
+                    // OBJECT_OPERATOR and other ops already add parens in their toString()
+                    if (rightOp == Operation.ARRAY_OPERATOR) {
+                        return '(' + leftStr + '.(' + rightStr + '))';
+                    } else {
+                        // Other ops (like OBJECT_OPERATOR) already include parens
+                        return '(' + leftStr + '.' + rightStr + ')';
+                    }
                 }
-                const temp: ExpressionToken = tokens[ind++];
-                sb.insert(0, ops[i].getOperator())
-                    .insert(
-                        0,
-                        temp instanceof Expression
-                            ? (temp as Expression).toString()
-                            : temp?.toString(),
-                    )
-                    .insert(0, '(')
-                    .append(')');
+            }
+            
+            // No operations - simple identifier
+            return '(' + leftStr + '.' + rightStr + ')';
+        }
+        
+        // ARRAY_RANGE_INDEX_OPERATOR: (start..end)
+        if (op == Operation.ARRAY_RANGE_INDEX_OPERATOR) {
+            const leftStr = this.tokenToString(left);
+            const rightStr = this.tokenToString(right);
+            return '(' + leftStr + '..' + rightStr + ')';
+        }
+        
+        // Other binary operators: (left op right)
+        const leftStr = this.tokenToString(left);
+        const rightStr = this.tokenToString(right);
+        return '(' + leftStr + op.getOperator() + rightStr + ')';
+    }
+
+    /**
+     * Convert a token to string, handling nested expressions recursively
+     */
+    private tokenToString(token: ExpressionToken): string {
+        if (token instanceof Expression) {
+            return token.toString();
+        }
+        
+        // Check if token is an ExpressionTokenValue (use duck typing for minified code)
+        if (token && typeof (token as any).getExpression === 'function' && 
+            typeof (token as any).getTokenValue === 'function') {
+            const originalExpr = (token as any).getExpression();
+            // If it's a quoted string, use the original expression with quotes
+            if (originalExpr && (originalExpr.startsWith('"') || originalExpr.startsWith("'"))) {
+                return originalExpr;
             }
         }
+        
+        return token.toString();
+    }
 
-        return sb.toString();
+    /**
+     * Format array index, preserving quotes for bracket notation
+     */
+    private formatArrayIndex(token: ExpressionToken): string {
+        if (token instanceof Expression) {
+            // Check if this is a simple quoted string
+            const expr = token as Expression;
+            if (expr.getOperations().isEmpty() && expr.getTokens().size() == 1) {
+                const innerToken = expr.getTokens().get(0);
+                // Check if innerToken is an ExpressionTokenValue with quoted expression
+                if (innerToken && typeof (innerToken as any).getExpression === 'function') {
+                    const originalExpr = (innerToken as any).getExpression();
+                    if (originalExpr && (originalExpr.startsWith('"') || originalExpr.startsWith("'"))) {
+                        return originalExpr;
+                    }
+                }
+            }
+            return expr.toString();
+        }
+        
+        // Check if token is an ExpressionTokenValue with quoted expression
+        if (token && typeof (token as any).getExpression === 'function') {
+            const originalExpr = (token as any).getExpression();
+            if (originalExpr && (originalExpr.startsWith('"') || originalExpr.startsWith("'"))) {
+                return originalExpr;
+            }
+        }
+        
+        return token.toString();
+    }
+
+    /**
+     * Check if a token is an Expression with operations
+     */
+    private tokenHasOperations(token: ExpressionToken): boolean {
+        if (token instanceof Expression) {
+            return !token.getOperations().isEmpty();
+        }
+        return false;
     }
 
     public equals(o: Expression): boolean {

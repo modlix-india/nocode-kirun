@@ -143,12 +143,22 @@ export abstract class TokenValueExtractor {
 
         // Fast path: simple property access on object (most common case)
         if (typeof element === 'object' && !Array.isArray(element)) {
+            // For 'length' on objects, check if there's a length property
+            // If it's a primitive (number, string, boolean), use it
+            // If it's an object/array, use Object.keys length to avoid bugs
+            if (segment === 'length') {
+                if ('length' in element) {
+                    const lengthValue = element['length'];
+                    // If length property is a primitive, use it; otherwise use Object.keys length
+                    if (typeof lengthValue === 'object' && lengthValue !== null) {
+                        return Object.keys(element).length;
+                    }
+                    return lengthValue;
+                }
+                return Object.keys(element).length;
+            }
             if (segment in element) {
                 return element[segment];
-            }
-            // Check for 'length' on object
-            if (segment === 'length') {
-                return Object.keys(element).length;
             }
             return element[segment];
         }
@@ -191,7 +201,10 @@ export abstract class TokenValueExtractor {
     ): any {
         if (isNullValue(cElement)) return undefined;
 
-        if (cPart === 'length') return this.getLength(token, cElement);
+        // Check for 'length' keyword - both unquoted and quoted versions
+        // e.g., .length and ["length"] should both return the length
+        if (cPart === 'length' || cPart === '"length"' || cPart === "'length'") 
+            return this.getLength(token, cElement);
 
         if (typeof cElement == 'string' || Array.isArray(cElement))
             return this.handleArrayAccess(token, cPart, cElement);
@@ -204,8 +217,18 @@ export abstract class TokenValueExtractor {
 
         if (type === 'string' || Array.isArray(cElement)) return cElement.length;
         if (type === 'object') {
-            if ('length' in cElement) return cElement['length'];
-            else return Object.keys(cElement).length;
+            // For objects, check if there's a length property
+            // If it's a primitive (number, string, boolean), use it
+            // If it's an object/array, use Object.keys length to avoid bugs
+            if ('length' in cElement) {
+                const lengthValue = cElement['length'];
+                // If length property is a primitive, use it; otherwise use Object.keys length
+                if (typeof lengthValue === 'object' && lengthValue !== null) {
+                    return Object.keys(cElement).length;
+                }
+                return lengthValue;
+            }
+            return Object.keys(cElement).length;
         }
 
         throw new ExpressionEvaluationException(
@@ -263,7 +286,8 @@ export abstract class TokenValueExtractor {
         // Handle both single and double quoted keys
         if (cPart.startsWith('"') || cPart.startsWith("'")) {
             const quoteChar = cPart[0];
-            if (!cPart.endsWith(quoteChar) || cPart.length == 1 || cPart.length == 2) {
+            // Allow empty string key: "" or ''
+            if (!cPart.endsWith(quoteChar) || cPart.length == 1) {
                 throw new ExpressionEvaluationException(
                     token,
                     StringFormatter.format('$ is missing a closing quote or empty key found', token),

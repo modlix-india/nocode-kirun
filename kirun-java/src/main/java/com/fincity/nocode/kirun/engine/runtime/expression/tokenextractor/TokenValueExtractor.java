@@ -35,7 +35,7 @@ public abstract class TokenValueExtractor {
      * Split a token by dots and cache the result.
      * Enhanced to handle bracket notation with keys containing dots.
      */
-    protected static String[] splitPath(String token) {
+    public static String[] splitPath(String token) {
         return pathCache.computeIfAbsent(token, TokenValueExtractor::splitPathInternal);
     }
 
@@ -43,26 +43,19 @@ public abstract class TokenValueExtractor {
         List<String> parts = new ArrayList<>();
         int start = 0;
         boolean inBracket = false;
-        boolean inQuotedBracket = false;
 
         for (int i = 0; i < token.length(); i++) {
             char c = token.charAt(i);
 
             if (c == '[') {
                 inBracket = true;
-                // Check if the bracket content is quoted (for dotted keys like ["mail.props.port"])
-                if (i + 1 < token.length()) {
-                    char nextChar = token.charAt(i + 1);
-                    inQuotedBracket = (nextChar == '"' || nextChar == '\'');
-                }
             } else if (c == ']') {
                 inBracket = false;
-                inQuotedBracket = false;
             } else if (c == '.' && !isDoubleDot(token, i)) {
-                // Only skip dot splitting inside brackets if the content is quoted.
-                // This allows proper handling of both dotted keys like ["mail.props.port"]
-                // and malformed paths like [2.val] (which should be [2].val).
-                if (!inBracket || !inQuotedBracket) {
+                // Never split on dots inside brackets, as they may contain:
+                // - Quoted keys with dots: ["mail.props.port"]
+                // - Dynamic expressions: [Steps.loop.iteration.index]
+                if (!inBracket) {
                     // Found a separator dot
                     if (i > start) {
                         parts.add(token.substring(start, i));
@@ -86,12 +79,6 @@ public abstract class TokenValueExtractor {
                (pos < str.length() - 1 && str.charAt(pos + 1) == '.');
     }
     
-    /**
-     * Split a segment by brackets and cache the result.
-     */
-    protected static String[] splitBrackets(String segment) {
-        return bracketCache.computeIfAbsent(segment, s -> s.split(REGEX_SQUARE_BRACKETS));
-    }
 
     public JsonElement getValue(String token) {
 
@@ -104,20 +91,102 @@ public abstract class TokenValueExtractor {
     }
 
     protected JsonElement retrieveElementFrom(String token, String[] parts, int partNumber, JsonElement jsonElement) {
+        // Iterative version - avoids recursive call overhead
+        JsonElement current = jsonElement;
+        
+        for (int partIdx = partNumber; partIdx < parts.length; partIdx++) {
+            if (current == null || current == JsonNull.INSTANCE) return null;
+            
+            // Use cached bracket segment parsing
+            String[] segments = parseBracketSegment(parts[partIdx]);
+            
+            for (String segment : segments) {
+                current = resolveSegmentFast(token, parts, partIdx, segment, current);
+                if (current == null) return null;
+            }
+        }
+        
+        return current;
+    }
+    
+    // Fast path for common cases - inline to avoid function call overhead
+    private JsonElement resolveSegmentFast(String token, String[] parts, int partNumber, String segment,
+                                          JsonElement element) {
+        if (element == null || element == JsonNull.INSTANCE) return null;
 
-        if (jsonElement == null || jsonElement == JsonNull.INSTANCE)
-            return null;
+        // Skip fast path for quoted segments - they need quote stripping
+        if (segment.startsWith("\"") || segment.startsWith("'")) {
+            return resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, segment, element);
+        }
 
-        if (parts.length == partNumber)
-            return jsonElement;
-
-        JsonElement bElement = StreamUtil.sequentialReduce(
-                Stream.of(parts[partNumber].split(REGEX_SQUARE_BRACKETS)).sequential().map(String::trim)
-                        .filter(Predicate.not(String::isBlank)),
-                jsonElement,
-                (c, a, i) -> resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, c, a));
-
-        return retrieveElementFrom(token, parts, partNumber + 1, bElement);
+        // Fast path: simple property access on object (most common case)
+        if (element.isJsonObject()) {
+            JsonObject obj = element.getAsJsonObject();
+            // For 'length' on objects, check if there's a length property
+            // If it's a primitive (number, string, boolean), use it
+            // If it's an object/array, use Object.keys length to avoid bugs
+            if (LENGTH.equals(segment)) {
+                if (obj.has(LENGTH)) {
+                    JsonElement lengthValue = obj.get(LENGTH);
+                    // If length property is a primitive, use it; otherwise use Object.keys length
+                    if (lengthValue.isJsonObject() || lengthValue.isJsonArray()) {
+                        return new JsonPrimitive(obj.size());
+                    }
+                    return lengthValue;
+                }
+                return new JsonPrimitive(obj.size());
+            }
+            if (obj.has(segment)) {
+                return obj.get(segment);
+            }
+            return obj.get(segment); // May return null
+        }
+        
+        // Fast path: array index access
+        if (element.isJsonArray()) {
+            JsonArray arr = element.getAsJsonArray();
+            // Check for 'length' first
+            if (LENGTH.equals(segment)) return new JsonPrimitive(arr.size());
+            
+            // Only use fast path for pure integer strings (no range operators like '..')
+            // Note: parseInt("2..4", 10) incorrectly returns 2, so we need to validate first
+            if (segment.matches("^-?\\d+$")) {
+                int idx = Integer.parseInt(segment);
+                int actualIdx = idx < 0 ? arr.size() + idx : idx;
+                return (actualIdx >= 0 && actualIdx < arr.size()) ? arr.get(actualIdx) : null;
+            }
+        }
+        
+        // Fast path: string access
+        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
+            String str = element.getAsString();
+            if (LENGTH.equals(segment)) return new JsonPrimitive(str.length());
+            // Only use fast path for pure integer strings
+            if (segment.matches("^-?\\d+$")) {
+                int idx = Integer.parseInt(segment);
+                int actualIdx = idx < 0 ? str.length() + idx : idx;
+                return (actualIdx >= 0 && actualIdx < str.length()) 
+                    ? new JsonPrimitive(str.charAt(actualIdx)) : null;
+            }
+        }
+        
+        // Fall back to full handling for edge cases (range operator, etc.)
+        return resolveForEachPartOfTokenWithBrackets(token, parts, partNumber, segment, element);
+    }
+    
+    // Parse bracket segments with caching
+    private static String[] parseBracketSegment(String segment) {
+        return bracketCache.computeIfAbsent(segment, s -> {
+            String[] parts = s.split(REGEX_SQUARE_BRACKETS);
+            List<String> result = new ArrayList<>();
+            for (String part : parts) {
+                String trimmed = part.trim();
+                if (!trimmed.isEmpty()) {
+                    result.add(trimmed);
+                }
+            }
+            return result.toArray(new String[0]);
+        });
     }
 
     protected JsonElement resolveForEachPartOfTokenWithBrackets(String token, String[] parts, int partNumber,
@@ -126,7 +195,9 @@ public abstract class TokenValueExtractor {
         if (cElement == null || cElement == JsonNull.INSTANCE)
             return null;
 
-        if (LENGTH.equals(cPart))
+        // Check for 'length' keyword - both unquoted and quoted versions
+        // e.g., .length and ["length"] should both return the length
+        if (LENGTH.equals(cPart) || "\"length\"".equals(cPart) || "'length'".equals(cPart))
             return getLength(token, cElement);
 
         if ((cElement.isJsonPrimitive() && cElement.getAsJsonPrimitive().isString()) || cElement.isJsonArray())
@@ -142,12 +213,22 @@ public abstract class TokenValueExtractor {
     public abstract JsonElement getStore();
 
     private JsonElement getLength(String token, JsonElement cElement) {
-
         if (cElement.isJsonArray())
             return new JsonPrimitive(cElement.getAsJsonArray().size());
         if (cElement.isJsonObject()) {
             JsonObject jsonObject = cElement.getAsJsonObject();
-            return jsonObject.has(LENGTH) ? jsonObject.get(LENGTH) : new JsonPrimitive(jsonObject.size());
+            // For objects, check if there's a length property
+            // If it's a primitive (number, string, boolean), use it
+            // If it's an object/array, use Object.keys length to avoid bugs
+            if (jsonObject.has(LENGTH)) {
+                JsonElement lengthValue = jsonObject.get(LENGTH);
+                // If length property is a primitive, use it; otherwise use Object.keys length
+                if (lengthValue.isJsonObject() || lengthValue.isJsonArray()) {
+                    return new JsonPrimitive(jsonObject.size());
+                }
+                return lengthValue;
+            }
+            return new JsonPrimitive(jsonObject.size());
         }
         if (cElement.isJsonPrimitive() && cElement.getAsJsonPrimitive().isString())
             return new JsonPrimitive(cElement.getAsString().length());
