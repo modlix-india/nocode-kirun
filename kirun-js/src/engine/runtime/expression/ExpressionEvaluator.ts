@@ -471,6 +471,23 @@ export class ExpressionEvaluator {
             if (workingStack.length > 0) {
                 return workingStack.pop()!;
             }
+            if (ctx.srcIdx >= tokensSource.length) {
+                // Only throw if we're actively processing operations and need a token
+                // This indicates a malformed expression (not enough tokens for operations)
+                // Check if we have more operations to process
+                if (ctx.opIdx < opsArray.length) {
+                    throw new ExpressionEvaluationException(
+                        exp.getExpression(),
+                        'Not enough tokens to evaluate expression',
+                    );
+                }
+                // If we're done with operations but need a token, this is an error
+                // This can happen with malformed expressions
+                throw new ExpressionEvaluationException(
+                    exp.getExpression(),
+                    'Expression evaluation incomplete: missing token',
+                );
+            }
             return tokensSource[ctx.srcIdx++];
         };
         
@@ -562,27 +579,51 @@ export class ExpressionEvaluator {
 
         do {
             objOperations.push(operator);
-            if (token instanceof Expression)
-                objTokens.push(
-                    new ExpressionTokenValue(
-                        token.toString(),
-                        this.evaluateExpression(token, valuesMap),
-                    ),
-                );
+            if (token instanceof Expression) {
+                // For path components (identifiers with OBJECT_OPERATOR, ARRAY_OPERATOR, or no operations),
+                // build the path string without parentheses - don't evaluate as a value.
+                // For expressions with other operators (like +, -, etc.), evaluate to get the actual value.
+                if (this.isPathExpression(token)) {
+                    // Build path string without parentheses
+                    const tokenStr = this.buildPathString(token);
+                    objTokens.push(new ExpressionToken(tokenStr));
+                } else {
+                    objTokens.push(
+                        new ExpressionTokenValue(
+                            token.toString(),
+                            this.evaluateExpression(token, valuesMap),
+                        ),
+                    );
+                }
+            }
             else if (token) objTokens.push(token);
             
-            token = hasMoreTokens() ? popToken() : undefined;
+            // Match Java logic: check workingStack first, then tokensSource
+            if (workingStack.length > 0) {
+                token = workingStack.pop();
+            } else if (ctx.srcIdx < tokensSource.length) {
+                token = tokensSource[ctx.srcIdx++];
+            } else {
+                token = undefined;
+            }
             operator = popOp();
         } while (operator == Operation.OBJECT_OPERATOR || operator == Operation.ARRAY_OPERATOR);
 
         if (token) {
-            if (token instanceof Expression)
-                objTokens.push(
-                    new ExpressionTokenValue(
-                        token.toString(),
-                        this.evaluateExpression(token, valuesMap),
-                    ),
-                );
+            if (token instanceof Expression) {
+                // Same logic: path components use buildPathString(), value expressions are evaluated
+                if (this.isPathExpression(token)) {
+                    const tokenStr = this.buildPathString(token);
+                    objTokens.push(new ExpressionToken(tokenStr));
+                } else {
+                    objTokens.push(
+                        new ExpressionTokenValue(
+                            token.toString(),
+                            this.evaluateExpression(token, valuesMap),
+                        ),
+                    );
+                }
+            }
             else objTokens.push(token);
         }
 
@@ -607,16 +648,41 @@ export class ExpressionEvaluator {
         }
 
         // Use string concatenation instead of StringBuilder (V8 optimizes this well)
-        let str: string = objToken instanceof ExpressionTokenValue
-            ? objToken.getTokenValue()
-            : objToken.toString();
+        // Preserve quotes for bracket notation with quoted keys containing dots (like ["mail.props.port"])
+        let str: string;
+        if (objToken instanceof ExpressionTokenValue) {
+            const originalExpr = objToken.getExpression();
+            const evaluatedValue = objToken.getTokenValue();
+            // Preserve quotes when the key contains dots to distinguish from simple bracket access
+            if (originalExpr && originalExpr.length > 0 &&
+                (originalExpr.charAt(0) == '"' || originalExpr.charAt(0) == "'") &&
+                typeof evaluatedValue === 'string' && evaluatedValue.includes('.')) {
+                str = originalExpr;
+            } else {
+                str = typeof evaluatedValue === 'string' ? evaluatedValue : String(evaluatedValue);
+            }
+        } else {
+            str = objToken.toString();
+        }
 
         while (objTokenIdx >= 0) {
             objToken = objTokens[objTokenIdx--];
             operator = objOperations[objOpIdx--];
-            const tokenVal = objToken instanceof ExpressionTokenValue
-                ? objToken.getTokenValue()
-                : objToken.toString();
+            let tokenVal: string;
+            if (objToken instanceof ExpressionTokenValue) {
+                const originalExpr = objToken.getExpression();
+                const evaluatedValue = objToken.getTokenValue();
+                // Preserve quotes when the key contains dots
+                if (operator == Operation.ARRAY_OPERATOR && originalExpr && originalExpr.length > 0 &&
+                    (originalExpr.charAt(0) == '"' || originalExpr.charAt(0) == "'") &&
+                    typeof evaluatedValue === 'string' && evaluatedValue.includes('.')) {
+                    tokenVal = originalExpr;
+                } else {
+                    tokenVal = typeof evaluatedValue === 'string' ? evaluatedValue : String(evaluatedValue);
+                }
+            } else {
+                tokenVal = objToken.toString();
+            }
             str = str + operator!.getOperator() + tokenVal + (operator == Operation.ARRAY_OPERATOR ? ']' : '');
         }
         let key: string = str.substring(0, str.indexOf('.') + 1);
@@ -627,10 +693,125 @@ export class ExpressionEvaluator {
             try {
                 v = LiteralTokenValueExtractor.INSTANCE.getValue(str);
             } catch (err) {
-                v = str;
+                // Check if this is a literal (number, string, boolean, null) with property access
+                // e.g., "2.val" should evaluate to undefined (accessing .val on number 2)
+                v = this.evaluateLiteralPropertyAccess(str);
             }
             workingStack.push(new ExpressionTokenValue(str, v));
         }
+    }
+
+    /**
+     * Handle cases like "2.val" where we have a literal with property access.
+     * Numbers, booleans, null don't have custom properties, so accessing them returns undefined.
+     * Strings might have properties like .length
+     */
+    private evaluateLiteralPropertyAccess(str: string): any {
+        const dotIdx = str.indexOf('.');
+        if (dotIdx === -1) {
+            // No property access, just return the string as-is
+            return str;
+        }
+        
+        const basePart = str.substring(0, dotIdx);
+        const propPart = str.substring(dotIdx + 1);
+        
+        // Try to parse the base as a literal
+        let baseValue: any;
+        try {
+            baseValue = LiteralTokenValueExtractor.INSTANCE.getValue(basePart);
+        } catch (err) {
+            // Not a valid literal, return the original string
+            return str;
+        }
+        
+        // If baseValue is null or undefined, property access returns undefined
+        if (baseValue === null || baseValue === undefined) {
+            return undefined;
+        }
+        
+        // For primitives (number, boolean, string), access the property
+        // This handles cases like "2.val" -> undefined, or potentially "hello".length -> 5
+        // But we need to handle chained access like "2.val.something"
+        const propParts = this.splitPropertyPath(propPart);
+        let result: any = baseValue;
+        
+        for (const prop of propParts) {
+            if (result === null || result === undefined) {
+                return undefined;
+            }
+            // Handle bracket notation within the property path
+            if (prop.includes('[')) {
+                result = this.accessPropertyWithBrackets(result, prop);
+            } else {
+                result = result[prop];
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Split a property path like "val.something" into ["val", "something"]
+     * Handles bracket notation like "arr[0].value"
+     */
+    private splitPropertyPath(path: string): string[] {
+        const parts: string[] = [];
+        let current = '';
+        let inBracket = false;
+        
+        for (let i = 0; i < path.length; i++) {
+            const ch = path.charAt(i);
+            if (ch === '[') {
+                if (current.length > 0) {
+                    parts.push(current);
+                    current = '';
+                }
+                inBracket = true;
+                current += ch;
+            } else if (ch === ']') {
+                current += ch;
+                inBracket = false;
+                parts.push(current);
+                current = '';
+            } else if (ch === '.' && !inBracket) {
+                if (current.length > 0) {
+                    parts.push(current);
+                    current = '';
+                }
+            } else {
+                current += ch;
+            }
+        }
+        
+        if (current.length > 0) {
+            parts.push(current);
+        }
+        
+        return parts;
+    }
+    
+    /**
+     * Access a property that may contain bracket notation like "[0]" or '["key"]'
+     */
+    private accessPropertyWithBrackets(obj: any, prop: string): any {
+        // Handle bracket notation like "[0]" or '["key"]'
+        const bracketMatch = prop.match(/^\[(.+)\]$/);
+        if (bracketMatch) {
+            let key = bracketMatch[1];
+            // Remove quotes if present
+            if ((key.startsWith('"') && key.endsWith('"')) || 
+                (key.startsWith("'") && key.endsWith("'"))) {
+                key = key.substring(1, key.length - 1);
+            }
+            // Try to parse as number
+            const numKey = parseInt(key);
+            if (!isNaN(numKey)) {
+                return obj[numKey];
+            }
+            return obj[key];
+        }
+        return obj[prop];
     }
 
     private applyTernaryOperation(operator: Operation, v1: any, v2: any, v3: any): ExpressionToken {
@@ -735,6 +916,120 @@ export class ExpressionEvaluator {
         }
 
         return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
+    }
+    
+    /**
+     * Build a path string from a path Expression, without parentheses.
+     * E.g., Expression for "a.(b.c)" returns "a.b.c"
+     */
+    private buildPathString(expr: Expression): string {
+        const ops = expr.getOperationsArray();
+        const tokens = expr.getTokensArray();
+        
+        // Leaf expression - just return the token string
+        if (ops.length === 0) {
+            if (tokens.length === 1) {
+                const token = tokens[0];
+                if (token instanceof Expression) {
+                    return this.buildPathString(token);
+                }
+                // For ExpressionTokenValue, use getExpression() not toString()
+                // (toString() returns "expr: value" format which is wrong for paths)
+                return this.getTokenExpressionString(token);
+            }
+            return expr.getExpression() || '';
+        }
+        
+        // Binary expression - build path from tokens and operators
+        // With push() order: tokens[0]=right, tokens[1]=left
+        if (tokens.length >= 2 && ops.length >= 1) {
+            const right = tokens[0];
+            const left = tokens[1];
+            const op = ops[0];
+            
+            const leftStr = left instanceof Expression ? this.buildPathString(left) : this.getTokenExpressionString(left);
+            const rightStr = right instanceof Expression ? this.buildPathString(right) : this.getTokenExpressionString(right);
+            
+            if (op === Operation.OBJECT_OPERATOR) {
+                return leftStr + '.' + rightStr;
+            } else if (op === Operation.ARRAY_OPERATOR) {
+                return leftStr + '[' + rightStr + ']';
+            } else if (op === Operation.ARRAY_RANGE_INDEX_OPERATOR) {
+                return leftStr + '..' + rightStr;
+            }
+        }
+        
+        // Fallback to toString() with parens stripped
+        return this.stripOuterParens(expr.toString());
+    }
+    
+    /**
+     * Get the expression string from a token, handling ExpressionTokenValue specially.
+     */
+    private getTokenExpressionString(token: ExpressionToken): string {
+        // For ExpressionTokenValue, use getExpression() not toString()
+        // because toString() returns "expr: value" format
+        if (token instanceof ExpressionTokenValue) {
+            return token.getExpression();
+        }
+        return token.getExpression();
+    }
+    
+    /**
+     * Strip outer parentheses from a string if they exist.
+     * E.g., "(Context.obj)" -> "Context.obj"
+     */
+    private stripOuterParens(str: string): string {
+        if (str.length >= 2 && str.charAt(0) === '(' && str.charAt(str.length - 1) === ')') {
+            // Count parentheses to ensure we only strip matching outer parens
+            let depth = 0;
+            for (let i = 0; i < str.length; i++) {
+                if (str.charAt(i) === '(') depth++;
+                else if (str.charAt(i) === ')') depth--;
+                // If depth becomes 0 before the last char, the outer parens don't match
+                if (depth === 0 && i < str.length - 1) {
+                    return str; // Don't strip, the parens don't match
+                }
+            }
+            return str.substring(1, str.length - 1);
+        }
+        return str;
+    }
+    
+    /**
+     * Check if an Expression is a path component (identifier, OBJECT_OPERATOR, or ARRAY_OPERATOR).
+     * Path components should use toString() for path building, not be evaluated as values.
+     * Expressions with other operators (like +, -, etc.) should be evaluated.
+     */
+    private isPathExpression(expr: Expression): boolean {
+        const ops = expr.getOperationsArray();
+        
+        // No operations = leaf identifier - use toString()
+        if (ops.length === 0) {
+            return true;
+        }
+        
+        // Check if all operations are path-related (OBJECT_OPERATOR or ARRAY_OPERATOR)
+        for (const op of ops) {
+            if (op !== Operation.OBJECT_OPERATOR && 
+                op !== Operation.ARRAY_OPERATOR &&
+                op !== Operation.ARRAY_RANGE_INDEX_OPERATOR) {
+                // Has non-path operator - needs evaluation
+                return false;
+            }
+        }
+        
+        // Also check nested expressions in tokens
+        const tokens = expr.getTokensArray();
+        for (const token of tokens) {
+            if (token instanceof Expression) {
+                if (!this.isPathExpression(token)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }
 

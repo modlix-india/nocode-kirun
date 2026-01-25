@@ -127,7 +127,8 @@ class ReactiveKIRuntimeTest {
 		var out = runtime
 				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
 						new KIRunReactiveSchemaRepository()).setArguments(Map.of("Count", new JsonPrimitive(num))))
-				.map(FunctionOutput::allResults);
+				.map(FunctionOutput::allResults)
+				.cache(); // Cache the result to avoid re-executing on multiple subscriptions
 
 		out.subscribe(e -> {
 			System.out.println("KIRun Logic : " + (System.currentTimeMillis() - start1));

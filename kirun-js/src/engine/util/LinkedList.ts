@@ -69,7 +69,7 @@ export class LinkedList<T> {
 
         let x = this.head;
         while (index > 0) {
-            x = this.head!.next;
+            x = x!.next;
             --index;
         }
 
