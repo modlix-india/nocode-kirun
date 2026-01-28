@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { ArraySchemaType } from '../array/ArraySchemaType';
 import { Schema } from '../Schema';
@@ -24,7 +25,7 @@ export class ArrayValidator {
         if (!Array.isArray(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not an Array',
+                `Expected an array but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         let array: any[] = element as any[];

@@ -31,6 +31,7 @@ import { ArraySchemaType } from '../json/schema/array/ArraySchemaType';
 import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
+import { GlobalDebugCollector } from './debug/GlobalDebugCollector';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -55,6 +56,12 @@ export class KIRuntime extends AbstractFunction {
         super();
         this.debugMode = debugMode;
         this.fd = fd;
+
+        // Enable/disable global debug collector based on debug mode
+        if (this.debugMode) {
+            GlobalDebugCollector.getInstance().enable();
+        }
+
         if (this.fd.getVersion() > KIRuntime.VERSION) {
             throw new KIRuntimeException(
                 'Runtime is at a lower version ' +
@@ -129,10 +136,17 @@ export class KIRuntime extends AbstractFunction {
         }
 
         if (this.debugMode) {
-            console.log(
-                `EID: ${inContext.getExecutionId()} Executing: ${this.fd.getNamespace()}.${this.fd.getName()}`,
-            );
-            console.log(`EID: ${inContext.getExecutionId()} Parameters: `, inContext);
+            // Create collector only if one doesn't exist yet (nested calls reuse parent collector)
+            if (!inContext.getDebugCollector()) {
+                const collector = GlobalDebugCollector.getInstance().createCollector(
+                    inContext.getExecutionId(),
+                    this.fd.getNamespace(),
+                    this.fd.getName(),
+                );
+                if (collector) {
+                    inContext.setDebugCollector(collector);
+                }
+            }
         }
 
         let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
@@ -140,23 +154,31 @@ export class KIRuntime extends AbstractFunction {
             inContext.getSchemaRepository(),
         );
 
-        if (this.debugMode) {
-            console.log(`EID: ${inContext.getExecutionId()} ${eGraph?.toString()}`);
-        }
-
         let messages: string[] = eGraph
             .getVerticesData()
             .filter((e) => e.getMessages().length)
             .map((e) => e.getStatement().getStatementName() + ': \n' + e.getMessages().join(','));
 
         if (messages?.length) {
+            // Mark execution as errored before throwing
+            if (this.debugMode) {
+                GlobalDebugCollector.getInstance().markExecutionErrored(inContext.getExecutionId());
+            }
             throw new KIRuntimeException(
                 'Please fix the errors in the function definition before execution : \n' +
                     messages.join(',\n'),
             );
         }
 
-        return await this.executeGraph(eGraph, inContext);
+        try {
+            return await this.executeGraph(eGraph, inContext);
+        } catch (error) {
+            // Mark execution as errored
+            if (this.debugMode) {
+                GlobalDebugCollector.getInstance().markExecutionErrored(inContext.getExecutionId());
+            }
+            throw error; // Re-throw to maintain existing error behavior
+        }
     }
 
     private async executeGraph(
@@ -204,8 +226,16 @@ export class KIRuntime extends AbstractFunction {
             e[1].map((v) => EventResult.of(e[0], v)),
         );
 
-        if (er.length || eGraph.isSubGraph()) return new FunctionOutput(er);
-        else return new FunctionOutput([EventResult.of(Event.OUTPUT, new Map<string, any>())]);
+        const functionOutput = er.length || eGraph.isSubGraph()
+            ? new FunctionOutput(er)
+            : new FunctionOutput([EventResult.of(Event.OUTPUT, new Map<string, any>())]);
+
+        // Mark execution as complete
+        if (this.debugMode) {
+            GlobalDebugCollector.getInstance().endExecution(inContext.getExecutionId());
+        }
+
+        return functionOutput;
     }
 
     private async processExecutionQue(
@@ -355,16 +385,6 @@ export class KIRuntime extends AbstractFunction {
                         this.resolveInternalExpressions(nextOutput.getResult(), inContext),
                     );
 
-                if (this.debugMode) {
-                    const s = vertex.getData().getStatement();
-                    console.log(
-                        `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
-                    );
-                    console.log(
-                        `EID: ${inContext.getExecutionId()} Event : ${nextOutput.getName()} : `,
-                        inContext.getSteps()!.get(s.getStatementName())!.get(nextOutput.getName()),
-                    );
-                }
             }
         } while (nextOutput && nextOutput.getName() != Event.OUTPUT);
 
@@ -424,11 +444,18 @@ export class KIRuntime extends AbstractFunction {
             paramSet ?? new Map(),
         );
 
-        if (this.debugMode) {
-            console.log(
-                `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
+        // Record step start
+        let stepId: string | undefined;
+        if (inContext.getDebugCollector()) {
+            const kirunFunctionName = this.fd.getNamespace()
+                ? `${this.fd.getNamespace()}.${this.fd.getName()}`
+                : this.fd.getName();
+            stepId = inContext.getDebugCollector()!.startStep(
+                s.getStatementName(),
+                `${s.getNamespace()}.${s.getName()}`,
+                args,
+                kirunFunctionName,
             );
-            console.log(`EID: ${inContext.getExecutionId()} Arguments : `, args);
         }
 
         let context: Map<string, ContextElement> = inContext.getContext()!;
@@ -438,7 +465,7 @@ export class KIRuntime extends AbstractFunction {
             fep = new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
                 inContext.getSchemaRepository(),
-                `${inContext.getExecutionId()}_${s.getStatementName()}`,
+                inContext.getExecutionId(), // Reuse same execution ID for nested calls
             )
                 .setArguments(args)
                 .setValuesMap(
@@ -453,6 +480,12 @@ export class KIRuntime extends AbstractFunction {
                             .map((e) => [e.getPrefix(), e]),
                     ),
                 );
+
+            // Reuse the same collector for nested KIRuntime calls
+            const collector = inContext.getDebugCollector();
+            if (collector) {
+                fep.setDebugCollector(collector);
+            }
         } else {
             fep = new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
@@ -469,35 +502,51 @@ export class KIRuntime extends AbstractFunction {
                 .setExecutionContext(inContext.getExecutionContext());
         }
 
-        let result: FunctionOutput = await fun.execute(fep);
+        let result: FunctionOutput;
+        let er: EventResult | undefined;
 
-        let er: EventResult | undefined = result.next();
+        try {
+            result = await fun.execute(fep);
 
-        if (!er)
-            throw new KIRuntimeException(
-                StringFormatter.format('Executing $ returned no events', s.getStatementName()),
-            );
+            er = result.next();
 
-        let isOutput: boolean = er.getName() == Event.OUTPUT;
+            if (!er)
+                throw new KIRuntimeException(
+                    StringFormatter.format('Executing $ returned no events', s.getStatementName()),
+                );
 
-        if (!inContext.getSteps()?.has(s.getStatementName())) {
-            inContext.getSteps()!.set(s.getStatementName(), new Map());
+            if (!inContext.getSteps()?.has(s.getStatementName())) {
+                inContext.getSteps()!.set(s.getStatementName(), new Map());
+            }
+
+            inContext
+                .getSteps()!
+                .get(s.getStatementName())!
+                .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
+        } catch (error: any) {
+            const executionError = error?.message || String(error);
+
+            // Record step end with error
+            if (inContext.getDebugCollector() && stepId) {
+                inContext.getDebugCollector()!.endStep(stepId, 'error', undefined, executionError);
+            }
+
+            // Re-throw the error to maintain existing error behavior
+            throw error;
         }
 
-        inContext
-            .getSteps()!
-            .get(s.getStatementName())!
-            .set(er.getName(), this.resolveInternalExpressions(er.getResult(), inContext));
-
-        if (this.debugMode) {
-            console.log(
-                `EID: ${inContext.getExecutionId()} Step : ${s.getStatementName()} => ${s.getNamespace()}.${s.getName()}`,
-            );
-            console.log(
-                `EID: ${inContext.getExecutionId()} Event : ${er.getName()} : `,
+        // Record step end for successful execution
+        if (inContext.getDebugCollector() && stepId) {
+            inContext.getDebugCollector()!.endStep(
+                stepId,
+                er.getName(),
                 inContext.getSteps()!.get(s.getStatementName())!.get(er.getName()),
             );
+            // No nested retrieval needed - logs are already written to GlobalDebugCollector
+            // during execution under the same execution ID
         }
+
+        let isOutput: boolean = er.getName() == Event.OUTPUT;
 
         if (!isOutput) {
             let subGraph = vertex.getSubGraphOfType(er.getName());

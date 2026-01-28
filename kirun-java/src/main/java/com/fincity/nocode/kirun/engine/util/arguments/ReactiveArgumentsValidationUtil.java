@@ -11,6 +11,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
+import com.fincity.nocode.kirun.engine.util.ErrorMessageFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -32,18 +33,23 @@ public class ReactiveArgumentsValidationUtil {
 
 		                .onErrorMap(sve ->
 						{
-			                String statementName = "Unknown Step";
+			                String statementName = null;
 			                if (statementExecution != null && statementExecution.getStatement() != null)
 				                statementName = statementExecution.getStatement()
 				                        .getStatementName();
 
-			                throw new KIRuntimeException(
-			                        "Error while executing the function " + signature.getNamespace() + "."
-			                                + signature.getName() + "'s parameter " + e.getValue()
-			                                        .getParameterName()
-			                                + " with step name '" + statementName + "' with error : "
-			                                + sve.getMessage(),
-			                        sve);
+			                String functionName = ErrorMessageFormatter.formatFunctionName(
+			                        signature.getNamespace(), signature.getName());
+			                String formattedStatementName = ErrorMessageFormatter.formatStatementName(statementName);
+
+			                String errorMessage = ErrorMessageFormatter.buildFunctionExecutionError(
+			                        functionName,
+			                        formattedStatementName,
+			                        ErrorMessageFormatter.formatErrorMessage(sve),
+			                        e.getValue().getParameterName(),
+			                        e.getValue().getSchema());
+
+			                throw new KIRuntimeException(errorMessage, sve);
 		                }))
 		        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}

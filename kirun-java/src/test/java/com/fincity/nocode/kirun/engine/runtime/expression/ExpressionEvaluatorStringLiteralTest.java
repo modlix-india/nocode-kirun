@@ -3,6 +3,7 @@ package com.fincity.nocode.kirun.engine.runtime.expression;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
 import com.fincity.nocode.kirun.engine.runtime.tokenextractors.ArgumentsTokenValueExtractor;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -185,5 +187,94 @@ class ExpressionEvaluatorStringLiteralTest {
 		ev = new ExpressionEvaluator("Arguments.obj.name[\"length\"] ? 'fun':'not Fun'");
 		assertEquals(new JsonPrimitive("fun"), ev.evaluate(valuesMap));
 
+	}
+
+	/**
+	 * Custom token extractor for testing Steps.* paths
+	 */
+	static class StepsTokenValueExtractor extends TokenValueExtractor {
+		private final Map<String, JsonElement> data;
+
+		public StepsTokenValueExtractor(Map<String, JsonElement> data) {
+			this.data = data;
+		}
+
+		@Override
+		protected JsonElement getValueInternal(String token) {
+			String[] parts = TokenValueExtractor.splitPath(token);
+			String key = parts[1];
+			int bIndex = key.indexOf('[');
+			int fromIndex = 2;
+			if (bIndex != -1) {
+				key = parts[1].substring(0, bIndex);
+				parts[1] = parts[1].substring(bIndex);
+				fromIndex = 1;
+			}
+			return this.retrieveElementFrom(token, parts, fromIndex, this.data.get(key));
+		}
+
+		@Override
+		public String getPrefix() {
+			return "Steps.";
+		}
+
+		@Override
+		public JsonElement getStore() {
+			JsonObject store = new JsonObject();
+			for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+				store.add(entry.getKey(), entry.getValue());
+			}
+			return store;
+		}
+	}
+
+	@Test
+	void testStringLiteralWithTemplateInterpolation() {
+		// Create Steps extractor with nested data
+		JsonObject countLoop = new JsonObject();
+		JsonObject iteration = new JsonObject();
+		iteration.add("index", new JsonPrimitive(1));
+		countLoop.add("iteration", iteration);
+
+		Map<String, JsonElement> stepsData = new HashMap<>();
+		stepsData.put("countLoop", countLoop);
+		stepsData.put("index", new JsonPrimitive(5));
+
+		StepsTokenValueExtractor stepsAtv = new StepsTokenValueExtractor(stepsData);
+
+		ArgumentsTokenValueExtractor argsAtv = new ArgumentsTokenValueExtractor(
+			Map.of("a", new JsonPrimitive("test"),
+				"b", new JsonPrimitive(10),
+				"c", new JsonPrimitive(15)));
+
+		Map<String, TokenValueExtractor> valuesMap = new HashMap<>();
+		valuesMap.put(stepsAtv.getPrefix(), stepsAtv);
+		valuesMap.put(argsAtv.getPrefix(), argsAtv);
+
+		// Test that {{}} expressions inside string literals are evaluated
+		ExpressionEvaluator ev = new ExpressionEvaluator(
+			"'Page.appDefinitions.content[{{Steps.countLoop.iteration.index}}].stringValue'");
+		assertEquals(new JsonPrimitive("Page.appDefinitions.content[1].stringValue"), ev.evaluate(valuesMap));
+
+		// Test with double quotes
+		ev = new ExpressionEvaluator(
+			"\"Page.appDefinitions.content[{{Steps.countLoop.iteration.index}}].stringValue\"");
+		assertEquals(new JsonPrimitive("Page.appDefinitions.content[1].stringValue"), ev.evaluate(valuesMap));
+
+		// Test concatenation with string containing template interpolation
+		ev = new ExpressionEvaluator("Arguments.a + ' - ' + 'Path: {{Steps.index}}'");
+		assertEquals(new JsonPrimitive("test - Path: 5"), ev.evaluate(valuesMap));
+
+		// Test multiple template placeholders in one string
+		ev = new ExpressionEvaluator("'{{Arguments.a}} + {{Arguments.b}} = {{Arguments.c}}'");
+		assertEquals(new JsonPrimitive("test + 10 = 15"), ev.evaluate(valuesMap));
+
+		// Test with arithmetic inside {{}}
+		ev = new ExpressionEvaluator("'Result: {{Arguments.b + Arguments.c}}!'");
+		assertEquals(new JsonPrimitive("Result: 25!"), ev.evaluate(valuesMap));
+
+		// Test nested property access
+		ev = new ExpressionEvaluator("'Item {{Steps.countLoop.iteration.index}} of {{Arguments.c}}'");
+		assertEquals(new JsonPrimitive("Item 1 of 15"), ev.evaluate(valuesMap));
 	}
 }

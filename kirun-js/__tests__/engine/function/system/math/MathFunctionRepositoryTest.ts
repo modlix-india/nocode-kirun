@@ -31,7 +31,7 @@ test('Test Math Functions 2', () => {
             ?.getResult()
             ?.get('value'),
     ).rejects.toThrowError(
-        'Error while executing the function System.Math.Absolute\'s parameter value with step name \'Unknown Step\' with error : Value \"-1.2\" is not of valid type(s)\n-1.2 is not a Double\n-1.2 is not a Float\n-1.2 is not a Long\n-1.2 is not a Integer',
+        'Error while executing the function System.Math.Absolute\'s parameter value [Expected: Integer | Long | Float | Double]: Value \"-1.2\" is not of valid type(s)\nExpected a Double but found \"-1.2\"\nExpected a Float but found \"-1.2\"\nExpected a Long but found \"-1.2\"\nExpected a Integer but found \"-1.2\"',
     );
 });
 
@@ -111,7 +111,7 @@ test('test Math Functions 8', () => {
             ?.getResult()
             ?.get('value'),
     ).rejects.toThrowError(
-        'Error while executing the function System.Math.Power\'s parameter value1 with step name \'Unknown Step\' with error : Value \"1\" is not of valid type(s)\n1 is not a Double\n1 is not a Float\n1 is not a Long\n1 is not a Integer',
+        'Error while executing the function System.Math.Power\'s parameter value1 [Expected: Integer | Long | Float | Double]: Value "1" is not of valid type(s)\nExpected a Double but found "1"\nExpected a Float but found "1"\nExpected a Long but found "1"\nExpected a Integer but found "1"',
     );
 });
 

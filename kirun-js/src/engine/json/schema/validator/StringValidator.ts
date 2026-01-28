@@ -1,3 +1,4 @@
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 import { StringFormat } from '../string/StringFormat';
@@ -21,13 +22,13 @@ export class StringValidator {
         if (isNullValue(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                'Expected a string but found ' + element,
+                `Expected a string but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         if (typeof element !== 'string')
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not String',
+                `Expected a string but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         if (schema.getFormat() == StringFormat.TIME) {

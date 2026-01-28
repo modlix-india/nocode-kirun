@@ -8,6 +8,7 @@ import { Parameter } from '../model/Parameter';
 import { Repository } from '../Repository';
 import { FunctionExecutionParameters } from '../runtime/FunctionExecutionParameters';
 import { StatementExecution } from '../runtime/StatementExecution';
+import { ErrorMessageFormatter } from '../util/ErrorMessageFormatter';
 import { isNullValue } from '../util/NullCheck';
 import { Tuple2 } from '../util/Tuples';
 import { Function } from './Function';
@@ -27,10 +28,22 @@ export abstract class AbstractFunction implements Function {
                 retmap.set(tup.getT1(), tup.getT2());
             } catch (err: any) {
                 const signature = this.getSignature();
+                const functionName = ErrorMessageFormatter.formatFunctionName(
+                    signature.getNamespace(),
+                    signature.getName(),
+                );
+                const statementName = ErrorMessageFormatter.formatStatementName(
+                    statementExecution?.getStatement().getStatementName(),
+                );
+                const errorMessage = ErrorMessageFormatter.formatErrorMessage(err);
                 throw new KIRuntimeException(
-                    `Error while executing the function ${signature.getNamespace()}.${signature.getName()}'s parameter ${param.getParameterName()} with step name '${
-                        statementExecution?.getStatement().getStatementName() ?? 'Unknown Step'
-                    }' with error : ${err?.message}`,
+                    ErrorMessageFormatter.buildFunctionExecutionError(
+                        functionName,
+                        statementName,
+                        errorMessage,
+                        param.getParameterName(),
+                        param.getSchema(),
+                    ),
                 );
             }
         }
@@ -103,11 +116,20 @@ export abstract class AbstractFunction implements Function {
             return await this.internalExecute(context);
         } catch (err: any) {
             const signature = this.getSignature();
+            const functionName = ErrorMessageFormatter.formatFunctionName(
+                signature.getNamespace(),
+                signature.getName(),
+            );
+            const statementName = ErrorMessageFormatter.formatStatementName(
+                context.getStatementExecution()?.getStatement().getStatementName(),
+            );
+            const errorMessage = ErrorMessageFormatter.formatErrorMessage(err);
             throw new KIRuntimeException(
-                `Error while executing the function ${signature.getNamespace()}.${signature.getName()} with step name '${
-                    context.getStatementExecution()?.getStatement().getStatementName() ??
-                    'Unknown Step'
-                }' with error : ${err?.message}`,
+                ErrorMessageFormatter.buildFunctionExecutionError(
+                    functionName,
+                    statementName,
+                    errorMessage,
+                ),
             );
         }
     }
