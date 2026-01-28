@@ -66,8 +66,6 @@ import reactor.util.function.Tuples;
 
 public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefinitionBasedFunction {
 
-	private static final String DEBUG_STEP = "Step : ";
-
 	private static final String PARAMETER_NEEDS_A_VALUE = "Parameter \"$\" needs a value";
 
 	private static final Pattern STEP_REGEX_PATTERN = Pattern
@@ -83,8 +81,8 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 	private final boolean debugMode;
 
-	private final StringBuilder sb = new StringBuilder();
-	
+	private com.fincity.nocode.kirun.engine.runtime.debug.DebugCollector debugCollector;
+
 	// Cache for resolved functions to avoid repeated lookups
 	private final Map<String, ReactiveFunction> functionCache = new ConcurrentHashMap<>();
 
@@ -165,17 +163,22 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 		inContext.addTokenValueExtractor(new ArgumentsTokenValueExtractor(
 				inContext.getArguments() == null ? Map.of() : inContext.getArguments()));
 
+		// Create debug collector if debug mode enabled
 		if (this.debugMode) {
-
-			this.sb.append("Executing: ")
-					.append(this.fd.getNamespace())
-					.append('.')
-					.append(this.fd.getName())
-					.append("\n")
-					.append("Parameters: ")
-					.append(inContext)
-					.append("\n");
-
+			// Check if a collector already exists (from parent call)
+			if (inContext.getDebugCollector() == null) {
+				// Create new collector for top-level execution
+				String functionName = this.fd.getNamespace() != null
+						? this.fd.getNamespace() + "." + this.fd.getName()
+						: this.fd.getName();
+				this.debugCollector = new com.fincity.nocode.kirun.engine.runtime.debug.DebugCollector(
+						inContext.getExecutionId(),
+						functionName);
+				inContext.setDebugCollector(this.debugCollector);
+			} else {
+				// Reuse the existing collector from parent
+				this.debugCollector = inContext.getDebugCollector();
+			}
 		}
 
 		Mono<ExecutionGraph<String, StatementExecution>> eGraph = this
@@ -185,22 +188,35 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 				.flatMap(e -> Flux.fromIterable(e.getMessages()))
 				.collectList()
 				.flatMap(msgs -> {
-					if (this.debugMode) {
-						this.sb.append(g.toString())
-								.append("\n");
-					}
 					if (logger.isDebugEnabled()) {
 						logger.debug(
 								StringFormatter.format("Executing : $.$", this.fd.getNamespace(), this.fd.getName()));
 						logger.debug(eGraph.toString());
 					}
 
-					if (!msgs.isEmpty())
+					if (!msgs.isEmpty()) {
+						// Mark execution as errored before throwing
+						if (this.debugCollector != null) {
+							this.debugCollector.getExecutionLog().markErrored();
+						}
 						return Mono.error(new KIRuntimeException(
 								"Please fix the errors in the function definition before execution : \n" + msgs));
+					}
 
 					return this.executeGraph(g, inContext);
-				}));
+				}))
+				.doOnError(error -> {
+					// Mark execution as errored on any error
+					if (this.debugCollector != null) {
+						this.debugCollector.getExecutionLog().markErrored();
+					}
+				})
+				.doFinally(signal -> {
+					// Mark execution as complete
+					if (this.debugCollector != null) {
+						this.debugCollector.endExecution();
+					}
+				});
 	}
 
 	private Mono<FunctionOutput> executeGraph(ExecutionGraph<String, StatementExecution> eGraph,
@@ -353,26 +369,6 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 													.getStatementName(), k -> new ConcurrentHashMap<>())
 											.put(nextOutput.getName(),
 													resolveInternalExpressions(nextOutput.getResult(), inContext));
-
-									if (this.debugMode) {
-										var s = vertex.getData()
-												.getStatement();
-										this.sb.append(DEBUG_STEP)
-												.append(s.getStatementName())
-												.append(" => ")
-												.append(s.getNamespace())
-												.append('.')
-												.append(s.getName())
-												.append("\n");
-										this.sb.append("Event : ")
-												.append(nextOutput.getName())
-												.append("\n")
-												.append(inContext.getSteps()
-														.get(s.getStatementName())
-														.get(nextOutput.getName()))
-												.append("\n");
-
-									}
 								}
 
 								return Mono.just(Tuples.of(branch.getT1(), inContext, Optional.of(nextOutput)));
@@ -446,19 +442,20 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 			Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
 
-			if (this.debugMode) {
-
-				this.sb.append(DEBUG_STEP)
-						.append(s.getStatementName())
-						.append(" => ")
-						.append(s.getNamespace())
-						.append('.')
-						.append(s.getName())
-						.append("\n");
-				this.sb.append("Arguments : \n")
-						.append(arguments)
-						.append("\n");
+			// Start debug step tracking
+			String stepId = null;
+			if (inContext.getDebugCollector() != null) {
+				String kirunFunctionName = this.fd.getNamespace() != null
+						? this.fd.getNamespace() + "." + this.fd.getName()
+						: this.fd.getName();
+				stepId = inContext.getDebugCollector().startStep(
+						s.getStatementName(),
+						s.getNamespace() + "." + s.getName(),
+						arguments,
+						kirunFunctionName);
 			}
+
+			final String finalStepId = stepId; // For lambda capture
 
 			Map<String, ContextElement> context = inContext.getContext();
 
@@ -479,6 +476,13 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 												.equals(ContextTokenValueExtractor.PREFIX))
 								.collect(Collectors.toMap(TokenValueExtractor::getPrefix,
 										java.util.function.Function.identity())));
+
+				// Reuse debug collector for nested KIRuntime calls
+				com.fincity.nocode.kirun.engine.runtime.debug.DebugCollector collector = inContext
+						.getDebugCollector();
+				if (collector != null) {
+					fep.setDebugCollector(collector);
+				}
 			} else {
 				fep = new ReactiveFunctionExecutionParameters(inContext.getFunctionRepository(),
 						inContext.getSchemaRepository(), inContext.getExecutionId())
@@ -492,65 +496,65 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 						.setExecutionContext(inContext.getExecutionContext());
 			}
 
-			return fun.execute(fep);
-		})
-				.flatMap(result -> {
+			return fun.execute(fep)
+					.doOnError(error -> {
+						// End debug step with error
+						if (inContext.getDebugCollector() != null && finalStepId != null) {
+							inContext.getDebugCollector().endStep(
+									finalStepId,
+									"error",
+									null,
+									error.getMessage());
+						}
+					})
+					.flatMap(result -> {
 
-					EventResult er = result.next();
+						EventResult er = result.next();
 
-					if (er == null)
-						return Mono.error(new KIRuntimeException(
-								StringFormatter.format("Executing $ returned no events", s.getStatementName())));
+						if (er == null)
+							return Mono.error(new KIRuntimeException(
+									StringFormatter.format("Executing $ returned no events", s.getStatementName())));
 
-					boolean isOutput = er.getName()
-							.equals(Event.OUTPUT);
+						boolean isOutput = er.getName()
+								.equals(Event.OUTPUT);
 
-					inContext.getSteps()
-							.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
-							.put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
+						inContext.getSteps()
+								.computeIfAbsent(s.getStatementName(), k -> new ConcurrentHashMap<>())
+								.put(er.getName(), resolveInternalExpressions(er.getResult(), inContext));
 
-					if (this.debugMode) {
+						// End debug step with success
+						if (inContext.getDebugCollector() != null && finalStepId != null) {
+							inContext.getDebugCollector().endStep(
+									finalStepId,
+									er.getName(),
+									inContext.getSteps().get(s.getStatementName()).get(er.getName()),
+									null);
+						}
 
-						this.sb.append(DEBUG_STEP)
-								.append(s.getStatementName())
-								.append(" => ")
-								.append(s.getNamespace())
-								.append('.')
-								.append(s.getName())
-								.append("\n");
+						if (!isOutput) {
 
-						this.sb.append("Event :")
-								.append(er.getName())
-								.append("\n")
-								.append(inContext.getSteps()
-										.get(s.getStatementName())
-										.get(er.getName()))
-								.append("\n");
-					}
+							var subGraph = vertex.getSubGraphOfType(er.getName());
+							List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph)
+									.getT1();
+							branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
+						} else {
 
-					if (!isOutput) {
-
-						var subGraph = vertex.getSubGraphOfType(er.getName());
-						List<Tuple2<String, String>> unResolvedDependencies = this.makeEdges(subGraph)
-								.getT1();
-						branchQue.add(Tuples.of(subGraph, unResolvedDependencies, result, vertex));
-					} else {
-
-						Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
-								.get(Event.OUTPUT);
-						if (out != null) {
-							// Synchronize access to executionQue to avoid race conditions in parallel execution
-							synchronized (executionQue) {
-								out.stream()
-										.filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
-										.forEach(executionQue::add);
+							Set<GraphVertex<String, StatementExecution>> out = vertex.getOutVertices()
+									.get(Event.OUTPUT);
+							if (out != null) {
+								// Synchronize access to executionQue to avoid race conditions in parallel execution
+								synchronized (executionQue) {
+									out.stream()
+											.filter(e -> this.allDependenciesResolved(e, inContext.getSteps()))
+											.forEach(executionQue::add);
+								}
 							}
 						}
-					}
 
-					return Mono.just(true);
+						return Mono.just(true);
 
-				});
+					});
+		});
 	}
 
 	private Map<String, JsonElement> resolveInternalExpressions(Map<String, JsonElement> result,
@@ -959,7 +963,13 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 	}
 
-	public String getDebugString() {
-		return this.sb.toString();
+	/**
+	 * Get the execution log after execution completes.
+	 * Only available if debugMode was enabled in constructor.
+	 *
+	 * @return ExecutionLog with all step details, or null if debug mode is off
+	 */
+	public com.fincity.nocode.kirun.engine.runtime.debug.ExecutionLog getExecutionLog() {
+		return this.debugCollector != null ? this.debugCollector.getExecutionLog() : null;
 	}
 }

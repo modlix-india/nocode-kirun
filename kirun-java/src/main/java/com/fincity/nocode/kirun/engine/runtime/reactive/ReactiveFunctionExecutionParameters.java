@@ -39,6 +39,8 @@ public class ReactiveFunctionExecutionParameters {
 
 	private HashMap<String, TokenValueExtractor> valueExtractors = new HashMap<>();
 
+	private com.fincity.nocode.kirun.engine.runtime.debug.DebugCollector debugCollector;
+
 	public ReactiveFunctionExecutionParameters(ReactiveRepository<ReactiveFunction> functionRepository,
 	        ReactiveRepository<Schema> schemaRepository) {
 		this(functionRepository, schemaRepository, UUID.randomUUID()

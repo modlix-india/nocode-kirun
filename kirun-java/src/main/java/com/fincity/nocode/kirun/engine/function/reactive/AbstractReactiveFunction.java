@@ -10,6 +10,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutput;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.runtime.StatementExecution;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.ErrorMessageFormatter;
 import com.fincity.nocode.kirun.engine.util.arguments.ReactiveArgumentsValidationUtil;
 
 import reactor.core.publisher.Mono;
@@ -34,15 +35,21 @@ public abstract class AbstractReactiveFunction implements ReactiveFunction {
 		} catch (Exception sve) {
 			FunctionSignature signature = this.getSignature();
 
-			String statementName = "Unknown Step";
+			String statementName = null;
 			StatementExecution statementExecution = context.getStatementExecution();
 			if (statementExecution != null && statementExecution.getStatement() != null)
 				statementName = statementExecution.getStatement()
 				        .getStatementName();
 
-			throw new KIRuntimeException("Error while executing the function " + signature.getNamespace() + "."
-			        + signature.getName() + " with step name '" + statementName + "' with error : " + sve.getMessage(),
-			        sve);
+			String functionName = ErrorMessageFormatter.formatFunctionName(
+			        signature.getNamespace(), signature.getName());
+			String formattedStatementName = ErrorMessageFormatter.formatStatementName(statementName);
+			String errorMessage = ErrorMessageFormatter.buildFunctionExecutionError(
+			        functionName,
+			        formattedStatementName,
+			        ErrorMessageFormatter.formatErrorMessage(sve));
+
+			throw new KIRuntimeException(errorMessage, sve);
 		}
 	}
 

@@ -188,14 +188,30 @@ class ReactiveKIRuntimeWithDefinitionOneTest {
 
 		results.onErrorContinue((e, x) -> {
 			System.out.println("Output : " + e);
-			System.out.println(first.getDebugString());
+			var executionLog = first.getExecutionLog();
+			if (executionLog != null) {
+				System.out.println("Execution Log:");
+				System.out.println("  Execution ID: " + executionLog.getExecutionId());
+				System.out.println("  Start Time: " + executionLog.getStartTime());
+				System.out.println("  End Time: " + executionLog.getEndTime());
+				System.out.println("  Errored: " + executionLog.isErrored());
+				System.out.println("  Logs: " + executionLog.getLogs().size());
+			}
 		});
 
 		StepVerifier.create(results.map(FunctionOutput::next)
 		        .map(EventResult::getResult)
 		        .map(e -> e.get("aresult"))
-		        .map(JsonElement::getAsInt))
+		        .map(JsonElement::getAsInt)
+				.map(e -> {
+
+					first.getExecutionLog().getLogs().forEach(l -> System.out.println(l.toString()));
+
+					return e;
+				}))
 		        .expectNext(4)
 		        .verifyComplete();
+
+		
 	}
 }
