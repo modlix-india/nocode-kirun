@@ -1,3 +1,4 @@
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 import { SchemaType } from '../type/SchemaType';
@@ -15,7 +16,7 @@ export class NumberValidator {
         if (typeof element !== 'number')
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not a ' + type,
+                `Expected a ${type} but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         let n: number = NumberValidator.extractNumber(type, parents, schema, element);

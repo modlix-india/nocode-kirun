@@ -1,4 +1,5 @@
 import { Repository } from '../../../Repository';
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { AdditionalType, Schema } from '../Schema';
 import { SchemaUtil } from '../SchemaUtil';
@@ -24,7 +25,7 @@ export class ObjectValidator {
         if (typeof element !== 'object' || Array.isArray(element))
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not an Object',
+                `Expected an object but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         let jsonObject: any = element;

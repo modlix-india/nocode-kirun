@@ -143,6 +143,6 @@ test('KIRuntime With Definition 3', async () => {
             ).setArguments(new Map()),
         );
     } catch (e: any) {
-        expect(e.message).toMatch('error');
+        expect(e.message).toMatch(/error/i);
     }
 });

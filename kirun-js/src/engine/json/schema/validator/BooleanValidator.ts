@@ -1,3 +1,4 @@
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { Schema } from '../Schema';
 import { SchemaValidationException } from './exception/SchemaValidationException';
@@ -14,7 +15,7 @@ export class BooleanValidator {
         if (typeof element !== 'boolean')
             throw new SchemaValidationException(
                 SchemaValidator.path(parents),
-                element.toString() + ' is not a boolean',
+                `Expected a boolean but found ${ErrorMessageFormatter.formatValue(element)}`,
             );
 
         return element;
