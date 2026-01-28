@@ -1,5 +1,13 @@
 import { DebugCollector } from './DebugInfo';
-import type { ExecutionLog, LogEntry } from './types';
+import type {
+    ExecutionLog,
+    LogEntry,
+    DebugEventListener,
+    ExecutionStartEvent,
+    ExecutionEndEvent,
+    LogAddedEvent,
+    ExecutionErroredEvent,
+} from './types';
 
 /**
  * Global debug collector singleton for tracking all function executions
@@ -11,6 +19,7 @@ export class GlobalDebugCollector {
     private executionOrder: string[] = [];
     private enabled: boolean = false;
     private readonly maxExecutions: number = 10;
+    private readonly listeners: Set<DebugEventListener> = new Set();
 
     private constructor() {}
 
@@ -66,9 +75,10 @@ export class GlobalDebugCollector {
 
         // Initialize execution log if it doesn't exist
         if (!this.executions.has(executionId)) {
+            const startTime = Date.now();
             this.executions.set(executionId, {
                 executionId,
-                startTime: Date.now(),
+                startTime,
                 errored: false,
                 logs: [],
             });
@@ -79,6 +89,16 @@ export class GlobalDebugCollector {
                 const oldestId = this.executionOrder.shift()!;
                 this.executions.delete(oldestId);
             }
+
+            // Emit execution start event
+            this.emitEvent({
+                type: 'executionStart',
+                executionId,
+                timestamp: startTime,
+                data: {
+                    functionName,
+                },
+            });
         }
 
         return new DebugCollector(this, executionId, functionName);
@@ -92,6 +112,16 @@ export class GlobalDebugCollector {
         const execution = this.executions.get(executionId);
         if (execution) {
             execution.logs.push(log);
+
+            // Emit log added event
+            this.emitEvent({
+                type: 'logAdded',
+                executionId,
+                timestamp: Date.now(),
+                data: {
+                    log,
+                },
+            });
         }
     }
 
@@ -101,7 +131,19 @@ export class GlobalDebugCollector {
     public endExecution(executionId: string): void {
         const execution = this.executions.get(executionId);
         if (execution) {
-            execution.endTime = Date.now();
+            const endTime = Date.now();
+            execution.endTime = endTime;
+
+            // Emit execution end event
+            this.emitEvent({
+                type: 'executionEnd',
+                executionId,
+                timestamp: endTime,
+                data: {
+                    duration: endTime - execution.startTime,
+                    errored: execution.errored,
+                },
+            });
         }
     }
 
@@ -112,6 +154,13 @@ export class GlobalDebugCollector {
         const execution = this.executions.get(executionId);
         if (execution) {
             execution.errored = true;
+
+            // Emit execution errored event
+            this.emitEvent({
+                type: 'executionErrored',
+                executionId,
+                timestamp: Date.now(),
+            });
         }
     }
 
@@ -211,5 +260,52 @@ export class GlobalDebugCollector {
      */
     public getExecutionCount(): number {
         return this.executions.size;
+    }
+
+    /**
+     * Add an event listener
+     * @param listener - Callback function to be called when events occur
+     * @returns Function to remove the listener
+     */
+    public addEventListener(listener: DebugEventListener): () => void {
+        this.listeners.add(listener);
+        return () => this.removeEventListener(listener);
+    }
+
+    /**
+     * Remove an event listener
+     * @param listener - Listener to remove
+     */
+    public removeEventListener(listener: DebugEventListener): void {
+        this.listeners.delete(listener);
+    }
+
+    /**
+     * Remove all event listeners
+     */
+    public removeAllEventListeners(): void {
+        this.listeners.clear();
+    }
+
+    /**
+     * Emit an event to all listeners
+     * @param event - Event to emit
+     * @private
+     */
+    private emitEvent(
+        event:
+            | ExecutionStartEvent
+            | ExecutionEndEvent
+            | LogAddedEvent
+            | ExecutionErroredEvent,
+    ): void {
+        this.listeners.forEach((listener) => {
+            try {
+                listener(event);
+            } catch (error) {
+                // Catch errors in listeners to prevent breaking the collector
+                console.error('Error in debug event listener:', error);
+            }
+        });
     }
 }

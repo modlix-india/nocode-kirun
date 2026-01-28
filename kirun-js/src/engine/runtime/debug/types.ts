@@ -32,3 +32,61 @@ export interface IDebugCollectorCallbacks {
     addLog(executionId: string, log: LogEntry): void;
     markExecutionErrored(executionId: string): void;
 }
+
+/**
+ * Debug event types
+ */
+export type DebugEventType = 'executionStart' | 'executionEnd' | 'logAdded' | 'executionErrored';
+
+/**
+ * Debug event data
+ */
+export interface DebugEvent {
+    type: DebugEventType;
+    executionId: string;
+    timestamp: number;
+    data?: any;
+}
+
+/**
+ * Execution start event
+ */
+export interface ExecutionStartEvent extends DebugEvent {
+    type: 'executionStart';
+    data: {
+        functionName: string;
+    };
+}
+
+/**
+ * Execution end event
+ */
+export interface ExecutionEndEvent extends DebugEvent {
+    type: 'executionEnd';
+    data: {
+        duration: number;
+        errored: boolean;
+    };
+}
+
+/**
+ * Log added event
+ */
+export interface LogAddedEvent extends DebugEvent {
+    type: 'logAdded';
+    data: {
+        log: LogEntry;
+    };
+}
+
+/**
+ * Execution errored event
+ */
+export interface ExecutionErroredEvent extends DebugEvent {
+    type: 'executionErrored';
+}
+
+/**
+ * Debug event listener callback
+ */
+export type DebugEventListener = (event: DebugEvent) => void;
