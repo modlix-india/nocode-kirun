@@ -24,6 +24,7 @@ export * from './engine/runtime/graph/ExecutionGraph';
 export * from './engine/runtime/KIRuntime';
 export * from './engine/runtime/StatementMessageType';
 export * from './engine/runtime/FunctionExecutionParameters';
+export * from './engine/runtime/debug';
 export * from './engine/runtime/expression/Expression';
 export * from './engine/runtime/expression/tokenextractor/TokenValueExtractor';
 export * from './engine/runtime/expression/tokenextractor/LiteralTokenValueExtractor';

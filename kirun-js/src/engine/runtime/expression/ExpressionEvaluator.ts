@@ -426,25 +426,38 @@ export class ExpressionEvaluator {
         valuesMap: Map<string, TokenValueExtractor>,
         tuples: LinkedList<Tuple2<number, number>>,
     ): string {
-        let newExpression = expression;
+        // Sort tuples by start position in descending order (rightmost first)
+        // This way, when we replace from right to left, the indices of tuples
+        // to the left remain valid
+        const tuplesArray = tuples.toArray().sort((a, b) => b.getT1() - a.getT1());
 
-        for (let tuple of tuples.toArray()) {
+        let result = expression;
+
+        for (let tuple of tuplesArray) {
             if (tuple.getT2() == -1)
                 throw new ExpressionEvaluationException(
                     expression,
                     'Expecting }} nesting path operator to be closed',
                 );
 
-            let expStr: string = new ExpressionEvaluator(
-                newExpression.substring(tuple.getT1(), tuple.getT2()),
-            ).evaluate(valuesMap);
+            // Extract the expression content from the ORIGINAL expression
+            const innerExpr = expression.substring(tuple.getT1(), tuple.getT2());
 
-            newExpression =
-                newExpression.substring(0, tuple.getT1() - 2) +
-                expStr +
-                newExpression.substring(tuple.getT2() + 2);
+            // Evaluate the inner expression
+            let expStr: string = new ExpressionEvaluator(innerExpr).evaluate(valuesMap);
+
+            // Convert to string to handle non-string evaluation results
+            expStr = String(expStr);
+
+            // Apply replacement to result string
+            // Since we process right to left, indices for tuples to the left remain valid
+            const startPos = tuple.getT1() - 2;  // Include opening {{
+            const endPos = tuple.getT2() + 2;     // Include closing }}
+
+            result = result.substring(0, startPos) + expStr + result.substring(endPos);
         }
-        return newExpression;
+
+        return result;
     }
 
     public getExpression(): Expression {
