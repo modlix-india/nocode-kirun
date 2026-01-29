@@ -24,7 +24,7 @@ test('schema Object validator test boolean value', async () => {
 
     expect(
         SchemaValidator.validate([], schema!, repo, { name: 'Kiran', lastName: 'Grandhi' }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });
 
 test('schema Object validator test schema based', async () => {
@@ -48,7 +48,7 @@ test('schema Object validator test schema based', async () => {
             num: 23,
             lastName: 'grandhi',
         }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });
 
 test('schema Object validator test boolean value old style', async () => {
@@ -64,7 +64,7 @@ test('schema Object validator test boolean value old style', async () => {
 
     expect(
         SchemaValidator.validate([], schema!, repo, { name: 'Kiran', lastName: 'Grandhi' }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });
 
 test('schema Object validator test schema based old style', async () => {
@@ -88,7 +88,7 @@ test('schema Object validator test schema based old style', async () => {
             num: 23,
             lastName: 'grandhi',
         }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });
 
 test('schema Object validator test schema based old ARRAY style', async () => {
@@ -108,7 +108,7 @@ test('schema Object validator test schema based old ARRAY style', async () => {
             num: 23,
             lastName: 'grandhi',
         }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });
 
 test('schema Object validator test schema based old Object style', async () => {

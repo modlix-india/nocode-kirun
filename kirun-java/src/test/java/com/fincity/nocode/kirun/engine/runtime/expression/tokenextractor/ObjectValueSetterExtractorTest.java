@@ -40,6 +40,14 @@ class ObjectValueSetterExtractorTest {
 
         assertEquals(objExtractor.getValue("Store.addresses[0].city"), new JsonPrimitive("Bengaluru"));
 
+        // Test creating a new array when path has array access operator
+        objExtractor.setValue("Store.otherAddress[1].country", new JsonPrimitive("USA"), null, null);
+        assertEquals(objExtractor.getValue("Store.otherAddress[1].country"), new JsonPrimitive("USA"));
+
+        // Test creating a new object when path has object access
+        objExtractor.setValue("Store.otherSingleAddress.country", new JsonPrimitive("USA"), null, null);
+        assertEquals(objExtractor.getValue("Store.otherSingleAddress.country"), new JsonPrimitive("USA"));
+
         objExtractor.setValue("Store.plain[0]", new JsonPrimitive("123"), null, null);
 
         JsonArray arr = new JsonArray();
@@ -63,7 +71,7 @@ class ObjectValueSetterExtractorTest {
         Set<String> keys = objExtractor.getValue("Store").isJsonObject() ? storeObject.getAsJsonObject().keySet()
                 : null;
 
-        Set<String> expectedKeys = Set.of("name", "addresses", "phone");
+        Set<String> expectedKeys = Set.of("name", "addresses", "phone", "otherAddress", "otherSingleAddress");
 
         assertEquals(keys, expectedKeys);
 

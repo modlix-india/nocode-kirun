@@ -55,5 +55,5 @@ test('wait test error with negative number', async () => {
 
     expect(
         waitFunction.execute(fep.setArguments(new Map([['millis', waitTime]]))),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });

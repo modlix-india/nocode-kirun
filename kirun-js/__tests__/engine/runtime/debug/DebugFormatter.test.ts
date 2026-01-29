@@ -1,33 +1,30 @@
-import {
-    DebugFormatter,
-    GlobalDebugCollector,
-} from '../../../../src/engine/runtime/debug';
+import { DebugCollector, DebugFormatter } from '../../../../src/engine/runtime/debug';
 
 describe('DebugFormatter', () => {
-    let globalCollector: GlobalDebugCollector;
+    let collector: DebugCollector;
 
     beforeEach(() => {
-        globalCollector = GlobalDebugCollector.getInstance();
-        globalCollector.clearAll();
-        globalCollector.enable();
+        collector = DebugCollector.getInstance();
+        collector.clear();
+        collector.enable();
     });
 
     afterEach(() => {
-        globalCollector.disable();
-        globalCollector.clearAll();
+        collector.disable();
+        collector.clear();
     });
 
-    test('should format debug info as text', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+    test('should format execution as text', () => {
+        collector.startExecution('test-eid', 'System.Test.Function');
 
-        const step1 = collector!.startStep('step1', 'System.Math.Add');
-        collector!.endStep(step1, 'output', { result: 3 });
+        const step1 = collector.startStep('test-eid', 'step1', 'System.Math.Add');
+        collector.endStep('test-eid', step1!, 'output', { result: 3 });
 
-        const step2 = collector!.startStep('step2', 'System.Math.Multiply');
-        collector!.endStep(step2, 'output', { result: 6 });
+        const step2 = collector.startStep('test-eid', 'step2', 'System.Math.Multiply');
+        collector.endStep('test-eid', step2!, 'output', { result: 6 });
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const text = DebugFormatter.formatAsText(debugInfo!);
+        const execution = collector.getExecution('test-eid');
+        const text = DebugFormatter.formatAsText(execution!);
 
         expect(text).toContain('test-eid');
         expect(text).toContain('step1');
@@ -37,66 +34,33 @@ describe('DebugFormatter', () => {
         expect(text).toMatch(/Duration: \d+ms/);
     });
 
-    test('should format debug info as JSON', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+    test('should format execution with error status', () => {
+        collector.startExecution('test-eid', 'System.Test.Function');
 
-        const step1 = collector!.startStep('step1', 'System.Math.Add');
-        collector!.endStep(step1, 'output', { result: 3 });
+        const stepId = collector.startStep('test-eid', 'failingStep', 'System.Test.Failing');
+        collector.endStep('test-eid', stepId!, 'error', undefined, 'Something went wrong');
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const json = DebugFormatter.formatAsJSON(debugInfo!);
+        const execution = collector.getExecution('test-eid');
+        const text = DebugFormatter.formatAsText(execution!);
 
-        expect(() => JSON.parse(json)).not.toThrow();
-
-        const parsed = JSON.parse(json);
-        expect(parsed.executionId).toBe('test-eid');
-        expect(parsed.logs).toHaveLength(1);
-        expect(parsed.logs[0].statementName).toBe('step1');
-    });
-
-    test('should format single step', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
-
-        const stepId = collector!.startStep('testStep', 'System.Test.TestFunction');
-        collector!.endStep(stepId, 'output', { value: 42 });
-
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const stepText = DebugFormatter.formatStep(debugInfo!.logs[0]);
-
-        expect(stepText).toContain('testStep');
-        expect(stepText).toContain('System.Test.TestFunction');
-        expect(stepText).toContain('output');
-        expect(stepText).toMatch(/\d+ms/);
-    });
-
-    test('should format step with error', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
-
-        const stepId = collector!.startStep('failingStep', 'System.Test.Failing');
-        collector!.endStep(stepId, 'error', undefined, 'Something went wrong');
-
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const stepText = DebugFormatter.formatStep(debugInfo!.logs[0]);
-
-        expect(stepText).toContain('❌ ERROR');
-        expect(stepText).toContain('Something went wrong');
-        expect(stepText).toContain('error');
+        expect(text).toContain('❌');
+        expect(text).toContain('Error: Something went wrong');
     });
 
     test('should get execution timeline in chronological order', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+        collector.startExecution('test-eid', 'System.Test.Function');
 
-        const step1 = collector!.startStep('step1', 'Function1');
-        collector!.endStep(step1, 'output');
+        const step1 = collector.startStep('test-eid', 'step1', 'Function1');
+        collector.endStep('test-eid', step1!, 'output');
 
-        const step2 = collector!.startStep('step2', 'Function2');
-        collector!.endStep(step2, 'output');
+        const step2 = collector.startStep('test-eid', 'step2', 'Function2');
+        collector.endStep('test-eid', step2!, 'output');
 
-        const step3 = collector!.startStep('step3', 'Function3');
-        collector!.endStep(step3, 'output');
+        const step3 = collector.startStep('test-eid', 'step3', 'Function3');
+        collector.endStep('test-eid', step3!, 'output');
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const timeline = DebugFormatter.getExecutionTimeline(debugInfo!);
+        const execution = collector.getExecution('test-eid');
+        const timeline = DebugFormatter.getTimeline(execution!);
 
         expect(timeline).toHaveLength(3);
         expect(timeline[0].statementName).toBe('step1');
@@ -110,18 +74,18 @@ describe('DebugFormatter', () => {
     });
 
     test('should get timeline including nested calls', () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+        collector.startExecution('test-eid', 'System.Test.Function');
 
-        const step1 = collector!.startStep('step1', 'Function1');
+        const step1 = collector.startStep('test-eid', 'step1', 'Function1');
 
         // Add nested call in same execution
-        const step2 = collector!.startStep('nestedStep', 'Nested.Internal');
-        collector!.endStep(step2, 'output');
+        const step2 = collector.startStep('test-eid', 'nestedStep', 'Nested.Internal');
+        collector.endStep('test-eid', step2!, 'output');
 
-        collector!.endStep(step1, 'output');
+        collector.endStep('test-eid', step1!, 'output');
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const timeline = DebugFormatter.getExecutionTimeline(debugInfo!);
+        const execution = collector.getExecution('test-eid');
+        const timeline = DebugFormatter.getTimeline(execution!);
 
         // Should include both parent and nested steps
         expect(timeline.length).toBe(2);
@@ -130,22 +94,22 @@ describe('DebugFormatter', () => {
     });
 
     test('should get performance summary', async () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+        collector.startExecution('test-eid', 'System.Test.Function');
 
-        const step1 = collector!.startStep('fastStep', 'Function1');
+        const step1 = collector.startStep('test-eid', 'fastStep', 'Function1');
         await new Promise((resolve) => setTimeout(resolve, 5));
-        collector!.endStep(step1, 'output');
+        collector.endStep('test-eid', step1!, 'output');
 
-        const step2 = collector!.startStep('slowStep', 'Function2');
+        const step2 = collector.startStep('test-eid', 'slowStep', 'Function2');
         await new Promise((resolve) => setTimeout(resolve, 50));
-        collector!.endStep(step2, 'output');
+        collector.endStep('test-eid', step2!, 'output');
 
-        const step3 = collector!.startStep('mediumStep', 'Function3');
+        const step3 = collector.startStep('test-eid', 'mediumStep', 'Function3');
         await new Promise((resolve) => setTimeout(resolve, 20));
-        collector!.endStep(step3, 'output');
+        collector.endStep('test-eid', step3!, 'output');
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const summary = DebugFormatter.getPerformanceSummary(debugInfo!);
+        const execution = collector.getExecution('test-eid');
+        const summary = DebugFormatter.getPerformanceSummary(execution!);
 
         expect(summary.stepCount).toBe(3);
         expect(summary.totalDuration).toBeGreaterThan(0);
@@ -154,32 +118,45 @@ describe('DebugFormatter', () => {
 
         // Slowest step should be first
         expect(summary.slowestSteps[0].statementName).toBe('slowStep');
-        expect(summary.slowestSteps[0].duration!).toBeGreaterThan(
-            summary.slowestSteps[1].duration!,
-        );
+        expect(summary.slowestSteps[0].duration!).toBeGreaterThan(summary.slowestSteps[1].duration!);
     });
 
-    test('should format performance summary as text', async () => {
-        const collector = globalCollector.createCollector('test-eid', 'System.Test', 'Function');
+    test('should format hierarchical logs correctly', () => {
+        collector.startExecution('test-eid', 'Parent.Function');
 
-        const step1 = collector!.startStep('step1', 'Function1');
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        collector!.endStep(step1, 'output');
+        const parentStep = collector.startStep('test-eid', 'parentStep', 'Parent.Function');
+        const childStep = collector.startStep('test-eid', 'childStep', 'Child.Function');
+        const grandchildStep = collector.startStep('test-eid', 'grandchildStep', 'Grandchild.Function');
 
-        const step2 = collector!.startStep('step2', 'Function2');
-        await new Promise((resolve) => setTimeout(resolve, 20));
-        collector!.endStep(step2, 'output');
+        collector.endStep('test-eid', grandchildStep!, 'output');
+        collector.endStep('test-eid', childStep!, 'output');
+        collector.endStep('test-eid', parentStep!, 'output');
 
-        const debugInfo = globalCollector.getDebugInfoByExecutionId('test-eid');
-        const summary = DebugFormatter.getPerformanceSummary(debugInfo!);
-        const summaryText = DebugFormatter.formatPerformanceSummary(summary);
+        const execution = collector.getExecution('test-eid');
+        const text = DebugFormatter.formatAsText(execution!);
 
-        expect(summaryText).toContain('Performance Summary');
-        expect(summaryText).toContain('Total Duration');
-        expect(summaryText).toContain('Step Count: 2');
-        expect(summaryText).toContain('Average Duration');
-        expect(summaryText).toContain('Slowest Steps');
-        expect(summaryText).toContain('step1');
-        expect(summaryText).toContain('step2');
+        // Should contain all step names with proper indentation
+        expect(text).toContain('parentStep');
+        expect(text).toContain('childStep');
+        expect(text).toContain('grandchildStep');
+
+        // Timeline should flatten all logs
+        const timeline = DebugFormatter.getTimeline(execution!);
+        expect(timeline).toHaveLength(3);
+    });
+
+    test('should handle empty execution', () => {
+        collector.startExecution('test-eid', 'System.Test.Function');
+
+        const execution = collector.getExecution('test-eid');
+        const text = DebugFormatter.formatAsText(execution!);
+        const timeline = DebugFormatter.getTimeline(execution!);
+        const summary = DebugFormatter.getPerformanceSummary(execution!);
+
+        expect(text).toContain('test-eid');
+        expect(text).toContain('Steps: 0');
+        expect(timeline).toHaveLength(0);
+        expect(summary.stepCount).toBe(0);
+        expect(summary.averageDuration).toBe(0);
     });
 });

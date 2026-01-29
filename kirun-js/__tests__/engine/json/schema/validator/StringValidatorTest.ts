@@ -137,5 +137,5 @@ test('String custom message', async () => {
     })
 
     expect(async () => SchemaValidator.validate([], schema!, undefined, "asdf"))
-        .rejects.toThrowError("You must enter something with minimum of ten characters");
+        .rejects.toThrow("You must enter something with minimum of ten characters");
 });

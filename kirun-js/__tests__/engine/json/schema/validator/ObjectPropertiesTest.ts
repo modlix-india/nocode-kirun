@@ -19,5 +19,5 @@ test('schema Object validator test schema based old ARRAY style', async () => {
             num: 23,
             lastName: 'grandhi',
         }),
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });

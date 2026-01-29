@@ -77,5 +77,5 @@ test('Count Loop4', async () => {
                 ).setArguments(new Map([])),
             );
         })
-    ).rejects.toThrowError();
+    ).rejects.toThrow();
 });

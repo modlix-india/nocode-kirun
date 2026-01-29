@@ -4,7 +4,15 @@
       "Bash(tree:*)",
       "Bash(cat:*)",
       "Bash(npm run build:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm test:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn:*)",
+      "Bash(npx jest --clearCache)",
+      "Bash(npm install:*)",
+      "Bash(kill:*)",
+      "Bash(node -e:*)",
+      "Bash(grep:*)"
     ]
   }
 }

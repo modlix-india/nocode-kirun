@@ -37,6 +37,12 @@ test('ObjectValueSetterExtractor Test', async () => {
     extractor.setValue('Store.addresses[0].city', 'Bengaluru');
     expect(extractor.getValue('Store.addresses[0].city')).toStrictEqual('Bengaluru');
 
+    extractor.setValue('Store.otherAddress[1].country', 'USA');
+    expect(extractor.getValue('Store.otherAddress[1].country')).toStrictEqual('USA');
+
+    extractor.setValue('Store.otherSingleAddress.country', 'USA');
+    expect(extractor.getValue('Store.otherSingleAddress.country')).toStrictEqual('USA');
+
     extractor.setValue('Store.plain[0]', '123');
     expect(extractor.getValue('Store.plain')).toMatchObject(['123', 2, 3, 4]);
 
@@ -44,7 +50,7 @@ test('ObjectValueSetterExtractor Test', async () => {
     expect(extractor.getValue('Store.plain')).toMatchObject(['123', 2, 3, 4]);
 
     extractor.setValue('Store.plain', undefined, true, true);
-    expect(Object.keys(extractor.getValue('Store'))).toMatchObject(['name', 'addresses', 'phone']);
+    expect(Object.keys(extractor.getValue('Store'))).toMatchObject(['name', 'addresses', 'phone', 'otherAddress', 'otherSingleAddress']);
 
     extractor.setValue('Store.plain', 'plainString', false, false);
     expect(extractor.getValue('Store.plain')).toStrictEqual('plainString');

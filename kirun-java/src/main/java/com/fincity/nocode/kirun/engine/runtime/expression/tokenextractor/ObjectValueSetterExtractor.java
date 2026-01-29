@@ -75,9 +75,22 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
             
             for (int j = 0; j < segments.length; j++) {
                 String segment = segments[j];
-                boolean isLastSegment = (i == parts.length - 2 && j == segments.length - 1);
-                Operation nextOp = isLastSegment ? getOpForSegment(parts[parts.length - 1]) : getOpForSegment(nextPart);
-                
+                boolean isLastSegmentOfPart = (j == segments.length - 1);
+
+                Operation nextOp;
+                if (isLastSegmentOfPart) {
+                    // This is the last segment of this part, look at the next part
+                    boolean isLastPart = (i == parts.length - 2);
+                    if (isLastPart) {
+                        nextOp = getOpForSegment(parts[parts.length - 1]);
+                    } else {
+                        nextOp = getOpForSegment(nextPart);
+                    }
+                } else {
+                    // There are more segments in this part, look at the next segment
+                    nextOp = isArrayIndex(segments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
+                }
+
                 if (isArrayIndex(segment)) {
                     el = getDataFromArray(el, segment, nextOp);
                 } else {

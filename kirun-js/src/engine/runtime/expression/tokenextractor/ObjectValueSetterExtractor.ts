@@ -65,9 +65,22 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
             
             for (let j = 0; j < segments.length; j++) {
                 const segment = segments[j];
-                const isLastSegment = (i === parts.length - 2 && j === segments.length - 1);
-                const nextOp = isLastSegment ? this.getOpForSegment(parts[parts.length - 1]) : this.getOpForSegment(nextPart);
-                
+                const isLastSegmentOfPart = (j === segments.length - 1);
+
+                let nextOp: Operation;
+                if (isLastSegmentOfPart) {
+                    // This is the last segment of this part, look at the next part
+                    const isLastPart = (i === parts.length - 2);
+                    if (isLastPart) {
+                        nextOp = this.getOpForSegment(parts[parts.length - 1]);
+                    } else {
+                        nextOp = this.getOpForSegment(nextPart);
+                    }
+                } else {
+                    // There are more segments in this part, look at the next segment
+                    nextOp = this.isArrayIndex(segments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
+                }
+
                 if (this.isArrayIndex(segment)) {
                     el = this.getDataFromArray(el, segment, nextOp);
                 } else {

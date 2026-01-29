@@ -1,15 +1,4 @@
-export type {
-    LogEntry,
-    ExecutionLog,
-    DebugEventType,
-    DebugEvent,
-    ExecutionStartEvent,
-    ExecutionEndEvent,
-    LogAddedEvent,
-    ExecutionErroredEvent,
-    DebugEventListener,
-} from './types';
-export { DebugCollector } from './DebugInfo';
+export type { LogEntry, ExecutionLog, DebugEventType, DebugEventListener } from './types';
+export { DebugCollector } from './DebugCollector';
 export { DebugFormatter } from './DebugFormatter';
 export type { PerformanceSummary } from './DebugFormatter';
-export { GlobalDebugCollector } from './GlobalDebugCollector';
