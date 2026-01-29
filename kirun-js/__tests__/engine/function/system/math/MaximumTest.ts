@@ -35,5 +35,5 @@ test('Minimum Test 3', () => {
     )
 
     expect(async () => (await max.execute(fep)).allResults()[0].getResult().get('value')).rejects
-        .toThrowError("Error while executing the function System.Math.Maximum's parameter value [Expected: Integer | Long | Float | Double]: Value \"-1\" is not of valid type(s)\nExpected a Double but found \"-1\"\nExpected a Float but found \"-1\"\nExpected a Long but found \"-1\"\nExpected a Integer but found \"-1\"");
+        .toThrow("Error while executing the function System.Math.Maximum's parameter value [Expected: Integer | Long | Float | Double]: Value \"-1\" is not of valid type(s)\nExpected a Double but found \"-1\"\nExpected a Float but found \"-1\"\nExpected a Long but found \"-1\"\nExpected a Integer but found \"-1\"");
 })

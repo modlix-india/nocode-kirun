@@ -12,5 +12,5 @@ test('Check for valid Custom Messages in Numerical values', async () => {
     });
 
     expect(async () => SchemaValidator.validate([], schema!, undefined, -23))
-        .rejects.toThrowError("Minimum value is 10");
+        .rejects.toThrow("Minimum value is 10");
 });
