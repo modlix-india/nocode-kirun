@@ -7,7 +7,6 @@ import { TokenValueExtractor } from './expression/tokenextractor/TokenValueExtra
 import { StatementExecution } from './StatementExecution';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
-import { DebugCollector } from './debug/DebugInfo';
 
 export class FunctionExecutionParameters {
     private context?: Map<string, ContextElement>;
@@ -22,7 +21,6 @@ export class FunctionExecutionParameters {
     private executionContext: Map<string, any> = new Map();
 
     private valueExtractors: Map<string, TokenValueExtractor> = new Map();
-    private debugCollector?: DebugCollector;
 
     public constructor(
         functionRepository: Repository<Function>,
@@ -133,12 +131,4 @@ export class FunctionExecutionParameters {
         return this.executionContext;
     }
 
-    public getDebugCollector(): DebugCollector | undefined {
-        return this.debugCollector;
-    }
-
-    public setDebugCollector(collector: DebugCollector): this {
-        this.debugCollector = collector;
-        return this;
-    }
 }
