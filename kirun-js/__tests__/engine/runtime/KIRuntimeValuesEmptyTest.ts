@@ -94,7 +94,7 @@ test('KIRuntime With Definition no values passed ', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        expect(mock).toBeCalledTimes(4);
+        expect(mock).toHaveBeenCalledTimes(4);
     } catch (e: any) {
         console.error(e);
     }
@@ -136,7 +136,7 @@ test('KIRuntime With Definition with no value passed', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        expect(mock).toBeCalledTimes(8);
+        expect(mock).toHaveBeenCalledTimes(8);
     } catch (e: any) {
         console.error(e);
     }
@@ -179,7 +179,7 @@ test('KIRuntime With Definition with no value and values passed', async () => {
                 new KIRunSchemaRepository(),
             ).setArguments(new Map()),
         );
-        expect(mock).toBeCalledTimes(12);
+        expect(mock).toHaveBeenCalledTimes(12);
     } catch (e: any) {
         console.error(e);
     }

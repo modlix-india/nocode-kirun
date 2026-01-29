@@ -213,5 +213,5 @@ test('KIRuntime With Definition 1', async () => {
 
     const runtime = new KIRuntime(fd, false);
 
-    await expect(() => runtime.execute(fep)).rejects.toThrowError();
+    await expect(() => runtime.execute(fep)).rejects.toThrow();
 });

@@ -96,7 +96,7 @@ test('Testing for length expression in string', () => {
     let ev: ExpressionEvaluator = new ExpressionEvaluator('Arguments.a.length');
     expect(ev.evaluate(valuesMap)).toBe(6);
     ev = new ExpressionEvaluator('Arguments.b.length');
-    expect(() => ev.evaluate(valuesMap)).toThrowError();
+    expect(() => ev.evaluate(valuesMap)).toThrow();
     ev = new ExpressionEvaluator('Arguments.c.a.length * "f"');
     expect(ev.evaluate(valuesMap)).toBe('fffff');
     ev = new ExpressionEvaluator('Arguments.c.b.length ? "f" : "t"');

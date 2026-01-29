@@ -35,7 +35,7 @@ test('schema array validator tuple schema test for additional items with boolean
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
 test('schema array validator tuple schema test for additional items with boolean true datatype', async () => {
@@ -69,7 +69,7 @@ test('schema array validator test for additional items with boolean false differ
     });
     let obj = [1, 2, 3, 4, 'stringtype', true];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
 test('schema array validator test for additional items with boolean true different datatype', async () => {
@@ -87,7 +87,7 @@ test('schema array validator test for additional items with boolean true differe
 
     let obj = [1, 2, 3, 'stringtype', true];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
 test('schema array validator tuple schema test for additional items with boolean different datatype', async () => {
@@ -113,7 +113,7 @@ test('schema array validator tuple schema test for additional items with boolean
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
 test('multi level validation inner object pollution test', async () => {

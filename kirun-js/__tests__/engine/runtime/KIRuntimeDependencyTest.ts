@@ -60,7 +60,7 @@ test('KIRuntime With ExecuteIfTrue 1', async () => {
         ),
     );
 
-    expect(mock).toBeCalledTimes(2);
+    expect(mock).toHaveBeenCalledTimes(2);
 
     let newDef = {
         name: 'getAppData',
@@ -114,5 +114,5 @@ test('KIRuntime With ExecuteIfTrue 1', async () => {
         ),
     );
 
-    expect(mock).toBeCalledTimes(3);
+    expect(mock).toHaveBeenCalledTimes(3);
 });

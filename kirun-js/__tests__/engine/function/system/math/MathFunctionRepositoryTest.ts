@@ -30,7 +30,7 @@ test('Test Math Functions 2', () => {
             ?.allResults()[0]
             ?.getResult()
             ?.get('value'),
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
         'Error while executing the function System.Math.Absolute\'s parameter value [Expected: Integer | Long | Float | Double]: Value \"-1.2\" is not of valid type(s)\nExpected a Double but found \"-1.2\"\nExpected a Float but found \"-1.2\"\nExpected a Long but found \"-1.2\"\nExpected a Integer but found \"-1.2\"',
     );
 });
@@ -110,7 +110,7 @@ test('test Math Functions 8', () => {
             ?.allResults()[0]
             ?.getResult()
             ?.get('value'),
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
         'Error while executing the function System.Math.Power\'s parameter value1 [Expected: Integer | Long | Float | Double]: Value "1" is not of valid type(s)\nExpected a Double but found "1"\nExpected a Float but found "1"\nExpected a Long but found "1"\nExpected a Integer but found "1"',
     );
 });

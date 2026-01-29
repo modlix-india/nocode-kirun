@@ -166,7 +166,7 @@ test('schema array validator tuple schema with json object', async () => {
 
     let obj = [1, 'asd', { val: 'stringtype' }, 'stringOnemore'];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
 
 test('schema array validator tuple schema similar to json object', async () => {
@@ -187,5 +187,5 @@ test('schema array validator tuple schema similar to json object', async () => {
 
     let obj = [1, 'asd', true, { val: 'stringtype' }, false];
 
-    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrowError();
+    expect(SchemaValidator.validate([], schema, repo, obj)).rejects.toThrow();
 });
