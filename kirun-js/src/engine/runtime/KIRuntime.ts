@@ -31,7 +31,7 @@ import { ArraySchemaType } from '../json/schema/array/ArraySchemaType';
 import { ArgumentsTokenValueExtractor } from './tokenextractor/ArgumentsTokenValueExtractor';
 import { OutputMapTokenValueExtractor } from './tokenextractor/OutputMapTokenValueExtractor';
 import { ContextTokenValueExtractor } from './tokenextractor/ContextTokenValueExtractor';
-import { GlobalDebugCollector } from './debug/GlobalDebugCollector';
+import { DebugCollector } from './debug/DebugCollector';
 
 export class KIRuntime extends AbstractFunction {
     private static readonly PARAMETER_NEEDS_A_VALUE: string = 'Parameter "$" needs a value';
@@ -59,7 +59,7 @@ export class KIRuntime extends AbstractFunction {
 
         // Enable/disable global debug collector based on debug mode
         if (this.debugMode) {
-            GlobalDebugCollector.getInstance().enable();
+            DebugCollector.getInstance().enable();
         }
 
         if (this.fd.getVersion() > KIRuntime.VERSION) {
@@ -136,17 +136,12 @@ export class KIRuntime extends AbstractFunction {
         }
 
         if (this.debugMode) {
-            // Create collector only if one doesn't exist yet (nested calls reuse parent collector)
-            if (!inContext.getDebugCollector()) {
-                const collector = GlobalDebugCollector.getInstance().createCollector(
-                    inContext.getExecutionId(),
-                    this.fd.getNamespace(),
-                    this.fd.getName(),
-                );
-                if (collector) {
-                    inContext.setDebugCollector(collector);
-                }
-            }
+            // Start execution tracking with function definition
+            const functionName = this.fd.getNamespace()
+                ? `${this.fd.getNamespace()}.${this.fd.getName()}`
+                : this.fd.getName();
+            const definition = this.serializeFunctionDefinition(this);
+            DebugCollector.getInstance().startExecution(inContext.getExecutionId(), functionName, definition);
         }
 
         let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
@@ -162,7 +157,7 @@ export class KIRuntime extends AbstractFunction {
         if (messages?.length) {
             // Mark execution as errored before throwing
             if (this.debugMode) {
-                GlobalDebugCollector.getInstance().markExecutionErrored(inContext.getExecutionId());
+                DebugCollector.getInstance().markErrored(inContext.getExecutionId());
             }
             throw new KIRuntimeException(
                 'Please fix the errors in the function definition before execution : \n' +
@@ -175,7 +170,7 @@ export class KIRuntime extends AbstractFunction {
         } catch (error) {
             // Mark execution as errored
             if (this.debugMode) {
-                GlobalDebugCollector.getInstance().markExecutionErrored(inContext.getExecutionId());
+                DebugCollector.getInstance().markErrored(inContext.getExecutionId());
             }
             throw error; // Re-throw to maintain existing error behavior
         }
@@ -232,7 +227,7 @@ export class KIRuntime extends AbstractFunction {
 
         // Mark execution as complete
         if (this.debugMode) {
-            GlobalDebugCollector.getInstance().endExecution(inContext.getExecutionId());
+            DebugCollector.getInstance().endExecution(inContext.getExecutionId());
         }
 
         return functionOutput;
@@ -446,11 +441,14 @@ export class KIRuntime extends AbstractFunction {
 
         // Record step start
         let stepId: string | undefined;
-        if (inContext.getDebugCollector()) {
+        const debugCollector = this.debugMode ? DebugCollector.getInstance() : undefined;
+        if (debugCollector?.isEnabled()) {
             const kirunFunctionName = this.fd.getNamespace()
                 ? `${this.fd.getNamespace()}.${this.fd.getName()}`
                 : this.fd.getName();
-            stepId = inContext.getDebugCollector()!.startStep(
+
+            stepId = debugCollector.startStep(
+                inContext.getExecutionId(),
                 s.getStatementName(),
                 `${s.getNamespace()}.${s.getName()}`,
                 args,
@@ -480,12 +478,6 @@ export class KIRuntime extends AbstractFunction {
                             .map((e) => [e.getPrefix(), e]),
                     ),
                 );
-
-            // Reuse the same collector for nested KIRuntime calls
-            const collector = inContext.getDebugCollector();
-            if (collector) {
-                fep.setDebugCollector(collector);
-            }
         } else {
             fep = new FunctionExecutionParameters(
                 inContext.getFunctionRepository(),
@@ -527,8 +519,8 @@ export class KIRuntime extends AbstractFunction {
             const executionError = error?.message || String(error);
 
             // Record step end with error
-            if (inContext.getDebugCollector() && stepId) {
-                inContext.getDebugCollector()!.endStep(stepId, 'error', undefined, executionError);
+            if (debugCollector && stepId) {
+                debugCollector.endStep(inContext.getExecutionId(), stepId, 'error', undefined, executionError);
             }
 
             // Re-throw the error to maintain existing error behavior
@@ -536,14 +528,13 @@ export class KIRuntime extends AbstractFunction {
         }
 
         // Record step end for successful execution
-        if (inContext.getDebugCollector() && stepId) {
-            inContext.getDebugCollector()!.endStep(
+        if (debugCollector && stepId) {
+            debugCollector.endStep(
+                inContext.getExecutionId(),
                 stepId,
                 er.getName(),
                 inContext.getSteps()!.get(s.getStatementName())!.get(er.getName()),
             );
-            // No nested retrieval needed - logs are already written to GlobalDebugCollector
-            // during execution under the same execution ID
         }
 
         let isOutput: boolean = er.getName() == Event.OUTPUT;
@@ -916,5 +907,66 @@ export class KIRuntime extends AbstractFunction {
         }
 
         return new Tuple2(retValue, retMap);
+    }
+
+    /**
+     * Serialize a FunctionDefinition for debug logging
+     * @param fun - The function to serialize (must be KIRuntime)
+     * @returns Serialized function definition
+     */
+    private serializeFunctionDefinition(fun: Function): any {
+        const sig = fun.getSignature();
+
+        const params = sig.getParameters();
+        const events = sig.getEvents();
+
+        const definition: any = {
+            name: sig.getName(),
+            namespace: sig.getNamespace(),
+            parameters: params
+                ? Object.fromEntries(
+                      Array.from(params.entries()).map(([k, v]) => [
+                          k,
+                          {
+                              parameterName: v.getParameterName(),
+                              schema: v.getSchema(),
+                              variableArgument: v.isVariableArgument(),
+                          },
+                      ]),
+                  )
+                : undefined,
+            events: events
+                ? Object.fromEntries(
+                      Array.from(events.entries()).map(([k, v]) => [
+                          k,
+                          { name: v.getName(), parameters: v.getParameters() },
+                      ]),
+                  )
+                : undefined,
+        };
+
+        // Add steps for KIRuntime functions (FunctionDefinition)
+        if (fun instanceof KIRuntime) {
+            const fd = fun.getSignature() as FunctionDefinition;
+            const steps = fd.getSteps();
+            definition.version = fd.getVersion?.();
+            definition.steps = steps
+                ? Object.fromEntries(
+                      Array.from(steps.entries()).map(([k, v]) => [
+                          k,
+                          {
+                              statementName: v.getStatementName(),
+                              namespace: v.getNamespace(),
+                              name: v.getName(),
+                              parameterMap: v.getParameterMap()
+                                  ? Object.fromEntries(v.getParameterMap())
+                                  : undefined,
+                          },
+                      ]),
+                  )
+                : undefined;
+        }
+
+        return definition;
     }
 }

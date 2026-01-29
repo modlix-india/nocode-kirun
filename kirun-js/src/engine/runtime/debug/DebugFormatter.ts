@@ -1,8 +1,5 @@
-import { ExecutionLog, LogEntry } from './types';
+import type { ExecutionLog, LogEntry } from './types';
 
-/**
- * Performance summary for execution
- */
 export interface PerformanceSummary {
     totalDuration: number;
     stepCount: number;
@@ -10,143 +7,64 @@ export interface PerformanceSummary {
     averageDuration: number;
 }
 
-/**
- * Utility class for formatting debug information
- */
 export class DebugFormatter {
-    /**
-     * Format debug info as text
-     * @param executionLog - The execution log to format
-     * @param indent - Indentation level (default: 0)
-     * @returns Formatted string
-     */
-    public static formatAsText(executionLog: ExecutionLog, indent: number = 0): string {
-        const indentStr = '  '.repeat(indent);
+    static formatAsText(execution: ExecutionLog): string {
         const lines: string[] = [];
+        const duration = execution.endTime
+            ? execution.endTime - execution.startTime
+            : Date.now() - execution.startTime;
+        const status = execution.errored ? '❌' : '✓';
 
-        const duration = executionLog.endTime
-            ? executionLog.endTime - executionLog.startTime
-            : Date.now() - executionLog.startTime;
-        const status = executionLog.errored ? '❌' : '✓';
-
-        lines.push(
-            `${indentStr}${status} Execution: ${executionLog.executionId}`,
-        );
-
-        const endTimeStr = executionLog.endTime
-            ? ` - ${new Date(executionLog.endTime).toISOString()}`
-            : ' - ongoing';
-        lines.push(
-            `${indentStr}Duration: ${duration}ms (${new Date(executionLog.startTime).toISOString()}${endTimeStr})`,
-        );
-        lines.push(`${indentStr}Steps: ${executionLog.logs.length}`);
+        lines.push(`${status} Execution: ${execution.executionId}`);
+        lines.push(`Duration: ${duration}ms`);
+        lines.push(`Steps: ${this.flatten(execution.logs).length}`);
         lines.push('');
 
-        for (const log of executionLog.logs) {
-            lines.push(this.formatStep(log, indent + 1));
-        }
-
+        this.formatLogs(execution.logs, lines, 0);
         return lines.join('\n');
     }
 
-    /**
-     * Format debug info as JSON
-     * @param executionLog - The execution log to format
-     * @returns JSON string
-     */
-    public static formatAsJSON(executionLog: ExecutionLog): string {
-        return JSON.stringify(executionLog, null, 2);
+    static getTimeline(execution: ExecutionLog): LogEntry[] {
+        return this.flatten(execution.logs).sort((a, b) => a.timestamp - b.timestamp);
     }
 
-    /**
-     * Format a single log entry
-     * @param log - The log entry
-     * @param indent - Indentation level (default: 0)
-     * @returns Formatted string
-     */
-    public static formatStep(log: LogEntry, indent: number = 0): string {
-        const indentStr = '  '.repeat(indent);
-        const lines: string[] = [];
-
-        const status = log.error ? '❌ ERROR' : '✓';
-        const duration = log.duration ?? 0;
-        const statementName = log.statementName || '(no statement)';
-
-        lines.push(
-            `${indentStr}${status} ${statementName} => ${log.functionName} (${duration}ms)`,
-        );
-
-        if (log.eventName) {
-            lines.push(`${indentStr}  Event: ${log.eventName}`);
-        }
-
-        if (log.error) {
-            lines.push(`${indentStr}  Error: ${log.error}`);
-        }
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Get execution timeline (all logs in chronological order)
-     * @param executionLog - The execution log
-     * @returns Array of logs sorted by timestamp
-     */
-    public static getExecutionTimeline(executionLog: ExecutionLog): LogEntry[] {
-        // Logs are already flat and chronological, just return sorted by timestamp
-        return [...executionLog.logs].sort((a, b) => a.timestamp - b.timestamp);
-    }
-
-    /**
-     * Get performance summary
-     * @param executionLog - The execution log
-     * @returns Performance summary
-     */
-    public static getPerformanceSummary(executionLog: ExecutionLog): PerformanceSummary {
-        const logs = executionLog.logs;
-        const stepCount = logs.length;
-        const totalDuration = executionLog.endTime
-            ? executionLog.endTime - executionLog.startTime
-            : Date.now() - executionLog.startTime;
-        const averageDuration = stepCount > 0 ? totalDuration / stepCount : 0;
-
-        // Get top 10 slowest steps
-        const slowestSteps = [...logs]
-            .filter(log => log.duration !== undefined)
-            .sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))
-            .slice(0, 10);
+    static getPerformanceSummary(execution: ExecutionLog): PerformanceSummary {
+        const logs = this.flatten(execution.logs);
+        const totalDuration = execution.endTime
+            ? execution.endTime - execution.startTime
+            : Date.now() - execution.startTime;
 
         return {
             totalDuration,
-            stepCount,
-            slowestSteps,
-            averageDuration,
+            stepCount: logs.length,
+            averageDuration: logs.length > 0 ? totalDuration / logs.length : 0,
+            slowestSteps: [...logs]
+                .filter((l) => l.duration != null)
+                .sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))
+                .slice(0, 10),
         };
     }
 
-    /**
-     * Format performance summary as text
-     * @param summary - The performance summary
-     * @returns Formatted string
-     */
-    public static formatPerformanceSummary(summary: PerformanceSummary): string {
-        const lines: string[] = [];
-
-        lines.push('Performance Summary:');
-        lines.push(`  Total Duration: ${summary.totalDuration}ms`);
-        lines.push(`  Step Count: ${summary.stepCount}`);
-        lines.push(`  Average Duration: ${summary.averageDuration.toFixed(2)}ms`);
-        lines.push('');
-        lines.push('Slowest Steps:');
-
-        for (let i = 0; i < summary.slowestSteps.length; i++) {
-            const log = summary.slowestSteps[i];
-            const statementName = log.statementName || '(no statement)';
-            lines.push(
-                `  ${i + 1}. ${statementName} => ${log.functionName}: ${log.duration ?? 0}ms`,
-            );
+    private static formatLogs(logs: LogEntry[], lines: string[], depth: number): void {
+        const indent = '  '.repeat(depth);
+        for (const log of logs) {
+            const status = log.error ? '❌' : '✓';
+            const name = log.statementName || '(anonymous)';
+            lines.push(`${indent}${status} ${name} => ${log.functionName} (${log.duration ?? 0}ms)`);
+            if (log.error) lines.push(`${indent}  Error: ${log.error}`);
+            if (log.children.length) this.formatLogs(log.children, lines, depth + 1);
         }
+    }
 
-        return lines.join('\n');
+    private static flatten(logs: LogEntry[]): LogEntry[] {
+        const result: LogEntry[] = [];
+        const visit = (entries: LogEntry[]) => {
+            for (const log of entries) {
+                result.push(log);
+                if (log.children.length) visit(log.children);
+            }
+        };
+        visit(logs);
+        return result;
     }
 }
