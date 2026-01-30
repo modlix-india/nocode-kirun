@@ -235,30 +235,6 @@ class ExpressionParsingTest {
 		assertEquals(new JsonPrimitive(7 * 86400), ev.evaluate(valuesMap));
 	}
 
-	@Test
-	void parseExpressionWithSpaceBeforePropertyAfterDot() {
-		// Expression has space before "Percentage" (after the dot): value. Percentage
-		// Verifies path segments are trimmed so " Percentage" resolves to "Percentage"
-		com.google.gson.JsonArray perCount = new com.google.gson.JsonArray();
-		JsonObject item0 = new JsonObject();
-		JsonObject value0 = new JsonObject();
-		value0.addProperty("Percentage", 10);
-		item0.add("value", value0);
-		perCount.add(item0);
-
-		JsonObject parentData = new JsonObject();
-		parentData.add("perCount", perCount);
-
-		PrefixJsonTokenValueExtractor parentExtractor = new PrefixJsonTokenValueExtractor("Parent.", parentData);
-		Map<String, TokenValueExtractor> valuesMap = Map.of(parentExtractor.getPrefix(), parentExtractor);
-
-		String expr = "Parent.perCount[0].value. Percentage + '%'";
-		Expression expression = new Expression(expr);
-		assertNotNull(expression);
-
-		ExpressionEvaluator ev = new ExpressionEvaluator(expr);
-		assertEquals(new JsonPrimitive("10%"), ev.evaluate(valuesMap));
-	}
 
 	@Test
 	void expressionToStringPreservesStructure() {
@@ -299,7 +275,6 @@ class ExpressionParsingTest {
 		String[] expressions = {
 			"Steps.floorWeekOne.output.value * {{Page.secondsInDay}}",
 			"Parent.projectInfo.projectType?? '-'",
-			"Parent.perCount[Parent.Parent.__index].value. Percentage + '%'",
 			"Page.dealData.size <  Page.dealData.totalElements",
 			"(Page.userFirstName??'') +' '+ (Page.userLastName??'')"
 		};

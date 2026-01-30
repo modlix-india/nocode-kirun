@@ -387,18 +387,6 @@ describe('Original Expression Parsing Tests', () => {
         expect(expr.toString()).toContain('??');
     });
 
-    test('Expression 3: Parent.perCount[Parent.Parent.__index].value. Percentage + \'%\'', () => {
-        // This expression has:
-        // 1. Dynamic array index with path expression
-        // 2. Space before "Percentage" (after the dot)
-        // 3. String concatenation with '%'
-        const expression = "Parent.perCount[Parent.Parent.__index].value. Percentage + '%'";
-
-        // Verify parsing succeeds (space before property name is handled)
-        const expr = new Expression(expression);
-        expect(expr).toBeDefined();
-    });
-
     test('Expression 4: Page.dealData.size <  Page.dealData.totalElements', () => {
         // This expression has extra space in the less-than comparison
         const expression = 'Page.dealData.size <  Page.dealData.totalElements';
@@ -415,7 +403,6 @@ describe('Original Expression Parsing Tests', () => {
         const expressions = [
             'Steps.floorWeekOne.output.value * {{Page.secondsInDay}}',
             "Parent.projectInfo.projectType?? '-'",
-            "Parent.perCount[Parent.Parent.__index].value. Percentage + '%'",
             'Page.dealData.size <  Page.dealData.totalElements',
             'Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.value ?? {{Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.location.expression}}',
         ];
