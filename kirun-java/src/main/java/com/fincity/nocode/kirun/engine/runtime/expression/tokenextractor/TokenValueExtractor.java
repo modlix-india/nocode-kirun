@@ -56,9 +56,10 @@ public abstract class TokenValueExtractor {
                 // - Quoted keys with dots: ["mail.props.port"]
                 // - Dynamic expressions: [Steps.loop.iteration.index]
                 if (!inBracket) {
-                    // Found a separator dot
+                    // Found a separator dot; trim segments so "value. Percentage" resolves to "Percentage"
                     if (i > start) {
-                        parts.add(token.substring(start, i));
+                        String segment = token.substring(start, i).trim();
+                        parts.add(segment);
                     }
                     start = i + 1;
                 }
@@ -67,7 +68,7 @@ public abstract class TokenValueExtractor {
 
         // Add the last part
         if (start < token.length()) {
-            parts.add(token.substring(start));
+            parts.add(token.substring(start).trim());
         }
 
         return parts.toArray(new String[0]);

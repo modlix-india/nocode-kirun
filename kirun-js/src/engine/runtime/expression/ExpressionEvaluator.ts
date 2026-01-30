@@ -1,5 +1,4 @@
 import { ExecutionException } from '../../exception/ExecutionException';
-import { LinkedList } from '../../util/LinkedList';
 import { StringFormatter } from '../../util/string/StringFormatter';
 import { ExpressionEvaluationException } from './exception/ExpressionEvaluationException';
 import { Expression } from './Expression';
@@ -356,33 +355,33 @@ export class ExpressionEvaluator {
             this.expression,
             valuesMap,
         );
-        
-        this.expression = tuple.getT1();
-        this.exp = tuple.getT2();
-        
+        // Use local expanded form so each evaluate() re-expands with current valuesMap (do not mutate this.expression)
+        const expandedExpression = tuple.getT1();
+        const expandedExp = tuple.getT2();
+
         // Detect pattern type for fast path routing
-        const pattern = ExpressionEvaluator.detectPattern(this.exp);
-        
+        const pattern = ExpressionEvaluator.detectPattern(expandedExp);
+
         // Fast path 1: Literals (true, false, numbers, strings)
         if (pattern === ExpressionEvaluator.PATTERN_LITERAL) {
-            return ExpressionEvaluator.evaluateLiteral(this.expression);
+            return ExpressionEvaluator.evaluateLiteral(expandedExpression);
         }
-        
+
         // Fast path 2: Simple paths (Store.path.to.value)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_PATH) {
-            return this.evaluateSimplePath(this.exp, valuesMap);
+            return this.evaluateSimplePath(expandedExp, valuesMap);
         }
-        
+
         // Fast path 3: Simple comparison (path = value)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_COMPARISON) {
-            return this.evaluateSimpleComparison(this.exp, valuesMap);
+            return this.evaluateSimpleComparison(expandedExp, valuesMap);
         }
-        
+
         // Fast path 4: Simple ternary (condition ? value1 : value2)
         if (pattern === ExpressionEvaluator.PATTERN_SIMPLE_TERNARY) {
-            return this.evaluateSimpleTernary(this.exp, valuesMap);
+            return this.evaluateSimpleTernary(expandedExp, valuesMap);
         }
-        
+
         // Full evaluation path for complex expressions
         valuesMap = new Map(valuesMap.entries());
         valuesMap.set(
@@ -392,7 +391,7 @@ export class ExpressionEvaluator {
         // Also set valuesMap on the internal extractor
         this.internalTokenValueExtractor.setValuesMap(valuesMap);
 
-        return this.evaluateExpression(this.exp, valuesMap);
+        return this.evaluateExpression(expandedExp, valuesMap);
         }
         catch(err) {
             if (!(err as any)._exprErrorLogged) {
@@ -410,142 +409,126 @@ export class ExpressionEvaluator {
         expression: string,
         valuesMap: Map<string, TokenValueExtractor>,
     ): Tuple2<string, Expression> {
-        let start = 0;
+        // Recursively expand innermost {{ }} first, then step back: evaluate innermost,
+        // substitute into expression, repeat until no {{ }} left.
+        let current = expression;
+        while (current.includes('{{')) {
+            const innermost = this.findInnermostPair(current);
+            if (!innermost) break;
+            current = this.replaceOneNesting(current, innermost, valuesMap);
+        }
+        return new Tuple2(current, ExpressionEvaluator.getCachedExpression(current));
+    }
+
+    /**
+     * Finds the innermost {{ }} pair: one whose content does not contain {{.
+     * Returns { start, end, content } where start/end are indices (start of {{, end after }}).
+     */
+    private findInnermostPair(expr: string): { start: number; end: number; content: string } | null {
         let i = 0;
-
-        const tuples: LinkedList<Tuple2<number, number>> = new LinkedList();
-
-        while (i < expression.length - 1) {
-            if (expression.charAt(i) == '{' && expression.charAt(i + 1) == '{') {
-                if (start == 0) tuples.push(new Tuple2(i + 2, -1));
-
-                start++;
+        while (i < expr.length - 1) {
+            if (expr.charAt(i) !== '{' || expr.charAt(i + 1) !== '{') {
                 i++;
-            } else if (expression.charAt(i) == '}' && expression.charAt(i + 1) == '}') {
-                start--;
-
-                if (start < 0)
-                    throw new ExpressionEvaluationException(
-                        expression,
-                        'Expecting {{ nesting path operator to be started before closing',
-                    );
-
-                if (start == 0) {
-                    tuples.push(tuples.pop().setT2(i));
+                continue;
+            }
+            const openPos = i;
+            i += 2;
+            let depth = 1;
+            while (i < expr.length - 1 && depth > 0) {
+                if (expr.charAt(i) === '{' && expr.charAt(i + 1) === '{') {
+                    depth++;
+                    i += 2;
+                    continue;
+                }
+                if (expr.charAt(i) === '}' && expr.charAt(i + 1) === '}') {
+                    depth--;
+                    if (depth === 0) {
+                        const closePos = i + 2;
+                        const content = expr.substring(openPos + 2, i);
+                        if (!content.includes('{{')) {
+                            return { start: openPos, end: closePos, content };
+                        }
+                        const inner = this.findInnermostPair(content);
+                        if (!inner) {
+                            i += 2;
+                            continue;
+                        }
+                        return {
+                            start: openPos + 2 + inner.start,
+                            end: openPos + 2 + inner.end,
+                            content: inner.content,
+                        };
+                    }
+                    i += 2;
+                    continue;
                 }
                 i++;
             }
-            i++;
+            i = openPos + 1;
         }
-
-        let newExpression = this.replaceNestingExpression(expression, valuesMap, tuples);
-
-        return new Tuple2(newExpression, ExpressionEvaluator.getCachedExpression(newExpression));
+        return null;
     }
 
-    private replaceNestingExpression(
+    private replaceOneNesting(
         expression: string,
+        innermost: { start: number; end: number; content: string },
         valuesMap: Map<string, TokenValueExtractor>,
-        tuples: LinkedList<Tuple2<number, number>>,
     ): string {
-        // Sort tuples by start position in descending order (rightmost first)
-        // This way, when we replace from right to left, the indices of tuples
-        // to the left remain valid
-        const tuplesArray = tuples.toArray().sort((a, b) => b.getT1() - a.getT1());
-
-        // Fast path: no nested templates to replace
-        if (tuplesArray.length === 0) return expression;
-
-        let result = expression;
-
-        for (let tuple of tuplesArray) {
-            if (tuple.getT2() == -1)
-                throw new ExpressionEvaluationException(
-                    expression,
-                    'Expecting }} nesting path operator to be closed',
-                );
-
-            // Extract the expression content from the ORIGINAL expression
-            const innerExpr = expression.substring(tuple.getT1(), tuple.getT2());
-
-            const startPos = tuple.getT1() - 2;  // Include opening {{
-            const endPos = tuple.getT2() + 2;     // Include closing }}
-            
-            // Check context in the ORIGINAL expression
-            const afterContext = expression.substring(endPos, Math.min(endPos + 1, expression.length));
-            
-            const isInPath =
-                afterContext === '.' ||
-                afterContext === '[' ||
-                // If the template starts immediately after a '[' we are inside bracket access:
-                // e.g. Page.list[{{Parent.__index}}]
-                (startPos > 0 && expression.charAt(startPos - 1) === '[') ||
-                (startPos > 0 && expression.charAt(startPos - 1) === '.');
-            
-            // Check if we're inside a string literal by counting quotes before this position
-            let singleQuotes = 0;
-            let doubleQuotes = 0;
-            for (let i = 0; i < startPos; i++) {
-                if (expression.charAt(i) === "'" && (i === 0 || expression.charAt(i - 1) !== '\\')) {
-                    singleQuotes++;
-                } else if (expression.charAt(i) === '"' && (i === 0 || expression.charAt(i - 1) !== '\\')) {
-                    doubleQuotes++;
-                }
+        const { start: startPos, end: endPos, content: innerExpr } = innermost;
+        const afterContext = expression.substring(endPos, Math.min(endPos + 1, expression.length));
+        const isInPath =
+            afterContext === '.' ||
+            afterContext === '[' ||
+            (startPos > 0 && expression.charAt(startPos - 1) === '[') ||
+            (startPos > 0 && expression.charAt(startPos - 1) === '.');
+        let singleQuotes = 0;
+        let doubleQuotes = 0;
+        for (let idx = 0; idx < startPos; idx++) {
+            if (expression.charAt(idx) === "'" && (idx === 0 || expression.charAt(idx - 1) !== '\\')) {
+                singleQuotes++;
+            } else if (expression.charAt(idx) === '"' && (idx === 0 || expression.charAt(idx - 1) !== '\\')) {
+                doubleQuotes++;
             }
-            const isInStringLiteral = (singleQuotes % 2 === 1) || (doubleQuotes % 2 === 1);
-            
-            let evaluatedValue: any;
-            try {
-                // Create a nested evaluator that shares the same internal extractor
-                const nestedEvaluator = new ExpressionEvaluator(innerExpr);
-
-                // Replace the nested evaluator's internal extractor with our own so values are shared
-                (nestedEvaluator as any).internalTokenValueExtractor = this.internalTokenValueExtractor;
-
-                // Evaluate the inner expression
-                evaluatedValue = nestedEvaluator.evaluate(valuesMap);
-            } catch (err) {
-                const errKey = `${expression}|${innerExpr}`;
-                if (!ExpressionEvaluator.loggedErrorKeys.has(errKey)) {
-                    ExpressionEvaluator.loggedErrorKeys.add(errKey);
-                    const errInfo = {
-                        ORIGINAL: expression,
-                        FAILED_INNER: innerExpr,
-                        CONTEXT: { isInPath, isInStringLiteral, startPos, endPos },
-                        RESULT_SO_FAR: result,
-                        EXTRACTORS: Array.from(valuesMap.keys()),
-                        ERROR: String(err),
-                    };
-                    console.error('[EXPR ERROR : ]', JSON.stringify(errInfo, null, 2));
-                }
-                (err as any)._exprErrorLogged = true;
-                throw err;
-            }
-
-            // Check if evaluated value is a string that looks like a path reference
-            const isPathReference = typeof evaluatedValue === 'string' && 
-                                   Array.from(valuesMap.keys()).some(prefix => evaluatedValue.startsWith(prefix));
-            
-            // If it's in a path position, string literal, OR a path reference, convert to string (old behavior)
-            // Otherwise, store in internal extractor to preserve type
-            let replacement: string;
-            if (isInPath || isInStringLiteral || isPathReference) {
-                // Convert to string for path continuation, string literals, or path references
-                replacement = String(evaluatedValue);
-            } else {
-                // Store the evaluated value in the internal extractor with a unique key
-                // This preserves the type (number, boolean, object, etc.)
-                const key = `__nested_${ExpressionEvaluator.keyCounter++}__`;
-                this.internalTokenValueExtractor.addValue(key, evaluatedValue);
-                replacement = `${this.internalTokenValueExtractor.getPrefix()}${key}`;
-            }
-
-            // Apply replacement to result string
-            // Since we process right to left, indices for tuples to the left remain valid
-            result = result.substring(0, startPos) + replacement + result.substring(endPos);
         }
-        return result;
+        const isInStringLiteral = (singleQuotes % 2 === 1) || (doubleQuotes % 2 === 1);
+
+        let evaluatedValue: any;
+        try {
+            const nestedEvaluator = new ExpressionEvaluator(innerExpr);
+            (nestedEvaluator as any).internalTokenValueExtractor = this.internalTokenValueExtractor;
+            evaluatedValue = nestedEvaluator.evaluate(valuesMap);
+        } catch (err) {
+            const errKey = `${expression}|${innerExpr}`;
+            if (!ExpressionEvaluator.loggedErrorKeys.has(errKey)) {
+                ExpressionEvaluator.loggedErrorKeys.add(errKey);
+                console.error(
+                    '[EXPR ERROR : ]',
+                    JSON.stringify(
+                        { ORIGINAL: expression, FAILED_INNER: innerExpr, ERROR: String(err) },
+                        null,
+                        2,
+                    ),
+                );
+            }
+            (err as any)._exprErrorLogged = true;
+            throw err;
+        }
+
+        const isPathReference =
+            typeof evaluatedValue === 'string' &&
+            Array.from(valuesMap.keys()).some((prefix) => evaluatedValue.startsWith(prefix));
+        let replacement: string;
+        if (isInPath || isInStringLiteral || isPathReference) {
+            replacement = String(evaluatedValue);
+        } else {
+            const key = `__nested_${ExpressionEvaluator.keyCounter++}__`;
+            this.internalTokenValueExtractor.addValue(key, evaluatedValue);
+            replacement = `${this.internalTokenValueExtractor.getPrefix()}${key}`;
+        }
+
+        return expression.substring(0, startPos) + replacement + expression.substring(endPos);
     }
+
 
     public getExpression(): Expression {
         if (!this.exp) this.exp = ExpressionEvaluator.getCachedExpression(this.expression);
@@ -634,7 +617,7 @@ export class ExpressionEvaluator {
                 const token2: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token2);
                 let v2 = this.getValueFromToken(valuesMap, token);
-                workingStack.push(this.applyBinaryOperation(operator, v1, v2));
+                workingStack.push(this.applyBinaryOperation(operator, v1, v2, valuesMap));
             }
         }
         
@@ -930,7 +913,12 @@ export class ExpressionEvaluator {
         return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2, v3));
     }
 
-    private applyBinaryOperation(operator: Operation, v1: any, v2: any): ExpressionToken {
+    private applyBinaryOperation(
+        operator: Operation,
+        v1: any,
+        v2: any,
+        valuesMap?: Map<string, TokenValueExtractor>,
+    ): ExpressionToken {
         let typv1: string = typeof v1;
         let typv2: string = typeof v2;
 
@@ -965,7 +953,32 @@ export class ExpressionEvaluator {
                 ),
             );
 
-        return new ExpressionTokenValue(operator.toString(), op.apply(v1, v2));
+        let result = op.apply(v1, v2);
+
+        // When ?? yields a string that looks like an expression (e.g. from location.expression), evaluate it
+        if (
+            operator === Operation.NULLISH_COALESCING_OPERATOR &&
+            typeof result === 'string' &&
+            valuesMap &&
+            result.trim().length > 0 &&
+            this.looksLikeExpression(result)
+        ) {
+            try {
+                result = new ExpressionEvaluator(result).evaluate(valuesMap);
+            } catch {
+                // Keep original string if sub-expression fails
+            }
+        }
+
+        return new ExpressionTokenValue(operator.toString(), result);
+    }
+
+    private looksLikeExpression(str: string): boolean {
+        const trimmed = str.trim();
+        if (trimmed.length === 0) return false;
+        if (/[+\-*/%=<>!&|?:]/.test(trimmed)) return true;
+        const pathPrefixes = ['Store.', 'Context.', 'Arguments.', 'Steps.', 'Page.', 'Parent.'];
+        return pathPrefixes.some((prefix) => trimmed.includes(prefix));
     }
 
     private applyUnaryOperation(operator: Operation, value: any): ExpressionToken {

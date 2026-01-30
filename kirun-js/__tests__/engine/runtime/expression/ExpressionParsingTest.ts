@@ -417,6 +417,7 @@ describe('Original Expression Parsing Tests', () => {
             "Parent.projectInfo.projectType?? '-'",
             "Parent.perCount[Parent.Parent.__index].value. Percentage + '%'",
             'Page.dealData.size <  Page.dealData.totalElements',
+            'Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.value ?? {{Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.location.expression}}',
         ];
 
         for (const expression of expressions) {
@@ -557,7 +558,7 @@ describe('Original Expression Parsing Tests', () => {
 
     test('Expression 7: Nested dynamic bracket index', () => {
         const parentExtractor = new TestTokenValueExtractor('Parent.', { index: 1 });
-        const pageExtractor = new TestTokenValueExtractor('Page.', { 
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
             matrix: [
                 ['a', 'b', 'c'],
                 ['d', 'e', 'f'],
@@ -574,5 +575,87 @@ describe('Original Expression Parsing Tests', () => {
         const result = ev.evaluate(valuesMap);
 
         expect(result).toBe('e');
+    });
+
+    test('Expression 8: Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.value ?? {{Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.location.expression}}', () => {
+        // Expression: dynamic page key from urlDetails.pageName, nullish coalesce value with location.expression
+        const expression =
+            'Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.value ?? {{Store.pageDefinition.{{Store.urlDetails.pageName}}.properties.title.name.location.expression}}';
+
+        // Verify parsing succeeds
+        const expr = new Expression(expression);
+        expect(expr).toBeDefined();
+        expect(expr.getOperations().isEmpty()).toBe(false);
+
+        // Store with urlDetails.pageName = "home" and pageDefinition.home.properties.title.name.value present
+        const storeWithValue = new TestTokenValueExtractor('Store.', {
+            application: {
+                properties: {
+                    title: 'My Application Title',
+                },
+            },
+            urlDetails: { pageName: 'home' },
+            pageDefinition: {
+                home: {
+                    properties: {
+                        title: {
+                            name: {
+                                location: { expression: "'Application : ' + Store.application.properties.title" },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        const valuesMapWithValue: Map<string, TokenValueExtractor> = new Map([
+            [storeWithValue.getPrefix(), storeWithValue],
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        expect(ev.evaluate(valuesMapWithValue)).toBe('Application : My Application Title');
+
+        // Store with value null - should return location.expression
+        
+        const storeValueNull = new TestTokenValueExtractor('Store.', {
+            urlDetails: { pageName: 'home' },
+            pageDefinition: {
+                home: {
+                    properties: {
+                        title: {
+                            name: {
+                                value: null,
+                                location: { expression: 'Expression Fallback Title' },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        const valuesMapValueNull: Map<string, TokenValueExtractor> = new Map([
+            [storeValueNull.getPrefix(), storeValueNull],
+        ]);
+        expect(ev.evaluate(valuesMapValueNull)).toBe('Expression Fallback Title');
+
+        // Store with value missing (no .value key) - should return location.expression
+        // Use a fresh evaluator to avoid any cached expansion from previous evaluations
+        const storeValueMissing = new TestTokenValueExtractor('Store.', {
+            urlDetails: { pageName: 'home' },
+            pageDefinition: {
+                home: {
+                    properties: {
+                        title: {
+                            name: {
+                                location: { expression: 'Expression Fallback Title' },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        const valuesMapValueMissing: Map<string, TokenValueExtractor> = new Map([
+            [storeValueMissing.getPrefix(), storeValueMissing],
+        ]);
+        const evFresh = new ExpressionEvaluator(expression);
+        expect(evFresh.evaluate(valuesMapValueMissing)).toBe('Expression Fallback Title');
     });
 });
