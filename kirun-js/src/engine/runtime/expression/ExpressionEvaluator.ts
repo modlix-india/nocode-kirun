@@ -399,7 +399,7 @@ export class ExpressionEvaluator {
                 const errKey = `top|${this.expression}`;
                 if (!ExpressionEvaluator.loggedErrorKeys.has(errKey)) {
                     ExpressionEvaluator.loggedErrorKeys.add(errKey);
-                    console.error('[EXPR ERROR]', JSON.stringify({ EXPRESSION: this.expression, ERROR: String(err) }, null, 2));
+                    console.error('[EXPR ERROR : ]', JSON.stringify({ EXPRESSION: this.expression, ERROR: String(err) }, null, 2));
                 }
             }
             throw err;
@@ -516,7 +516,7 @@ export class ExpressionEvaluator {
                         EXTRACTORS: Array.from(valuesMap.keys()),
                         ERROR: String(err),
                     };
-                    console.error('[EXPR ERROR]', JSON.stringify(errInfo, null, 2));
+                    console.error('[EXPR ERROR : ]', JSON.stringify(errInfo, null, 2));
                 }
                 (err as any)._exprErrorLogged = true;
                 throw err;

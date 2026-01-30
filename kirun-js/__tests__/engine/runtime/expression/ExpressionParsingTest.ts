@@ -103,6 +103,49 @@ describe('Expression Parsing Tests', () => {
         expect(ev.evaluate(valuesMapMissing)).toBe('-');
     });
 
+    test("Parse expression with nullish coalescing and string concat: (Page.userFirstName??'') +' '+ (Page.userLastName??'')", () => {
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            userFirstName: 'John',
+            userLastName: 'Doe',
+        });
+
+        const valuesMap: Map<string, TokenValueExtractor> = new Map([
+            [pageExtractor.getPrefix(), pageExtractor],
+        ]);
+
+        const expr =
+            "(Page.userFirstName??'') +' '+ (Page.userLastName??'')";
+        expect(new Expression(expr)).toBeDefined();
+
+        const ev = new ExpressionEvaluator(expr);
+        expect(ev.evaluate(valuesMap)).toBe('John Doe');
+
+        // Both null/undefined - should return ' '
+        const pageExtractorEmpty = new TestTokenValueExtractor('Page.', {});
+        const valuesMapEmpty: Map<string, TokenValueExtractor> = new Map([
+            [pageExtractorEmpty.getPrefix(), pageExtractorEmpty],
+        ]);
+        expect(ev.evaluate(valuesMapEmpty)).toBe(' ');
+
+        // First name only
+        const pageExtractorFirst = new TestTokenValueExtractor('Page.', {
+            userFirstName: 'Jane',
+        });
+        const valuesMapFirst: Map<string, TokenValueExtractor> = new Map([
+            [pageExtractorFirst.getPrefix(), pageExtractorFirst],
+        ]);
+        expect(ev.evaluate(valuesMapFirst)).toBe('Jane ');
+
+        // Last name only
+        const pageExtractorLast = new TestTokenValueExtractor('Page.', {
+            userLastName: 'Smith',
+        });
+        const valuesMapLast: Map<string, TokenValueExtractor> = new Map([
+            [pageExtractorLast.getPrefix(), pageExtractorLast],
+        ]);
+        expect(ev.evaluate(valuesMapLast)).toBe(' Smith');
+    });
+
     test('Parse expression with dynamic array index and dot access: Parent.perCount[Parent.index].value.Percentage + \'%\'', () => {
         const parentExtractor = new TestTokenValueExtractor('Parent.', {
             perCount: [

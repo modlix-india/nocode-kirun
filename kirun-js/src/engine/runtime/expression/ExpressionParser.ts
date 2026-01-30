@@ -55,11 +55,23 @@ export class ExpressionParser {
 
     // Logical OR: expr or expr (precedence 11)
     private parseLogicalOr(): Expression {
-        let expr = this.parseLogicalAnd();
+        let expr = this.parseNullishCoalescing();
 
         while (this.matchOperator('or')) {
-            const right = this.parseLogicalAnd();
+            const right = this.parseNullishCoalescing();
             expr = new Expression('', expr, right, Operation.OR);
+        }
+
+        return expr;
+    }
+
+    // Nullish coalescing: expr ?? expr (precedence between OR and AND)
+    private parseNullishCoalescing(): Expression {
+        let expr = this.parseLogicalAnd();
+
+        while (this.matchOperator('??')) {
+            const right = this.parseLogicalAnd();
+            expr = new Expression('', expr, right, Operation.NULLISH_COALESCING_OPERATOR);
         }
 
         return expr;
@@ -482,13 +494,6 @@ export class ExpressionParser {
             const expr = this.parseExpression();
             this.expectToken(TokenType.RIGHT_PAREN);
             return expr;
-        }
-
-        // Nullish coalescing: ??
-        if (this.matchOperator('??')) {
-            const right = this.parsePrimary();
-            // This should be handled at a higher level, but for now we'll treat it here
-            return new Expression('', this.parsePrimary(), right, Operation.NULLISH_COALESCING_OPERATOR);
         }
 
         throw new ExpressionEvaluationException(
