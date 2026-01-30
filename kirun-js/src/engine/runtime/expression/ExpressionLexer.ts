@@ -101,6 +101,11 @@ export class ExpressionLexer {
                 this.pos++;
                 return new Token(TokenType.DOT, '.', startPos, this.pos);
             case '?':
+                // Check for ?? (nullish coalescing) before single ? (ternary)
+                if (this.pos + 1 < this.length && this.input[this.pos + 1] === '?') {
+                    this.pos += 2;
+                    return new Token(TokenType.OPERATOR, '??', startPos, this.pos);
+                }
                 this.pos++;
                 return new Token(TokenType.QUESTION, '?', startPos, this.pos);
             case ':':
