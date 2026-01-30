@@ -1,3 +1,4 @@
+import { FunctionDefinition } from '../../../../src/engine/model/FunctionDefinition';
 import { DebugCollector } from '../../../../src/engine/runtime/debug';
 
 describe('DebugCollector', () => {
@@ -138,7 +139,7 @@ describe('DebugCollector', () => {
     });
 
     test('should store definitions via startExecution', () => {
-        const definition = { name: 'TestFunc', steps: { step1: {} } };
+        const definition = { name: 'TestFunc', steps: { step1: {} } } as unknown as FunctionDefinition;
 
         // Start execution with definition
         collector.startExecution('test-eid', 'MyNamespace.TestFunc', definition);
@@ -154,8 +155,8 @@ describe('DebugCollector', () => {
     });
 
     test('should store multiple definitions for nested function calls', () => {
-        const parentDef = { name: 'Parent', steps: { callChild: {} } };
-        const childDef = { name: 'Child', steps: { doWork: {} } };
+        const parentDef = { name: 'Parent', steps: { callChild: {} } } as unknown as FunctionDefinition;
+        const childDef = { name: 'Child', steps: { doWork: {} } } as unknown as FunctionDefinition;
 
         // Parent function starts
         collector.startExecution('test-eid', 'App.Parent', parentDef);

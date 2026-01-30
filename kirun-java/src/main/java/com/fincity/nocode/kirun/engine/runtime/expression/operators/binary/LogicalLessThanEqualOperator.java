@@ -11,6 +11,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import reactor.util.function.Tuple2;
@@ -19,6 +20,9 @@ public class LogicalLessThanEqualOperator implements BinaryOperator {
 
 	@Override
 	public JsonElement apply(JsonElement t, JsonElement u) {
+		// When data is not ready (null/undefined), return null instead of throwing
+		if (t == null || t.isJsonNull() || u == null || u.isJsonNull())
+			return JsonNull.INSTANCE;
 
 		Tuple2<SchemaType, Object> tType = PrimitiveUtil.findPrimitiveNullAsBoolean(t);
 		Tuple2<SchemaType, Object> uType = PrimitiveUtil.findPrimitiveNullAsBoolean(u);

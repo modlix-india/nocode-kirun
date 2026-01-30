@@ -50,7 +50,10 @@ import { ExpressionInternalValueExtractor } from './tokenextractor/ExpressionInt
 export class ExpressionEvaluator {
     // Static cache for parsed expressions to avoid re-parsing the same expression
     private static expressionCache: Map<string, Expression> = new Map();
-    
+
+    // Dedupe error logging (same expression+inner can error many times in array contexts)
+    private static loggedErrorKeys: Set<string> = new Set();
+
     // Counter for generating unique keys (faster than Date.now() + random)
     private static keyCounter = 0;
 
@@ -343,6 +346,12 @@ export class ExpressionEvaluator {
     }
 
     public evaluate(valuesMap: Map<string, TokenValueExtractor>): any {
+        try{
+        // Set valuesMap on all extractors so they can resolve dynamic bracket indices
+        valuesMap.forEach(extractor => {
+            extractor.setValuesMap(valuesMap);
+        });
+
         const tuple: Tuple2<string, Expression> = this.processNestingExpression(
             this.expression,
             valuesMap,
@@ -380,8 +389,21 @@ export class ExpressionEvaluator {
             this.internalTokenValueExtractor.getPrefix(),
             this.internalTokenValueExtractor,
         );
+        // Also set valuesMap on the internal extractor
+        this.internalTokenValueExtractor.setValuesMap(valuesMap);
 
         return this.evaluateExpression(this.exp, valuesMap);
+        }
+        catch(err) {
+            if (!(err as any)._exprErrorLogged) {
+                const errKey = `top|${this.expression}`;
+                if (!ExpressionEvaluator.loggedErrorKeys.has(errKey)) {
+                    ExpressionEvaluator.loggedErrorKeys.add(errKey);
+                    console.error('[EXPR ERROR]', JSON.stringify({ EXPRESSION: this.expression, ERROR: String(err) }, null, 2));
+                }
+            }
+            throw err;
+        }
     }
 
     private processNestingExpression(
@@ -431,6 +453,9 @@ export class ExpressionEvaluator {
         // to the left remain valid
         const tuplesArray = tuples.toArray().sort((a, b) => b.getT1() - a.getT1());
 
+        // Fast path: no nested templates to replace
+        if (tuplesArray.length === 0) return expression;
+
         let result = expression;
 
         for (let tuple of tuplesArray) {
@@ -443,20 +468,82 @@ export class ExpressionEvaluator {
             // Extract the expression content from the ORIGINAL expression
             const innerExpr = expression.substring(tuple.getT1(), tuple.getT2());
 
-            // Evaluate the inner expression
-            let expStr: string = new ExpressionEvaluator(innerExpr).evaluate(valuesMap);
+            const startPos = tuple.getT1() - 2;  // Include opening {{
+            const endPos = tuple.getT2() + 2;     // Include closing }}
+            
+            // Check context in the ORIGINAL expression
+            const afterContext = expression.substring(endPos, Math.min(endPos + 1, expression.length));
+            
+            const isInPath =
+                afterContext === '.' ||
+                afterContext === '[' ||
+                // If the template starts immediately after a '[' we are inside bracket access:
+                // e.g. Page.list[{{Parent.__index}}]
+                (startPos > 0 && expression.charAt(startPos - 1) === '[') ||
+                (startPos > 0 && expression.charAt(startPos - 1) === '.');
+            
+            // Check if we're inside a string literal by counting quotes before this position
+            let singleQuotes = 0;
+            let doubleQuotes = 0;
+            for (let i = 0; i < startPos; i++) {
+                if (expression.charAt(i) === "'" && (i === 0 || expression.charAt(i - 1) !== '\\')) {
+                    singleQuotes++;
+                } else if (expression.charAt(i) === '"' && (i === 0 || expression.charAt(i - 1) !== '\\')) {
+                    doubleQuotes++;
+                }
+            }
+            const isInStringLiteral = (singleQuotes % 2 === 1) || (doubleQuotes % 2 === 1);
+            
+            let evaluatedValue: any;
+            try {
+                // Create a nested evaluator that shares the same internal extractor
+                const nestedEvaluator = new ExpressionEvaluator(innerExpr);
 
-            // Convert to string to handle non-string evaluation results
-            expStr = String(expStr);
+                // Replace the nested evaluator's internal extractor with our own so values are shared
+                (nestedEvaluator as any).internalTokenValueExtractor = this.internalTokenValueExtractor;
+
+                // Evaluate the inner expression
+                evaluatedValue = nestedEvaluator.evaluate(valuesMap);
+            } catch (err) {
+                const errKey = `${expression}|${innerExpr}`;
+                if (!ExpressionEvaluator.loggedErrorKeys.has(errKey)) {
+                    ExpressionEvaluator.loggedErrorKeys.add(errKey);
+                    const errInfo = {
+                        ORIGINAL: expression,
+                        FAILED_INNER: innerExpr,
+                        CONTEXT: { isInPath, isInStringLiteral, startPos, endPos },
+                        RESULT_SO_FAR: result,
+                        EXTRACTORS: Array.from(valuesMap.keys()),
+                        ERROR: String(err),
+                    };
+                    console.error('[EXPR ERROR]', JSON.stringify(errInfo, null, 2));
+                }
+                (err as any)._exprErrorLogged = true;
+                throw err;
+            }
+
+            // Check if evaluated value is a string that looks like a path reference
+            const isPathReference = typeof evaluatedValue === 'string' && 
+                                   Array.from(valuesMap.keys()).some(prefix => evaluatedValue.startsWith(prefix));
+            
+            // If it's in a path position, string literal, OR a path reference, convert to string (old behavior)
+            // Otherwise, store in internal extractor to preserve type
+            let replacement: string;
+            if (isInPath || isInStringLiteral || isPathReference) {
+                // Convert to string for path continuation, string literals, or path references
+                replacement = String(evaluatedValue);
+            } else {
+                // Store the evaluated value in the internal extractor with a unique key
+                // This preserves the type (number, boolean, object, etc.)
+                const key = `__nested_${ExpressionEvaluator.keyCounter++}__`;
+                this.internalTokenValueExtractor.addValue(key, evaluatedValue);
+                replacement = `${this.internalTokenValueExtractor.getPrefix()}${key}`;
+            }
 
             // Apply replacement to result string
             // Since we process right to left, indices for tuples to the left remain valid
-            const startPos = tuple.getT1() - 2;  // Include opening {{
-            const endPos = tuple.getT2() + 2;     // Include closing }}
-
-            result = result.substring(0, startPos) + expStr + result.substring(endPos);
+            result = result.substring(0, startPos) + replacement + result.substring(endPos);
         }
-
         return result;
     }
 
@@ -593,20 +680,23 @@ export class ExpressionEvaluator {
         do {
             objOperations.push(operator);
             if (token instanceof Expression) {
-                // For path components (identifiers with OBJECT_OPERATOR, ARRAY_OPERATOR, or no operations),
-                // build the path string without parentheses - don't evaluate as a value.
-                // For expressions with other operators (like +, -, etc.), evaluate to get the actual value.
-                if (this.isPathExpression(token)) {
-                    // Build path string without parentheses
-                    const tokenStr = this.buildPathString(token);
-                    objTokens.push(new ExpressionToken(tokenStr));
-                } else {
+                // For ARRAY_OPERATOR, the token is an array index that should always be evaluated
+                // to get its numeric value (e.g., Parent.index should resolve to a number).
+                // For OBJECT_OPERATOR, path expressions should be kept as path strings.
+                const shouldEvaluate = operator === Operation.ARRAY_OPERATOR || !this.isPathExpression(token);
+
+                if (shouldEvaluate) {
+                    const evaluatedValue = this.evaluateExpression(token, valuesMap);
                     objTokens.push(
                         new ExpressionTokenValue(
                             token.toString(),
-                            this.evaluateExpression(token, valuesMap),
+                            evaluatedValue,
                         ),
                     );
+                } else {
+                    // Build path string without parentheses for OBJECT_OPERATOR path components
+                    const tokenStr = this.buildPathString(token);
+                    objTokens.push(new ExpressionToken(tokenStr));
                 }
             }
             else if (token) objTokens.push(token);
@@ -1013,36 +1103,71 @@ export class ExpressionEvaluator {
      * Check if an Expression is a path component (identifier, OBJECT_OPERATOR, or ARRAY_OPERATOR).
      * Path components should use toString() for path building, not be evaluated as values.
      * Expressions with other operators (like +, -, etc.) should be evaluated.
+     *
+     * IMPORTANT: ARRAY_OPERATOR expressions with non-static indices (like [Parent.index])
+     * must be evaluated, not treated as path strings.
      */
     private isPathExpression(expr: Expression): boolean {
         const ops = expr.getOperationsArray();
-        
+        const tokens = expr.getTokensArray();
+
         // No operations = leaf identifier - use toString()
-        if (ops.length === 0) {
-            return true;
-        }
-        
-        // Check if all operations are path-related (OBJECT_OPERATOR or ARRAY_OPERATOR)
+        if (ops.length === 0) return true;
+
+        // Check if all operations are path-related
         for (const op of ops) {
-            if (op !== Operation.OBJECT_OPERATOR && 
-                op !== Operation.ARRAY_OPERATOR &&
-                op !== Operation.ARRAY_RANGE_INDEX_OPERATOR) {
-                // Has non-path operator - needs evaluation
+            if (!this.isPathOperator(op)) return false;
+
+            // For ARRAY_OPERATOR, check if the index is static
+            if (op === Operation.ARRAY_OPERATOR && tokens.length > 0 && !this.isStaticArrayIndex(tokens[0])) {
                 return false;
             }
         }
-        
+
         // Also check nested expressions in tokens
-        const tokens = expr.getTokensArray();
-        for (const token of tokens) {
-            if (token instanceof Expression) {
-                if (!this.isPathExpression(token)) {
-                    return false;
-                }
-            }
+        return tokens.every(token => !(token instanceof Expression) || this.isPathExpression(token));
+    }
+
+    private isPathOperator(op: Operation): boolean {
+        return op === Operation.OBJECT_OPERATOR ||
+               op === Operation.ARRAY_OPERATOR ||
+               op === Operation.ARRAY_RANGE_INDEX_OPERATOR;
+    }
+
+    /**
+     * Check if a token represents a static array index (number or string literal).
+     */
+    private isStaticArrayIndex(token: ExpressionToken): boolean {
+        if (token instanceof Expression) {
+            return this.isStaticArrayIndexExpression(token);
         }
-        
-        return true;
+        return this.isStaticLiteral(token.getExpression());
+    }
+
+    private isStaticArrayIndexExpression(expr: Expression): boolean {
+        const ops = expr.getOperationsArray();
+        const tokens = expr.getTokensArray();
+
+        // Leaf expression with single token - check if it's a literal
+        if (ops.length === 0 && tokens.length === 1) {
+            return this.isStaticLiteral(tokens[0].getExpression());
+        }
+
+        // Range expressions are static if both parts are static
+        if (ops.length === 1 && ops[0] === Operation.ARRAY_RANGE_INDEX_OPERATOR) {
+            return tokens.every(t => this.isStaticArrayIndex(t));
+        }
+
+        return false;
+    }
+
+    private isStaticLiteral(str: string): boolean {
+        // Number: digits, possibly with decimal and negative sign
+        if (/^-?\d+(\.\d+)?$/.test(str)) return true;
+        // Quoted string
+        if ((str.startsWith('"') && str.endsWith('"')) ||
+            (str.startsWith("'") && str.endsWith("'"))) return true;
+        return false;
     }
 }
 

@@ -151,6 +151,35 @@ export class Statement extends AbstractStatement {
         return [statement.statementName, statement];
     }
 
+    public toJSON(): any {
+        const parameterMapObj: Record<string, Record<string, any>> = {};
+        if (this.parameterMap) {
+            for (const [k, v] of this.parameterMap.entries()) {
+                parameterMapObj[k] = {};
+                for (const [ik, iv] of v.entries()) {
+                    parameterMapObj[k][ik] = iv.toJSON();
+                }
+            }
+        }
+
+        return {
+            statementName: this.statementName,
+            namespace: this.namespace,
+            name: this.name,
+            parameterMap: parameterMapObj,
+            dependentStatements: this.dependentStatements
+                ? Object.fromEntries(this.dependentStatements)
+                : {},
+            executeIftrue: this.executeIftrue
+                ? Object.fromEntries(this.executeIftrue)
+                : {},
+            position: this.getPosition()?.toJSON(),
+            comment: this.getComment(),
+            description: this.getDescription(),
+            override: this.isOverride(),
+        };
+    }
+
     public static from(json: any): Statement {
         return new Statement(json.statementName, json.namespace, json.name)
             .setParameterMap(
@@ -171,6 +200,7 @@ export class Statement extends AbstractStatement {
             .setExecuteIftrue(new Map<string, boolean>(Object.entries(json.executeIftrue ?? {})))
             .setPosition(Position.from(json.position))
             .setComment(json.comment)
-            .setDescription(json.description) as Statement;
+            .setDescription(json.description)
+            .setOverride(json.override ?? false) as Statement;
     }
 }

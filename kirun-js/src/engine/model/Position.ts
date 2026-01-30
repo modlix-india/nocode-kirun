@@ -42,4 +42,11 @@ export class Position {
         if (!json) return undefined;
         return new Position(json.left, json.top);
     }
+
+    public toJSON(): any {
+        return {
+            left: this.left,
+            top: this.top,
+        };
+    }
 }

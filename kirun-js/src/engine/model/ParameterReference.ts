@@ -100,4 +100,14 @@ export class ParameterReference {
             .setKey(e.key)
             .setOrder(e.order);
     }
+
+    public toJSON(): any {
+        return {
+            key: this.key,
+            type: this.type,
+            value: this.value,
+            expression: this.expression,
+            order: this.order,
+        };
+    }
 }
