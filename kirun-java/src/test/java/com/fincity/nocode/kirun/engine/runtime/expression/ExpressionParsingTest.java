@@ -1,11 +1,10 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
@@ -210,6 +209,34 @@ class ExpressionParsingTest {
 	}
 
 	@Test
+	void parseExpressionWithMultiplicationAndNestedTemplate() {
+		JsonObject stepsData = new JsonObject();
+		JsonObject floorWeekOne = new JsonObject();
+		JsonObject output = new JsonObject();
+		output.addProperty("value", 7);
+		floorWeekOne.add("output", output);
+		stepsData.add("floorWeekOne", floorWeekOne);
+
+		JsonObject pageData = new JsonObject();
+		pageData.addProperty("secondsInDay", 86400);
+
+		PrefixJsonTokenValueExtractor stepsExtractor = new PrefixJsonTokenValueExtractor("Steps.", stepsData);
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(
+				stepsExtractor.getPrefix(), stepsExtractor,
+				pageExtractor.getPrefix(), pageExtractor);
+
+		String expr = "Steps.floorWeekOne.output.value * {{Page.secondsInDay}}";
+		Expression expression = new Expression(expr);
+		assertNotNull(expression);
+		assertTrue(!expression.getOperations().isEmpty());
+
+		ExpressionEvaluator ev = new ExpressionEvaluator(expr);
+		assertEquals(new JsonPrimitive(7 * 86400), ev.evaluate(valuesMap));
+	}
+
+
+	@Test
 	void expressionToStringPreservesStructure() {
 		Expression expr1 = new Expression("Page.dealData.size");
 		assertTrue(expr1.toString().contains("Page"));
@@ -246,6 +273,7 @@ class ExpressionParsingTest {
 	@Test
 	void originalExpressionParsingVerifyAllParseWithoutThrowing() {
 		String[] expressions = {
+			"Steps.floorWeekOne.output.value * {{Page.secondsInDay}}",
 			"Parent.projectInfo.projectType?? '-'",
 			"Page.dealData.size <  Page.dealData.totalElements",
 			"(Page.userFirstName??'') +' '+ (Page.userLastName??'')"

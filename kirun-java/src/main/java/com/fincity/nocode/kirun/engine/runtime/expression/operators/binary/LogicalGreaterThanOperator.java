@@ -1,13 +1,12 @@
 package com.fincity.nocode.kirun.engine.runtime.expression.operators.binary;
 
+import com.fincity.nocode.kirun.engine.exception.ExecutionException;
+import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.BOOLEAN;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.DOUBLE;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.FLOAT;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.LONG;
 import static com.fincity.nocode.kirun.engine.json.schema.type.SchemaType.STRING;
-
-import com.fincity.nocode.kirun.engine.exception.ExecutionException;
-import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
