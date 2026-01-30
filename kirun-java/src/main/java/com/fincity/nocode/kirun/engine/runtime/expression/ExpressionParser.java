@@ -51,11 +51,23 @@ public class ExpressionParser {
 
     // Logical OR: expr or expr (precedence 11)
     private Expression parseLogicalOr() {
-        Expression expr = parseLogicalAnd();
+        Expression expr = parseNullishCoalescing();
 
         while (matchOperator("or")) {
-            Expression right = parseLogicalAnd();
+            Expression right = parseNullishCoalescing();
             expr = new Expression("", expr, right, Operation.OR, true);
+        }
+
+        return expr;
+    }
+
+    // Nullish coalescing: expr ?? expr (precedence between OR and AND)
+    private Expression parseNullishCoalescing() {
+        Expression expr = parseLogicalAnd();
+
+        while (matchOperator("??")) {
+            Expression right = parseLogicalAnd();
+            expr = new Expression("", expr, right, Operation.NULLISH_COALESCING_OPERATOR, true);
         }
 
         return expr;
@@ -410,11 +422,6 @@ public class ExpressionParser {
             Expression expr = parseExpression();
             expectToken(ExpressionLexer.TokenType.RIGHT_PAREN);
             return expr;
-        }
-
-        if (matchOperator("??")) {
-            Expression right = parsePrimary();
-            return new Expression("", parsePrimary(), right, Operation.NULLISH_COALESCING_OPERATOR, true);
         }
 
         throw new ExpressionEvaluationException(

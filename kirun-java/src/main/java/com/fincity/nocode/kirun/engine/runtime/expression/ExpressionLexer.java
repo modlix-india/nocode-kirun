@@ -66,6 +66,11 @@ public class ExpressionLexer {
                 pos++;
                 return new Token(TokenType.DOT, ".", startPos, pos);
             case '?':
+                // Check for ?? (nullish coalescing) before single ? (ternary)
+                if (pos + 1 < length && input.charAt(pos + 1) == '?') {
+                    pos += 2;
+                    return new Token(TokenType.OPERATOR, "??", startPos, pos);
+                }
                 pos++;
                 return new Token(TokenType.QUESTION, "?", startPos, pos);
             case ':':
