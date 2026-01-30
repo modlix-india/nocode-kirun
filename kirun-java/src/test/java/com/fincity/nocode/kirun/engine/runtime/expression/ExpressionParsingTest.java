@@ -1,11 +1,10 @@
 package com.fincity.nocode.kirun.engine.runtime.expression;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.TokenValueExtractor;
