@@ -81,4 +81,11 @@ export class Event {
             ),
         );
     }
+
+    public toJSON(): any {
+        return {
+            name: this.name,
+            parameters: Object.fromEntries(this.parameters),
+        };
+    }
 }

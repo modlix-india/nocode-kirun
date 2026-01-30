@@ -4,7 +4,6 @@ import { TypeUtil } from '../json/schema/type/TypeUtil';
 import { Namespaces } from '../namespaces/Namespaces';
 import { AbstractStatement } from './AbstractStatement';
 import { Position } from './Position';
-import { Statement } from './Statement';
 
 export class StatementGroup extends AbstractStatement {
     private static readonly SCHEMA_NAME: string = 'StatementGroup';
@@ -59,6 +58,18 @@ export class StatementGroup extends AbstractStatement {
         )
             .setPosition(Position.from(json.position))
             .setComment(json.comment)
-            .setDescription(json.description) as StatementGroup;
+            .setDescription(json.description)
+            .setOverride(json.override ?? false) as StatementGroup;
+    }
+
+    public toJSON(): any {
+        return {
+            statementGroupName: this.statementGroupName,
+            statements: Object.fromEntries(this.statements),
+            position: this.getPosition(),
+            comment: this.getComment(),
+            description: this.getDescription(),
+            override: this.isOverride(),
+        };
     }
 }

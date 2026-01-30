@@ -14,6 +14,9 @@ export abstract class TokenValueExtractor {
     // Cache for parsed bracket segments to avoid repeated regex splits
     private static bracketCache: Map<string, string[]> = new Map();
 
+    // Optional valuesMap for resolving dynamic bracket indices like Parent.__index
+    protected valuesMap?: Map<string, TokenValueExtractor>;
+
     public static splitPath(token: string): string[] {
         let parts = TokenValueExtractor.pathCache.get(token);
         if (!parts) {
@@ -100,6 +103,10 @@ export abstract class TokenValueExtractor {
         }
 
         return this.getValueInternal(token);
+    }
+
+    public setValuesMap(valuesMap: Map<string, TokenValueExtractor>): void {
+        this.valuesMap = valuesMap;
     }
 
     protected retrieveElementFrom(
@@ -260,6 +267,33 @@ export abstract class TokenValueExtractor {
         }
 
         let index: number = parseInt(cPart);
+
+        // If parsing failed and we have a valuesMap, try to resolve cPart as a token
+        // This allows Parent.__index or similar dynamic indices to work
+        if (isNaN(index) && this.valuesMap) {
+            const dotIndex = cPart.indexOf('.');
+            if (dotIndex > 0) {
+                const prefix = cPart.substring(0, dotIndex + 1);
+                const extractor = this.valuesMap.get(prefix);
+                if (extractor) {
+                    try {
+                        const resolvedValue = extractor.getValue(cPart);
+                        if (typeof resolvedValue === 'number') {
+                            index = resolvedValue;
+                        } else if (typeof resolvedValue === 'string') {
+                            index = parseInt(resolvedValue);
+                        }
+                    } catch (resolveErr) {
+                        // Resolution failed, will use fallback below
+                    }
+                }
+                // If extractor not found or resolution failed, use 0 as fallback
+                // This allows path extraction to work even without a parent context
+                if (isNaN(index)) {
+                    index = 0;
+                }
+            }
+        }
 
         if (isNaN(index)) {
             throw new ExpressionEvaluationException(

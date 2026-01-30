@@ -113,4 +113,14 @@ export class FunctionDefinition extends FunctionSignature {
             )
             .setNamespace(json.namespace) as FunctionDefinition;
     }
+
+    public toJSON(): any {
+        return {
+            ...super.toJSON(),
+            version: this.version,
+            steps: this.steps ? Object.fromEntries(Array.from(this.steps).map(([str, stmnt]) => [str, stmnt.toJSON()])) : {},
+            stepGroups: this.stepGroups ? Object.fromEntries(this.stepGroups) : {},
+            parts: this.parts ?? [],
+        };
+    }
 }
