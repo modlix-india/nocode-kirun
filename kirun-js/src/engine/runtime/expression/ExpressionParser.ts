@@ -9,28 +9,67 @@ export class ExpressionParser {
     private lexer: ExpressionLexer;
     private currentToken: Token | null = null;
     private previousTokenValue: Token | null = null;
+    private readonly originalExpression: string;
+    private parseDepth: number = 0;
 
     constructor(expression: string) {
+        this.originalExpression = expression;
         this.lexer = new ExpressionLexer(expression);
         this.currentToken = this.lexer.nextToken();
     }
 
+    /**
+     * Create a detailed error message with context about where parsing failed
+     */
+    private createParserError(message: string): ExpressionEvaluationException {
+        const position = this.lexer.getPosition();
+        const contextStart = Math.max(0, position - 20);
+        const contextEnd = Math.min(this.originalExpression.length, position + 20);
+        const context = this.originalExpression.substring(contextStart, contextEnd);
+        const pointer = ' '.repeat(position - contextStart) + '^';
+
+        const errorDetails = [
+            `Parser Error: ${message}`,
+            `Expression: ${this.originalExpression}`,
+            `Position: ${position}`,
+            `Context: ...${context}...`,
+            `         ${pointer}`,
+            `Current token: ${this.currentToken ? `${this.currentToken.type}("${this.currentToken.value}")` : 'null'}`,
+            `Previous token: ${this.previousTokenValue ? `${this.previousTokenValue.type}("${this.previousTokenValue.value}")` : 'null'}`,
+            `Parse depth: ${this.parseDepth}`,
+        ].join('\n');
+
+        console.error('\n' + errorDetails + '\n');
+
+        return new ExpressionEvaluationException(
+            this.originalExpression,
+            `${message} at position ${position}`
+        );
+    }
+
     public parse(): Expression {
         if (!this.currentToken) {
-            throw new ExpressionEvaluationException('', 'Empty expression');
+            throw this.createParserError('Empty expression');
         }
 
-        const expr = this.parseExpression();
-        
-        // Ensure we consumed all tokens
-        if (this.currentToken && this.currentToken.type !== TokenType.EOF) {
-            throw new ExpressionEvaluationException(
-                this.lexer.getPosition().toString(),
-                `Unexpected token: ${this.currentToken.value} at position ${this.currentToken.startPos}`,
-            );
-        }
+        try {
+            const expr = this.parseExpression();
 
-        return expr;
+            // Ensure we consumed all tokens
+            if (this.currentToken && this.currentToken.type !== TokenType.EOF) {
+                throw this.createParserError(
+                    `Unexpected token "${this.currentToken.value}" - expected end of expression`
+                );
+            }
+
+            return expr;
+        } catch (error) {
+            // Re-throw with additional context if it's not already a detailed parser error
+            if (error instanceof ExpressionEvaluationException && !error.message.includes('Parser Error:')) {
+                throw this.createParserError(error.message);
+            }
+            throw error;
+        }
     }
 
     private parseExpression(): Expression {
@@ -304,18 +343,34 @@ export class ExpressionParser {
     // - "Context.a.b.c" -> Context . (a . (b . c))
     // - "Context.obj[\"key\"].value" -> Context . (obj["key"] . value)
     private parsePostfixRightSide(): Expression {
-        // Expect an identifier (which may include STATIC bracket notation like obj["key"] or a[9])
-        if (!this.currentToken || this.currentToken.type !== TokenType.IDENTIFIER) {
-            throw new ExpressionEvaluationException(
-                this.lexer.getPosition().toString(),
-                'Expected identifier after dot',
+        this.parseDepth++;
+
+        // Expect an identifier or number (for numeric property names like .123 or ObjectIds like .507f1f77bcf86cd799439011)
+        // IMPORTANT: This allows property paths like Page.kycs.123.individual to work
+        if (!this.currentToken ||
+            (this.currentToken.type !== TokenType.IDENTIFIER && this.currentToken.type !== TokenType.NUMBER)) {
+            this.parseDepth--;
+            throw this.createParserError(
+                `Expected identifier or number after dot, but found ${this.currentToken?.type || 'EOF'}`
             );
         }
 
         // The identifier token value might contain static bracket notation like "obj[\"key\"]" or "a[9]"
         // Or it might be a plain identifier if bracket content is dynamic
-        const identifierValue = this.currentToken.value;
+        // For NUMBER tokens, we treat them as property names (e.g., .123 in Page.kycs.123.individual)
+        let identifierValue = this.currentToken.value;
         this.advance();
+
+        // IMPORTANT: Handle ObjectId-like values (e.g., 507f1f77bcf86cd799439011) and numeric IDs with underscores (e.g., 123_abc)
+        // The lexer splits these into NUMBER (507) + IDENTIFIER (f1f77bcf86cd799439011) or NUMBER (123) + IDENTIFIER (_abc)
+        // So if we just consumed a NUMBER token and the next token is an IDENTIFIER (without a DOT/operator between them),
+        // concatenate them to form the complete property name
+        if (this.currentToken &&
+            this.currentToken.type === TokenType.IDENTIFIER &&
+            /^[a-zA-Z_]/.test(this.currentToken.value)) { // Next token starts with a letter or underscore (not a dot or operator)
+            identifierValue += this.currentToken.value;
+            this.advance();
+        }
         
         // Check if the identifier contains static bracket notation
         const bracketIndex = identifierValue.indexOf('[');
@@ -344,7 +399,8 @@ export class ExpressionParser {
             const right = this.parsePostfixRightSide();  // Recursive call
             expr = new Expression('', expr, right, Operation.OBJECT_OPERATOR);
         }
-        
+
+        this.parseDepth--;
         return expr;
     }
     
@@ -434,9 +490,8 @@ export class ExpressionParser {
     // - "Context.a[Page.id]" (dynamic) -> IDENTIFIER "Context.a" + LEFT_BRACKET + expression
     private parseIdentifierPath(): Expression {
         if (!this.currentToken || this.currentToken.type !== TokenType.IDENTIFIER) {
-            throw new ExpressionEvaluationException(
-                this.lexer.getPosition().toString(),
-                'Expected identifier',
+            throw this.createParserError(
+                `Expected identifier but found ${this.currentToken?.type || 'EOF'}`
             );
         }
 
@@ -496,9 +551,8 @@ export class ExpressionParser {
             return expr;
         }
 
-        throw new ExpressionEvaluationException(
-            this.lexer.getPosition().toString(),
-            `Unexpected token: ${this.currentToken?.value || 'EOF'} at position ${this.currentToken?.startPos || this.lexer.getPosition()}`,
+        throw this.createParserError(
+            `Unexpected token in expression - expected number, string, identifier, or '(' but found ${this.currentToken?.type || 'EOF'}`
         );
     }
 
@@ -525,9 +579,8 @@ export class ExpressionParser {
 
     private expectToken(type: TokenType): Token {
         if (!this.currentToken || this.currentToken.type !== type) {
-            throw new ExpressionEvaluationException(
-                this.lexer.getPosition().toString(),
-                `Expected ${type}, got ${this.currentToken?.type || 'EOF'}`,
+            throw this.createParserError(
+                `Expected ${type}, but found ${this.currentToken?.type || 'EOF'}${this.currentToken ? ` ("${this.currentToken.value}")` : ''}`
             );
         }
         const token = this.currentToken;
