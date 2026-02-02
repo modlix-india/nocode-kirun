@@ -936,4 +936,31 @@ describe('Original Expression Parsing Tests', () => {
         const evFallback = new ExpressionEvaluator(expression);
         expect(evFallback.evaluate(valuesMapFallback)).toBe('-');
     });
+
+    test('Expression trimming: Leading and trailing whitespace should be trimmed', () => {
+        // Test that expressions with leading/trailing whitespace are properly trimmed
+        const expr1 = new Expression('   Page.value   ');
+        expect(expr1.getExpression()).toBe('Page.value');
+
+        const expr2 = new Expression('  true ? "yes" : "no"  ');
+        expect(expr2.getExpression()).toBe('true ? "yes" : "no"');
+
+        const expr3 = new Expression('\t\nPage.x + 5\n\t');
+        expect(expr3.getExpression()).toBe('Page.x + 5');
+
+        // Test with actual evaluation to ensure trimming doesn't break functionality
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            value: 'test',
+            x: 10
+        });
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev1 = new ExpressionEvaluator('   Page.value   ');
+        expect(ev1.evaluate(valuesMap)).toBe('test');
+
+        const ev2 = new ExpressionEvaluator('  Page.x + 5  ');
+        expect(ev2.evaluate(valuesMap)).toBe(15);
+    });
 });

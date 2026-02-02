@@ -420,4 +420,31 @@ class ExpressionParsingTest {
 		assertEquals(new JsonPrimitive("John"), evTernary.evaluate(valuesMap));
 	}
 
+	@Test
+	void expressionTrimmingLeadingAndTrailingWhitespace() {
+		// Test that expressions with leading/trailing whitespace are properly trimmed
+		Expression expr1 = new Expression("   Page.value   ");
+		assertEquals("Page.value", expr1.getExpression());
+
+		Expression expr2 = new Expression("  true ? \"yes\" : \"no\"  ");
+		assertEquals("true ? \"yes\" : \"no\"", expr2.getExpression());
+
+		Expression expr3 = new Expression("\t\nPage.x + 5\n\t");
+		assertEquals("Page.x + 5", expr3.getExpression());
+
+		// Test with actual evaluation to ensure trimming doesn't break functionality
+		JsonObject pageData = new JsonObject();
+		pageData.addProperty("value", "test");
+		pageData.addProperty("x", 10);
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(pageExtractor.getPrefix(), pageExtractor);
+
+		ExpressionEvaluator ev1 = new ExpressionEvaluator("   Page.value   ");
+		assertEquals(new JsonPrimitive("test"), ev1.evaluate(valuesMap));
+
+		ExpressionEvaluator ev2 = new ExpressionEvaluator("  Page.x + 5  ");
+		assertEquals(new JsonPrimitive(15), ev2.evaluate(valuesMap));
+	}
+
 }

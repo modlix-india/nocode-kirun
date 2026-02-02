@@ -82,8 +82,12 @@ export class Expression extends ExpressionToken {
         // If we have an expression string, use the new parser
         if (expression && expression.trim().length > 0) {
             try {
-                const parser = new ExpressionParser(expression);
+                // Trim leading/trailing whitespace before parsing
+                const trimmedExpression = expression.trim();
+                const parser = new ExpressionParser(trimmedExpression);
                 const parsed = parser.parse();
+                // Update the stored expression to the trimmed version
+                this.expression = trimmedExpression;
                 // Copy tokens and operations from parsed expression
                 this.tokens = parsed.getTokens();
                 this.ops = parsed.getOperations();
