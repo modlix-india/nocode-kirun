@@ -1,5 +1,5 @@
 import { DSLToken, DSLTokenType } from '../lexer/DSLToken';
-import { isBlockName } from '../lexer/Keywords';
+// Block names are dynamic based on function signatures, not from a fixed set
 import {
     ArgumentNode,
     ComplexValueNode,
@@ -161,8 +161,10 @@ export class DSLParser {
 
     /**
      * Parse single statement
+     * @param minBlockColumn - minimum column for blocks to belong to this statement.
+     *                         Blocks at smaller column positions belong to an ancestor.
      */
-    private parseStatement(): StatementNode {
+    private parseStatement(minBlockColumn: number = 0): StatementNode {
         const nameToken = this.peek();
 
         // Check if this is an anonymous statement (starts with :)
@@ -205,8 +207,19 @@ export class DSLParser {
             } while (true);
         }
 
-        // Parse nested blocks
-        const nestedBlocks = this.parseNestedBlocks();
+        // Parse optional trailing comment
+        let comment = '';
+        if (this.match(DSLTokenType.COMMENT)) {
+            const commentToken = this.advance();
+            // Extract comment text, removing /* and */ markers
+            comment = commentToken.value
+                .replace(/^\/\*\s*/, '')
+                .replace(/\s*\*\/$/, '')
+                .trim();
+        }
+
+        // Parse nested blocks, but only those indented more than minBlockColumn
+        const nestedBlocks = this.parseNestedBlocks(minBlockColumn);
 
         return new StatementNode(
             statementName,
@@ -215,13 +228,16 @@ export class DSLParser {
             executeIfSteps,
             nestedBlocks,
             nameToken.location,
+            comment,
         );
     }
 
     /**
      * Parse nested blocks (iteration, true, false, output, error)
+     * @param minBlockColumn - minimum column for blocks to belong to this statement.
+     *                         Blocks at smaller column positions belong to an ancestor.
      */
-    private parseNestedBlocks(): Map<string, StatementNode[]> {
+    private parseNestedBlocks(minBlockColumn: number = 0): Map<string, StatementNode[]> {
         const blocks = new Map<string, StatementNode[]>();
 
         while (!this.match(DSLTokenType.EOF)) {
@@ -236,39 +252,66 @@ export class DSLParser {
                                  token.type === DSLTokenType.KEYWORD;
             const nextToken = this.peekAhead(1);
             const isFollowedByColon = nextToken && nextToken.type === DSLTokenType.COLON;
-            if (isBlockToken && isBlockName(token.value) && !isFollowedByColon) {
+
+            // Check if block is at or below our minimum column threshold
+            // Blocks at smaller columns belong to an ancestor statement
+            const blockColumn = token.location.column;
+            if (blockColumn <= minBlockColumn) {
+                // This block belongs to an ancestor, stop parsing
+                break;
+            }
+
+            // Accept ANY identifier (not followed by colon) as a potential block name
+            // Block names are dynamic based on function signatures, not a fixed set
+            if (isBlockToken && !isFollowedByColon) {
                 const blockName = this.advance().value;
                 const statements: StatementNode[] = [];
 
-                // Parse statements in this block until we hit another block name or identifier with colon
+                // Record this block's column as the threshold for nested statements
+                // Nested statements' blocks must be indented MORE than this block
+                const thisBlockColumn = blockColumn;
+
+                // Parse statements in this block until we hit another block at same level
+                // or a statement at smaller indentation
                 while (!this.match(DSLTokenType.EOF)) {
                     const next = this.peek();
 
-                    // Check if next token is a block name or top-level statement
+                    // Check if next token is a block name or statement
                     const isNextBlockToken = next.type === DSLTokenType.IDENTIFIER ||
                                              next.type === DSLTokenType.BOOLEAN ||
                                              next.type === DSLTokenType.KEYWORD;
                     if (isNextBlockToken) {
-                        if (isBlockName(next.value)) {
-                            // Another block
-                            break;
-                        }
                         const nextNext = this.peekAhead(1);
-                        // Check if this looks like a statement (identifier followed by colon)
-                        if (!nextNext || nextNext.type !== DSLTokenType.COLON) {
-                            // Not a statement, might be end of block
-                            break;
+                        const nextIsFollowedByColon = nextNext && nextNext.type === DSLTokenType.COLON;
+
+                        if (!nextIsFollowedByColon) {
+                            // Not followed by colon = potential block name
+                            // Check if this block is at the same or lesser indentation
+                            // If so, it's a sibling block, stop parsing this block
+                            if (next.location.column <= thisBlockColumn) {
+                                break;
+                            }
+                            // Otherwise it's a nested block, let the statement handle it
+                        } else {
+                            // Followed by colon = statement
+                            // Check its indentation
+                            if (next.location.column <= thisBlockColumn) {
+                                break;
+                            }
+                            // Statement is more indented, continue parsing
                         }
                     }
 
                     if (next.type === DSLTokenType.COLON) {
                         // Anonymous statement in block
-                        statements.push(this.parseStatement());
+                        // Pass the block column as min threshold for nested blocks
+                        statements.push(this.parseStatement(thisBlockColumn));
                     } else if (next.type === DSLTokenType.IDENTIFIER ||
                                next.type === DSLTokenType.BOOLEAN ||
                                next.type === DSLTokenType.KEYWORD) {
                         // Named statement in block (can use any identifier-like token as name)
-                        statements.push(this.parseStatement());
+                        // Pass the block column as min threshold for nested blocks
+                        statements.push(this.parseStatement(thisBlockColumn));
                     } else {
                         break;
                     }
@@ -276,7 +319,8 @@ export class DSLParser {
 
                 blocks.set(blockName, statements);
             } else {
-                // Not a block name, we're done
+                // Followed by colon = statement name, not block name
+                // We're done parsing blocks
                 break;
             }
         }
@@ -305,6 +349,9 @@ export class DSLParser {
 
     /**
      * Parse argument list
+     * Supports multi-value parameters by repeating the parameter name:
+     *   param = val1, param = val2, param = val3
+     * Order is preserved based on occurrence in the argument list.
      */
     private parseArgumentList(): Map<string, ArgumentNode> {
         const argumentsMap = new Map<string, ArgumentNode>();
@@ -318,9 +365,18 @@ export class DSLParser {
             const argToken = this.peek();
             const paramName = this.expectIdentifier();
             this.expect(DSLTokenType.EQUALS);
+
             const value = this.parseArgumentValue();
 
-            argumentsMap.set(paramName, new ArgumentNode(paramName, value, argToken.location));
+            // Check if this parameter already exists (multi-value)
+            const existing = argumentsMap.get(paramName);
+            if (existing) {
+                // Add to existing ArgumentNode's values array
+                existing.values.push(value);
+            } else {
+                // Create new ArgumentNode
+                argumentsMap.set(paramName, new ArgumentNode(paramName, value, argToken.location));
+            }
 
             if (this.match(DSLTokenType.COMMA)) {
                 this.advance(); // consume comma
@@ -386,8 +442,15 @@ export class DSLParser {
             }
         }
 
-        // Check for number literal - treat as VALUE
+        // Check for number literal - treat as VALUE unless followed by operator
         if (this.match(DSLTokenType.NUMBER)) {
+            // Check if followed by an operator or = (making it an expression like "0 = undefined" or "3 * 2")
+            const nextToken = this.peekAhead(1);
+            if (nextToken && (nextToken.type === DSLTokenType.OPERATOR || nextToken.type === DSLTokenType.EQUALS)) {
+                // Fall through to parseExpression to handle full expression
+                return this.parseExpression();
+            }
+            // Standalone number → VALUE
             const numToken = this.advance();
             return new ComplexValueNode(parseFloat(numToken.value), numToken.location);
         }
@@ -404,6 +467,12 @@ export class DSLParser {
             (this.match(DSLTokenType.KEYWORD) && token.value === 'null')) {
             const nullToken = this.advance();
             return new ComplexValueNode(null, nullToken.location);
+        }
+
+        // Check for undefined literal - treat as VALUE with undefined
+        if (this.match(DSLTokenType.IDENTIFIER) && token.value === 'undefined') {
+            const undefinedToken = this.advance();
+            return new ComplexValueNode(undefined, undefinedToken.location);
         }
 
         // Check for complex value (object or array)
@@ -433,6 +502,17 @@ export class DSLParser {
     private parseExpression(): ExpressionNode {
         const startToken = this.peek();
         const startPos = startToken.location.startPos;
+
+        // Check if we're already at a delimiter (empty expression)
+        if (
+            startToken.type === DSLTokenType.COMMA ||
+            startToken.type === DSLTokenType.RIGHT_PAREN ||
+            startToken.type === DSLTokenType.RIGHT_BRACKET ||
+            startToken.type === DSLTokenType.RIGHT_BRACE
+        ) {
+            // Empty expression
+            return new ExpressionNode('', startToken.location);
+        }
 
         // Collect tokens until we hit a delimiter
         let depth = 0;
@@ -808,6 +888,12 @@ export class DSLParser {
             (token.type === DSLTokenType.KEYWORD && token.value === 'null')) {
             this.advance();
             return null;
+        }
+
+        // Undefined as identifier
+        if (token.type === DSLTokenType.IDENTIFIER && token.value === 'undefined') {
+            this.advance();
+            return undefined;
         }
 
         if (token.type === DSLTokenType.LEFT_BRACE) {

@@ -8,7 +8,6 @@ import {
     SchemaLiteralNode,
     StatementNode,
 } from '../parser/ast';
-import { ExpressionHandler } from './ExpressionHandler';
 import { SchemaTransformer } from './SchemaTransformer';
 
 /**
@@ -18,18 +17,34 @@ import { SchemaTransformer } from './SchemaTransformer';
 export class ASTToJSONTransformer {
     /**
      * Transform AST to FunctionDefinition JSON
+     * Only includes non-empty/non-default fields
      */
     public transform(ast: FunctionDefNode): any {
-        return {
+        const json: any = {
             name: ast.name,
-            namespace: ast.namespace || '',
-            version: 1,
-            parameters: this.transformParameters(ast.parameters),
-            events: this.transformEvents(ast.events),
-            steps: this.transformSteps(ast.logic),
-            stepGroups: {},
-            parts: [],
         };
+
+        // Only add namespace if not empty
+        if (ast.namespace) {
+            json.namespace = ast.namespace;
+        }
+
+        // Only add parameters if not empty
+        const parameters = this.transformParameters(ast.parameters);
+        if (Object.keys(parameters).length > 0) {
+            json.parameters = parameters;
+        }
+
+        // Only add events if not empty
+        const events = this.transformEvents(ast.events);
+        if (Object.keys(events).length > 0) {
+            json.events = events;
+        }
+
+        // Always add steps
+        json.steps = this.transformSteps(ast.logic);
+
+        return json;
     }
 
     /**
@@ -86,20 +101,37 @@ export class ASTToJSONTransformer {
 
     /**
      * Transform single statement
+     * Only includes non-empty/non-default fields
      */
     private transformStatement(stmt: StatementNode): any {
         const json: any = {
             statementName: stmt.statementName,
             namespace: stmt.functionCall.namespace,
             name: stmt.functionCall.name,
-            parameterMap: this.transformParameterMap(stmt.functionCall.argumentsMap),
-            dependentStatements: this.createDependentStatementsMap(stmt),
-            executeIftrue: this.createExecuteIfMap(stmt.executeIfSteps),
-            position: null,
-            comment: '',
-            description: '',
-            override: false,
         };
+
+        // Only add parameterMap if not empty
+        const parameterMap = this.transformParameterMap(stmt.functionCall.argumentsMap);
+        if (Object.keys(parameterMap).length > 0) {
+            json.parameterMap = parameterMap;
+        }
+
+        // Only add dependentStatements if not empty
+        const dependentStatements = this.createDependentStatementsMap(stmt);
+        if (Object.keys(dependentStatements).length > 0) {
+            json.dependentStatements = dependentStatements;
+        }
+
+        // Only add executeIftrue if not empty
+        const executeIftrue = this.createExecuteIfMap(stmt.executeIfSteps);
+        if (Object.keys(executeIftrue).length > 0) {
+            json.executeIftrue = executeIftrue;
+        }
+
+        // Only add comment if not empty
+        if (stmt.comment && stmt.comment.trim()) {
+            json.comment = stmt.comment;
+        }
 
         return json;
     }
@@ -112,7 +144,7 @@ export class ASTToJSONTransformer {
 
         // Add explicit AFTER dependencies
         for (const stepRef of stmt.afterSteps) {
-            result[stepRef] = false; // false = must complete before this step
+            result[stepRef] = true; // true = depends on this step
         }
 
         // Add implicit dependencies from nested blocks
@@ -142,53 +174,91 @@ export class ASTToJSONTransformer {
 
     /**
      * Transform parameter map (function arguments)
+     * Skips parameters with empty values
+     * Supports multi-value parameters
      */
     private transformParameterMap(argsMap: Map<string, ArgumentNode>): any {
         const result: any = {};
 
         for (const [paramName, arg] of argsMap) {
+            // Skip parameters with empty values
+            if (this.isEmptyArgument(arg)) {
+                continue;
+            }
+
             result[paramName] = {};
-            const paramRef = this.transformArgument(arg);
-            result[paramName][paramRef.key] = paramRef;
+
+            // Handle multi-value parameters
+            if (arg.isMultiValue()) {
+                for (let i = 0; i < arg.values.length; i++) {
+                    const paramRef = this.transformArgumentValue(arg.values[i], i + 1);
+                    result[paramName][paramRef.key] = paramRef;
+                }
+            } else {
+                const paramRef = this.transformArgumentValue(arg.value, 1);
+                result[paramName][paramRef.key] = paramRef;
+            }
         }
 
         return result;
     }
 
     /**
-     * Transform single argument to ParameterReference
+     * Check if an argument is empty (no value provided)
+     * Note: Empty expressions and undefined values are valid and should NOT be filtered out
+     * Only filter out parser artifacts like stray delimiters
      */
-    private transformArgument(arg: ArgumentNode): any {
+    private isEmptyArgument(arg: ArgumentNode): boolean {
+        if (arg.value instanceof ExpressionNode) {
+            const expr = arg.value.expressionText.trim();
+            // Only filter out parser artifacts (stray delimiters)
+            // Empty expressions ('') are valid and should be preserved
+            return expr === ',' || expr === ')';
+        }
+        // Both null and undefined are valid values and should be preserved
+        // ComplexValueNode is never "empty" - it always has a value (even if null/undefined)
+        return false;
+    }
+
+    /**
+     * Transform single argument value to ParameterReference
+     * @param value The argument value (expression, complex value, or schema literal)
+     * @param order The order index for multi-value parameters (1-based)
+     */
+    private transformArgumentValue(
+        value: ExpressionNode | ComplexValueNode | SchemaLiteralNode,
+        order: number,
+    ): any {
         const key = this.generateUUID();
 
-        if (arg.value instanceof ExpressionNode) {
+        if (value instanceof ExpressionNode) {
             return {
                 key,
                 type: 'EXPRESSION',
-                expression: arg.value.expressionText,
+                expression: value.expressionText,
                 value: undefined,
-                order: 0,
+                order: order,
             };
-        } else if (arg.value instanceof ComplexValueNode) {
+        } else if (value instanceof ComplexValueNode) {
             return {
                 key,
                 type: 'VALUE',
-                value: arg.value.value,
+                value: value.value,
                 expression: undefined,
-                order: 0,
+                order: order,
             };
-        } else if (arg.value instanceof SchemaLiteralNode) {
+        } else if (value instanceof SchemaLiteralNode) {
             // Schema literal with optional default value
-            const schema = SchemaTransformer.transform(arg.value.schema.schemaSpec);
+            const schema = SchemaTransformer.transform(value.schema.schemaSpec);
 
-            if (arg.value.defaultValue) {
+            if (value.defaultValue) {
                 // Has default value - evaluate it
                 return {
                     key,
                     type: 'VALUE',
-                    value: this.evaluateDefaultValue(arg.value.defaultValue, schema),
+                    value: this.evaluateDefaultValue(value.defaultValue, schema),
                     expression: undefined,
-                    order: 0,
+                    order: order,
                 };
             } else {
                 // No default value - just pass the schema
@@ -197,7 +267,7 @@ export class ASTToJSONTransformer {
                     type: 'VALUE',
                     value: schema,
                     expression: undefined,
-                    order: 0,
+                    order: order,
                 };
             }
         }
@@ -208,7 +278,7 @@ export class ASTToJSONTransformer {
             type: 'VALUE',
             value: null,
             expression: undefined,
-            order: 0,
+            order: order,
         };
     }
 
@@ -275,7 +345,7 @@ export class ASTToJSONTransformer {
 
         // Process each top-level statement
         for (const stmt of ast.logic) {
-            this.collectNestedStatements(stmt, stmt.statementName, allStatements);
+            this.collectNestedStatements(stmt, allStatements);
         }
 
         // Update ast.logic with all statements (flattened)
@@ -284,23 +354,21 @@ export class ASTToJSONTransformer {
 
     /**
      * Recursively collect nested statements
+     * NOTE: Nesting is implicit (derived from expression analysis)
+     * We do NOT add block dependencies to dependentStatements
+     * Only explicit AFTER clauses become dependentStatements
      */
-    private collectNestedStatements(
-        stmt: StatementNode,
-        parentName: string,
-        allStatements: StatementNode[],
-    ): void {
-        for (const [blockName, nestedStmts] of stmt.nestedBlocks) {
+    private collectNestedStatements(stmt: StatementNode, allStatements: StatementNode[]): void {
+        for (const [, nestedStmts] of stmt.nestedBlocks) {
             for (const nestedStmt of nestedStmts) {
-                // Add dependency on parent block
-                const dependencyKey = `Steps.${parentName}.${blockName}`;
-                nestedStmt.afterSteps.push(dependencyKey);
+                // Do NOT add implicit block dependency - nesting is derived from expressions
+                // Only explicit AFTER clauses should become dependentStatements
 
                 // Add to all statements
                 allStatements.push(nestedStmt);
 
                 // Recursively process this statement's nested blocks
-                this.collectNestedStatements(nestedStmt, nestedStmt.statementName, allStatements);
+                this.collectNestedStatements(nestedStmt, allStatements);
             }
         }
 

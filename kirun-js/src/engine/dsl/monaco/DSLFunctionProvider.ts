@@ -27,42 +27,56 @@ export interface EventInfo {
  * Provides list of available functions for Monaco autocomplete
  */
 export class DSLFunctionProvider {
-    private static cachedFunctions: FunctionInfo[] | null = null;
+    private static readonly cachedFunctions: Map<Repository<Function>, FunctionInfo[]> = new Map();
 
     /**
      * Get all available functions from repository
+     * Uses repository.filter("") to dynamically discover all available functions
      */
     public static async getAllFunctions(
         repo?: Repository<Function>,
     ): Promise<FunctionInfo[]> {
-        if (this.cachedFunctions) {
-            return this.cachedFunctions;
-        }
-
         const functionRepo = repo || new KIRunFunctionRepository();
-        const functions: FunctionInfo[] = [];
 
-        // Get all namespaces and functions
-        // Note: KIRunFunctionRepository has getAllFunctions() method
-        const allFunctions = await this.getAllFromRepository(functionRepo);
-
-        for (const func of allFunctions) {
-            const signature = func.getSignature();
-            const namespace = signature.getNamespace();
-            const name = signature.getName();
-
-            functions.push({
-                namespace,
-                name,
-                fullName: `${namespace}.${name}`,
-                parameters: this.extractParameters(func),
-                events: this.extractEvents(func),
-                description: '', // TODO: Add description if available
-            });
+        // Check cache for this specific repository
+        if (this.cachedFunctions.has(functionRepo)) {
+            return this.cachedFunctions.get(functionRepo)!;
         }
 
-        // Cache the results
-        this.cachedFunctions = functions;
+        // Use filter("") to get all function names from the repository
+        const allFunctionNames = await functionRepo.filter('');
+
+        // Parse all function names and fetch in parallel for better performance
+        const fetchPromises = allFunctionNames.map(async (fullName): Promise<FunctionInfo | null> => {
+            const lastDotIndex = fullName.lastIndexOf('.');
+            if (lastDotIndex === -1) return null;
+
+            const namespace = fullName.substring(0, lastDotIndex);
+            const name = fullName.substring(lastDotIndex + 1);
+
+            try {
+                const func = await functionRepo.find(namespace, name);
+                if (func) {
+                    return {
+                        namespace,
+                        name,
+                        fullName,
+                        parameters: this.extractParameters(func),
+                        events: this.extractEvents(func),
+                        description: '',
+                    };
+                }
+            } catch {
+                // Function not found or error, skip
+            }
+            return null;
+        });
+
+        const results = await Promise.all(fetchPromises);
+        const functions = results.filter((f): f is FunctionInfo => f !== null);
+
+        // Cache the results for this repository
+        this.cachedFunctions.set(functionRepo, functions);
 
         return functions;
     }
@@ -90,118 +104,12 @@ export class DSLFunctionProvider {
     /**
      * Clear cached functions
      */
-    public static clearCache(): void {
-        this.cachedFunctions = null;
-    }
-
-    /**
-     * Get all functions from repository
-     */
-    private static async getAllFromRepository(repo: Repository<Function>): Promise<Function[]> {
-        // KIRunFunctionRepository provides all built-in functions
-        // This is a simplified implementation - in reality, we'd query the repository
-        const functions: Function[] = [];
-
-        // Get all namespaces
-        const namespaces = [
-            'System',
-            'System.Math',
-            'System.Array',
-            'System.String',
-            'System.Object',
-            'System.Date',
-            'System.Context',
-            'System.Loop',
-            'System.JSON',
-        ];
-
-        // For each namespace, try to find common functions
-        // This is a workaround since Repository doesn't have a getAllFunctions method
-        // In practice, this would be implemented properly in the repository
-        for (const namespace of namespaces) {
-            try {
-                // Try to find common function names
-                const commonNames = this.getCommonFunctionNames(namespace);
-                for (const name of commonNames) {
-                    try {
-                        const func = await repo.find(namespace, name);
-                        if (func) {
-                            functions.push(func);
-                        }
-                    } catch {
-                        // Function not found, skip
-                    }
-                }
-            } catch {
-                // Namespace not found, skip
-            }
+    public static clearCache(repo?: Repository<Function>): void {
+        if (repo) {
+            this.cachedFunctions.delete(repo);
+        } else {
+            this.cachedFunctions.clear();
         }
-
-        return functions;
-    }
-
-    /**
-     * Get common function names for a namespace
-     */
-    private static getCommonFunctionNames(namespace: string): string[] {
-        const commonFunctions: { [key: string]: string[] } = {
-            System: ['If', 'GenerateEvent', 'Print', 'ValidateSchema', 'Wait'],
-            'System.Math': [
-                'Add',
-                'Subtract',
-                'Multiply',
-                'Divide',
-                'Modulo',
-                'Power',
-                'Absolute',
-                'Ceiling',
-                'Floor',
-                'Round',
-                'Maximum',
-                'Minimum',
-                'Random',
-            ],
-            'System.Array': [
-                'AddFirst',
-                'InsertLast',
-                'Insert',
-                'Delete',
-                'DeleteFirst',
-                'DeleteLast',
-                'Sort',
-                'Reverse',
-                'IndexOf',
-                'LastIndexOf',
-                'Join',
-                'Concatenate',
-                'SubArray',
-            ],
-            'System.String': [
-                'Concatenate',
-                'Split',
-                'Replace',
-                'Substring',
-                'ToLowerCase',
-                'ToUpperCase',
-                'Trim',
-                'Length',
-                'IndexOf',
-                'LastIndexOf',
-            ],
-            'System.Object': ['Keys', 'Values', 'Entries', 'PutValue', 'DeleteKey', 'Convert'],
-            'System.Date': [
-                'GetCurrent',
-                'FromDateString',
-                'ToDateString',
-                'AddSubtractTime',
-                'SetTimeZone',
-            ],
-            'System.Context': ['Create', 'Get', 'Set'],
-            'System.Loop': ['RangeLoop', 'CountLoop', 'ForEachLoop', 'Break'],
-            'System.JSON': ['Parse', 'Stringify'],
-        };
-
-        return commonFunctions[namespace] || [];
     }
 
     /**
@@ -214,10 +122,12 @@ export class DSLFunctionProvider {
 
         if (parameters) {
             for (const [name, param] of parameters) {
+                const schema = param.getSchema();
                 paramInfos.push({
                     name,
-                    type: this.getSchemaType(param.getSchema()),
-                    required: true, // TODO: Determine if parameter is required
+                    type: this.getSchemaType(schema),
+                    // Parameter is required if it has no default value
+                    required: schema?.getDefaultValue() === undefined,
                 });
             }
         }
@@ -256,9 +166,22 @@ export class DSLFunctionProvider {
      * Get schema type as string
      */
     private static getSchemaType(schema: any): string {
-        if (!schema) return 'ANY';
+        if (!schema) return 'Any';
+
         const type = schema.getType?.();
-        if (!type) return 'ANY';
-        return String(type);
+        if (!type) return 'Any';
+
+        // Type is either SingleType or MultipleType
+        // Get the allowed schema types and convert to readable string
+        const allowedTypes = type.getAllowedSchemaTypes?.();
+        if (allowedTypes && allowedTypes.size > 0) {
+            const typeNames = Array.from(allowedTypes);
+            if (typeNames.length === 1) {
+                return String(typeNames[0]); // SchemaType enum values are strings like 'String', 'Integer'
+            }
+            return typeNames.join(' | ');
+        }
+
+        return 'Any';
     }
 }

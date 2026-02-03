@@ -37,8 +37,8 @@ export class DSLLexer {
             // Try to read a token
             const token = this.readToken();
             if (token) {
-                // Skip comments and whitespace tokens
-                if (token.type !== DSLTokenType.COMMENT && token.type !== DSLTokenType.WHITESPACE) {
+                // Skip whitespace tokens but keep comments for attachment to statements
+                if (token.type !== DSLTokenType.WHITESPACE) {
                     this.tokens.push(token);
                 }
             }

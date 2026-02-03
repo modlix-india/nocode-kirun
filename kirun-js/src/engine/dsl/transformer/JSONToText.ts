@@ -1,25 +1,18 @@
-import { FunctionDefinition } from '../../model/FunctionDefinition';
-import { KIRuntime } from '../../runtime/KIRuntime';
-import { KIRunFunctionRepository } from '../../repository/KIRunFunctionRepository';
-import { KIRunSchemaRepository } from '../../repository/KIRunSchemaRepository';
 import { ExpressionHandler } from './ExpressionHandler';
 import { SchemaTransformer } from './SchemaTransformer';
 
 interface NestedStructure {
     blockName: string;
     parent: string;
-    statements: string[];
 }
 
 /**
  * JSON to Text Transformer
  * Converts FunctionDefinition JSON back to DSL text
- * Uses execution graph to reconstruct nested block structure
+ * Extracts implicit dependencies from expressions using same logic as KIRuntime
  */
 export class JSONToTextTransformer {
     private indentChar: string = '    '; // 4 spaces
-    private functionRepo = new KIRunFunctionRepository();
-    private schemaRepo = new KIRunSchemaRepository();
 
     /**
      * Transform JSON to DSL text
@@ -62,8 +55,8 @@ export class JSONToTextTransformer {
         // Logic
         lines.push(`${this.indent(1)}LOGIC`);
 
-        // Build execution graph to get structure
-        const nestedStructure = await this.buildNestedStructure(json);
+        // Build execution graph using KIRuntime to get implicit dependencies
+        const nestedStructure = await this.buildNestedStructureFromRuntime(json);
 
         // Generate statement lines with nesting
         const stmtLines = await this.stepsToText(json.steps, nestedStructure, 2);
@@ -72,74 +65,252 @@ export class JSONToTextTransformer {
         return lines.join('\n');
     }
 
+    // Same regex pattern as KIRuntime uses for extracting step dependencies
+    // Matches: Steps.stepName.eventName (e.g., Steps.fetch.output, Steps.loop.iteration)
+    private static readonly STEP_REGEX_PATTERN: RegExp = /Steps\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)/g;
+
     /**
-     * Build nested structure from execution graph
+     * Build nested structure by extracting dependencies from expressions
+     * Uses the same logic as KIRuntime for finding step dependencies
      */
-    private async buildNestedStructure(json: any): Promise<Map<string, NestedStructure>> {
+    private async buildNestedStructureFromRuntime(json: any): Promise<Map<string, NestedStructure>> {
         const structure = new Map<string, NestedStructure>();
+        const steps = json.steps || {};
+        const stepNames = new Set(Object.keys(steps));
 
-        try {
-            // Create function definition
-            const funcDef = FunctionDefinition.from(json);
+        // First pass: Extract all dependencies for each step
+        const allEdges = new Map<string, { parent: string; blockName: string }[]>();
 
-            // Get execution graph
-            const runtime = new KIRuntime(funcDef);
-            const graph = await runtime.getExecutionPlan(this.functionRepo, this.schemaRepo);
+        for (const [stepName, step] of Object.entries(steps)) {
+            const stepObj = step as any;
+            const dependencies = this.extractAllDependencies(stepObj, stepNames);
+            allEdges.set(stepName, dependencies);
+        }
 
-            // Analyze dependencies to identify nested blocks
-            for (const [stepName, step] of Object.entries(json.steps)) {
-                const deps = (step as any).dependentStatements || {};
+        // Helper to calculate nesting depth of a step
+        const getNestingDepth = (stepName: string, visited: Set<string> = new Set()): number => {
+            if (visited.has(stepName)) return 0;
+            visited.add(stepName);
+            const nestInfo = structure.get(stepName);
+            if (!nestInfo) return 0;
+            return 1 + getNestingDepth(nestInfo.parent, visited);
+        };
 
-                // Collect all block dependencies for this step
-                const blockDeps: { parent: string; blockName: string }[] = [];
-                const validBlockNames = ['true', 'false', 'iteration'];
+        // Sort steps topologically so dependencies are placed before dependents
+        // This ensures getNestingDepth() returns accurate values when choosing between multiple parents
+        const sortedSteps = this.topologicalSortForNesting(Array.from(allEdges.keys()), allEdges);
 
-                // Look for dependencies that indicate nesting
-                // Pattern: "Steps.parentName.blockName"
-                for (const depKey of Object.keys(deps)) {
-                    const decodedKey = this.decodeDots(depKey);
-                    const match = decodedKey.match(/^Steps\.([^.]+)\.(.+)$/);
-                    if (match) {
-                        const parentName = match[1];
-                        const blockName = match[2];
+        // Second pass: Assign nesting, handling multiple edges by picking deepest parent
+        let changed = true;
+        while (changed) {
+            changed = false;
 
-                        // Only treat specific block names as nested blocks
-                        // - true/false for If statements
-                        // - iteration for Loop statements
-                        // - NOT output (that's just a dependency on the statement's output)
-                        if (validBlockNames.includes(blockName)) {
-                            blockDeps.push({ parent: parentName, blockName });
+            // Process steps in topological order
+            for (const stepName of sortedSteps) {
+                if (structure.has(stepName)) continue;
+
+                const incomingEdges = allEdges.get(stepName);
+                if (!incomingEdges || incomingEdges.length === 0) continue;
+
+                if (incomingEdges.length === 1) {
+                    const edge = incomingEdges[0];
+                    structure.set(stepName, {
+                        blockName: edge.blockName,
+                        parent: edge.parent,
+                    });
+                    changed = true;
+                } else {
+                    // Multiple edges - pick the deepest parent
+                    let deepestEdge = incomingEdges[0];
+                    let maxDepth = getNestingDepth(deepestEdge.parent);
+
+                    for (let i = 1; i < incomingEdges.length; i++) {
+                        const edge = incomingEdges[i];
+                        const depth = getNestingDepth(edge.parent);
+                        if (depth > maxDepth) {
+                            maxDepth = depth;
+                            deepestEdge = edge;
                         }
                     }
-                }
 
-                // Only nest a step if it depends on exactly ONE block from ONE parent
-                // If it depends on multiple blocks (like both true and false), it's a top-level step
-                // that runs after the if statement, not inside a specific branch
-                if (blockDeps.length === 1) {
-                    const dep = blockDeps[0];
                     structure.set(stepName, {
-                        blockName: dep.blockName,
-                        parent: dep.parent,
-                        statements: [], // Will be populated later
+                        blockName: deepestEdge.blockName,
+                        parent: deepestEdge.parent,
                     });
+                    changed = true;
                 }
-                // If blockDeps.length > 1, the step depends on multiple blocks
-                // (e.g., both true and false), so it's NOT nested - it's a top-level step
             }
+        }
 
-            // Detect and break circular dependencies
-            // A circular dependency occurs when A's parent is B and B's parent is A (or longer chains)
-            const stepsInCycles = this.detectCircularDependencies(structure);
-            for (const stepName of stepsInCycles) {
-                structure.delete(stepName);
-            }
-        } catch (error) {
-            // If we can't build execution graph, fall back to flat structure
-            // Silently fall back to flat structure
+        // Detect and break circular dependencies
+        const stepsInCycles = this.detectCircularDependencies(structure);
+        for (const stepName of stepsInCycles) {
+            structure.delete(stepName);
         }
 
         return structure;
+    }
+
+    /**
+     * Extract all step dependencies from a step (same logic as KIRuntime)
+     * Extracts from: EXPRESSION parameters, JsonExpression in VALUE, dependentStatements, executeIftrue
+     */
+    private extractAllDependencies(
+        step: any,
+        validStepNames: Set<string>,
+    ): { parent: string; blockName: string }[] {
+        const deps: { parent: string; blockName: string }[] = [];
+        const seenDeps = new Set<string>();
+
+        const addDep = (text: string) => {
+            // Reset regex lastIndex for global regex
+            JSONToTextTransformer.STEP_REGEX_PATTERN.lastIndex = 0;
+            let match;
+            while ((match = JSONToTextTransformer.STEP_REGEX_PATTERN.exec(text)) !== null) {
+                const parentStep = match[1];
+                const blockName = match[2];
+                const key = `${parentStep}.${blockName}`;
+
+                if (validStepNames.has(parentStep) && !seenDeps.has(key)) {
+                    seenDeps.add(key);
+                    deps.push({ parent: parentStep, blockName });
+                }
+            }
+        };
+
+        // Extract from parameterMap
+        if (step.parameterMap) {
+            for (const [, paramRefs] of Object.entries(step.parameterMap)) {
+                for (const [, ref] of Object.entries(paramRefs as any)) {
+                    const refObj = ref as any;
+
+                    // EXPRESSION type - extract from expression string
+                    if (refObj.type === 'EXPRESSION' && refObj.expression) {
+                        addDep(refObj.expression);
+                    }
+
+                    // VALUE type - check for nested expressions
+                    if (refObj.type === 'VALUE' && refObj.value != null) {
+                        // Recursively search for expressions in the value
+                        this.extractExpressionsFromValue(refObj.value, addDep);
+                    }
+                }
+            }
+        }
+
+        // Extract from dependentStatements (explicit dependencies like AFTER Steps.store.output)
+        // These should also contribute to nesting - if step depends on Steps.store.output,
+        // it should be nested under store's output block
+        if (step.dependentStatements) {
+            for (const depKey of Object.keys(step.dependentStatements)) {
+                if (step.dependentStatements[depKey] !== true) continue;
+                // Decode MongoDB dot encoding: Steps__d-o-t__store__d-o-t__output -> Steps.store.output
+                const decodedKey = this.decodeDots(depKey);
+                addDep(decodedKey);
+            }
+        }
+
+        // Extract from executeIftrue
+        if (step.executeIftrue) {
+            for (const condition of Object.keys(step.executeIftrue)) {
+                addDep(condition);
+            }
+        }
+
+        return deps;
+    }
+
+    /**
+     * Recursively extract expressions from a VALUE (handles nested objects/arrays)
+     */
+    private extractExpressionsFromValue(value: any, addDep: (text: string) => void): void {
+        if (value == null) return;
+
+        if (typeof value === 'string') {
+            // Check if string contains step references
+            addDep(value);
+        } else if (Array.isArray(value)) {
+            for (const item of value) {
+                this.extractExpressionsFromValue(item, addDep);
+            }
+        } else if (typeof value === 'object') {
+            // Check for JsonExpression pattern (isExpression: true, value: "...")
+            if (value.isExpression === true && typeof value.value === 'string') {
+                addDep(value.value);
+            } else if (value.type === 'EXPRESSION' && typeof value.expression === 'string') {
+                // Another expression pattern
+                addDep(value.expression);
+            } else {
+                // Recursively check object properties
+                for (const propValue of Object.values(value)) {
+                    this.extractExpressionsFromValue(propValue, addDep);
+                }
+            }
+        }
+    }
+
+    /**
+     * Topological sort for nesting - ensures parent steps are processed before dependent steps
+     * This prevents the issue where a step with multiple parents picks the wrong one
+     * because the deeper parent hasn't been placed in the structure yet
+     */
+    private topologicalSortForNesting(
+        stepNames: string[],
+        allEdges: Map<string, { parent: string; blockName: string }[]>,
+    ): string[] {
+        const stepSet = new Set(stepNames);
+        const dependencies = new Map<string, Set<string>>();
+
+        // Build dependency graph: stepName depends on its parent steps
+        for (const stepName of stepNames) {
+            dependencies.set(stepName, new Set());
+            const edges = allEdges.get(stepName) || [];
+            for (const edge of edges) {
+                if (stepSet.has(edge.parent)) {
+                    dependencies.get(stepName)!.add(edge.parent);
+                }
+            }
+        }
+
+        // Kahn's algorithm for topological sort
+        const sorted: string[] = [];
+        const inDegree = new Map<string, number>();
+
+        for (const stepName of stepNames) {
+            inDegree.set(stepName, dependencies.get(stepName)!.size);
+        }
+
+        const queue: string[] = [];
+        for (const stepName of stepNames) {
+            if (inDegree.get(stepName) === 0) {
+                queue.push(stepName);
+            }
+        }
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            sorted.push(current);
+
+            // Decrease in-degree for all steps that depend on current
+            for (const [stepName, deps] of dependencies) {
+                if (deps.has(current)) {
+                    const newDegree = inDegree.get(stepName)! - 1;
+                    inDegree.set(stepName, newDegree);
+                    if (newDegree === 0) {
+                        queue.push(stepName);
+                    }
+                }
+            }
+        }
+
+        // Add remaining steps (cycles) - maintain original order for these
+        for (const stepName of stepNames) {
+            if (!sorted.includes(stepName)) {
+                sorted.push(stepName);
+            }
+        }
+
+        return sorted;
     }
 
     /**
@@ -150,13 +321,11 @@ export class JSONToTextTransformer {
         const inCycle = new Set<string>();
 
         for (const [stepName] of structure) {
-            // Follow the parent chain to detect cycles
             const visited = new Set<string>();
             let current: string | undefined = stepName;
 
             while (current && structure.has(current)) {
                 if (visited.has(current)) {
-                    // Found a cycle - mark all visited steps as in cycle
                     for (const s of visited) {
                         inCycle.add(s);
                     }
@@ -171,6 +340,116 @@ export class JSONToTextTransformer {
     }
 
     /**
+     * Extract step references from an expression string
+     */
+    private extractStepReferences(expr: string): string[] {
+        const refs: string[] = [];
+        const regex = /Steps\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+        let match;
+        while ((match = regex.exec(expr)) !== null) {
+            refs.push(match[1]);
+        }
+        return refs;
+    }
+
+    /**
+     * Extract all step dependencies from a step's parameterMap
+     */
+    private extractDependenciesFromParams(parameterMap: any): string[] {
+        const deps: string[] = [];
+
+        if (!parameterMap) return deps;
+
+        for (const [, paramRefs] of Object.entries(parameterMap)) {
+            for (const [, ref] of Object.entries(paramRefs as any)) {
+                const refObj = ref as any;
+                if (refObj.type === 'EXPRESSION' && refObj.expression) {
+                    deps.push(...this.extractStepReferences(refObj.expression));
+                }
+                if (refObj.type === 'VALUE' && refObj.value) {
+                    const valueStr = JSON.stringify(refObj.value);
+                    deps.push(...this.extractStepReferences(valueStr));
+                }
+            }
+        }
+
+        return deps;
+    }
+
+    /**
+     * Topologically sort steps based on their dependencies
+     */
+    private topologicalSort(stepNames: string[], steps: any): string[] {
+        const dependencies = new Map<string, Set<string>>();
+        const stepSet = new Set(stepNames);
+
+        for (const stepName of stepNames) {
+            dependencies.set(stepName, new Set());
+            const step = steps[stepName];
+
+            // Get explicit dependencies from dependentStatements
+            const explicitDeps = step.dependentStatements || {};
+            for (const depKey of Object.keys(explicitDeps)) {
+                const decodedKey = this.decodeDots(depKey);
+                const match = decodedKey.match(/^Steps\.([^.]+)/);
+                if (match) {
+                    const depStepName = match[1];
+                    if (stepSet.has(depStepName)) {
+                        dependencies.get(stepName)!.add(depStepName);
+                    }
+                }
+            }
+
+            // Get implicit dependencies from expressions
+            const implicitDeps = this.extractDependenciesFromParams(step.parameterMap);
+            for (const depStepName of implicitDeps) {
+                if (stepSet.has(depStepName) && depStepName !== stepName) {
+                    dependencies.get(stepName)!.add(depStepName);
+                }
+            }
+        }
+
+        // Kahn's algorithm
+        const sorted: string[] = [];
+        const inDegree = new Map<string, number>();
+
+        for (const stepName of stepNames) {
+            inDegree.set(stepName, dependencies.get(stepName)!.size);
+        }
+
+        const queue: string[] = [];
+        for (const stepName of stepNames) {
+            if (inDegree.get(stepName) === 0) {
+                queue.push(stepName);
+            }
+        }
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            sorted.push(current);
+
+            for (const [stepName, deps] of dependencies) {
+                if (deps.has(current)) {
+                    const newDegree = inDegree.get(stepName)! - 1;
+                    inDegree.set(stepName, newDegree);
+                    if (newDegree === 0) {
+                        queue.push(stepName);
+                    }
+                }
+            }
+        }
+
+        // Add remaining steps (cycles)
+        for (const stepName of stepNames) {
+            if (!sorted.includes(stepName)) {
+                sorted.push(stepName);
+            }
+        }
+
+        return sorted;
+    }
+
+    /**
      * Convert steps to DSL text with nesting
      */
     private async stepsToText(
@@ -180,7 +459,6 @@ export class JSONToTextTransformer {
     ): Promise<string[]> {
         const lines: string[] = [];
 
-        // Handle missing steps
         if (!steps) {
             return lines;
         }
@@ -191,48 +469,65 @@ export class JSONToTextTransformer {
 
         for (const stepName of Object.keys(steps)) {
             const nestInfo = nestedStructure.get(stepName);
-            if (nestInfo) {
-                // This is a nested statement - but only if parent exists
-                if (steps[nestInfo.parent]) {
-                    if (!byParent.has(nestInfo.parent)) {
-                        byParent.set(nestInfo.parent, new Map());
-                    }
-                    const parentBlocks = byParent.get(nestInfo.parent)!;
-                    if (!parentBlocks.has(nestInfo.blockName)) {
-                        parentBlocks.set(nestInfo.blockName, []);
-                    }
-                    parentBlocks.get(nestInfo.blockName)!.push(stepName);
-                } else {
-                    // Parent doesn't exist - treat as top-level
-                    topLevel.push(stepName);
+            if (nestInfo && steps[nestInfo.parent]) {
+                if (!byParent.has(nestInfo.parent)) {
+                    byParent.set(nestInfo.parent, new Map());
                 }
+                const parentBlocks = byParent.get(nestInfo.parent)!;
+                if (!parentBlocks.has(nestInfo.blockName)) {
+                    parentBlocks.set(nestInfo.blockName, []);
+                }
+                parentBlocks.get(nestInfo.blockName)!.push(stepName);
             } else {
-                // This is a top-level statement
                 topLevel.push(stepName);
             }
         }
 
-        // Helper function to render a step and its nested blocks recursively
+        // Sort statements
+        const sortedTopLevel = this.topologicalSort(topLevel, steps);
+
+        for (const [, blocks] of byParent) {
+            for (const [blockName, nestedSteps] of blocks) {
+                const sortedNested = this.topologicalSort(nestedSteps, steps);
+                blocks.set(blockName, sortedNested);
+            }
+        }
+
+        // Block ordering
+        const blockOrder = (blockName: string): number => {
+            const order: { [key: string]: number } = {
+                'error': 0,
+                'iteration': 1,
+                'true': 2,
+                'false': 3,
+                'output': 4,
+            };
+            return order[blockName] ?? 3;
+        };
+
+        // Render step and nested blocks recursively
         const renderStepWithNestedBlocks = (stepName: string, step: any, indent: number): void => {
-            const stmtLines = this.stepToText(step, indent);
+            const stmtLines = this.stepToText(step, stepName, indent);
             lines.push(...stmtLines);
 
-            // Render nested blocks for this statement
             const blocks = byParent.get(stepName);
             if (blocks) {
-                for (const [blockName, nestedSteps] of blocks) {
+                const sortedBlockNames = Array.from(blocks.keys()).sort(
+                    (a, b) => blockOrder(a) - blockOrder(b),
+                );
+
+                for (const blockName of sortedBlockNames) {
+                    const nestedSteps = blocks.get(blockName)!;
                     lines.push(`${this.indent(indent + 1)}${blockName}`);
                     for (const nestedStepName of nestedSteps) {
                         const nestedStep = steps[nestedStepName];
-                        // Recursively render the nested step and its own nested blocks
                         renderStepWithNestedBlocks(nestedStepName, nestedStep, indent + 2);
                     }
                 }
             }
         };
 
-        // Render top-level statements
-        for (const stepName of topLevel) {
+        for (const stepName of sortedTopLevel) {
             const step = steps[stepName];
             renderStepWithNestedBlocks(stepName, step, baseIndent);
         }
@@ -243,30 +538,22 @@ export class JSONToTextTransformer {
     /**
      * Convert single step to DSL text
      */
-    private stepToText(step: any, indent: number): string[] {
+    private stepToText(step: any, stepKey: string, indent: number): string[] {
         const lines: string[] = [];
         const ind = this.indent(indent);
 
-        // Build function call
+        const stepName = step.statementName || stepKey;
         const funcCall = `${step.namespace}.${step.name}(${this.argsToText(step.parameterMap)})`;
-        let line = `${ind}${step.statementName}: ${funcCall}`;
+        let line = `${ind}${stepName}: ${funcCall}`;
 
-        // Add AFTER clause (filter out block dependencies like Steps.x.true/false/iteration)
+        // Add AFTER clause for explicit dependencies
         const afterSteps: string[] = [];
         const deps = step.dependentStatements || {};
-        const validBlockNames = ['true', 'false', 'iteration'];
-        for (const [depKey, value] of Object.entries(deps)) {
+
+        for (const [depKey, depValue] of Object.entries(deps)) {
+            if (depValue !== true) continue;
             const decodedKey = this.decodeDots(depKey);
-            const match = decodedKey.match(/^Steps\.([^.]+)\.(.+)$/);
-            if (match) {
-                const blockName = match[2];
-                // Only skip actual block dependencies
-                if (!validBlockNames.includes(blockName)) {
-                    afterSteps.push(decodedKey);
-                }
-            } else {
-                afterSteps.push(decodedKey);
-            }
+            afterSteps.push(decodedKey);
         }
 
         if (afterSteps.length > 0) {
@@ -279,8 +566,13 @@ export class JSONToTextTransformer {
             line += ` IF ${ifSteps.join(', ')}`;
         }
 
-        lines.push(line);
+        // Add comment
+        if (step.comment && step.comment.trim()) {
+            const escapedComment = step.comment.replace(/\*\//g, '*\\/');
+            line += ` /* ${escapedComment} */`;
+        }
 
+        lines.push(line);
         return lines;
     }
 
@@ -291,15 +583,14 @@ export class JSONToTextTransformer {
         const args: string[] = [];
 
         for (const [paramName, paramRefs] of Object.entries(parameterMap || {})) {
-            // Get first parameter reference (sorted by order)
-            // Note: Multi-value parameters are a known limitation - only the first value is preserved
             const refEntries = Object.entries(paramRefs as any);
-            if (refEntries.length > 0) {
-                // Sort by order and take first
-                const sortedRefs = refEntries
-                    .map(([_, ref]) => ref as any)
-                    .sort((a, b) => (a.order || 0) - (b.order || 0));
-                const ref = sortedRefs[0];
+            if (refEntries.length === 0) continue;
+
+            const sortedRefs = refEntries
+                .map(([_, ref]) => ref as any)
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            for (const ref of sortedRefs) {
                 const value = this.paramRefToText(ref);
                 args.push(`${paramName} = ${value}`);
             }
@@ -314,90 +605,45 @@ export class JSONToTextTransformer {
     private paramRefToText(ref: any): string {
         if (ref.type === 'EXPRESSION') {
             const expr = ref.expression;
-            // Handle empty expressions - wrap in backticks to preserve
             if (expr === '' || expr === undefined || expr === null) {
                 return '``';
             }
-            // For EXPRESSION types, check if the expression looks like a literal
-            // If so, wrap in backticks to distinguish from VALUE
             if (this.expressionNeedsBackticks(expr)) {
-                // Escape backslashes first, then backticks
                 return '`' + expr.replace(/\\/g, '\\\\').replace(/`/g, '\\`') + '`';
             }
-            // Single-quoted strings and other expressions are output as-is
             return expr;
         } else {
-            // For VALUE types, use double-quoted strings
-            // Double-quoted strings → parsed as VALUE
             return this.valueToTextPreserveType(ref.value);
         }
     }
 
     /**
      * Check if an expression needs to be wrapped in backticks
-     * Expressions that look like literals need backticks to preserve their EXPRESSION type
      */
     private expressionNeedsBackticks(expr: string): boolean {
         if (!expr) return false;
         const trimmed = expr.trim();
 
-        // Expressions containing double quotes need backticks
-        // (either a full string or an expression with embedded strings)
-        if (expr.includes('"')) {
-            return true;
-        }
-
-        // Expressions containing single quotes need backticks
-        // to avoid ambiguity with DSL's single-quote expression syntax
-        if (expr.includes("'")) {
-            return true;
-        }
-
-        // Boolean keywords need backticks (exact match or at start of expression)
-        if (trimmed === 'true' || trimmed === 'false') {
-            return true;
-        }
-        // Expressions starting with boolean keywords (e.g., "true and X", "false or Y")
-        if (trimmed.startsWith('true ') || trimmed.startsWith('false ')) {
-            return true;
-        }
-
-        // null keyword needs backticks
-        if (trimmed === 'null') {
-            return true;
-        }
-
-        // Numbers need backticks (exact numbers or expressions starting with numbers)
-        if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
-            return true;
-        }
-        // Numeric expressions with operators (e.g., "3 * 604800")
-        if (/^-?\d+(\.\d+)?\s*[+\-*\/%]/.test(trimmed)) {
-            return true;
-        }
-
-        // Empty array/object literals need backticks
-        if (trimmed === '[]' || trimmed === '{}') {
-            return true;
-        }
+        if (expr.includes('"')) return true;
+        if (expr.includes("'")) return true;
+        if (trimmed === 'true' || trimmed === 'false') return true;
+        if (trimmed.startsWith('true ') || trimmed.startsWith('false ')) return true;
+        if (trimmed === 'null' || trimmed === 'undefined') return true;
+        if (/^-?\d+(\.\d+)?$/.test(trimmed)) return true;
+        if (/^-?\d+(\.\d+)?\s*[+\-*\/%]/.test(trimmed)) return true;
+        if (trimmed === '[]' || trimmed === '{}') return true;
 
         return false;
     }
 
     /**
-     * Convert value to text representation, always quoting strings
-     * This is used for VALUE types where we want to preserve the value-ness
-     * IMPORTANT: Do NOT try to detect schemas here - this is for raw VALUE types
-     * and we need to preserve the exact value (not convert to schema syntax)
+     * Convert value to text representation
      */
     private valueToTextPreserveType(value: any): string {
-        if (value === null || value === undefined) {
-            return 'null';
-        }
+        if (value === undefined) return 'undefined';
+        if (value === null) return 'null';
 
         if (typeof value === 'string') {
-            // Always quote strings for VALUE types, even if they look like expressions
-            // Escape backslashes first, then double quotes, and wrap with quotes
             return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
         }
 
@@ -410,82 +656,16 @@ export class JSONToTextTransformer {
         }
 
         if (Array.isArray(value)) {
-            if (value.length === 0) {
-                return '[]';
-            }
+            if (value.length === 0) return '[]';
             const items = value.map((v) => this.valueToTextPreserveType(v));
             return `[${items.join(', ')}]`;
         }
 
         if (typeof value === 'object') {
-            // Check if it's an expression object
             if (ExpressionHandler.isExpression(value)) {
                 return value.value;
             }
-
-            // For VALUE types, always use JSON - do NOT convert to schema syntax
-            // This preserves the exact value structure for round-trip
-            return JSON.stringify(value);
-        }
-
-        return String(value);
-    }
-
-
-    /**
-     * Convert value to text representation
-     */
-    private valueToText(value: any): string {
-        if (value === null || value === undefined) {
-            return 'null';
-        }
-
-        if (typeof value === 'string') {
-            // Check if it looks like an expression (starts with known prefixes)
-            // Expression prefixes: Arguments., Steps., Context., Store., Page., etc.
-            if (this.looksLikeExpression(value)) {
-                return value;
-            }
-            // Escape backslashes first, then double quotes, and wrap with quotes
-            return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
-        }
-
-        if (typeof value === 'boolean') {
-            return value ? 'true' : 'false';
-        }
-
-        if (typeof value === 'number') {
-            return String(value);
-        }
-
-        if (Array.isArray(value)) {
-            if (value.length === 0) {
-                return '[]';
-            }
-            const items = value.map((v) => this.valueToText(v));
-            return `[${items.join(', ')}]`;
-        }
-
-        if (typeof value === 'object') {
-            // Check if it's an expression object
-            if (ExpressionHandler.isExpression(value)) {
-                return value.value;
-            }
-
-            // Check if it's a schema object
-            if (value.type) {
-                // Might be a schema - try to convert to text
-                const schemaText = SchemaTransformer.toText(value);
-                if (schemaText.startsWith('{')) {
-                    // Complex schema - use as-is
-                    return schemaText;
-                }
-                // Simple schema - wrap in parentheses for schema literal
-                return `(${schemaText})`;
-            }
-
-            // Regular object
-            return JSON.stringify(value);
+            return JSON.stringify(value, null, 4);
         }
 
         return String(value);
@@ -506,55 +686,9 @@ export class JSONToTextTransformer {
     }
 
     /**
-     * Decode MongoDB dot encoding (__d-o-t__ -> .)
+     * Decode MongoDB dot encoding
      */
     private decodeDots(str: string): string {
         return str.replace(/__d-o-t__/g, '.');
-    }
-
-    /**
-     * Check if a string value looks like an expression
-     * Expressions typically start with known prefixes like Arguments., Steps., Context., etc.
-     */
-    private looksLikeExpression(value: string): boolean {
-        // Common expression prefixes in KIRun
-        const expressionPrefixes = [
-            'Arguments.',
-            'Steps.',
-            'Context.',
-            'Store.',
-            'Page.',
-            'Application.',
-            'LocalStore.',
-            'SessionStore.',
-            'Cookies.',
-            'URL.',
-        ];
-
-        // Check if starts with a known prefix
-        for (const prefix of expressionPrefixes) {
-            if (value.startsWith(prefix)) {
-                return true;
-            }
-        }
-
-        // Don't treat emails or URLs as expressions
-        if (value.includes('@') || value.includes('://')) {
-            return false;
-        }
-
-        // Don't treat file paths or common strings with dots as expressions
-        const nonExpressionPatterns = [
-            /\.(com|org|net|io|dev|co|edu|gov)$/i,  // Domain endings
-            /\.(json|xml|html|css|js|ts|txt|md|pdf)$/i,  // File extensions
-            /^\d+\.\d+/,  // Version numbers like 1.0.0
-        ];
-        for (const pattern of nonExpressionPatterns) {
-            if (pattern.test(value)) {
-                return false;
-            }
-        }
-
-        return false;
     }
 }

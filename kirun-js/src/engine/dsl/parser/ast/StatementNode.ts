@@ -17,6 +17,7 @@ export class StatementNode extends ASTNode {
         public executeIfSteps: string[] = [],
         public nestedBlocks: Map<string, StatementNode[]> = new Map(),
         location: SourceLocation,
+        public comment: string = '',
     ) {
         super('Statement', location);
     }
@@ -34,6 +35,7 @@ export class StatementNode extends ASTNode {
                     statements.map((s) => s.toJSON()),
                 ]),
             ),
+            comment: this.comment,
         };
     }
 }

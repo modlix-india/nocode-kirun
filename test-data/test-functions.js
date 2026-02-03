@@ -214,6 +214,31 @@ function compareDefinitions(original, recompiled) {
                 }
             }
         }
+
+        // Compare dependentStatements
+        const origDeps = origStep.dependentStatements || {};
+        const recompDeps = recompStep.dependentStatements || {};
+        const origDepKeys = Object.keys(origDeps).sort();
+        const recompDepKeys = Object.keys(recompDeps).sort();
+
+        // Filter out false/undefined values (they're semantically equivalent to not being present)
+        const origActiveDeps = origDepKeys.filter(k => origDeps[k] === true);
+        const recompActiveDeps = recompDepKeys.filter(k => recompDeps[k] === true);
+
+        if (origActiveDeps.length !== recompActiveDeps.length) {
+            return `Step "${stepName}" dependentStatements count mismatch: ${origActiveDeps.length} !== ${recompActiveDeps.length} (orig: [${origActiveDeps.join(', ')}], recomp: [${recompActiveDeps.join(', ')}])`;
+        }
+
+        // Compare each dependency (normalize the keys by decoding dots)
+        const decodeDots = (s) => s.replace(/__d-o-t__/g, '.');
+        const origDepsNormalized = origActiveDeps.map(decodeDots).sort();
+        const recompDepsNormalized = recompActiveDeps.map(decodeDots).sort();
+
+        for (let i = 0; i < origDepsNormalized.length; i++) {
+            if (origDepsNormalized[i] !== recompDepsNormalized[i]) {
+                return `Step "${stepName}" dependentStatements mismatch at index ${i}: "${origDepsNormalized[i]}" !== "${recompDepsNormalized[i]}"`;
+            }
+        }
     }
 
     return null; // No differences found
