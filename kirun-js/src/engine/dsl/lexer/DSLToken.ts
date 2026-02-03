@@ -9,6 +9,7 @@ export enum DSLTokenType {
     IDENTIFIER = 'IDENTIFIER',
     NUMBER = 'NUMBER',
     STRING = 'STRING',
+    BACKTICK_STRING = 'BACKTICK_STRING', // `...` for expressions
     BOOLEAN = 'BOOLEAN',
     NULL = 'NULL',
 
@@ -17,6 +18,7 @@ export enum DSLTokenType {
     COMMA = 'COMMA',           // ,
     DOT = 'DOT',               // .
     EQUALS = 'EQUALS',         // =
+    OPERATOR = 'OPERATOR',     // + - * / % < > ! ? & | @ ^ ~
 
     // Brackets and parentheses
     LEFT_PAREN = 'LEFT_PAREN',      // (

@@ -84,10 +84,7 @@ export class DSLLexer {
 
         const ch = this.peek();
 
-        // Comments
-        if (ch === '/' && this.peekAhead(1) === '/') {
-            return this.readLineComment();
-        }
+        // Block comments only (// is not supported as it conflicts with integer division in expressions)
         if (ch === '/' && this.peekAhead(1) === '*') {
             return this.readBlockComment();
         }
@@ -95,6 +92,11 @@ export class DSLLexer {
         // String literals
         if (ch === '"' || ch === "'") {
             return this.readStringLiteral(ch);
+        }
+
+        // Backtick strings (for expressions)
+        if (ch === '`') {
+            return this.readBacktickString();
         }
 
         // Numbers
@@ -122,14 +124,26 @@ export class DSLLexer {
     }
 
     /**
-     * Read single-character tokens
+     * Read single-character or multi-character tokens
      */
     private readSingleCharToken(): DSLToken | null {
         const startPos = this.pos;
         const startLine = this.line;
         const startColumn = this.column;
-        const ch = this.advance();
+        const ch = this.peek();
 
+        // Check for multi-character operators first
+        const multiCharOp = this.tryReadMultiCharOperator();
+        if (multiCharOp) {
+            return new DSLToken(
+                DSLTokenType.OPERATOR,
+                multiCharOp,
+                new SourceLocation(startLine, startColumn, startPos, this.pos),
+            );
+        }
+
+        // Advance past single character
+        this.advance();
         let type: DSLTokenType | null = null;
 
         switch (ch) {
@@ -163,6 +177,25 @@ export class DSLLexer {
             case ']':
                 type = DSLTokenType.RIGHT_BRACKET;
                 break;
+            // Operators for expressions (passed through to KIRun expression parser)
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '%':
+            case '<':
+            case '>':
+            case '!':
+            case '?':
+            case '&':
+            case '|':
+            case '@':
+            case '^':
+            case '~':
+            case '#':  // Color values like #FFFFFF
+            case '\\': // Escape sequences in regex
+                type = DSLTokenType.OPERATOR;
+                break;
             default:
                 return null;
         }
@@ -172,6 +205,25 @@ export class DSLLexer {
             ch,
             new SourceLocation(startLine, startColumn, startPos, this.pos),
         );
+    }
+
+    /**
+     * Try to read multi-character operators like !=, ==, <=, >=, &&, ||, ??
+     */
+    private tryReadMultiCharOperator(): string | null {
+        const ch = this.peek();
+        const next = this.peekAhead(1);
+
+        // Two-character operators
+        const twoCharOps = ['!=', '==', '<=', '>=', '&&', '||', '??', '?.', '++', '--', '+=', '-=', '*=', '/='];
+        const twoChar = ch + next;
+        if (twoCharOps.includes(twoChar)) {
+            this.advance();
+            this.advance();
+            return twoChar;
+        }
+
+        return null;
     }
 
     /**
@@ -293,6 +345,55 @@ export class DSLLexer {
 
         return new DSLToken(
             DSLTokenType.STRING,
+            value,
+            new SourceLocation(startLine, startColumn, startPos, this.pos),
+        );
+    }
+
+    /**
+     * Read backtick string literal (used for expressions)
+     * Content between backticks is treated as an expression
+     * Only \` (escaped backtick) and \\ (escaped backslash) are special
+     * All other escape sequences are passed through as-is
+     */
+    private readBacktickString(): DSLToken {
+        const startPos = this.pos;
+        const startLine = this.line;
+        const startColumn = this.column;
+        let value = '';
+
+        // Consume opening backtick
+        this.advance();
+
+        while (this.pos < this.input.length) {
+            const ch = this.peek();
+
+            // End of string
+            if (ch === '`') {
+                this.advance();
+                break;
+            }
+
+            // Escape sequences - only handle \` and \\
+            if (ch === '\\') {
+                const next = this.peekAhead(1);
+                if (next === '`' || next === '\\') {
+                    // Consume backslash and add the escaped character
+                    this.advance();
+                    value += this.advance();
+                    continue;
+                }
+                // For all other escapes, keep the backslash
+                value += this.advance();
+                continue;
+            }
+
+            // Regular character
+            value += this.advance();
+        }
+
+        return new DSLToken(
+            DSLTokenType.BACKTICK_STRING,
             value,
             new SourceLocation(startLine, startColumn, startPos, this.pos),
         );

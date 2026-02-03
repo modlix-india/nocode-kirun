@@ -2,12 +2,12 @@ import { SourceLocation } from '../../lexer/DSLToken';
 import { ASTNode } from './ASTNode';
 
 /**
- * Complex value node - represents JSON objects or arrays
- * Used for parameter values that are objects or arrays
+ * Complex value node - represents literal values
+ * Used for parameter values that are objects, arrays, or primitives (strings, numbers, booleans, null)
  */
 export class ComplexValueNode extends ASTNode {
     constructor(
-        public value: object | any[],
+        public value: any,
         location: SourceLocation,
     ) {
         super('ComplexValue', location);

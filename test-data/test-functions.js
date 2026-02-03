@@ -175,29 +175,41 @@ function compareDefinitions(original, recompiled) {
                 return `Step "${stepName}" param "${paramKey}" value count mismatch: ${origValueKeys.length} !== ${recompValueKeys.length}`;
             }
 
-            // Compare each value entry
-            for (const valueKey of origValueKeys) {
-                const origVal = origValues[valueKey];
-                const recompVal = recompValues[valueKey];
+            // Compare each value entry by index (keys are UUIDs and will differ)
+            const origValuesArray = origValueKeys.map(k => origValues[k]);
+            const recompValuesArray = recompValueKeys.map(k => recompValues[k]);
 
-                if (!recompVal) {
-                    return `Step "${stepName}" param "${paramKey}" missing value entry`;
-                }
+            for (let i = 0; i < origValuesArray.length; i++) {
+                const origVal = origValuesArray[i];
+                const recompVal = recompValuesArray[i];
 
-                // Compare type (VALUE, EXPRESSION)
-                if (origVal.type !== recompVal.type) {
-                    return `Step "${stepName}" param "${paramKey}" type mismatch: "${origVal.type}" !== "${recompVal.type}"`;
-                }
+                // Normalize the values for comparison
+                const origContent = origVal.type === 'EXPRESSION' ? origVal.expression : origVal.value;
+                const recompContent = recompVal.type === 'EXPRESSION' ? recompVal.expression : recompVal.value;
 
-                // Compare expression or value based on type
-                if (origVal.type === 'EXPRESSION') {
-                    if ((origVal.expression || '') !== (recompVal.expression || '')) {
-                        return `Step "${stepName}" param "${paramKey}" expression mismatch: "${origVal.expression}" !== "${recompVal.expression}"`;
+                // Compare content semantically
+                // VALUE with simple string and EXPRESSION with same string are equivalent
+                if (origVal.type === recompVal.type) {
+                    // Same type - compare directly
+                    if (origVal.type === 'EXPRESSION') {
+                        if ((origVal.expression || '') !== (recompVal.expression || '')) {
+                            return `Step "${stepName}" param "${paramKey}" expression mismatch: "${origVal.expression}" !== "${recompVal.expression}"`;
+                        }
+                    } else if (origVal.type === 'VALUE') {
+                        if (JSON.stringify(origVal.value) !== JSON.stringify(recompVal.value)) {
+                            return `Step "${stepName}" param "${paramKey}" value mismatch: ${JSON.stringify(origVal.value)} !== ${JSON.stringify(recompVal.value)}`;
+                        }
                     }
-                } else if (origVal.type === 'VALUE') {
-                    // Deep compare values (could be objects, arrays, primitives)
-                    if (JSON.stringify(origVal.value) !== JSON.stringify(recompVal.value)) {
-                        return `Step "${stepName}" param "${paramKey}" value mismatch: ${JSON.stringify(origVal.value)} !== ${JSON.stringify(recompVal.value)}`;
+                } else {
+                    // Different types - check if semantically equivalent
+                    // VALUE with primitive string vs EXPRESSION with same string
+                    if (typeof origContent === 'string' && typeof recompContent === 'string') {
+                        if (origContent !== recompContent) {
+                            return `Step "${stepName}" param "${paramKey}" content mismatch: "${origContent}" !== "${recompContent}"`;
+                        }
+                    } else {
+                        // Complex values need exact type match
+                        return `Step "${stepName}" param "${paramKey}" type mismatch: "${origVal.type}" !== "${recompVal.type}"`;
                     }
                 }
             }

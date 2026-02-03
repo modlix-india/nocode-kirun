@@ -12,7 +12,8 @@
       "Bash(npm install:*)",
       "Bash(kill:*)",
       "Bash(node -e:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(node:*)"
     ]
   }
 }

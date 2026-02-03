@@ -21,9 +21,11 @@ import { DSLParserError } from './DSLParserError';
 export class DSLParser {
     private tokens: DSLToken[];
     private current: number = 0;
+    private originalInput: string;
 
-    constructor(tokens: DSLToken[]) {
+    constructor(tokens: DSLToken[], originalInput: string = '') {
         this.tokens = tokens;
+        this.originalInput = originalInput;
     }
 
     /**
@@ -175,7 +177,7 @@ export class DSLParser {
 
         const functionCall = this.parseFunctionCall();
 
-        // Parse optional AFTER clause
+        // Parse optional AFTER clause (statement dependencies)
         const afterSteps: string[] = [];
         if (this.match(DSLTokenType.KEYWORD, 'AFTER')) {
             this.advance(); // consume AFTER
@@ -226,7 +228,15 @@ export class DSLParser {
             const token = this.peek();
 
             // Check if this is a block name
-            if (token.type === DSLTokenType.IDENTIFIER && isBlockName(token.value)) {
+            // Block names can be IDENTIFIER (iteration, output, error), BOOLEAN (true, false),
+            // or KEYWORD (true, false are also keywords in the lexer)
+            // BUT if followed by colon, it's a statement name, not a block name
+            const isBlockToken = token.type === DSLTokenType.IDENTIFIER ||
+                                 token.type === DSLTokenType.BOOLEAN ||
+                                 token.type === DSLTokenType.KEYWORD;
+            const nextToken = this.peekAhead(1);
+            const isFollowedByColon = nextToken && nextToken.type === DSLTokenType.COLON;
+            if (isBlockToken && isBlockName(token.value) && !isFollowedByColon) {
                 const blockName = this.advance().value;
                 const statements: StatementNode[] = [];
 
@@ -235,12 +245,16 @@ export class DSLParser {
                     const next = this.peek();
 
                     // Check if next token is a block name or top-level statement
-                    if (next.type === DSLTokenType.IDENTIFIER) {
-                        const nextNext = this.peekAhead(1);
+                    const isNextBlockToken = next.type === DSLTokenType.IDENTIFIER ||
+                                             next.type === DSLTokenType.BOOLEAN ||
+                                             next.type === DSLTokenType.KEYWORD;
+                    if (isNextBlockToken) {
                         if (isBlockName(next.value)) {
                             // Another block
                             break;
                         }
+                        const nextNext = this.peekAhead(1);
+                        // Check if this looks like a statement (identifier followed by colon)
                         if (!nextNext || nextNext.type !== DSLTokenType.COLON) {
                             // Not a statement, might be end of block
                             break;
@@ -250,8 +264,10 @@ export class DSLParser {
                     if (next.type === DSLTokenType.COLON) {
                         // Anonymous statement in block
                         statements.push(this.parseStatement());
-                    } else if (next.type === DSLTokenType.IDENTIFIER) {
-                        // Named statement in block
+                    } else if (next.type === DSLTokenType.IDENTIFIER ||
+                               next.type === DSLTokenType.BOOLEAN ||
+                               next.type === DSLTokenType.KEYWORD) {
+                        // Named statement in block (can use any identifier-like token as name)
                         statements.push(this.parseStatement());
                     } else {
                         break;
@@ -335,9 +351,71 @@ export class DSLParser {
             }
         }
 
+        // Check for backtick string - always treated as EXPRESSION
+        // Backticks are used to wrap expressions that might look like literals
+        // e.g., `false` is expression "false", `"hello"` is expression "hello"
+        if (this.match(DSLTokenType.BACKTICK_STRING)) {
+            const btToken = this.advance();
+            // The content between backticks is the expression
+            return new ExpressionNode(btToken.value, btToken.location);
+        }
+
+        // Check for string literal
+        // Single-quoted strings are treated as EXPRESSION (KIRun expression parser evaluates them)
+        // Double-quoted strings are treated as VALUE (literal string value)
+        if (this.match(DSLTokenType.STRING)) {
+            const strToken = this.peek();
+            const quoteChar = strToken.value[0];
+
+            if (quoteChar === "'") {
+                // Single-quoted string could be part of a larger expression (e.g., 'a' + 'b')
+                // Check if followed by an operator - if so, parse as full expression
+                const nextToken = this.peekAhead(1);
+                if (nextToken && nextToken.type === DSLTokenType.OPERATOR) {
+                    // Fall through to parseExpression to handle full expression
+                    return this.parseExpression();
+                }
+                // Standalone single-quoted string → EXPRESSION
+                this.advance();
+                return new ExpressionNode(strToken.value, strToken.location);
+            } else {
+                // Double-quoted string → VALUE (remove quotes and unescape JSON escape sequences)
+                this.advance();
+                const strValue = this.unescapeJsonString(strToken.value.slice(1, -1));
+                return new ComplexValueNode(strValue, strToken.location);
+            }
+        }
+
+        // Check for number literal - treat as VALUE
+        if (this.match(DSLTokenType.NUMBER)) {
+            const numToken = this.advance();
+            return new ComplexValueNode(parseFloat(numToken.value), numToken.location);
+        }
+
+        // Check for boolean literal - treat as VALUE
+        if (this.match(DSLTokenType.BOOLEAN) ||
+            (this.match(DSLTokenType.KEYWORD) && (token.value === 'true' || token.value === 'false'))) {
+            const boolToken = this.advance();
+            return new ComplexValueNode(boolToken.value === 'true', boolToken.location);
+        }
+
+        // Check for null literal - treat as VALUE
+        if (this.match(DSLTokenType.NULL) ||
+            (this.match(DSLTokenType.KEYWORD) && token.value === 'null')) {
+            const nullToken = this.advance();
+            return new ComplexValueNode(null, nullToken.location);
+        }
+
         // Check for complex value (object or array)
+        // But NOT if it's {{ which is a KIRun expression reference
         if (this.match(DSLTokenType.LEFT_BRACE)) {
-            return this.parseComplexValue();
+            // Check if next token is also LEFT_BRACE (making it {{ expression)
+            const nextToken = this.peekAhead(1);
+            if (nextToken && nextToken.type !== DSLTokenType.LEFT_BRACE) {
+                // Single { means JSON object
+                return this.parseComplexValue();
+            }
+            // {{ means expression, fall through to parseExpression
         }
 
         if (this.match(DSLTokenType.LEFT_BRACKET)) {
@@ -350,13 +428,15 @@ export class DSLParser {
 
     /**
      * Parse expression (everything until comma, paren, or newline)
+     * If originalInput is available, extract exact text to preserve whitespace
      */
     private parseExpression(): ExpressionNode {
         const startToken = this.peek();
-        let expressionText = '';
+        const startPos = startToken.location.startPos;
 
         // Collect tokens until we hit a delimiter
         let depth = 0;
+        let lastToken = startToken;
         while (!this.match(DSLTokenType.EOF)) {
             const token = this.peek();
 
@@ -382,14 +462,169 @@ export class DSLParser {
                 break;
             }
 
-            expressionText += token.value;
-            if (token.type !== DSLTokenType.DOT) {
-                expressionText += ' '; // Add space between tokens
-            }
+            lastToken = token;
             this.advance();
         }
 
-        return new ExpressionNode(expressionText.trim(), startToken.location);
+        // If we have the original input, extract exact text preserving whitespace
+        // Use the delimiter's start position to include any trailing whitespace
+        if (this.originalInput && startPos >= 0) {
+            const delimiterToken = this.peek();
+            const endPos = delimiterToken.location.startPos;
+            if (endPos > startPos) {
+                const exactText = this.originalInput.substring(startPos, endPos);
+                // Only trim leading whitespace, preserve trailing whitespace
+                return new ExpressionNode(exactText.trimStart(), startToken.location);
+            }
+        }
+        // Fallback using last token position
+        if (this.originalInput && startPos >= 0 && lastToken.location.endPos > startPos) {
+            const exactText = this.originalInput.substring(startPos, lastToken.location.endPos);
+            return new ExpressionNode(exactText.trimStart(), startToken.location);
+        }
+
+        // Fallback: reconstruct from tokens (shouldn't normally happen)
+        // This path is only used if originalInput is not provided
+        return this.reconstructExpressionFromTokens(startToken, lastToken);
+    }
+
+    /**
+     * Reconstruct expression text from tokens (fallback when originalInput unavailable)
+     */
+    private reconstructExpressionFromTokens(startToken: DSLToken, endToken: DSLToken): ExpressionNode {
+        // Re-parse the tokens to reconstruct the expression
+        // This is a fallback and may not preserve exact whitespace
+        const savedPos = this.current;
+
+        // Find the start token position
+        let startIdx = 0;
+        for (let i = 0; i < this.tokens.length; i++) {
+            if (this.tokens[i].location.startPos === startToken.location.startPos) {
+                startIdx = i;
+                break;
+            }
+        }
+
+        let expressionText = '';
+        let depth = 0;
+        for (let i = startIdx; i < this.tokens.length; i++) {
+            const token = this.tokens[i];
+            if (token.location.startPos > endToken.location.startPos) break;
+
+            if (
+                token.type === DSLTokenType.LEFT_PAREN ||
+                token.type === DSLTokenType.LEFT_BRACKET ||
+                token.type === DSLTokenType.LEFT_BRACE
+            ) {
+                depth++;
+            } else if (
+                token.type === DSLTokenType.RIGHT_PAREN ||
+                token.type === DSLTokenType.RIGHT_BRACKET ||
+                token.type === DSLTokenType.RIGHT_BRACE
+            ) {
+                depth--;
+            }
+
+            expressionText += token.value;
+
+            // Add space between tokens if needed
+            const nextToken = this.tokens[i + 1];
+            if (nextToken && nextToken.location.startPos <= endToken.location.startPos) {
+                if (this.needsSpaceBetween(token, nextToken, depth)) {
+                    expressionText += ' ';
+                }
+            }
+        }
+
+        // Preserve trailing whitespace (may be significant in expressions)
+        return new ExpressionNode(expressionText.trimStart(), startToken.location);
+    }
+
+    /**
+     * Determine if a space is needed between two tokens in an expression
+     * @param depth - current brace nesting depth (0 = top level)
+     */
+    private needsSpaceBetween(current: DSLToken, next: DSLToken, depth: number): boolean {
+        // No space between consecutive braces (for {{ and }})
+        if (current.type === DSLTokenType.LEFT_BRACE && next.type === DSLTokenType.LEFT_BRACE) {
+            return false;
+        }
+        if (current.type === DSLTokenType.RIGHT_BRACE && next.type === DSLTokenType.RIGHT_BRACE) {
+            return false;
+        }
+
+        // No space around dots (for property access like Context.a)
+        if (current.type === DSLTokenType.DOT || next.type === DSLTokenType.DOT) {
+            return false;
+        }
+
+        // No space after [ or before ]
+        if (current.type === DSLTokenType.LEFT_BRACKET || next.type === DSLTokenType.RIGHT_BRACKET) {
+            return false;
+        }
+
+        // No space after ( or before )
+        if (current.type === DSLTokenType.LEFT_PAREN || next.type === DSLTokenType.RIGHT_PAREN) {
+            return false;
+        }
+
+        // No space after { or before }
+        if (current.type === DSLTokenType.LEFT_BRACE || next.type === DSLTokenType.RIGHT_BRACE) {
+            return false;
+        }
+
+        // No space around ?? nullish coalescing operator
+        if ((current.type === DSLTokenType.OPERATOR && current.value === '??') ||
+            (next.type === DSLTokenType.OPERATOR && next.value === '??')) {
+            return false;
+        }
+
+        // No space around - when between identifiers (for hyphenated names like content-type)
+        if (current.type === DSLTokenType.OPERATOR && current.value === '-') {
+            return false;
+        }
+        if (next.type === DSLTokenType.OPERATOR && next.value === '-') {
+            return false;
+        }
+
+        // Inside nested braces (depth > 0), don't add spaces around arithmetic operators
+        // This preserves expressions like {{1+x}} without spaces
+        if (depth > 0) {
+            const arithOps = ['+', '*', '/', '%'];
+            if (current.type === DSLTokenType.OPERATOR && arithOps.includes(current.value)) {
+                return false;
+            }
+            if (next.type === DSLTokenType.OPERATOR && arithOps.includes(next.value)) {
+                return false;
+            }
+        }
+
+        // Space between identifiers/keywords/booleans (to separate words like "false and")
+        const isCurrentWord = current.type === DSLTokenType.IDENTIFIER ||
+                              current.type === DSLTokenType.KEYWORD ||
+                              current.type === DSLTokenType.BOOLEAN ||
+                              current.type === DSLTokenType.NUMBER;
+        const isNextWord = next.type === DSLTokenType.IDENTIFIER ||
+                          next.type === DSLTokenType.KEYWORD ||
+                          next.type === DSLTokenType.BOOLEAN ||
+                          next.type === DSLTokenType.NUMBER;
+
+        if (isCurrentWord && isNextWord) {
+            return true;
+        }
+
+        // Space around = operator for comparisons
+        if (current.type === DSLTokenType.EQUALS || next.type === DSLTokenType.EQUALS) {
+            return true;
+        }
+
+        // Space around comparison and arithmetic operators at top level
+        if (current.type === DSLTokenType.OPERATOR || next.type === DSLTokenType.OPERATOR) {
+            return true;
+        }
+
+        // No space by default
+        return false;
     }
 
     /**
@@ -552,7 +787,8 @@ export class DSLParser {
 
         if (token.type === DSLTokenType.STRING) {
             const strToken = this.advance();
-            return strToken.value.slice(1, -1); // Remove quotes
+            // Remove quotes and unescape JSON escape sequences
+            return this.unescapeJsonString(strToken.value.slice(1, -1));
         }
 
         if (token.type === DSLTokenType.NUMBER) {
@@ -560,12 +796,16 @@ export class DSLParser {
             return parseFloat(numToken.value);
         }
 
-        if (token.type === DSLTokenType.BOOLEAN) {
+        // Boolean values can be BOOLEAN token or KEYWORD token (true/false are also keywords)
+        if (token.type === DSLTokenType.BOOLEAN ||
+            (token.type === DSLTokenType.KEYWORD && (token.value === 'true' || token.value === 'false'))) {
             const boolToken = this.advance();
             return boolToken.value === 'true';
         }
 
-        if (token.type === DSLTokenType.NULL) {
+        // Null can be NULL token or KEYWORD token
+        if (token.type === DSLTokenType.NULL ||
+            (token.type === DSLTokenType.KEYWORD && token.value === 'null')) {
             this.advance();
             return null;
         }
@@ -635,10 +875,25 @@ export class DSLParser {
 
     /**
      * Expect an identifier token
+     * Also accepts BOOLEAN tokens (true/false) as identifiers since they're used
+     * as nested block names in if/loop statements (e.g., if.true, if.false)
      */
     private expectIdentifier(): string {
-        const token = this.expect(DSLTokenType.IDENTIFIER);
-        return token.value;
+        const token = this.peek();
+        if (token.type === DSLTokenType.IDENTIFIER) {
+            return this.advance().value;
+        }
+        if (token.type === DSLTokenType.BOOLEAN) {
+            // Accept true/false as identifiers for nested block names
+            return this.advance().value;
+        }
+        if (token.type === DSLTokenType.KEYWORD) {
+            // Accept keywords as identifiers (e.g., nested block names like "iteration")
+            return this.advance().value;
+        }
+        // Fall back to expect for proper error message
+        const expected = this.expect(DSLTokenType.IDENTIFIER);
+        return expected.value;
     }
 
     /**
@@ -660,5 +915,75 @@ export class DSLParser {
      */
     private expectStepReference(): string {
         return this.expectDottedIdentifier();
+    }
+
+    /**
+     * Unescape JSON string escape sequences
+     * Handles: \n, \r, \t, \\, \", \/, \b, \f, \uXXXX
+     */
+    private unescapeJsonString(str: string): string {
+        let result = '';
+        let i = 0;
+        while (i < str.length) {
+            if (str[i] === '\\' && i + 1 < str.length) {
+                const next = str[i + 1];
+                switch (next) {
+                    case 'n':
+                        result += '\n';
+                        i += 2;
+                        break;
+                    case 'r':
+                        result += '\r';
+                        i += 2;
+                        break;
+                    case 't':
+                        result += '\t';
+                        i += 2;
+                        break;
+                    case 'b':
+                        result += '\b';
+                        i += 2;
+                        break;
+                    case 'f':
+                        result += '\f';
+                        i += 2;
+                        break;
+                    case '\\':
+                        result += '\\';
+                        i += 2;
+                        break;
+                    case '"':
+                        result += '"';
+                        i += 2;
+                        break;
+                    case '/':
+                        result += '/';
+                        i += 2;
+                        break;
+                    case 'u':
+                        // Unicode escape \uXXXX
+                        if (i + 5 < str.length) {
+                            const hex = str.substring(i + 2, i + 6);
+                            if (/^[0-9a-fA-F]{4}$/.test(hex)) {
+                                result += String.fromCharCode(parseInt(hex, 16));
+                                i += 6;
+                                break;
+                            }
+                        }
+                        // Invalid unicode escape, keep as-is
+                        result += str[i];
+                        i++;
+                        break;
+                    default:
+                        // Unknown escape, keep backslash and character
+                        result += str[i];
+                        i++;
+                }
+            } else {
+                result += str[i];
+                i++;
+            }
+        }
+        return result;
     }
 }

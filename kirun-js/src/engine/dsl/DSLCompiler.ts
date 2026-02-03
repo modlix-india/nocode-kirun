@@ -31,8 +31,8 @@ export class DSLCompiler {
         const lexer = new DSLLexer(text);
         const tokens = lexer.tokenize();
 
-        // 2. Parse
-        const parser = new DSLParser(tokens);
+        // 2. Parse (pass original input for exact expression extraction)
+        const parser = new DSLParser(tokens, text);
         const ast = parser.parse();
 
         // 3. Transform

@@ -22,7 +22,7 @@ export class ASTToJSONTransformer {
     public transform(ast: FunctionDefNode): any {
         return {
             name: ast.name,
-            namespace: ast.namespace || '_',
+            namespace: ast.namespace || '',
             version: 1,
             parameters: this.transformParameters(ast.parameters),
             events: this.transformEvents(ast.events),
