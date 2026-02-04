@@ -1,3 +1,4 @@
+import { FunctionDefinition } from '../../model/FunctionDefinition';
 import type { LogEntry, ExecutionLog, DebugEventListener } from './types';
 
 /**
@@ -41,7 +42,7 @@ export class DebugCollector {
      * Called when a KIRuntime (definition-based) function begins execution.
      * For nested calls with the same executionId, stores the additional definition.
      */
-    startExecution(executionId: string, functionName: string, definition?: any): void {
+    startExecution(executionId: string, functionName: string, definition?: FunctionDefinition): void {
         if (!this.enabled) return;
 
         const execution = this.executions.get(executionId);

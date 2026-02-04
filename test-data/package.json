@@ -1,0 +1,13 @@
+{
+  "name": "kirun-test-data",
+  "version": "1.0.0",
+  "description": "Test data and scripts for KIRun DSL testing",
+  "private": true,
+  "scripts": {
+    "download": "node download-functions.js",
+    "test": "node test-functions.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  }
+}

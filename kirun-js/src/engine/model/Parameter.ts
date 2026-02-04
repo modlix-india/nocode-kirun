@@ -115,4 +115,13 @@ export class Parameter {
             .setVariableArgument(!!json.variableArgument)
             .setType(json.type ?? ParameterType.EXPRESSION);
     }
+
+    public toJSON(): any {
+        return {
+            parameterName: this.parameterName,
+            schema: this.schema,
+            variableArgument: this.variableArgument,
+            type: this.type,
+        };
+    }
 }

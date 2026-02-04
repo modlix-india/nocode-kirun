@@ -113,4 +113,37 @@ export class FunctionDefinition extends FunctionSignature {
             )
             .setNamespace(json.namespace) as FunctionDefinition;
     }
+
+    /**
+     * Create FunctionDefinition from DSL text
+     * @param text DSL source code
+     * @returns FunctionDefinition instance
+     */
+    public static async fromText(text: string): Promise<FunctionDefinition> {
+        // Import DSLCompiler dynamically to avoid circular dependencies
+        const { DSLCompiler } = await import('../dsl/DSLCompiler');
+        const json = DSLCompiler.compile(text);
+        return FunctionDefinition.from(json);
+    }
+
+    /**
+     * Convert FunctionDefinition to DSL text
+     * @returns DSL source code
+     */
+    public async toText(): Promise<string> {
+        // Import DSLCompiler dynamically to avoid circular dependencies
+        const { DSLCompiler } = await import('../dsl/DSLCompiler');
+        const json = this.toJSON();
+        return await DSLCompiler.decompile(json);
+    }
+
+    public toJSON(): any {
+        return {
+            ...super.toJSON(),
+            version: this.version,
+            steps: this.steps ? Object.fromEntries(Array.from(this.steps).map(([str, stmnt]) => [str, stmnt.toJSON()])) : {},
+            stepGroups: this.stepGroups ? Object.fromEntries(this.stepGroups) : {},
+            parts: this.parts ?? [],
+        };
+    }
 }

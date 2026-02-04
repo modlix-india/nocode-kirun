@@ -77,4 +77,13 @@ export class FunctionSignature {
     public getFullName(): string {
         return this.namespace + '.' + this.name;
     }
+
+    public toJSON(): any {
+        return {
+            namespace: this.namespace,
+            name: this.name,
+            parameters: Object.fromEntries(this.parameters),
+            events: Object.fromEntries(this.events),
+        };
+    }
 }

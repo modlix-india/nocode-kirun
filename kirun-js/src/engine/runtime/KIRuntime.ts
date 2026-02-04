@@ -140,8 +140,7 @@ export class KIRuntime extends AbstractFunction {
             const functionName = this.fd.getNamespace()
                 ? `${this.fd.getNamespace()}.${this.fd.getName()}`
                 : this.fd.getName();
-            const definition = this.serializeFunctionDefinition(this);
-            DebugCollector.getInstance().startExecution(inContext.getExecutionId(), functionName, definition);
+            DebugCollector.getInstance().startExecution(inContext.getExecutionId(), functionName, this.fd.toJSON());
         }
 
         let eGraph: ExecutionGraph<string, StatementExecution> = await this.getExecutionPlan(
@@ -907,66 +906,5 @@ export class KIRuntime extends AbstractFunction {
         }
 
         return new Tuple2(retValue, retMap);
-    }
-
-    /**
-     * Serialize a FunctionDefinition for debug logging
-     * @param fun - The function to serialize (must be KIRuntime)
-     * @returns Serialized function definition
-     */
-    private serializeFunctionDefinition(fun: Function): any {
-        const sig = fun.getSignature();
-
-        const params = sig.getParameters();
-        const events = sig.getEvents();
-
-        const definition: any = {
-            name: sig.getName(),
-            namespace: sig.getNamespace(),
-            parameters: params
-                ? Object.fromEntries(
-                      Array.from(params.entries()).map(([k, v]) => [
-                          k,
-                          {
-                              parameterName: v.getParameterName(),
-                              schema: v.getSchema(),
-                              variableArgument: v.isVariableArgument(),
-                          },
-                      ]),
-                  )
-                : undefined,
-            events: events
-                ? Object.fromEntries(
-                      Array.from(events.entries()).map(([k, v]) => [
-                          k,
-                          { name: v.getName(), parameters: v.getParameters() },
-                      ]),
-                  )
-                : undefined,
-        };
-
-        // Add steps for KIRuntime functions (FunctionDefinition)
-        if (fun instanceof KIRuntime) {
-            const fd = fun.getSignature() as FunctionDefinition;
-            const steps = fd.getSteps();
-            definition.version = fd.getVersion?.();
-            definition.steps = steps
-                ? Object.fromEntries(
-                      Array.from(steps.entries()).map(([k, v]) => [
-                          k,
-                          {
-                              statementName: v.getStatementName(),
-                              namespace: v.getNamespace(),
-                              name: v.getName(),
-                              parameterMap: v.getParameterMap()
-                                  ? Object.fromEntries(v.getParameterMap())
-                                  : undefined,
-                          },
-                      ]),
-                  )
-                : undefined;
-        }
-
-        return definition;
     }
 }
