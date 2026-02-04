@@ -645,4 +645,322 @@ describe('Original Expression Parsing Tests', () => {
         const evFresh = new ExpressionEvaluator(expression);
         expect(evFresh.evaluate(valuesMapValueMissing)).toBe('Expression Fallback Title');
     });
+
+    test('Expression 9a: Simplified nested ternary to isolate issue', () => {
+        // Simplified version to isolate the issue
+        const expression = `Page.a != undefined ? 'A' : Page.b != undefined ? 'B' : Page.c != undefined ? 'C' : '-'`;
+
+        // Test with matching condition
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            a: 'test'
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        expect(ev.evaluate(valuesMap)).toBe('A');
+    });
+
+    test('Expression 9b: Nested ternary with dynamic keys', () => {
+        // Test with dynamic keys using {{}}
+        const expression = `Page.kycs.{{Parent.id}}.a != undefined ? 'A' : Page.kycs.{{Parent.id}}.b != undefined ? 'B' : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            kycs: {
+                '123': {
+                    a: 'test'
+                }
+            }
+        });
+
+        const parentExtractor = new TestTokenValueExtractor('Parent.', {
+            id: '123'
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor],
+            [parentExtractor.getPrefix(), parentExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        expect(ev.evaluate(valuesMap)).toBe('A');
+    });
+
+    test('Expression 9c1: Debug - Simplest failing case', () => {
+        // Simplest case that reproduces the issue
+        const expression = `true ? 'a' +' '+ 'b' : false ? 'c' +' '+ 'd' : '-'`;
+
+        const valuesMap = new Map();
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('a b');
+    });
+
+    test('Expression 9c2: Debug - With property access', () => {
+        // Test with property access in ternary
+        const expression = `true ? Page.a +' '+ Page.b : false ? Page.c +' '+ Page.d : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            a: 'Hello',
+            b: 'World'
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('Hello World');
+    });
+
+    test('Expression 9c3: Debug - With deeper property paths like original', () => {
+        // Test with deeper property paths like the original failing expression
+        const expression = `true ? Page.x.a.first +' '+ Page.x.a.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            x: {
+                a: {
+                    first: 'John',
+                    last: 'Doe'
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('John Doe');
+    });
+
+    test('Expression 9c4: Debug - Nested ternary with deep paths', () => {
+        // Test nested ternary with deep property paths
+        const expression = `true ? Page.x.a.first +' '+ Page.x.a.last : false ? Page.x.b.first +' '+ Page.x.b.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            x: {
+                a: {
+                    first: 'John',
+                    last: 'Doe'
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('John Doe');
+    });
+
+    test('Expression 9c5: Debug - With NUMERIC property path segment', () => {
+        // Test numeric segment in property path - should now work with the fix
+        const expression = `true ? Page.x.123.a.first +' '+ Page.x.123.a.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            x: {
+                '123': {
+                    a: {
+                        first: 'John',
+                        last: 'Doe'
+                    }
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('John Doe');
+    });
+
+    test('Expression 9c6: Debug - With ObjectId-like property path segment', () => {
+        // Test with alphanumeric ObjectId-like value (e.g., MongoDB ObjectId)
+        const expression = `true ? Page.x.507f1f77bcf86cd799439011.a.first +' '+ Page.x.507f1f77bcf86cd799439011.a.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            x: {
+                '507f1f77bcf86cd799439011': {
+                    a: {
+                        first: 'Jane',
+                        last: 'Smith'
+                    }
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('Jane Smith');
+    });
+
+    test('Expression 9c7: Debug - With underscore in property path segment', () => {
+        // Test with property names containing underscores and numbers
+        const expression = `true ? Page.x.123_abc.a.first +' '+ Page.x.123_abc.a.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            x: {
+                '123_abc': {
+                    a: {
+                        first: 'Bob',
+                        last: 'Johnson'
+                    }
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('Bob Johnson');
+    });
+
+    test('Expression 9c: Debug - Parse expanded expression without {{}}', () => {
+        // Test the expanded expression directly (without {{}}) to see if parsing is the issue
+        const expandedExpression = `Page.kycs.123.a != undefined ? Page.kycs.123.a.first +' '+ Page.kycs.123.a.last : Page.kycs.123.b != undefined ? Page.kycs.123.b.first +' '+ Page.kycs.123.b.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            kycs: {
+                '123': {
+                    a: {
+                        first: 'John',
+                        last: 'Doe'
+                    }
+                }
+            }
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expandedExpression);
+        const result = ev.evaluate(valuesMap);
+        expect(result).toBe('John Doe');
+    });
+
+    test('Expression 9c: Nested ternary with string concatenation', () => {
+        // Test with string concatenation in ternary branches
+        const expression = `Page.kycs.{{Parent.id}}.a != undefined ? Page.kycs.{{Parent.id}}.a.first +' '+ Page.kycs.{{Parent.id}}.a.last : Page.kycs.{{Parent.id}}.b != undefined ? Page.kycs.{{Parent.id}}.b.first +' '+ Page.kycs.{{Parent.id}}.b.last : '-'`;
+
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            kycs: {
+                '123': {
+                    a: {
+                        first: 'John',
+                        last: 'Doe'
+                    }
+                }
+            }
+        });
+
+        const parentExtractor = new TestTokenValueExtractor('Parent.', {
+            id: '123'
+        });
+
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor],
+            [parentExtractor.getPrefix(), parentExtractor]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        expect(ev.evaluate(valuesMap)).toBe('John Doe');
+    });
+
+    test('Expression 9: Complex nested ternary with dynamic keys and string concatenation', () => {
+        // This is a complex multi-level ternary with dynamic object keys and string concatenation
+        const expression = `Page.kycs.{{Parent.kycAccountId}}.individual != undefined ? Page.kycs.{{Parent.kycAccountId}}.individual.basic.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.individual.basic.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.joint != undefined ? Page.kycs.{{Parent.kycAccountId}}.joint.mainApplicant.individual.basic.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.joint.mainApplicant.individual.basic.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.llp != undefined ? Page.kycs.{{Parent.kycAccountId}}.llp.authorizePerson.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.llp.authorizePerson.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.partnership != undefined ? Page.kycs.{{Parent.kycAccountId}}.partnership.authorizePerson.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.partnership.authorizePerson.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.private != undefined ? Page.kycs.{{Parent.kycAccountId}}.private.authorizePerson.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.private.authorizePerson.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.trust != undefined ? Page.kycs.{{Parent.kycAccountId}}.trust.authorizePerson.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.trust.authorizePerson.personalInformation.lastName : Page.kycs.{{Parent.kycAccountId}}.huf != undefined ? Page.kycs.{{Parent.kycAccountId}}.huf.kartaInformation.personalInformation.firstName +' '+ Page.kycs.{{Parent.kycAccountId}}.huf.kartaInformation.personalInformation.lastName : '-'`;
+
+        // Test with individual account type
+        const pageExtractorIndividual = new TestTokenValueExtractor('Page.', {
+            kycs: {
+                '123': {
+                    individual: {
+                        basic: {
+                            personalInformation: {
+                                firstName: 'John',
+                                lastName: 'Doe'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const parentExtractorIndividual = new TestTokenValueExtractor('Parent.', {
+            kycAccountId: '123'
+        });
+
+        const valuesMapIndividual = new Map([
+            [pageExtractorIndividual.getPrefix(), pageExtractorIndividual],
+            [parentExtractorIndividual.getPrefix(), parentExtractorIndividual]
+        ]);
+
+        const ev = new ExpressionEvaluator(expression);
+        expect(ev.evaluate(valuesMapIndividual)).toBe('John Doe');
+
+        // Test with fallback (no matching account type)
+        const pageExtractorFallback = new TestTokenValueExtractor('Page.', {
+            kycs: {
+                '456': {}
+            }
+        });
+
+        const parentExtractorFallback = new TestTokenValueExtractor('Parent.', {
+            kycAccountId: '456'
+        });
+
+        const valuesMapFallback = new Map([
+            [pageExtractorFallback.getPrefix(), pageExtractorFallback],
+            [parentExtractorFallback.getPrefix(), parentExtractorFallback]
+        ]);
+
+        const evFallback = new ExpressionEvaluator(expression);
+        expect(evFallback.evaluate(valuesMapFallback)).toBe('-');
+    });
+
+    test('Expression trimming: Leading and trailing whitespace should be trimmed', () => {
+        // Test that expressions with leading/trailing whitespace are properly trimmed
+        const expr1 = new Expression('   Page.value   ');
+        expect(expr1.getExpression()).toBe('Page.value');
+
+        const expr2 = new Expression('  true ? "yes" : "no"  ');
+        expect(expr2.getExpression()).toBe('true ? "yes" : "no"');
+
+        const expr3 = new Expression('\t\nPage.x + 5\n\t');
+        expect(expr3.getExpression()).toBe('Page.x + 5');
+
+        // Test with actual evaluation to ensure trimming doesn't break functionality
+        const pageExtractor = new TestTokenValueExtractor('Page.', {
+            value: 'test',
+            x: 10
+        });
+        const valuesMap = new Map([
+            [pageExtractor.getPrefix(), pageExtractor]
+        ]);
+
+        const ev1 = new ExpressionEvaluator('   Page.value   ');
+        expect(ev1.evaluate(valuesMap)).toBe('test');
+
+        const ev2 = new ExpressionEvaluator('  Page.x + 5  ');
+        expect(ev2.evaluate(valuesMap)).toBe(15);
+    });
 });

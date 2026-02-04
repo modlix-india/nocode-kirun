@@ -545,7 +545,7 @@ export class ExpressionEvaluator {
         const opsArray: Operation[] = exp.getOperationsArray();
         const tokensSource: ExpressionToken[] = exp.getTokensArray();
         const workingStack: ExpressionToken[] = [];
-        
+
         // Context for tracking indices - passed to helper methods
         const ctx = { opIdx: 0, srcIdx: 0 };
         

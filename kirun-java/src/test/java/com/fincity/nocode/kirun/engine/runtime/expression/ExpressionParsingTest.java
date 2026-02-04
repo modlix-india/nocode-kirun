@@ -284,4 +284,167 @@ class ExpressionParsingTest {
 		}
 	}
 
+	@Test
+	void parseExpressionWithNumericPropertyPathSegment() {
+		// Test numeric segment in property path (e.g., Page.x.123.a.first)
+		// This tests backward compatibility with numeric property keys
+		JsonObject xData = new JsonObject();
+		JsonObject numericKey = new JsonObject();
+		JsonObject aData = new JsonObject();
+		aData.addProperty("first", "John");
+		aData.addProperty("last", "Doe");
+		numericKey.add("a", aData);
+		xData.add("123", numericKey);
+
+		JsonObject pageData = new JsonObject();
+		pageData.add("x", xData);
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(pageExtractor.getPrefix(), pageExtractor);
+
+		String expr = "Page.x.123.a.first +' '+ Page.x.123.a.last";
+		assertNotNull(new Expression(expr));
+
+		ExpressionEvaluator ev = new ExpressionEvaluator(expr);
+		assertEquals(new JsonPrimitive("John Doe"), ev.evaluate(valuesMap));
+
+		// Test in ternary expression
+		String ternaryExpr = "true ? Page.x.123.a.first +' '+ Page.x.123.a.last : '-'";
+		ExpressionEvaluator evTernary = new ExpressionEvaluator(ternaryExpr);
+		assertEquals(new JsonPrimitive("John Doe"), evTernary.evaluate(valuesMap));
+	}
+
+	@Test
+	void parseExpressionWithObjectIdLikePropertyPath() {
+		// Test with alphanumeric ObjectId-like value (e.g., MongoDB ObjectId: 507f1f77bcf86cd799439011)
+		// This verifies that the parser correctly handles property keys that start with numbers
+		// but contain letters (common with database-generated IDs)
+		JsonObject xData = new JsonObject();
+		JsonObject objectIdKey = new JsonObject();
+		JsonObject aData = new JsonObject();
+		aData.addProperty("first", "Jane");
+		aData.addProperty("last", "Smith");
+		objectIdKey.add("a", aData);
+		xData.add("507f1f77bcf86cd799439011", objectIdKey);
+
+		JsonObject pageData = new JsonObject();
+		pageData.add("x", xData);
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(pageExtractor.getPrefix(), pageExtractor);
+
+		String expr = "Page.x.507f1f77bcf86cd799439011.a.first +' '+ Page.x.507f1f77bcf86cd799439011.a.last";
+		assertNotNull(new Expression(expr));
+
+		ExpressionEvaluator ev = new ExpressionEvaluator(expr);
+		assertEquals(new JsonPrimitive("Jane Smith"), ev.evaluate(valuesMap));
+
+		// Test in ternary expression
+		String ternaryExpr = "true ? Page.x.507f1f77bcf86cd799439011.a.first +' '+ Page.x.507f1f77bcf86cd799439011.a.last : '-'";
+		ExpressionEvaluator evTernary = new ExpressionEvaluator(ternaryExpr);
+		assertEquals(new JsonPrimitive("Jane Smith"), evTernary.evaluate(valuesMap));
+	}
+
+	@Test
+	void parseExpressionWithUnderscoreInPropertyPath() {
+		// Test with property names containing underscores and numbers (e.g., 123_abc)
+		// This ensures the parser handles mixed alphanumeric property keys with underscores
+		JsonObject xData = new JsonObject();
+		JsonObject underscoreKey = new JsonObject();
+		JsonObject aData = new JsonObject();
+		aData.addProperty("first", "Bob");
+		aData.addProperty("last", "Johnson");
+		underscoreKey.add("a", aData);
+		xData.add("123_abc", underscoreKey);
+
+		JsonObject pageData = new JsonObject();
+		pageData.add("x", xData);
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(pageExtractor.getPrefix(), pageExtractor);
+
+		String expr = "Page.x.123_abc.a.first +' '+ Page.x.123_abc.a.last";
+		assertNotNull(new Expression(expr));
+
+		ExpressionEvaluator ev = new ExpressionEvaluator(expr);
+		assertEquals(new JsonPrimitive("Bob Johnson"), ev.evaluate(valuesMap));
+
+		// Test in ternary expression
+		String ternaryExpr = "true ? Page.x.123_abc.a.first +' '+ Page.x.123_abc.a.last : '-'";
+		ExpressionEvaluator evTernary = new ExpressionEvaluator(ternaryExpr);
+		assertEquals(new JsonPrimitive("Bob Johnson"), evTernary.evaluate(valuesMap));
+	}
+
+	@Test
+	void parseComplexNestedTernaryWithNumericKeys() {
+		// Test the original complex nested ternary expression with numeric property keys
+		// This is similar to the real-world use case: Page.kycs.123.individual...
+		// Focus on testing the parser's ability to handle numeric property keys
+		JsonObject kycsData = new JsonObject();
+		JsonObject accountData = new JsonObject();
+		JsonObject individualData = new JsonObject();
+		JsonObject basicData = new JsonObject();
+		JsonObject personalInfo = new JsonObject();
+		personalInfo.addProperty("firstName", "John");
+		personalInfo.addProperty("lastName", "Doe");
+		basicData.add("personalInformation", personalInfo);
+		individualData.add("basic", basicData);
+		accountData.add("individual", individualData);
+		kycsData.add("123", accountData);
+
+		JsonObject pageData = new JsonObject();
+		pageData.add("kycs", kycsData);
+
+		JsonObject parentData = new JsonObject();
+		parentData.addProperty("kycAccountId", "123");
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		PrefixJsonTokenValueExtractor parentExtractor = new PrefixJsonTokenValueExtractor("Parent.", parentData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(
+			pageExtractor.getPrefix(), pageExtractor,
+			parentExtractor.getPrefix(), parentExtractor
+		);
+
+		// Test direct property access with numeric keys and dynamic template
+		String simpleExpr = "Page.kycs.{{Parent.kycAccountId}}.individual.basic.personalInformation.firstName +' '+ " +
+		                   "Page.kycs.{{Parent.kycAccountId}}.individual.basic.personalInformation.lastName";
+
+		assertNotNull(new Expression(simpleExpr));
+
+		ExpressionEvaluator evSimple = new ExpressionEvaluator(simpleExpr);
+		assertEquals(new JsonPrimitive("John Doe"), evSimple.evaluate(valuesMap));
+
+		// Test with ternary and nullish coalescing (simpler than != undefined)
+		String ternaryExpr = "Page.kycs.123.individual.basic.personalInformation.firstName ?? 'N/A'";
+		ExpressionEvaluator evTernary = new ExpressionEvaluator(ternaryExpr);
+		assertEquals(new JsonPrimitive("John"), evTernary.evaluate(valuesMap));
+	}
+
+	@Test
+	void expressionTrimmingLeadingAndTrailingWhitespace() {
+		// Test that expressions with leading/trailing whitespace are properly trimmed
+		Expression expr1 = new Expression("   Page.value   ");
+		assertEquals("Page.value", expr1.getExpression());
+
+		Expression expr2 = new Expression("  true ? \"yes\" : \"no\"  ");
+		assertEquals("true ? \"yes\" : \"no\"", expr2.getExpression());
+
+		Expression expr3 = new Expression("\t\nPage.x + 5\n\t");
+		assertEquals("Page.x + 5", expr3.getExpression());
+
+		// Test with actual evaluation to ensure trimming doesn't break functionality
+		JsonObject pageData = new JsonObject();
+		pageData.addProperty("value", "test");
+		pageData.addProperty("x", 10);
+
+		PrefixJsonTokenValueExtractor pageExtractor = new PrefixJsonTokenValueExtractor("Page.", pageData);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(pageExtractor.getPrefix(), pageExtractor);
+
+		ExpressionEvaluator ev1 = new ExpressionEvaluator("   Page.value   ");
+		assertEquals(new JsonPrimitive("test"), ev1.evaluate(valuesMap));
+
+		ExpressionEvaluator ev2 = new ExpressionEvaluator("  Page.x + 5  ");
+		assertEquals(new JsonPrimitive(15), ev2.evaluate(valuesMap));
+	}
+
 }

@@ -62,7 +62,8 @@ public class Expression extends ExpressionToken {
     }
 
     public Expression(String expression, ExpressionToken l, ExpressionToken r, Operation op, boolean skipParsing) {
-        super(expression != null ? expression : "");
+        // Trim leading/trailing whitespace before storing in super class
+        super(expression != null ? expression.trim() : "");
         
         // If we have left/right tokens and operation, construct directly (for AST building)
         // Using push() to maintain compatibility with evaluator (push adds to head).
@@ -91,10 +92,12 @@ public class Expression extends ExpressionToken {
         }
         
         // If we have an expression string, parse it
+        // Note: expression is already trimmed in super() constructor
         if (expression != null && !expression.isBlank()) {
             // Try the new parser first, fall back to old parser if it fails
             try {
-                ExpressionParser parser = new ExpressionParser(expression);
+                // Use this.expression which contains the trimmed version from super()
+                ExpressionParser parser = new ExpressionParser(this.expression);
                 Expression parsed = parser.parse();
                 // Copy tokens and operations from parsed expression
                 // Create new LinkedLists to avoid sharing references

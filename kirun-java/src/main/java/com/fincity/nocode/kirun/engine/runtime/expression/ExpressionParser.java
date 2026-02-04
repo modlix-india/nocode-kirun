@@ -7,10 +7,57 @@ public class ExpressionParser {
     private ExpressionLexer lexer;
     private ExpressionLexer.Token currentToken = null;
     private ExpressionLexer.Token previousTokenValue = null;
+    private String originalExpression;
+    private int parseDepth = 0;
 
     public ExpressionParser(String expression) {
+        this.originalExpression = expression;
         this.lexer = new ExpressionLexer(expression);
         this.currentToken = this.lexer.nextToken();
+    }
+
+    /**
+     * Creates a detailed parser error with context information for debugging.
+     * Logs comprehensive error details including position, context, and token information.
+     */
+    private ExpressionEvaluationException createParserError(String message) {
+        int position = lexer.getPosition();
+        int contextStart = Math.max(0, position - 20);
+        int contextEnd = Math.min(originalExpression.length(), position + 20);
+        String context = originalExpression.substring(contextStart, contextEnd);
+
+        // Create visual pointer to error location
+        String pointer = " ".repeat(position - contextStart) + "^";
+
+        // Build detailed error message
+        StringBuilder errorDetails = new StringBuilder("\nParser Error: ").append(message)
+            .append("\nExpression: ").append(originalExpression)
+            .append("\nPosition: ").append(position)
+            .append("\nContext: ...").append(context).append("...")
+            .append("\n         ").append(pointer);
+
+        if (currentToken != null) {
+            errorDetails.append("\nCurrent token: ").append(currentToken.type)
+                       .append("(\"").append(currentToken.value).append("\")");
+        } else {
+            errorDetails.append("\nCurrent token: EOF");
+        }
+
+        if (previousTokenValue != null) {
+            errorDetails.append("\nPrevious token: ").append(previousTokenValue.type)
+                       .append("(\"").append(previousTokenValue.value).append("\")");
+        } else {
+            errorDetails.append("\nPrevious token: null");
+        }
+
+        errorDetails.append("\nParse depth: ").append(parseDepth).append("\n");
+
+        System.err.println(errorDetails.toString());
+
+        return new ExpressionEvaluationException(
+            originalExpression,
+            message + " at position " + position
+        );
     }
 
     public Expression parse() {
@@ -273,15 +320,28 @@ public class ExpressionParser {
     }
 
     private Expression parsePostfixRightSide() {
-        if (currentToken == null || currentToken.type != ExpressionLexer.TokenType.IDENTIFIER) {
-            throw new ExpressionEvaluationException(
-                String.valueOf(lexer.getPosition()),
-                "Expected identifier after dot"
+        // Accept both IDENTIFIER and NUMBER tokens after DOT (for numeric property keys)
+        if (currentToken == null ||
+            (currentToken.type != ExpressionLexer.TokenType.IDENTIFIER &&
+             currentToken.type != ExpressionLexer.TokenType.NUMBER)) {
+            throw createParserError(
+                "Expected identifier or number after dot, but found " +
+                (currentToken != null ? currentToken.type.toString() : "EOF")
             );
         }
 
         String identifierValue = currentToken.value;
         advance();
+
+        // Concatenate NUMBER + IDENTIFIER for ObjectId-like values (e.g., 507f1f77bcf86cd799439011)
+        // This handles cases where lexer splits "507f1f77..." into NUMBER("507") + IDENTIFIER("f1f77...")
+        if (currentToken != null &&
+            currentToken.type == ExpressionLexer.TokenType.IDENTIFIER &&
+            currentToken.value.length() > 0 &&
+            (Character.isLetter(currentToken.value.charAt(0)) || currentToken.value.charAt(0) == '_')) {
+            identifierValue += currentToken.value;
+            advance();
+        }
         
         int bracketIndex = identifierValue.indexOf('[');
         Expression expr;
