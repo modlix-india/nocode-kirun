@@ -13,7 +13,13 @@
       "Bash(kill:*)",
       "Bash(node -e:*)",
       "Bash(grep:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Read(//Users/kirangrandhi/kiran/fincity/nocode-ui/ui-app/client/src/components/PageEditor/**)",
+      "Read(//Users/kirangrandhi/kiran/fincity/nocode-ui/ui-app/client/src/**)",
+      "Read(//Users/kirangrandhi/kiran/fincity/**)",
+      "Read(//Users/kirangrandhi/kiran/fincity/nocode-ui/ui-app/client/**)",
+      "Read(//Users/kirangrandhi/kiran/fincity/nocode-ui/**)",
+      "WebFetch(domain:bundlephobia.com)"
     ]
   }
 }

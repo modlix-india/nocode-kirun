@@ -745,6 +745,51 @@ class ExpressionEvaluatorTest {
 	}
 
 	@Test
+	void testStringVsNumberEqualityWithNestedExpressionSubstitution() {
+		// Setup store with string "413" and number 413
+		JsonObject store = new JsonObject();
+		store.addProperty("strNumber", "413");
+		store.addProperty("number", 413);
+		TestTokenValueExtractor extractor = new TestTokenValueExtractor(store);
+		Map<String, TokenValueExtractor> valuesMap = Map.of(extractor.getPrefix(), extractor);
+
+		ExpressionEvaluator ev;
+
+		// In Java, LogicalEqualOperator converts both to strings when either is a string
+		// So "413" = 413 returns true (both become "413")
+		ev = new ExpressionEvaluator("Test.strNumber = Test.number");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+
+		// Nested expression substitution: {{Test.strNumber}} = Test.number
+		// {{Test.strNumber}} is replaced with "413" making the expression "413 = Test.number"
+		// which evaluates to 413 (number) = 413 (number) and returns true
+		ev = new ExpressionEvaluator("{{Test.strNumber}} = Test.number");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+
+		// Additional test: verify the string value directly
+		ev = new ExpressionEvaluator("Test.strNumber");
+		assertEquals(new JsonPrimitive("413"), ev.evaluate(valuesMap));
+
+		// Additional test: verify the number value directly
+		ev = new ExpressionEvaluator("Test.number");
+		assertEquals(new JsonPrimitive(413), ev.evaluate(valuesMap));
+
+		// Additional test: string to string comparison should return true
+		ev = new ExpressionEvaluator("Test.strNumber = '413'");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+
+		// Additional test: number to number comparison should return true
+		ev = new ExpressionEvaluator("Test.number = 413");
+		assertEquals(new JsonPrimitive(true), ev.evaluate(valuesMap));
+
+		// Test that demonstrates the substitution - verify nested expression evaluates first
+		// and substitutes directly into the expression string
+		store.addProperty("key", "number");
+		ev = new ExpressionEvaluator("Test.{{Test.key}}");
+		assertEquals(new JsonPrimitive(413), ev.evaluate(valuesMap));
+	}
+
+	@Test
 	void testBracketNotationWithDottedKeys() {
 		// Test comprehensive bracket notation with dotted keys
 		JsonObject obj = new JsonObject();
