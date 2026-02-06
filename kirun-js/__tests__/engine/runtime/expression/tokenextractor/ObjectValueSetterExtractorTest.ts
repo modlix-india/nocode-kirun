@@ -55,3 +55,31 @@ test('ObjectValueSetterExtractor Test', async () => {
     extractor.setValue('Store.plain', 'plainString', false, false);
     expect(extractor.getValue('Store.plain')).toStrictEqual('plainString');
 });
+
+test('ObjectValueSetterExtractor - set empty object then set nested property with numeric key', async () => {
+    let store = {};
+
+    let extractor: ObjectValueSetterExtractor = new ObjectValueSetterExtractor(store, 'Store');
+
+    extractor.setValue('Store.x', {});
+    expect(extractor.getValue('Store.x')).toMatchObject({});
+
+    extractor.setValue('Store.x.1', 'kiran');
+    expect(extractor.getValue('Store.x.1')).toBe('kiran');
+    expect(extractor.getValue('Store.x')).toMatchObject({ '1': 'kiran' });
+});
+
+test('ObjectValueSetterExtractor - set empty array then set element with numeric index', async () => {
+    let store = {};
+
+    let extractor: ObjectValueSetterExtractor = new ObjectValueSetterExtractor(store, 'Store');
+
+    extractor.setValue('Store.arr', []);
+    expect(extractor.getValue('Store.arr')).toMatchObject([]);
+
+    extractor.setValue('Store.arr.1', 'value');
+    expect(extractor.getValue('Store.arr.1')).toBe('value');
+    const arr = extractor.getValue('Store.arr');
+    expect(arr.length).toBe(2);
+    expect(arr[1]).toBe('value');
+});

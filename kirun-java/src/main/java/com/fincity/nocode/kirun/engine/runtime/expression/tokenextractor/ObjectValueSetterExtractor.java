@@ -91,14 +91,14 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
                     nextOp = isArrayIndex(segments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
                 }
 
-                if (isArrayIndex(segment)) {
+                if (isArrayIndex(segment) && el.isJsonArray()) {
                     el = getDataFromArray(el, segment, nextOp);
                 } else {
                     el = getDataFromObject(el, stripQuotes(segment), nextOp);
                 }
             }
         }
-        
+
         // Handle the final part (set the value)
         String finalPart = parts[parts.length - 1];
         String[] finalSegments = parseBracketSegments(finalPart);
@@ -108,16 +108,16 @@ public class ObjectValueSetterExtractor extends TokenValueExtractor {
             String segment = finalSegments[j];
             Operation nextOp = isArrayIndex(finalSegments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
             
-            if (isArrayIndex(segment)) {
+            if (isArrayIndex(segment) && el.isJsonArray()) {
                 el = getDataFromArray(el, segment, nextOp);
             } else {
                 el = getDataFromObject(el, stripQuotes(segment), nextOp);
             }
         }
-        
+
         // Set the final value
         String lastSegment = finalSegments[finalSegments.length - 1];
-        if (isArrayIndex(lastSegment)) {
+        if (isArrayIndex(lastSegment) && el.isJsonArray()) {
             putDataInArray(el, lastSegment, value, overwrite, deleteOnNull);
         } else {
             putDataInObject(el, stripQuotes(lastSegment), value, overwrite, deleteOnNull);
