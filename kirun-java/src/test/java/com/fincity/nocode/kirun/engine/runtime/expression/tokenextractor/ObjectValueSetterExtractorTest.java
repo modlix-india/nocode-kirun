@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -99,6 +100,43 @@ class ObjectValueSetterExtractorTest {
         assertEquals(objExtractor.getValue("Obj.plain"), new JsonPrimitive("plainString"));
 
 
+    }
+
+    @Test
+    void setEmptyObjectThenSetNestedPropertyWithNumericKey() {
+
+        JsonObject store = new JsonObject();
+
+        ObjectValueSetterExtractor objExtractor = new ObjectValueSetterExtractor(store, "Store");
+
+        objExtractor.setValue("Store.x", new JsonObject(), null, null);
+        assertEquals(objExtractor.getValue("Store.x"), new JsonObject());
+
+        objExtractor.setValue("Store.x.1", new JsonPrimitive("kiran"), null, null);
+        assertEquals(objExtractor.getValue("Store.x.1"), new JsonPrimitive("kiran"));
+
+        JsonObject expected = new JsonObject();
+        expected.addProperty("1", "kiran");
+        assertEquals(objExtractor.getValue("Store.x"), expected);
+    }
+
+    @Test
+    void setEmptyArrayThenSetElementWithNumericIndex() {
+
+        JsonObject store = new JsonObject();
+
+        ObjectValueSetterExtractor objExtractor = new ObjectValueSetterExtractor(store, "Store");
+
+        objExtractor.setValue("Store.arr", new JsonArray(), null, null);
+        assertEquals(objExtractor.getValue("Store.arr"), new JsonArray());
+
+        objExtractor.setValue("Store.arr.1", new JsonPrimitive("value"), null, null);
+        assertEquals(objExtractor.getValue("Store.arr.1"), new JsonPrimitive("value"));
+
+        JsonArray expectedArr = new JsonArray();
+        expectedArr.add(JsonNull.INSTANCE);
+        expectedArr.add(new JsonPrimitive("value"));
+        assertEquals(objExtractor.getValue("Store.arr"), expectedArr);
     }
 
 }

@@ -602,7 +602,7 @@ describe('Original Expression Parsing Tests', () => {
         expect(ev.evaluate(valuesMapWithValue)).toBe('Application : My Application Title');
 
         // Store with value null - should return location.expression
-        
+        // Note: expression value includes quotes so it becomes a valid string literal when substituted
         const storeValueNull = new TestTokenValueExtractor('Store.', {
             urlDetails: { pageName: 'home' },
             pageDefinition: {
@@ -611,7 +611,7 @@ describe('Original Expression Parsing Tests', () => {
                         title: {
                             name: {
                                 value: null,
-                                location: { expression: 'Expression Fallback Title' },
+                                location: { expression: "'Expression Fallback Title'" },
                             },
                         },
                     },
@@ -632,7 +632,7 @@ describe('Original Expression Parsing Tests', () => {
                     properties: {
                         title: {
                             name: {
-                                location: { expression: 'Expression Fallback Title' },
+                                location: { expression: "'Expression Fallback Title'" },
                             },
                         },
                     },

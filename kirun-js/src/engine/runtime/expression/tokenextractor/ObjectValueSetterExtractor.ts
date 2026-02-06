@@ -81,14 +81,14 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
                     nextOp = this.isArrayIndex(segments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
                 }
 
-                if (this.isArrayIndex(segment)) {
+                if (this.isArrayIndex(segment) && Array.isArray(el)) {
                     el = this.getDataFromArray(el, segment, nextOp);
                 } else {
                     el = this.getDataFromObject(el, this.stripQuotes(segment), nextOp);
                 }
             }
         }
-        
+
         // Handle the final part (set the value)
         const finalPart = parts[parts.length - 1];
         const finalSegments = this.parseBracketSegments(finalPart);
@@ -98,16 +98,16 @@ export class ObjectValueSetterExtractor extends TokenValueExtractor {
             const segment = finalSegments[j];
             const nextOp = this.isArrayIndex(finalSegments[j + 1]) ? Operation.ARRAY_OPERATOR : Operation.OBJECT_OPERATOR;
             
-            if (this.isArrayIndex(segment)) {
+            if (this.isArrayIndex(segment) && Array.isArray(el)) {
                 el = this.getDataFromArray(el, segment, nextOp);
             } else {
                 el = this.getDataFromObject(el, this.stripQuotes(segment), nextOp);
             }
         }
-        
+
         // Set the final value
         const lastSegment = finalSegments[finalSegments.length - 1];
-        if (this.isArrayIndex(lastSegment)) {
+        if (this.isArrayIndex(lastSegment) && Array.isArray(el)) {
             this.putDataInArray(el, lastSegment, value, overwrite, deleteOnNull);
         } else {
             this.putDataInObject(el, this.stripQuotes(lastSegment), value, overwrite, deleteOnNull);

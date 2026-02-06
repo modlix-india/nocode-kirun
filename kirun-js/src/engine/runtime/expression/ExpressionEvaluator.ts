@@ -475,22 +475,6 @@ export class ExpressionEvaluator {
         valuesMap: Map<string, TokenValueExtractor>,
     ): string {
         const { start: startPos, end: endPos, content: innerExpr } = innermost;
-        const afterContext = expression.substring(endPos, Math.min(endPos + 1, expression.length));
-        const isInPath =
-            afterContext === '.' ||
-            afterContext === '[' ||
-            (startPos > 0 && expression.charAt(startPos - 1) === '[') ||
-            (startPos > 0 && expression.charAt(startPos - 1) === '.');
-        let singleQuotes = 0;
-        let doubleQuotes = 0;
-        for (let idx = 0; idx < startPos; idx++) {
-            if (expression.charAt(idx) === "'" && (idx === 0 || expression.charAt(idx - 1) !== '\\')) {
-                singleQuotes++;
-            } else if (expression.charAt(idx) === '"' && (idx === 0 || expression.charAt(idx - 1) !== '\\')) {
-                doubleQuotes++;
-            }
-        }
-        const isInStringLiteral = (singleQuotes % 2 === 1) || (doubleQuotes % 2 === 1);
 
         let evaluatedValue: any;
         try {
@@ -514,19 +498,7 @@ export class ExpressionEvaluator {
             throw err;
         }
 
-        const isPathReference =
-            typeof evaluatedValue === 'string' &&
-            Array.from(valuesMap.keys()).some((prefix) => evaluatedValue.startsWith(prefix));
-        let replacement: string;
-        if (isInPath || isInStringLiteral || isPathReference) {
-            replacement = String(evaluatedValue);
-        } else {
-            const key = `__nested_${ExpressionEvaluator.keyCounter++}__`;
-            this.internalTokenValueExtractor.addValue(key, evaluatedValue);
-            replacement = `${this.internalTokenValueExtractor.getPrefix()}${key}`;
-        }
-
-        return expression.substring(0, startPos) + replacement + expression.substring(endPos);
+        return expression.substring(0, startPos) + String(evaluatedValue) + expression.substring(endPos);
     }
 
 

@@ -596,6 +596,58 @@ test('ternary expression with displayValue equality check', () => {
     expect(ev.evaluate(MapUtil.of(ttv.getPrefix(), ttv))).toBe('11');
 });
 
+class StoreTokenValueExtractor extends TokenValueExtractor {
+    private store: any;
+
+    constructor(store: any) {
+        super();
+        this.store = store;
+    }
+
+    protected getValueInternal(token: string): any {
+        return this.retrieveElementFrom(token, token.split('.'), 1, this.store);
+    }
+    public getPrefix(): string {
+        return 'Store.';
+    }
+    public getStore(): any {
+        return this.store;
+    }
+}
+
+test('String vs Number equality with nested expression substitution', () => {
+    // Setup store with string "413" and number 413
+    let stv = new StoreTokenValueExtractor({ strNumber: '413', number: 413 });
+    let valuesMap: Map<string, TokenValueExtractor> = MapUtil.of(stv.getPrefix(), stv);
+
+    // Direct comparison: Store.strNumber = Store.number should return false
+    // because "413" (string) != 413 (number) - different types
+    let ev = new ExpressionEvaluator('Store.strNumber = Store.number');
+    expect(ev.evaluate(valuesMap)).toBe(false);
+
+    // Nested expression substitution: {{Store.strNumber}} = Store.number should return true
+    // because {{Store.strNumber}} is replaced with "413" making the expression "413 = Store.number"
+    // which evaluates to 413 = 413 (both numbers) and returns true
+    ev = new ExpressionEvaluator('{{Store.strNumber}} = Store.number');
+    expect(ev.evaluate(valuesMap)).toBe(true);
+
+    // Additional test: verify the string value directly
+    ev = new ExpressionEvaluator('Store.strNumber');
+    expect(ev.evaluate(valuesMap)).toBe('413');
+
+    // Additional test: verify the number value directly
+    ev = new ExpressionEvaluator('Store.number');
+    expect(ev.evaluate(valuesMap)).toBe(413);
+
+    // Additional test: string to string comparison should return true
+    ev = new ExpressionEvaluator("Store.strNumber = '413'");
+    expect(ev.evaluate(valuesMap)).toBe(true);
+
+    // Additional test: number to number comparison should return true
+    ev = new ExpressionEvaluator('Store.number = 413');
+    expect(ev.evaluate(valuesMap)).toBe(true);
+});
+
 test('unary minus operator', () => {
     // Simple negative number
     let ev = new ExpressionEvaluator('-5');
