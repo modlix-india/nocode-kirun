@@ -1,6 +1,6 @@
 {
     "name": "@fincity/kirun-ui",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Visual and Text Editor UI for KIRun Function Definitions",
     "source": "src/index.ts",
     "main": "dist/index.js",

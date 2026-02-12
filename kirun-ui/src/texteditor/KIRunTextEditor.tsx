@@ -15,6 +15,11 @@ import {
     registerKIRunCompletionProvider,
     setCompletionFunctionRepository,
 } from './syntax/kirunCompletion';
+import { setMonacoForJsonEditor } from '../components/JsonEditorPopup';
+
+// Set monaco instance immediately at module load for components that need it
+// (e.g. JsonEditorPopup used by visual editor before text editor mounts)
+setMonacoForJsonEditor(monaco);
 
 export type EditorTheme = 'light' | 'dark' | 'high-contrast' | 'easy-on-eyes' | 'flared-up';
 
@@ -71,9 +76,9 @@ export function KIRunTextEditor({
         if (!containerRef.current) return;
 
         if (!languageRegistered) {
-            registerKIRunLanguage();
-            registerKIRunThemes();
-            registerKIRunCompletionProvider();
+            registerKIRunLanguage(monaco);
+            registerKIRunThemes(monaco);
+            registerKIRunCompletionProvider(monaco);
             languageRegistered = true;
         }
 

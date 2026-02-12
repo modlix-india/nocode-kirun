@@ -1,6 +1,7 @@
-import * as monaco from 'monaco-editor';
+import type * as MonacoEditor from 'monaco-editor';
 import { DSLFunctionProvider, FunctionInfo, Repository, Function } from '@fincity/kirun-js';
 
+let monaco!: typeof MonacoEditor;
 let currentFunctionRepository: Repository<Function> | undefined = undefined;
 
 export function setCompletionFunctionRepository(repo: Repository<Function> | undefined) {
@@ -73,7 +74,8 @@ function getUsedParameters(textBeforeCursor: string): Set<string> {
     return usedParams;
 }
 
-export function registerKIRunCompletionProvider() {
+export function registerKIRunCompletionProvider(monacoInstance: typeof MonacoEditor) {
+    monaco = monacoInstance;
     monaco.languages.registerCompletionItemProvider('kirun-dsl', {
         triggerCharacters: ['.', ' ', ':', '(', ','],
 
@@ -96,7 +98,7 @@ export function registerKIRunCompletionProvider() {
                 console.warn('Failed to load functions for autocomplete:', error);
             }
 
-            const suggestions: monaco.languages.CompletionItem[] = [];
+            const suggestions: MonacoEditor.languages.CompletionItem[] = [];
 
             const functionName = parseFunctionNameFromContext(textBeforeCursor);
             if (functionName) {
@@ -131,7 +133,7 @@ export function registerKIRunCompletionProvider() {
     });
 }
 
-function getKeywordSuggestions(range: monaco.IRange): monaco.languages.CompletionItem[] {
+function getKeywordSuggestions(range: MonacoEditor.IRange): MonacoEditor.languages.CompletionItem[] {
     const keywords = [
         {
             label: 'FUNCTION',
@@ -156,7 +158,7 @@ function getKeywordSuggestions(range: monaco.IRange): monaco.languages.Completio
     }));
 }
 
-function getSchemaTypeSuggestions(range: monaco.IRange): monaco.languages.CompletionItem[] {
+function getSchemaTypeSuggestions(range: MonacoEditor.IRange): MonacoEditor.languages.CompletionItem[] {
     const types = [
         { label: 'INTEGER', detail: 'Integer type' },
         { label: 'LONG', detail: 'Long integer type' },
@@ -184,8 +186,8 @@ function getSchemaTypeSuggestions(range: monaco.IRange): monaco.languages.Comple
 
 function getFunctionSuggestions(
     functions: FunctionInfo[],
-    range: monaco.IRange,
-): monaco.languages.CompletionItem[] {
+    range: MonacoEditor.IRange,
+): MonacoEditor.languages.CompletionItem[] {
     return functions.map((func) => {
         const params = func.parameters.map((p) => `${p.name} = \${${p.name}}`).join(', ');
         const insertText = `${func.fullName}(${params})$0`;
@@ -204,9 +206,9 @@ function getFunctionSuggestions(
 
 function getParameterSuggestions(
     func: FunctionInfo,
-    range: monaco.IRange,
+    range: MonacoEditor.IRange,
     usedParams: Set<string>,
-): monaco.languages.CompletionItem[] {
+): MonacoEditor.languages.CompletionItem[] {
     return func.parameters
         .filter((param) => !usedParams.has(param.name))
         .map((param, index) => ({
@@ -220,7 +222,7 @@ function getParameterSuggestions(
         }));
 }
 
-function getBlockNameSuggestions(range: monaco.IRange): monaco.languages.CompletionItem[] {
+function getBlockNameSuggestions(range: MonacoEditor.IRange): MonacoEditor.languages.CompletionItem[] {
     const blocks = [
         { label: 'iteration', detail: 'Loop iteration block' },
         { label: 'true', detail: 'If true block' },
