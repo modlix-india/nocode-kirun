@@ -1,0 +1,76 @@
+{
+    "name": "@fincity/kirun-ui",
+    "version": "1.0.0",
+    "description": "Visual and Text Editor UI for KIRun Function Definitions",
+    "source": "src/index.ts",
+    "main": "dist/index.js",
+    "module": "dist/module.js",
+    "types": "dist/types.d.ts",
+    "style": "dist/kirun-ui.css",
+    "files": [
+        "dist"
+    ],
+    "targets": {
+        "main": {
+            "optimize": true,
+            "isLibrary": true
+        },
+        "module": {
+            "optimize": true,
+            "isLibrary": true
+        }
+    },
+    "scripts": {
+        "watch": "parcel watch",
+        "build": "parcel build",
+        "test": "jest",
+        "coverage": "jest --coverage",
+        "tsc": "tsc",
+        "pretty": "prettier --write ./src || prettier --write ./__tests__"
+    },
+    "keywords": [
+        "kirun",
+        "kirun-ui",
+        "function-editor",
+        "visual-editor"
+    ],
+    "author": "Kiran Kumar Grandhi",
+    "license": "MIT",
+    "peerDependencies": {
+        "@fincity/kirun-js": ">=3.0.0",
+        "monaco-editor": ">=0.40.0",
+        "react": ">=17.0.0",
+        "react-dom": ">=17.0.0"
+    },
+    "devDependencies": {
+        "@fincity/kirun-js": "^3.2.2",
+        "@parcel/packager-ts": "^2.16.3",
+        "@parcel/transformer-typescript-types": "^2.16.3",
+        "@tsconfig/recommended": "^1.0.13",
+        "@types/jest": "^30.0.0",
+        "@types/react": "^18.0.0",
+        "@types/react-dom": "^18.0.0",
+        "jest": "^30.0.0",
+        "monaco-editor": "^0.52.0",
+        "parcel": "^2.16.3",
+        "prettier": "^3.8.1",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
+        "ts-jest": "^29.4.6",
+        "typescript": "^5.9.3"
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js"
+        ]
+    },
+    "dependencies": {
+        "lucide-react": "^0.563.0"
+    }
+}
