@@ -1,6 +1,6 @@
-import * as monaco from 'monaco-editor';
+import type * as MonacoEditor from 'monaco-editor';
 
-export const kirunDarkTheme: monaco.editor.IStandaloneThemeData = {
+export const kirunDarkTheme: MonacoEditor.editor.IStandaloneThemeData = {
     base: 'vs-dark',
     inherit: true,
     rules: [
@@ -37,7 +37,7 @@ export const kirunDarkTheme: monaco.editor.IStandaloneThemeData = {
     },
 };
 
-export const kirunLightTheme: monaco.editor.IStandaloneThemeData = {
+export const kirunLightTheme: MonacoEditor.editor.IStandaloneThemeData = {
     base: 'vs',
     inherit: true,
     rules: [
@@ -74,7 +74,7 @@ export const kirunLightTheme: monaco.editor.IStandaloneThemeData = {
     },
 };
 
-export const kirunHighContrastTheme: monaco.editor.IStandaloneThemeData = {
+export const kirunHighContrastTheme: MonacoEditor.editor.IStandaloneThemeData = {
     base: 'hc-black',
     inherit: true,
     rules: [
@@ -107,7 +107,7 @@ export const kirunHighContrastTheme: monaco.editor.IStandaloneThemeData = {
     },
 };
 
-export const kirunEasyOnEyesTheme: monaco.editor.IStandaloneThemeData = {
+export const kirunEasyOnEyesTheme: MonacoEditor.editor.IStandaloneThemeData = {
     base: 'vs',
     inherit: true,
     rules: [
@@ -141,7 +141,7 @@ export const kirunEasyOnEyesTheme: monaco.editor.IStandaloneThemeData = {
     },
 };
 
-export const kirunFlaredUpTheme: monaco.editor.IStandaloneThemeData = {
+export const kirunFlaredUpTheme: MonacoEditor.editor.IStandaloneThemeData = {
     base: 'vs-dark',
     inherit: true,
     rules: [
@@ -175,7 +175,7 @@ export const kirunFlaredUpTheme: monaco.editor.IStandaloneThemeData = {
     },
 };
 
-export function registerKIRunThemes() {
+export function registerKIRunThemes(monaco: typeof MonacoEditor) {
     monaco.editor.defineTheme('kirun-dark', kirunDarkTheme);
     monaco.editor.defineTheme('kirun-light', kirunLightTheme);
     monaco.editor.defineTheme('kirun-high-contrast', kirunHighContrastTheme);

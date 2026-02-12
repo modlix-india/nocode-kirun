@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SquareArrowOutUpRight } from 'lucide-react';
-import * as monaco from 'monaco-editor';
+import type * as MonacoEditor from 'monaco-editor';
+
+let monaco!: typeof MonacoEditor;
+
+export function setMonacoForJsonEditor(m: typeof MonacoEditor) {
+    monaco = m;
+}
 
 interface JsonEditorPopupProps {
     value: any;
@@ -32,7 +38,7 @@ export default function JsonEditorPopup({ value, onChange, readOnly }: JsonEdito
     const [editorValue, setEditorValue] = useState('');
     const [enableOk, setEnableOk] = useState(true);
     const editorContainerRef = useRef<HTMLDivElement>(null);
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const editorRef = useRef<MonacoEditor.editor.IStandaloneCodeEditor | null>(null);
 
     useEffect(() => {
         if (!showEditor || !editorContainerRef.current) return;

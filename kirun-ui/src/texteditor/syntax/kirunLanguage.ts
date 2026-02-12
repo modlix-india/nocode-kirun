@@ -1,6 +1,6 @@
-import * as monaco from 'monaco-editor';
+import type * as MonacoEditor from 'monaco-editor';
 
-export function registerKIRunLanguage() {
+export function registerKIRunLanguage(monaco: typeof MonacoEditor) {
     monaco.languages.register({ id: 'kirun-dsl' });
 
     monaco.languages.setLanguageConfiguration('kirun-dsl', {
