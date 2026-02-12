@@ -1,0 +1,4 @@
+.parcle-cache/
+dist/
+node_modules/
+coverage/

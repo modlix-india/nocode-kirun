@@ -1,0 +1,58 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: KIRun UI Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event.release.tag_name }}" == kirun-ui-* ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-tag
+    if: needs.check-tag.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 21.7.3
+      - name: Install Dependencies
+        working-directory: ./kirun-ui
+        run: npm ci
+      - name: Build UI
+        working-directory: ./kirun-ui
+        run: npm run build
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 21.7.3
+          registry-url: https://registry.npmjs.org/
+      - name: Install Dependencies
+        working-directory: ./kirun-ui
+        run: npm ci
+      - name: Build UI
+        working-directory: ./kirun-ui
+        run: npm run build
+      - name: Publish to NPM
+        working-directory: ./kirun-ui
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

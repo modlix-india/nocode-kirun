@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ESNext",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "moduleResolution": "node",
+        "jsx": "react-jsx",
+        "declaration": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "__tests__", "src/nocode-ui-wrapper"]
+}
