@@ -2,6 +2,7 @@ import { Repository, Schema, SchemaUtil } from '@fincity/kirun-js';
 import React, { useEffect, useState } from 'react';
 import { ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react';
 import SchemaForm from './SchemaForm';
+import AnyEditor from './AnyEditor';
 
 interface ArrayEditorProps {
     schema: Schema;
@@ -119,13 +120,9 @@ export default function ArrayEditor({
                                     readOnly={readOnly}
                                 />
                             ) : (
-                                <input
-                                    className="_schemaFormInput"
-                                    type="text"
-                                    value={item ?? ''}
-                                    onChange={(e) =>
-                                        updateItem(index, e.target.value || undefined)
-                                    }
+                                <AnyEditor
+                                    value={item}
+                                    onChange={(v) => updateItem(index, v)}
                                     readOnly={readOnly}
                                 />
                             )}
