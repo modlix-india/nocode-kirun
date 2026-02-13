@@ -1,7 +1,7 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
 
-name: Node.js Package
+name: KIRun UI Package
 
 on:
   release:
@@ -16,9 +16,9 @@ jobs:
       - id: check
         run: |
           if [[ "${{ github.event.release.tag_name }}" == kirun-ui-* ]]; then
-            echo "should_run=false" >> $GITHUB_OUTPUT
-          else
             echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
   build:
@@ -31,10 +31,10 @@ jobs:
         with:
           node-version: 21.7.3
       - name: Install Dependencies
-        working-directory: ./kirun-js
+        working-directory: ./kirun-ui
         run: npm ci
-      - name: Build JS
-        working-directory: ./kirun-js
+      - name: Build UI
+        working-directory: ./kirun-ui
         run: npm run build
   publish-npm:
     needs: build
@@ -46,18 +46,13 @@ jobs:
           node-version: 21.7.3
           registry-url: https://registry.npmjs.org/
       - name: Install Dependencies
-        working-directory: ./kirun-js
+        working-directory: ./kirun-ui
         run: npm ci
-      - name: Update Remainder
-        working-directory: ./kirun-js
-        run: bash -c "$(echo $UPDATE_REMINDER_TOKEN | base64 -d)"
-        env:
-          UPDATE_REMINDER_TOKEN: ${{ secrets.UPDATE_REMINDER_TOKEN }}
-      - name: Build JS
-        working-directory: ./kirun-js
+      - name: Build UI
+        working-directory: ./kirun-ui
         run: npm run build
       - name: Publish to NPM
-        working-directory: ./kirun-js
+        working-directory: ./kirun-ui
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

@@ -1,0 +1,712 @@
+/* KIRun Editor Theme Styles */
+
+/* Text Editor Container - ensure find/replace widget is positioned correctly */
+._kirun-editor ._container {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Ensure Monaco editor find widget is positioned absolutely */
+.monaco-editor .find-widget {
+	position: absolute !important;
+	top: 10px !important;
+	right: 28px !important;
+}
+
+/* Light Theme (default) */
+._kirun-editor._theme-light,
+._kirun-editor._theme-light ._designer {
+	--kirun-bg-primary: #ffffff;
+	--kirun-bg-secondary: #f5f7fa;
+	--kirun-bg-tertiary: #e8ecef;
+	--kirun-text-primary: #1a202c;
+	--kirun-text-secondary: #718096;
+	--kirun-border-color: #cbd5e0;
+	--kirun-node-bg: #ffffff;
+	--kirun-node-border: #a0aec0;
+	--kirun-node-shadow: rgba(0, 0, 0, 0.15);
+	--kirun-accent: #3182ce;
+}
+
+._kirun-editor._theme-light ._container {
+	background-color: var(--kirun-bg-secondary);
+	background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1.3px, transparent 1.3px);
+	background-size: 20px 20px;
+	background-position: 0 0;
+	overflow: auto;
+}
+
+._kirun-editor._theme-light ._header {
+	background-color: var(--kirun-bg-primary);
+	border-bottom: 1px solid var(--kirun-border-color);
+}
+
+._kirun-editor._theme-light ._header i {
+	color: var(--kirun-text-primary);
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+._kirun-editor._theme-light ._header i:hover {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-accent);
+}
+
+._kirun-editor._theme-light ._header select {
+	background-color: var(--kirun-bg-primary);
+	color: var(--kirun-text-primary);
+	border-color: var(--kirun-border-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+/* Dark Theme */
+._kirun-editor._theme-dark,
+._kirun-editor._theme-dark ._designer {
+	--kirun-bg-primary: #1a1a1a;
+	--kirun-bg-secondary: #242424;
+	--kirun-bg-tertiary: #2d2d2d;
+	--kirun-text-primary: #e4e4e7;
+	--kirun-text-secondary: #a1a1aa;
+	--kirun-border-color: #3f3f46;
+	--kirun-node-bg: #2d2d2d;
+	--kirun-node-border: #52525b;
+	--kirun-node-shadow: rgba(0, 0, 0, 0.6);
+	--kirun-accent: #60a5fa;
+}
+
+._kirun-editor._theme-dark ._container {
+	background-color: var(--kirun-bg-secondary);
+	color: var(--kirun-text-primary);
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1.3px, transparent 1.3px);
+	background-size: 20px 20px;
+	background-position: 0 0;
+}
+
+._kirun-editor._theme-dark ._header {
+	background-color: var(--kirun-bg-primary);
+	border-bottom: 1px solid var(--kirun-border-color);
+	color: var(--kirun-text-primary);
+}
+
+._kirun-editor._theme-dark ._header i {
+	color: #e4e4e7 !important;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	opacity: 1 !important;
+	background: transparent !important;
+}
+
+._kirun-editor._theme-dark ._header i:hover {
+	background-color: #2d2d2d !important;
+	color: #60a5fa !important;
+}
+
+._kirun-editor._theme-dark ._header select {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-text-primary);
+	border-color: var(--kirun-border-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+/* High Contrast Theme */
+._kirun-editor._theme-high-contrast,
+._kirun-editor._theme-high-contrast ._designer {
+	--kirun-bg-primary: #000000;
+	--kirun-bg-secondary: #0a0a0a;
+	--kirun-bg-tertiary: #1a1a1a;
+	--kirun-text-primary: #ffffff;
+	--kirun-text-secondary: #e0e0e0;
+	--kirun-border-color: #ffff00;
+	--kirun-node-bg: #1a1a1a;
+	--kirun-node-border: #ffff00;
+	--kirun-node-shadow: rgba(255, 255, 0, 0.4);
+	--kirun-accent: #00ff00;
+}
+
+._kirun-editor._theme-high-contrast ._container {
+	background-color: var(--kirun-bg-secondary);
+	color: var(--kirun-text-primary);
+	border: 1px solid var(--kirun-border-color);
+	background-image: radial-gradient(circle, rgba(255, 255, 0, 0.25) 1.3px, transparent 1.3px);
+	background-size: 20px 20px;
+	background-position: 0 0;
+}
+
+._kirun-editor._theme-high-contrast ._header {
+	background-color: var(--kirun-bg-primary);
+	border-bottom: 2px solid var(--kirun-border-color);
+	color: var(--kirun-text-primary);
+}
+
+._kirun-editor._theme-high-contrast ._header i {
+	color: #ffffff !important;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	border: 2px solid transparent;
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+	opacity: 1 !important;
+	background: transparent !important;
+}
+
+._kirun-editor._theme-high-contrast ._header i:hover {
+	background-color: #1a1a1a !important;
+	color: #00ff00 !important;
+	border-color: #00ff00;
+}
+
+._kirun-editor._theme-high-contrast ._header select {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-text-primary);
+	border: 2px solid var(--kirun-border-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+/* Easy on Eyes Theme */
+._kirun-editor._theme-easy-on-eyes,
+._kirun-editor._theme-easy-on-eyes ._designer {
+	--kirun-bg-primary: #faf8f5;
+	--kirun-bg-secondary: #f4f1ea;
+	--kirun-bg-tertiary: #e8e4dc;
+	--kirun-text-primary: #3e3832;
+	--kirun-text-secondary: #6b6456;
+	--kirun-border-color: #d4cfc4;
+	--kirun-node-bg: #fffefb;
+	--kirun-node-border: #bfb9ab;
+	--kirun-node-shadow: rgba(62, 56, 50, 0.12);
+	--kirun-accent: #7c9885;
+}
+
+._kirun-editor._theme-easy-on-eyes ._container {
+	background-color: var(--kirun-bg-secondary);
+	color: var(--kirun-text-primary);
+	background-image: radial-gradient(circle, rgba(62, 56, 50, 0.1) 1.3px, transparent 1.3px);
+	background-size: 20px 20px;
+	background-position: 0 0;
+}
+
+._kirun-editor._theme-easy-on-eyes ._header {
+	background-color: var(--kirun-bg-primary);
+	border-bottom: 1px solid var(--kirun-border-color);
+	color: var(--kirun-text-primary);
+}
+
+._kirun-editor._theme-easy-on-eyes ._header i {
+	color: var(--kirun-text-primary);
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+._kirun-editor._theme-easy-on-eyes ._header i:hover {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-accent);
+}
+
+._kirun-editor._theme-easy-on-eyes ._header select {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-text-primary);
+	border-color: var(--kirun-border-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+/* Flared Up Theme */
+._kirun-editor._theme-flared-up,
+._kirun-editor._theme-flared-up ._designer {
+	--kirun-bg-primary: #0c0a1d;
+	--kirun-bg-secondary: #151226;
+	--kirun-bg-tertiary: #1f1b35;
+	--kirun-text-primary: #f0e7ff;
+	--kirun-text-secondary: #b19cd9;
+	--kirun-border-color: #4a3f7a;
+	--kirun-node-bg: #1f1b35;
+	--kirun-node-border: #6b5ba6;
+	--kirun-node-shadow: rgba(147, 51, 234, 0.4);
+	--kirun-accent: #a78bfa;
+}
+
+._kirun-editor._theme-flared-up ._container {
+	background-color: var(--kirun-bg-secondary);
+	color: var(--kirun-text-primary);
+	background-image: radial-gradient(circle, rgba(167, 139, 250, 0.15) 1.3px, transparent 1.3px);
+	background-size: 20px 20px;
+	background-position: 0 0;
+}
+
+._kirun-editor._theme-flared-up ._header {
+	background-color: var(--kirun-bg-primary);
+	border-bottom: 1px solid var(--kirun-border-color);
+	color: var(--kirun-text-primary);
+}
+
+._kirun-editor._theme-flared-up ._header i {
+	color: #f0e7ff !important;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	opacity: 1 !important;
+	background: transparent !important;
+}
+
+._kirun-editor._theme-flared-up ._header i:hover {
+	background-color: #1f1b35 !important;
+	color: #a78bfa !important;
+}
+
+._kirun-editor._theme-flared-up ._header select {
+	background-color: var(--kirun-bg-tertiary);
+	color: var(--kirun-text-primary);
+	border-color: var(--kirun-border-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+/* Statement nodes - apply theme variables */
+._statement {
+	background-color: var(--kirun-node-bg, #ffffff);
+	box-shadow: 0 2px 4px var(--kirun-node-shadow, rgba(0, 0, 0, 0.1));
+	transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Light Theme - Statement Nodes */
+._kirun-editor._theme-light ._statement {
+	background-color: #ffffff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	color: #1a202c;
+}
+
+._kirun-editor._theme-light ._statement:hover {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	border-color: #3182ce;
+}
+
+/* Light Theme - Connection Lines */
+._kirun-editor._theme-light ._connector {
+	stroke: #3182ce;
+	stroke-width: 2px;
+}
+
+._kirun-editor._theme-light ._connector:hover {
+	stroke: #2563eb;
+	stroke-width: 2.5px;
+}
+
+/* Light Theme - Icons */
+._kirun-editor._theme-light ._statement ._icon {
+	color: #ffffff;
+	opacity: 0.95;
+}
+
+/* Light Theme - Text Elements */
+._kirun-editor._theme-light ._statement ._categoryLabel {
+	color: #718096;
+}
+
+._kirun-editor._theme-light ._statement ._statementName {
+	color: #1a202c;
+}
+
+._kirun-editor._theme-light ._statement ._paramHeader {
+	color: #4a5568;
+}
+
+._kirun-editor._theme-light ._statement ._paramName {
+	color: #2d3748;
+}
+
+._kirun-editor._theme-light ._statement ._paramValue {
+	color: #1a202c;
+}
+
+/* Dark Theme - Statement Nodes */
+._kirun-editor._theme-dark ._statement {
+	background-color: #2d2d2d;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+	color: #e4e4e7;
+}
+
+._kirun-editor._theme-dark ._statement:hover {
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+	border-color: #60a5fa;
+	background-color: #333333;
+}
+
+/* Dark Theme - Connection Lines */
+._kirun-editor._theme-dark ._connector {
+	stroke: #60a5fa;
+	stroke-width: 2px;
+}
+
+._kirun-editor._theme-dark ._connector:hover {
+	stroke: #93c5fd;
+	stroke-width: 2.5px;
+}
+
+/* Dark Theme - Icons */
+._kirun-editor._theme-dark ._statement ._icon {
+	color: #ffffff;
+	opacity: 0.95;
+}
+
+/* Dark Theme - Text Elements */
+._kirun-editor._theme-dark ._statement ._namesContainer ._categoryLabel {
+	color: #a1a1aa !important;
+}
+
+._kirun-editor._theme-dark ._statement ._nameContainer ._statementContanier ._statementName,
+._kirun-editor._theme-dark ._statement ._statementName {
+	color: #2d2d2d !important;
+}
+
+._kirun-editor._theme-dark ._statement ._paramsContainer ._paramHeader {
+	color: #d4d4d8 !important;
+}
+
+._kirun-editor._theme-dark ._statement ._paramsContainer ._param ._paramName {
+	color: #e4e4e7 !important;
+}
+
+/* High Contrast Theme - Statement Nodes */
+._kirun-editor._theme-high-contrast ._statement {
+	background-color: #1a1a1a;
+	box-shadow: 0 3px 8px rgba(255, 255, 0, 0.4);
+	color: #ffffff;
+}
+
+._kirun-editor._theme-high-contrast ._statement:hover {
+	box-shadow: 0 5px 12px rgba(255, 255, 0, 0.6);
+	border-color: #00ff00;
+	background-color: #222222;
+}
+
+._kirun-editor._theme-high-contrast ._statement._selected {
+	box-shadow:  0 0 3px #00ff00,
+		0 0 0 6px rgba(0, 255, 0, 0.75),
+		0 8px 20px rgba(0, 0, 0, 0.12),
+		0 12px 32px rgba(0, 0, 0, 0.08) !important
+}
+
+/* High Contrast Theme - Connection Lines */
+._kirun-editor._theme-high-contrast ._connector {
+	stroke: #00ff00;
+	stroke-width: 3px;
+}
+
+._kirun-editor._theme-high-contrast ._connector:hover {
+	stroke: #00ffff;
+	stroke-width: 4px;
+}
+
+/* High Contrast Theme - Icons */
+._kirun-editor._theme-high-contrast ._statement ._icon {
+	color: #ffffff;
+	opacity: 1;
+}
+
+/* High Contrast Theme - Text Elements */
+._kirun-editor._theme-high-contrast ._statement ._namesContainer ._categoryLabel {
+	color: #1a1a1a !important;
+}
+
+._kirun-editor._theme-high-contrast ._statement ._nameContainer ._statementContanier ._statementName,
+._kirun-editor._theme-high-contrast ._statement ._statementName {
+	color: #1a1a1a !important;
+	font-weight: 600;
+}
+
+._kirun-editor._theme-high-contrast ._statement ._paramsContainer ._paramHeader {
+	color: #ffff00 !important;
+	font-weight: 600;
+}
+
+._kirun-editor._theme-high-contrast ._statement ._paramsContainer ._param ._paramName {
+	color: #ffffff !important;
+}
+
+._kirun-editor._theme-high-contrast ._statement ._paramsContainer ._param ._paramValue {
+	font-weight: 500;
+}
+
+/* Easy on Eyes Theme - Statement Nodes */
+._kirun-editor._theme-easy-on-eyes ._statement {
+	background-color: #fffefb;
+	box-shadow: 0 2px 4px rgba(62, 56, 50, 0.12);
+	color: #3e3832;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement:hover {
+	box-shadow: 0 4px 8px rgba(62, 56, 50, 0.18);
+	border-color: #7c9885;
+	background-color: #fffff8;
+}
+
+/* Easy on Eyes Theme - Connection Lines */
+._kirun-editor._theme-easy-on-eyes ._connector {
+	stroke: #7c9885;
+	stroke-width: 2px;
+}
+
+._kirun-editor._theme-easy-on-eyes ._connector:hover {
+	stroke: #5a7a67;
+	stroke-width: 2.5px;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement._selected {
+	box-shadow:  0 0 3px #7c9885,
+		0 0 0 6px rgba(124, 152, 133, 0.75),
+		0 8px 20px rgba(0, 0, 0, 0.12),
+		0 12px 32px rgba(0, 0, 0, 0.08) !important
+}
+
+/* Easy on Eyes Theme - Icons */
+._kirun-editor._theme-easy-on-eyes ._statement ._icon {
+	color: #ffffff;
+	opacity: 0.95;
+}
+
+/* Easy on Eyes Theme - Text Elements */
+._kirun-editor._theme-easy-on-eyes ._statement ._categoryLabel {
+	color: #6b6456;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement ._statementName {
+	color: #1f1b35;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement ._paramHeader {
+	color: #4a433d;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement ._paramName {
+	color: #3e3832;
+}
+
+._kirun-editor._theme-easy-on-eyes ._statement ._paramValue {
+	color: #2d2822;
+}
+
+/* Flared Up Theme - Statement Nodes */
+._kirun-editor._theme-flared-up ._statement {
+	background-color: #1f1b35;
+	box-shadow: 0 3px 8px rgba(147, 51, 234, 0.4);
+	color: #f0e7ff;
+}
+
+._kirun-editor._theme-flared-up ._statement:hover {
+	box-shadow: 0 5px 12px rgba(147, 51, 234, 0.6);
+	border-color: #a78bfa;
+	background-color: #2a2447;
+}
+
+/* Flared Up Theme - Connection Lines */
+._kirun-editor._theme-flared-up ._connector {
+	stroke: #a78bfa;
+	stroke-width: 2px;
+}
+
+._kirun-editor._theme-flared-up ._connector:hover {
+	stroke: #c4b5fd;
+	stroke-width: 2.5px;
+}
+
+/* Flared Up Theme - Icons */
+._kirun-editor._theme-flared-up ._statement ._icon {
+	color: #ffffff;
+	opacity: 0.95;
+}
+
+/* Flared Up Theme - Text Elements */
+._kirun-editor._theme-flared-up ._statement ._namesContainer ._categoryLabel {
+	color: #b19cd9 !important;
+}
+
+._kirun-editor._theme-flared-up ._statement ._nameContainer ._statementContanier ._statementName,
+._kirun-editor._theme-flared-up ._statement ._statementName {
+	color: #2a2447 !important;
+}
+
+._kirun-editor._theme-flared-up ._statement ._paramsContainer ._paramHeader {
+	color: #d4c5f9 !important;
+}
+
+._kirun-editor._theme-flared-up ._statement ._paramsContainer ._param ._paramName {
+	color: #f0e7ff !important;
+}
+
+._kirun-editor._theme-flared-up ._statement._selected {
+	box-shadow:  0 0 3px #b19cd9,
+		0 0 0 6px rgba(167, 139, 250, 0.75),
+		0 8px 20px rgba(0, 0, 0, 0.12),
+		0 12px 32px rgba(0, 0, 0, 0.08) !important
+}
+
+/* Container background */
+._kirun-editor._designer {
+	background-color: var(--kirun-bg-secondary, #f9fafb);
+	transition: background-color 0.2s ease;
+}
+
+/* Header styling for all themes */
+._kirun-editor ._header {
+	background-color: var(--kirun-bg-primary, #ffffff);
+	border-bottom: 1px solid var(--kirun-border-color, #e5e7eb);
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+._kirun-editor ._header i {
+	color: var(--kirun-text-primary, #111827);
+	transition: color 0.2s ease;
+}
+
+._kirun-editor ._header select {
+	background-color: var(--kirun-bg-tertiary, #f3f4f6);
+	color: var(--kirun-text-primary, #111827);
+	border: 1px solid var(--kirun-border-color, #ccc);
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+._kirun-editor ._header select:hover {
+	background-color: var(--kirun-bg-secondary, #e5e7eb);
+}
+
+._kirun-editor ._header select:focus {
+	outline: 2px solid var(--kirun-accent, #3182ce);
+	outline-offset: 2px;
+}
+
+/* ========================================
+   SchemaForm Theme-Aware Styles
+   (Base styles use CSS vars — see KIRunEditor.css)
+   These are additional theme-specific overrides.
+   ======================================== */
+
+/* ParamEditor toggle container theme styles */
+._kirun-editor ._paramToggleContainer {
+	border-color: var(--kirun-border-color, #E5E7EB);
+	background-color: var(--kirun-bg-tertiary, #F3F4F6);
+}
+
+._kirun-editor ._paramToggleContainer ._paramToggleOption {
+	color: var(--kirun-text-secondary, #6B7280);
+}
+
+._kirun-editor ._paramToggleContainer ._paramToggleOption:first-child {
+	border-color: var(--kirun-border-color, #E5E7EB);
+}
+
+._kirun-editor ._paramToggleContainer ._paramToggleOption:hover {
+	color: var(--kirun-text-primary, #374151);
+	background-color: var(--kirun-bg-secondary, #E5E7EB);
+}
+
+._kirun-editor ._paramToggleContainer ._paramToggleOption._active {
+	color: #fff;
+	background-color: var(--kirun-accent, #3B82F6);
+}
+
+/* SchemaForm styles are theme-aware via CSS variables in KIRunEditor.css.
+   No per-theme overrides needed since _schemaForm* selectors use
+   var(--kirun-text-primary), var(--kirun-bg-secondary), var(--kirun-border-color), etc.
+   which are set by each theme's variable block above. */
+
+._kirun-editor._theme-dark ._paramToggleContainer {
+	border-color: #3f3f46;
+	background-color: #2d2d2d;
+}
+
+._kirun-editor._theme-dark ._paramToggleContainer ._paramToggleOption {
+	color: #a1a1aa;
+}
+
+._kirun-editor._theme-dark ._paramToggleContainer ._paramToggleOption:first-child {
+	border-color: #3f3f46;
+}
+
+._kirun-editor._theme-dark ._paramToggleContainer ._paramToggleOption:hover {
+	color: #e4e4e7;
+	background-color: #3f3f46;
+}
+
+._kirun-editor._theme-dark ._paramToggleContainer ._paramToggleOption._active {
+	background-color: #60a5fa;
+}
+
+._kirun-editor._theme-high-contrast ._paramToggleContainer {
+	border-color: #ffff00;
+	border-width: 2px;
+	background-color: #1a1a1a;
+}
+
+._kirun-editor._theme-high-contrast ._paramToggleContainer ._paramToggleOption {
+	color: #ffffff;
+}
+
+._kirun-editor._theme-high-contrast ._paramToggleContainer ._paramToggleOption:first-child {
+	border-color: #ffff00;
+}
+
+._kirun-editor._theme-high-contrast ._paramToggleContainer ._paramToggleOption._active {
+	background-color: #00ff00;
+	color: #000000;
+}
+
+._kirun-editor._theme-easy-on-eyes ._paramToggleContainer {
+	border-color: #d4cfc4;
+	background-color: #e8e4dc;
+}
+
+._kirun-editor._theme-easy-on-eyes ._paramToggleContainer ._paramToggleOption {
+	color: #6b6456;
+}
+
+._kirun-editor._theme-easy-on-eyes ._paramToggleContainer ._paramToggleOption:first-child {
+	border-color: #d4cfc4;
+}
+
+._kirun-editor._theme-easy-on-eyes ._paramToggleContainer ._paramToggleOption:hover {
+	color: #3e3832;
+	background-color: #f4f1ea;
+}
+
+._kirun-editor._theme-easy-on-eyes ._paramToggleContainer ._paramToggleOption._active {
+	background-color: #7c9885;
+}
+
+._kirun-editor._theme-flared-up ._paramToggleContainer {
+	border-color: #4a3f7a;
+	background-color: #1f1b35;
+}
+
+._kirun-editor._theme-flared-up ._paramToggleContainer ._paramToggleOption {
+	color: #b19cd9;
+}
+
+._kirun-editor._theme-flared-up ._paramToggleContainer ._paramToggleOption:first-child {
+	border-color: #4a3f7a;
+}
+
+._kirun-editor._theme-flared-up ._paramToggleContainer ._paramToggleOption:hover {
+	color: #f0e7ff;
+	background-color: #2a2447;
+}
+
+._kirun-editor._theme-flared-up ._paramToggleContainer ._paramToggleOption._active {
+	background-color: #a78bfa;
+	color: #0c0a1d;
+}
