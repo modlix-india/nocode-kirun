@@ -1,6 +1,7 @@
 package com.fincity.nocode.kirun.engine.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -34,21 +35,28 @@ public class FunctionSignature implements Serializable {
 	private String name;
 	private Map<String, Parameter> parameters = Map.of();
 	private Map<String, Event> events = Map.of();
+	private String description;
+	private String documentation;
+	private Map<String, Object> metadata;
 
 	public FunctionSignature(FunctionSignature obj) {
 
 		this.name = obj.name;
 		this.namespace = obj.namespace;
-		
+
 		this.parameters = obj.parameters == null ? null
 		        : obj.parameters.entrySet()
 		                .stream()
 		                .collect(Collectors.toMap(Entry::getKey, e -> new Parameter(e.getValue())));
-		
+
 		this.events = obj.events == null ? null
 		        : obj.events.entrySet()
 		                .stream()
 		                .collect(Collectors.toMap(Entry::getKey, e -> new Event(e.getValue())));
+
+		this.description = obj.description;
+		this.documentation = obj.documentation;
+		this.metadata = obj.metadata == null ? null : new HashMap<>(obj.metadata);
 	}
 	
 	public String getFullName() {
