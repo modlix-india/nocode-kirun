@@ -54,7 +54,7 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
         super();
     }
 
-    private signature: FunctionSignature = new FunctionSignature('ReplaceAtGivenPosition')
+    private readonly signature: FunctionSignature = new FunctionSignature('ReplaceAtGivenPosition')
         .setNamespace(Namespaces.STRING)
         .setParameters(
             new Map([
@@ -102,13 +102,17 @@ export class ReplaceAtGivenPosition extends AbstractFunction {
         let replaceString: string = context
             ?.getArguments()
             ?.get(ReplaceAtGivenPosition.PARAMETER_REPLACE_STRING_NAME);
-        let inputStringLength: number = inputString.length;
 
         if (startPosition < length) {
             let outputString: string = '';
             outputString += inputString.substring(0, startPosition);
             outputString += replaceString;
             outputString += inputString.substring(startPosition + length);
+            return new FunctionOutput([
+            EventResult.outputOf(
+                new Map([[ReplaceAtGivenPosition.EVENT_RESULT_NAME, outputString]]),
+            ),
+        ]);
         }
 
         return new FunctionOutput([

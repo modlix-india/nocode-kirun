@@ -25,7 +25,7 @@ export class AddFirst extends AbstractArrayFunction {
 
         if (source.length == 0) {
             source.push(input);
-            return new FunctionOutput([EventResult.outputOf(new Map([]))]);
+            return new FunctionOutput([EventResult.outputOf(new Map([[AbstractArrayFunction.EVENT_RESULT_NAME, source]]))]);
         }
 
         source.push(input);

@@ -26,7 +26,7 @@ export class Insert extends AbstractArrayFunction {
         var output = context?.getArguments()?.get(Insert.PARAMETER_ANY.getParameterName());
 
         if (isNullValue(output) || isNullValue(offset) || offset > source.length)
-            throw new KIRuntimeException('Please valid resouces to insert at the correct location');
+            throw new KIRuntimeException('Please provide valid resources to insert at the correct location');
 
         source = [...source];
 

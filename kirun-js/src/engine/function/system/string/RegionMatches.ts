@@ -126,7 +126,7 @@ export class RegionMatches extends AbstractFunction {
             matches = inputString == s2;
         } else {
             inputString = inputString.substring(toffSet, toffSet + length);
-            let s2: string = otherString.substring(oOffSet, length);
+            let s2: string = otherString.substring(oOffSet, oOffSet + length);
             matches = inputString == s2;
         }
 

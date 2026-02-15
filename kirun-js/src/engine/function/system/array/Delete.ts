@@ -26,7 +26,7 @@ export class Delete extends AbstractArrayFunction {
             ?.getArguments()
             ?.get(Delete.PARAMETER_ANY_VAR_ARGS.getParameterName());
 
-        if (receivedArgs === null || typeof receivedArgs === 'undefined')
+        if (receivedArgs === null || receivedArgs === undefined)
             throw new KIRuntimeException(
                 'The deletable var args are empty. So cannot be proceeded further.',
             );
@@ -39,9 +39,9 @@ export class Delete extends AbstractArrayFunction {
         let indexes = new Set<number>();
 
         for (let i: number = source.length - 1; i >= 0; i--) {
-            for (let j: number = 0; j < receivedArgs.length; j++) {
-                if (!indexes.has(i) && PrimitiveUtil.compare(source[i], receivedArgs[j]) == 0)
-                    indexes.add(source[i]);
+            for (let arg of receivedArgs) {
+                if (!indexes.has(i) && PrimitiveUtil.compare(source[i], arg) == 0)
+                    indexes.add(i);
             }
         }
 
@@ -50,7 +50,7 @@ export class Delete extends AbstractArrayFunction {
                 new Map([
                     [
                         AbstractArrayFunction.EVENT_RESULT_NAME,
-                        source.filter((value) => !indexes.has(value)),
+                        source.filter((value, index) => !indexes.has(index)),
                     ],
                 ]),
             ),
