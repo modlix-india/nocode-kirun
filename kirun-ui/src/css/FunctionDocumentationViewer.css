@@ -1,0 +1,191 @@
+/* Function Documentation Viewer Styles */
+
+._function-documentation-viewer {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+		'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Header */
+._function-doc-header {
+	margin-bottom: 2rem;
+	text-align: center;
+}
+
+._function-doc-header h1 {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #1a202c;
+	margin: 0 0 0.5rem 0;
+}
+
+._function-doc-subtitle {
+	font-size: 1rem;
+	color: #718096;
+	margin: 0;
+}
+
+/* Controls */
+._function-doc-controls {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
+}
+
+._function-doc-search {
+	flex: 1;
+	min-width: 250px;
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	border: 2px solid #e2e8f0;
+	border-radius: 8px;
+	outline: none;
+	transition: border-color 0.2s;
+}
+
+._function-doc-search:focus {
+	border-color: #4299e1;
+}
+
+._function-doc-namespace-filter,
+._function-doc-platform-filter {
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	border: 2px solid #e2e8f0;
+	border-radius: 8px;
+	background: white;
+	outline: none;
+	cursor: pointer;
+	transition: border-color 0.2s;
+}
+
+._function-doc-namespace-filter:hover:not(:disabled),
+._function-doc-platform-filter:hover {
+	border-color: #cbd5e0;
+}
+
+._function-doc-namespace-filter:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Results Info */
+._function-doc-results-info {
+	margin-bottom: 1rem;
+	color: #4a5568;
+}
+
+._function-doc-results-info strong {
+	color: #2d3748;
+	font-weight: 600;
+}
+
+/* Function List */
+._function-doc-list {
+	display: grid;
+	gap: 1rem;
+}
+
+._function-doc-item {
+	padding: 1.5rem;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+._function-doc-item:hover {
+	border-color: #4299e1;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	transform: translateY(-2px);
+}
+
+._function-doc-item-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.75rem;
+}
+
+._function-doc-item-name {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #2d3748;
+	margin: 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+._function-doc-item-badges {
+	display: flex;
+	gap: 0.5rem;
+}
+
+._function-doc-badge {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	border-radius: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+._function-doc-badge._js {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+._function-doc-badge._java {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+._function-doc-item-description {
+	color: #4a5568;
+	margin: 0;
+	line-height: 1.6;
+}
+
+/* Empty State */
+._function-doc-empty {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: #718096;
+}
+
+._function-doc-empty p {
+	font-size: 1.125rem;
+	margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	._function-documentation-viewer {
+		padding: 1rem;
+	}
+
+	._function-doc-header h1 {
+		font-size: 1.875rem;
+	}
+
+	._function-doc-controls {
+		flex-direction: column;
+	}
+
+	._function-doc-search,
+	._function-doc-namespace-filter,
+	._function-doc-platform-filter {
+		width: 100%;
+	}
+
+	._function-doc-item-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+}
