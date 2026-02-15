@@ -1,0 +1,109 @@
+/* Markdown Renderer Styles */
+
+._markdown-renderer {
+	color: #2d3748;
+	line-height: 1.7;
+}
+
+._markdown-renderer h1 {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #1a202c;
+	margin: 0 0 1rem 0;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid #e2e8f0;
+}
+
+._markdown-renderer h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1a202c;
+	margin: 2rem 0 1rem 0;
+}
+
+._markdown-renderer h3 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #2d3748;
+	margin: 1.5rem 0 0.75rem 0;
+}
+
+._markdown-renderer p {
+	margin: 0 0 1rem 0;
+}
+
+._markdown-renderer strong {
+	font-weight: 600;
+	color: #1a202c;
+}
+
+._markdown-renderer em {
+	font-style: italic;
+}
+
+._markdown-renderer a {
+	color: #4299e1;
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color 0.2s;
+}
+
+._markdown-renderer a:hover {
+	border-bottom-color: #4299e1;
+}
+
+._markdown-renderer ul {
+	margin: 0 0 1rem 0;
+	padding-left: 1.5rem;
+}
+
+._markdown-renderer li {
+	margin-bottom: 0.5rem;
+}
+
+._markdown-renderer code._markdown-inline-code {
+	background: #edf2f7;
+	color: #d53f8c;
+	padding: 0.2rem 0.4rem;
+	border-radius: 3px;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-size: 0.875em;
+}
+
+._markdown-renderer pre._markdown-code-block {
+	background: #1a202c;
+	color: #e2e8f0;
+	padding: 1rem;
+	border-radius: 6px;
+	overflow-x: auto;
+	margin: 1rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+}
+
+._markdown-renderer pre._markdown-code-block code {
+	background: none;
+	color: inherit;
+	padding: 0;
+	font-size: inherit;
+}
+
+/* Scrollbar for code blocks */
+._markdown-renderer pre._markdown-code-block::-webkit-scrollbar {
+	height: 8px;
+}
+
+._markdown-renderer pre._markdown-code-block::-webkit-scrollbar-track {
+	background: #2d3748;
+	border-radius: 4px;
+}
+
+._markdown-renderer pre._markdown-code-block::-webkit-scrollbar-thumb {
+	background: #4a5568;
+	border-radius: 4px;
+}
+
+._markdown-renderer pre._markdown-code-block::-webkit-scrollbar-thumb:hover {
+	background: #718096;
+}
