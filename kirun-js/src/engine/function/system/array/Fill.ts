@@ -41,11 +41,11 @@ export class Fill extends AbstractArrayFunction {
 
         source = [...source];
         if (add > 0) {
-            for (let i = 0; i < add; i++) source.push();
+            for (let i = 0; i < add; i++) source.push(null);
         }
 
         for (let i = srcfrom; i < srcfrom + length; i++) {
-            source[i] = isNullValue(element) ? element : duplicate(element);
+            source[i] = element == null ? element : duplicate(element);
         }
 
         return new FunctionOutput([

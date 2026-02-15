@@ -1,5 +1,5 @@
 import { Schema } from '@fincity/kirun-js';
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface StringEditorProps {
     schema: Schema;
@@ -11,6 +11,24 @@ interface StringEditorProps {
 
 export default function StringEditor({ schema, value, onChange, readOnly, label }: StringEditorProps) {
     const enums = schema.getEnums();
+
+    const [localValue, setLocalValue] = useState(value ?? '');
+    const isTypingRef = useRef(false);
+
+    useEffect(() => {
+        if (!isTypingRef.current) {
+            setLocalValue(value ?? '');
+        }
+    }, [value]);
+
+    const handleChange = (newValue: string) => {
+        isTypingRef.current = true;
+        setLocalValue(newValue);
+        onChange(newValue || undefined);
+        requestAnimationFrame(() => {
+            isTypingRef.current = false;
+        });
+    };
 
     if (enums && enums.length > 0) {
         return (
@@ -49,8 +67,8 @@ export default function StringEditor({ schema, value, onChange, readOnly, label 
             {useTextarea ? (
                 <textarea
                     className="_schemaFormTextarea"
-                    value={value ?? ''}
-                    onChange={(e) => onChange(e.target.value || undefined)}
+                    value={localValue}
+                    onChange={(e) => handleChange(e.target.value)}
                     readOnly={readOnly}
                     placeholder={schema.getDescription() || undefined}
                     maxLength={maxLength}
@@ -60,8 +78,8 @@ export default function StringEditor({ schema, value, onChange, readOnly, label 
                 <input
                     className="_schemaFormInput"
                     type={inputType}
-                    value={value ?? ''}
-                    onChange={(e) => onChange(e.target.value || undefined)}
+                    value={localValue}
+                    onChange={(e) => handleChange(e.target.value)}
                     readOnly={readOnly}
                     placeholder={schema.getDescription() || undefined}
                     maxLength={maxLength}

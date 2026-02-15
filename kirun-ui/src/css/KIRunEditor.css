@@ -17,7 +17,7 @@
 
 ._kirun-editor ._header svg.lucide {
 	color: #6B7280;
-	padding: 8px;
+	padding: 5px;
 	border-radius: 6px;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -32,11 +32,8 @@
 
 ._kirun-editor ._header ._separator {
 	height: 24px;
-	border-radius: 2px;
-	width: 1px;
-	background-color: #AAA;
-	margin-left: 8px;
-	margin-right: 8px;
+	width: 0.5px;
+	background-color: #eee;
 }
 
 ._kirun-editor ._header ._left {
@@ -307,8 +304,8 @@
 }
 
 ._kirun-editor ._statement ._icon {
-	width: 40px;
-	height: 40px;
+	width: 35px;
+	height: 35px;
 	background-color: inherit;
 	color: #fff;
 	border-radius: 10px;
@@ -335,7 +332,7 @@
 	align-items: center;
 	gap: 6px;
 	padding-left: 0;
-	font-size: 15px;
+	font-size: 18px;
 	font-weight: 600;
 	color: #1F2937;
 }
@@ -360,10 +357,10 @@
 
 ._kirun-editor ._statement ._namesContainer {
 	border-radius: 6px 6px 0 0;
-	padding: 12px 16px;
+	padding: 10px 12px;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 4px;
 	border-bottom: 1px solid #F3F4F6;
 	background: linear-gradient(180deg, #FAFAFA 0%, #fff 100%);
 }

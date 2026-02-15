@@ -1,5 +1,6 @@
 import { AdditionalType, Schema } from '../json/schema/Schema';
 import { Namespaces } from '../namespaces/Namespaces';
+import { duplicate } from '../util/duplicate';
 import { Event } from './Event';
 import { Parameter } from './Parameter';
 
@@ -30,6 +31,9 @@ export class FunctionSignature {
     private name: string;
     private parameters: Map<string, Parameter> = new Map();
     private events: Map<string, Event> = new Map();
+    private description: string | undefined;
+    private documentation: string | undefined;
+    private metadata: Record<string, any> | undefined;
 
     constructor(value: string | FunctionSignature) {
         if (value instanceof FunctionSignature) {
@@ -41,6 +45,9 @@ export class FunctionSignature {
             this.events = new Map(
                 Array.from(value.events.entries()).map((e) => [e[0], new Event(e[1])]),
             );
+            this.description = value.description;
+            this.documentation = value.documentation;
+            this.metadata = duplicate(value.metadata);
         } else {
             this.name = value;
         }
@@ -78,12 +85,39 @@ export class FunctionSignature {
         return this.namespace + '.' + this.name;
     }
 
+    public getDescription(): string | undefined {
+        return this.description;
+    }
+    public setDescription(description: string): FunctionSignature {
+        this.description = description;
+        return this;
+    }
+    public getDocumentation(): string | undefined {
+        return this.documentation;
+    }
+    public setDocumentation(documentation: string): FunctionSignature {
+        this.documentation = documentation;
+        return this;
+    }
+    public getMetadata(): Record<string, any> | undefined {
+        return this.metadata;
+    }
+    public setMetadata(metadata: Record<string, any>): FunctionSignature {
+        this.metadata = metadata;
+        return this;
+    }
+
     public toJSON(): any {
         return {
             namespace: this.namespace,
             name: this.name,
-            parameters: Object.fromEntries(this.parameters),
-            events: Object.fromEntries(this.events),
+            parameters: duplicate(this.parameters),
+            events: duplicate(this.events),
+            description: this.description,
+            documentation: this.documentation,
+            metadata: duplicate(this.metadata),
         };
     }
+
+    
 }
