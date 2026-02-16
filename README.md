@@ -17,7 +17,8 @@
   <img src="https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript" alt="TypeScript 5.x">
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/Maven_Central-4.3.0-purple?style=flat-square" alt="Maven Central">
-  <img src="https://img.shields.io/badge/npm-3.3.0-red?style=flat-square&logo=npm" alt="npm">
+  <img src="https://img.shields.io/badge/npm_kirun--js-3.3.0-red?style=flat-square&logo=npm" alt="npm kirun-js">
+  <img src="https://img.shields.io/badge/npm_kirun--ui-1.1.0-red?style=flat-square&logo=npm" alt="npm kirun-ui">
 </p>
 
 ---
@@ -32,12 +33,15 @@
 
 ## What is KIRun?
 
-**KIRun** is a cross-platform interpreter that executes JSON-defined function graphs. Define your logic once as a JSON workflow and run it identically on Java (server) or JavaScript/TypeScript (browser/Node.js).
+**KIRun** is a polyglot runtime that executes JSON-defined function graphs identically on Java (server) and JavaScript/TypeScript (browser/Node.js).
 
-It is the execution backbone of the [Modlix](https://modlix.com) no-code platform.
+> **The best invention after the wheel - for SaaS.** Every SaaS platform struggles with the same problem: rewriting business logic for each platform. KIRun solves this at the root. Define your logic once as JSON, and it runs everywhere with identical behavior. No rewrites. No sync issues. No drift. Just one source of truth across your entire stack.
+
+It is the execution backbone of the [Modlix](https://modlix.com) no-code platform. If you want to see it in action try **[Modlix Debug Mode](https://modlix.com?debug=true)**, you cannot miss the debug window in the bottom right corner.
 
 ### Key Capabilities
 
+- **Visual editor** - Drag-and-drop node-based editor ([kirun-ui](./kirun-ui/)) for building function graphs visually
 - **Polyglot** - Same JSON definition runs on Java and JavaScript
 - **Graph-based execution** - Automatic dependency resolution and parallel execution
 - **Expression engine** - Arithmetic, logical, bitwise, ternary, and nullish coalescing operators
@@ -163,8 +167,8 @@ runtime.execute(fep)
 | ------------------------ | ------------------------------ | ------- |
 | [kirun-java](./kirun-java/) | Java runtime (Project Reactor) | 4.3.0   |
 | [kirun-js](./kirun-js/)     | JavaScript/TypeScript runtime  | 3.3.0   |
-| [kirun-ui](./kirun-ui/)     | Visual editor components       | -       |
-| [kirun-go](./kirun-go/)     | Go runtime (experimental)      | -       |
+| [kirun-ui](./kirun-ui/)     | Visual node editor for building and debugging function graphs | 1.1.0   |
+
 
 ---
 
@@ -173,6 +177,7 @@ runtime.execute(fep)
 Full documentation is available in the [kirun-docs/](./kirun-docs/) directory:
 
 - [Architecture](./kirun-docs/architecture.md) - Core concepts and execution model
+- [Visual Editor (kirun-ui)](./kirun-docs/visual-editor.md) - Integrating the visual node editor and DSL text editor
 - [Expression Engine](./kirun-docs/expressions.md) - Expression syntax and operators
 - [Built-in Functions](./kirun-docs/functions.md) - Complete function reference
 - [Schema &amp; Types](./kirun-docs/schemas.md) - Type system and validation
