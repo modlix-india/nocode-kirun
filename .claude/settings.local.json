@@ -21,7 +21,8 @@
       "Read(//Users/kirangrandhi/kiran/fincity/nocode-ui/**)",
       "WebFetch(domain:bundlephobia.com)",
       "Bash(ls:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(wc:*)"
     ]
   }
 }
