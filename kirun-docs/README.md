@@ -7,6 +7,7 @@ Comprehensive documentation for the KIRun (Kinetic Instruction Runtime) engine.
 ### Getting Started
 
 - [Architecture](./architecture.md) - Core concepts, data model, execution flow, and repository pattern
+- [Visual Editor (kirun-ui)](./visual-editor.md) - Integrating the visual node editor and DSL text editor
 - [Expressions](./expressions.md) - Expression syntax, operators, precedence, and nested expressions
 
 ### Reference
