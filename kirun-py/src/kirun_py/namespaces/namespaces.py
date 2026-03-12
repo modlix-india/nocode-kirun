@@ -1,0 +1,10 @@
+class Namespaces:
+    SYSTEM: str = 'System'
+    SYSTEM_CTX: str = 'System.Context'
+    SYSTEM_LOOP: str = 'System.Loop'
+    SYSTEM_ARRAY: str = 'System.Array'
+    SYSTEM_OBJECT: str = 'System.Object'
+    SYSTEM_JSON: str = 'System.JSON'
+    MATH: str = 'System.Math'
+    STRING: str = 'System.String'
+    DATE: str = 'System.Date'
