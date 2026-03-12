@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kirun-py"
-version = "3.3.0"
+version = "3.3.1"
 description = "Python Runtime for Kinetic Instructions"
 authors = [{ name = "Kiran Kumar Grandhi" }]
 license = { text = "MIT" }
