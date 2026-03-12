@@ -15,7 +15,8 @@ jobs:
     steps:
       - id: check
         run: |
-          if [[ "${{ github.event.release.tag_name }}" == kirun-ui-* ]]; then
+          TAG="${{ github.event.release.tag_name }}"
+          if [[ "$TAG" == kirun-ui-* || "$TAG" == kirun-py-* ]]; then
             echo "should_run=false" >> $GITHUB_OUTPUT
           else
             echo "should_run=true" >> $GITHUB_OUTPUT

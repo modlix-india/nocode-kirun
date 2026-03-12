@@ -2,6 +2,7 @@ name: Python Package
 
 on:
   push:
+    branches: [master]
     paths:
       - 'kirun-py/**'
   pull_request:
@@ -12,6 +13,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'kirun-py-')
     runs-on: ubuntu-latest
     strategy:
       matrix:
