@@ -180,6 +180,83 @@ class ReverseTest {
 	}
 
 	@Test
+	void testFullReverseWithMinusOne() {
+		Reverse rev = new Reverse();
+
+		JsonArray source = new JsonArray();
+		source.add(1);
+		source.add(2);
+		source.add(3);
+		source.add(4);
+		source.add(5);
+
+		JsonArray res = new JsonArray();
+		res.add(5);
+		res.add(4);
+		res.add(3);
+		res.add(2);
+		res.add(1);
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
+						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(-1)))
+				.setContext(Map.of()).setSteps(Map.of());
+
+		source = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
+		assertEquals(res, source);
+	}
+
+	@Test
+	void testFullReverseWithExplicitLength() {
+		Reverse rev = new Reverse();
+
+		JsonArray source = new JsonArray();
+		source.add("a");
+		source.add("b");
+		source.add("c");
+		source.add("d");
+
+		JsonArray res = new JsonArray();
+		res.add("d");
+		res.add("c");
+		res.add("b");
+		res.add("a");
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
+						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(4)))
+				.setContext(Map.of()).setSteps(Map.of());
+
+		source = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
+		assertEquals(res, source);
+	}
+
+	@Test
+	void testSingleElementReverse() {
+		Reverse rev = new Reverse();
+
+		JsonArray source = new JsonArray();
+		source.add(42);
+
+		JsonArray res = new JsonArray();
+		res.add(42);
+
+		ReactiveFunctionExecutionParameters fep = new ReactiveFunctionExecutionParameters(
+				new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+				.setArguments(Map.of(Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), source,
+						Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), new JsonPrimitive(0),
+						Reverse.PARAMETER_INT_LENGTH.getParameterName(), new JsonPrimitive(-1)))
+				.setContext(Map.of()).setSteps(Map.of());
+
+		source = (JsonArray) rev.execute(fep).block().next().getResult().get("result");
+		assertEquals(res, source);
+	}
+
+	@Test
 	void test5() {
 
 		Reverse rev = new Reverse();

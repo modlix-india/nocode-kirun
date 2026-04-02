@@ -42,7 +42,7 @@ class Reverse(AbstractArrayFunction):
         if length == -1:
             length = len(source) - st
 
-        if length >= len(source) or length < 0 or st < 0:
+        if st + length > len(source) or length < 0 or st < 0:
             raise KIRuntimeException(
                 'Please provide start point between the start and end indexes '
                 'or provide the length which was less than the source size '

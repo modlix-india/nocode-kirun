@@ -7,6 +7,7 @@ import { ExpressionEvaluationException } from '../exception/ExpressionEvaluation
 export abstract class TokenValueExtractor {
     public static readonly REGEX_SQUARE_BRACKETS: RegExp = /[\[\]]/;
     public static readonly REGEX_DOT: RegExp = /(?<!\.)\.(?!\.)/;
+    private static readonly REGEX_INTEGER: RegExp = /^-?\d+$/;
 
     // Cache for parsed paths to avoid repeated regex splits
     private static pathCache: Map<string, string[]> = new Map();
@@ -177,7 +178,7 @@ export abstract class TokenValueExtractor {
             
             // Only use fast path for pure integer strings (no range operators like '..')
             // Note: parseInt('2..4', 10) incorrectly returns 2, so we need to validate first
-            if (/^-?\d+$/.test(segment)) {
+            if (TokenValueExtractor.REGEX_INTEGER.test(segment)) {
                 const idx = Number.parseInt(segment, 10);
                 const actualIdx = idx < 0 ? element.length + idx : idx;
                 return actualIdx >= 0 && actualIdx < element.length ? element[actualIdx] : undefined;
@@ -188,7 +189,7 @@ export abstract class TokenValueExtractor {
         if (typeof element === 'string') {
             if (segment === 'length') return element.length;
             // Only use fast path for pure integer strings
-            if (/^-?\d+$/.test(segment)) {
+            if (TokenValueExtractor.REGEX_INTEGER.test(segment)) {
                 const idx = Number.parseInt(segment, 10);
                 const actualIdx = idx < 0 ? element.length + idx : idx;
                 return actualIdx >= 0 && actualIdx < element.length ? element[actualIdx] : undefined;

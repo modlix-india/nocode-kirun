@@ -27,4 +27,69 @@ class ReverseTest {
 				.verifyComplete();
 	}
 
+	@Test
+	void testEmptyString() {
+		Reverse rev = new Reverse();
+
+		StepVerifier.create(rev
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of("value", new JsonPrimitive(""))))
+				.map(fo -> fo.allResults().get(0).getResult().get("value")))
+				.expectNext(new JsonPrimitive(""))
+				.verifyComplete();
+	}
+
+	@Test
+	void testSingleCharacter() {
+		Reverse rev = new Reverse();
+
+		StepVerifier.create(rev
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of("value", new JsonPrimitive("a"))))
+				.map(fo -> fo.allResults().get(0).getResult().get("value")))
+				.expectNext(new JsonPrimitive("a"))
+				.verifyComplete();
+	}
+
+	@Test
+	void testPalindrome() {
+		Reverse rev = new Reverse();
+
+		StepVerifier.create(rev
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of("value", new JsonPrimitive("racecar"))))
+				.map(fo -> fo.allResults().get(0).getResult().get("value")))
+				.expectNext(new JsonPrimitive("racecar"))
+				.verifyComplete();
+	}
+
+	@Test
+	void testSpecialCharacters() {
+		Reverse rev = new Reverse();
+
+		StepVerifier.create(rev
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of("value", new JsonPrimitive("!@#$%"))))
+				.map(fo -> fo.allResults().get(0).getResult().get("value")))
+				.expectNext(new JsonPrimitive("%$#@!"))
+				.verifyComplete();
+	}
+
+	@Test
+	void testNumbersInString() {
+		Reverse rev = new Reverse();
+
+		StepVerifier.create(rev
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository())
+						.setArguments(Map.of("value", new JsonPrimitive("12345"))))
+				.map(fo -> fo.allResults().get(0).getResult().get("value")))
+				.expectNext(new JsonPrimitive("54321"))
+				.verifyComplete();
+	}
+
 }
