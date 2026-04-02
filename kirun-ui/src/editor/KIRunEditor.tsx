@@ -475,6 +475,7 @@ export default function KIRunEditor({
     const [functionNames, setFunctionNames] = useState<string[]>([]);
     useEffect(() => {
         (async () => {
+            await initializeDocumentation().catch(() => {});
             const filterNames = await functionRepository.filter('');
             setFunctionNames(filterNames);
         })();

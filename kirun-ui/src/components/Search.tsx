@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
+import React, { CSSProperties, useEffect, useRef, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HelpCircle } from 'lucide-react';
 import { getFunctionDocumentationByName, type FunctionDocumentation } from '../FunctionDocumentationRegistry';
@@ -57,19 +57,24 @@ export default function Search({ value, options, style, onClose, onChange, showD
 
     const closeDocModal = () => {
         setSelectedDoc(null);
-        onClose?.(); // Close search when modal closes
     };
 
-    const handleMouseLeave = () => {
-        // Don't close if modal is open
-        if (!selectedDoc) {
-            onClose?.();
-        }
-    };
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (selectedDoc) return;
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+                onClose?.();
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onClose, selectedDoc]);
 
     return (
         <>
-            <div className="_search" style={style} onMouseLeave={handleMouseLeave}>
+            <div className="_search" style={style} ref={searchRef}>
                 <input
                     className="_value"
                     value={filter}
