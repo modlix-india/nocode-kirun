@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo, useState } from 'react';
+import React, { CSSProperties, useEffect, useRef, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HelpCircle } from 'lucide-react';
 import { getFunctionDocumentationByName, type FunctionDocumentation } from '../FunctionDocumentationRegistry';
@@ -6,7 +6,7 @@ import FunctionDetailModal from './FunctionDetailModal';
 
 interface SearchProps {
     value?: string;
-    options: { label?: string; key?: string; value: string; description?: string; documentation?: string }[];
+    options: { label?: string; key?: string; value: string; description?: string }[];
     placeholder?: string;
     onChange: (value: string) => void;
     onClose?: () => void;
@@ -45,28 +45,11 @@ export default function Search({ value, options, style, onClose, onChange, showD
         });
     }, [filter, enhancedOptions]);
 
-    const getDocForOption = (option: { value: string; description?: string; documentation?: string }): FunctionDocumentation | undefined => {
-        const registryDoc = getFunctionDocumentationByName(option.value);
-
-        // Merge: prefer signature values, fall back to registry values
-        if (option.documentation || option.description || registryDoc) {
-            return {
-                fullName: option.value,
-                description: option.description || registryDoc?.description || `${option.value} - No description available`,
-                documentation: option.documentation || registryDoc?.documentation || `# ${option.value}\n\nNo documentation available.`,
-                metadata: registryDoc?.metadata || {},
-                availableIn: registryDoc?.availableIn || ['JS'],
-            };
-        }
-
-        return undefined;
-    };
-
-    const handleHelpClick = (e: React.MouseEvent, option: { value: string; description?: string; documentation?: string }) => {
+    const handleHelpClick = (e: React.MouseEvent, optionValue: string) => {
         e.stopPropagation();
         e.preventDefault();
 
-        const doc = getDocForOption(option);
+        const doc = getFunctionDocumentationByName(optionValue);
         if (doc) {
             setSelectedDoc(doc);
         }
@@ -74,19 +57,24 @@ export default function Search({ value, options, style, onClose, onChange, showD
 
     const closeDocModal = () => {
         setSelectedDoc(null);
-        onClose?.(); // Close search when modal closes
     };
 
-    const handleMouseLeave = () => {
-        // Don't close if modal is open
-        if (!selectedDoc) {
-            onClose?.();
-        }
-    };
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (selectedDoc) return;
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+                onClose?.();
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onClose, selectedDoc]);
 
     return (
         <>
-            <div className="_search" style={style} onMouseLeave={handleMouseLeave}>
+            <div className="_search" style={style} ref={searchRef}>
                 <input
                     className="_value"
                     value={filter}
@@ -109,7 +97,7 @@ export default function Search({ value, options, style, onClose, onChange, showD
                         )
                         .map((option) => {
                             const hasDescription = option.description && option.description.trim().length > 0;
-                            const hasDocumentation = showDocumentation && getDocForOption(option);
+                            const hasDocumentation = showDocumentation && getFunctionDocumentationByName(option.value);
 
                             return (
                                 <div
@@ -134,7 +122,7 @@ export default function Search({ value, options, style, onClose, onChange, showD
                                     {hasDocumentation && (
                                         <button
                                             className="_option-help"
-                                            onMouseDown={(e) => handleHelpClick(e, option)}
+                                            onMouseDown={(e) => handleHelpClick(e, option.value)}
                                             title="View documentation"
                                         >
                                             <HelpCircle size={16} />

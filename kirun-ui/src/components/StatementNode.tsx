@@ -47,7 +47,7 @@ interface StatementNodeProps {
     dragNode: any;
     executionPlanMessage?: string[];
     onChange: (statement: any) => void;
-    functionNames: { value: string; description?: string; documentation?: string }[];
+    functionNames: string[];
     onDelete: (statementName: string) => void;
     onDependencyDragStart?: (ddPos: any) => void;
     onDependencyDrop?: (statement: string) => void;
@@ -572,7 +572,9 @@ export default function StatementNode({
                         {editNameNamespace ? (
                             <Search
                                 value={name}
-                                options={functionNames}
+                                options={functionNames.map((e) => ({
+                                    value: e,
+                                }))}
                                 onChange={(value) => {
                                     const index = value.lastIndexOf('.');
 

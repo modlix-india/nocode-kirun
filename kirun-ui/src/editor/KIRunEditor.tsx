@@ -472,33 +472,12 @@ export default function KIRunEditor({
 
     const [textEditorRef, setTextEditorRef] = useState<any>(null);
 
-    const [functionNames, setFunctionNames] = useState<
-        { value: string; description?: string; documentation?: string }[]
-    >([]);
+    const [functionNames, setFunctionNames] = useState<string[]>([]);
     useEffect(() => {
         (async () => {
+            await initializeDocumentation().catch(() => {});
             const filterNames = await functionRepository.filter('');
-            const options = await Promise.all(
-                filterNames.map(async (fullName) => {
-                    const lastDot = fullName.lastIndexOf('.');
-                    const ns = lastDot === -1 ? '_' : fullName.substring(0, lastDot);
-                    const nm = lastDot === -1 ? fullName : fullName.substring(lastDot + 1);
-                    try {
-                        const fn = await functionRepository.find(ns, nm);
-                        const sig = fn?.getSignature();
-                        const desc = sig?.getDescription?.();
-                        const doc = sig?.getDocumentation?.();
-                        return {
-                            value: fullName,
-                            description: desc || undefined,
-                            documentation: doc || undefined,
-                        };
-                    } catch (_) {
-                        return { value: fullName };
-                    }
-                }),
-            );
-            setFunctionNames(options);
+            setFunctionNames(filterNames);
         })();
     }, [functionRepository]);
 
@@ -911,7 +890,7 @@ export default function KIRunEditor({
     const searchBox = showAddSearch ? (
         <div className="_statement _forAdd" style={{ ...showAddSearch }}>
             <Search
-                options={functionNames}
+                options={functionNames.map((e) => ({ value: e }))}
                 onChange={(value) => {
                     if (isReadonly) return;
 

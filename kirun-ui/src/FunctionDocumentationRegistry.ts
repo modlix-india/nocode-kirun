@@ -24,6 +24,7 @@ export interface FunctionDocumentation {
  */
 let DOCUMENTATION_REGISTRY: Map<string, FunctionDocumentation> | null = null;
 let loadingPromise: Promise<void> | null = null;
+let jsonLoaded = false;
 
 /**
  * Initialize and load the documentation registry
@@ -31,7 +32,7 @@ let loadingPromise: Promise<void> | null = null;
  * @returns Promise that resolves when the registry is loaded
  */
 export async function initializeDocumentation(): Promise<void> {
-	if (DOCUMENTATION_REGISTRY) return;
+	if (jsonLoaded) return;
 
 	if (loadingPromise) return loadingPromise;
 
@@ -40,13 +41,22 @@ export async function initializeDocumentation(): Promise<void> {
 			// Dynamic import - only loads when this function is called
 			const module = await import('./FunctionDocumentation.json');
 			const data = module.default || module;
-			DOCUMENTATION_REGISTRY = new Map(
-				Object.entries(data as Record<string, FunctionDocumentation>),
-			);
+			const jsonEntries = Object.entries(data as Record<string, FunctionDocumentation>);
+			if (!DOCUMENTATION_REGISTRY) {
+				DOCUMENTATION_REGISTRY = new Map(jsonEntries);
+			} else {
+				// Merge JSON entries without overwriting already registered entries
+				for (const [key, value] of jsonEntries) {
+					if (!DOCUMENTATION_REGISTRY.has(key)) {
+						DOCUMENTATION_REGISTRY.set(key, value);
+					}
+				}
+			}
 		} catch (error) {
 			console.error('Failed to load function documentation:', error);
-			DOCUMENTATION_REGISTRY = new Map();
+			if (!DOCUMENTATION_REGISTRY) DOCUMENTATION_REGISTRY = new Map();
 		} finally {
+			jsonLoaded = true;
 			loadingPromise = null;
 		}
 	})();
@@ -204,6 +214,19 @@ export function isFunctionAvailableOn(fullName: string, platform: 'JS' | 'Java')
 	return doc?.availableIn.includes(platform) ?? false;
 }
 
+/**
+ * Register documentation for a function directly into the registry.
+ * Useful for functions that carry description/documentation in their signatures
+ * and need to be discoverable via getFunctionDocumentationByName().
+ * @param doc - The FunctionDocumentation object to register
+ */
+export function registerFunctionDocumentation(doc: FunctionDocumentation): void {
+	if (!DOCUMENTATION_REGISTRY) {
+		DOCUMENTATION_REGISTRY = new Map();
+	}
+	DOCUMENTATION_REGISTRY.set(doc.fullName, doc);
+}
+
 export default {
 	initializeDocumentation,
 	isDocumentationLoaded,
@@ -215,4 +238,5 @@ export default {
 	searchFunctionDocumentation,
 	getFunctionsByTopLevelNamespace,
 	isFunctionAvailableOn,
+	registerFunctionDocumentation,
 };
