@@ -40,7 +40,7 @@ public class Reverse extends AbstractReactiveFunction {
 		        .get(VALUE)
 		        .getAsString();
 		Integer stringLength = acutalString.length() - 1;
-		StringBuilder reversedString = new StringBuilder(stringLength);
+		StringBuilder reversedString = new StringBuilder(acutalString.length());
 
 		while (stringLength >= 0) {
 			reversedString.append(acutalString.charAt(stringLength--));

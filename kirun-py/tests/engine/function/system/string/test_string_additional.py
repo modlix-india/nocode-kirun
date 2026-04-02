@@ -461,6 +461,61 @@ async def test_reverse_2():
     assert result == ' '
 
 
+@pytest.mark.asyncio
+async def test_reverse_empty_string():
+    fep = FunctionExecutionParameters(
+        KIRunFunctionRepository(),
+        KIRunSchemaRepository(),
+    ).set_arguments({'value': ''})
+
+    result = (await reverse_fn.execute(fep)).all_results()[0].get_result()['value']
+    assert result == ''
+
+
+@pytest.mark.asyncio
+async def test_reverse_single_character():
+    fep = FunctionExecutionParameters(
+        KIRunFunctionRepository(),
+        KIRunSchemaRepository(),
+    ).set_arguments({'value': 'a'})
+
+    result = (await reverse_fn.execute(fep)).all_results()[0].get_result()['value']
+    assert result == 'a'
+
+
+@pytest.mark.asyncio
+async def test_reverse_palindrome():
+    fep = FunctionExecutionParameters(
+        KIRunFunctionRepository(),
+        KIRunSchemaRepository(),
+    ).set_arguments({'value': 'racecar'})
+
+    result = (await reverse_fn.execute(fep)).all_results()[0].get_result()['value']
+    assert result == 'racecar'
+
+
+@pytest.mark.asyncio
+async def test_reverse_special_characters():
+    fep = FunctionExecutionParameters(
+        KIRunFunctionRepository(),
+        KIRunSchemaRepository(),
+    ).set_arguments({'value': '!@#$%'})
+
+    result = (await reverse_fn.execute(fep)).all_results()[0].get_result()['value']
+    assert result == '%$#@!'
+
+
+@pytest.mark.asyncio
+async def test_reverse_numbers_in_string():
+    fep = FunctionExecutionParameters(
+        KIRunFunctionRepository(),
+        KIRunSchemaRepository(),
+    ).set_arguments({'value': '12345'})
+
+    result = (await reverse_fn.execute(fep)).all_results()[0].get_result()['value']
+    assert result == '54321'
+
+
 # ---------------------------------------------------------------------------
 # Split tests (from SplitTest.ts — already covered in test_string_misc.py,
 # but ported again here for completeness matching the JS test files)

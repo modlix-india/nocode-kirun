@@ -82,6 +82,36 @@ async def test_reverse_test_4():
 
 
 @pytest.mark.asyncio
+async def test_reverse_full_array_with_minus_one():
+    rev = Reverse()
+    src = [1, 2, 3, 4, 5]
+    expected = [5, 4, 3, 2, 1]
+    fep = make_fep({SOURCE: src, SRC_FROM: 0, LENGTH: -1})
+    result = (await rev.execute(fep)).all_results()[0].get_result()
+    assert result[RESULT] == expected
+
+
+@pytest.mark.asyncio
+async def test_reverse_full_array_with_explicit_length():
+    rev = Reverse()
+    src = ['a', 'b', 'c', 'd']
+    expected = ['d', 'c', 'b', 'a']
+    fep = make_fep({SOURCE: src, SRC_FROM: 0, LENGTH: 4})
+    result = (await rev.execute(fep)).all_results()[0].get_result()
+    assert result[RESULT] == expected
+
+
+@pytest.mark.asyncio
+async def test_reverse_single_element():
+    rev = Reverse()
+    src = [42]
+    expected = [42]
+    fep = make_fep({SOURCE: src, SRC_FROM: 0, LENGTH: -1})
+    result = (await rev.execute(fep)).all_results()[0].get_result()
+    assert result[RESULT] == expected
+
+
+@pytest.mark.asyncio
 async def test_reverse_test_5():
     rev = Reverse()
     arr = ['a', 'b', 'a', 'c', 'd', 'a', 'b', 'c', 'd']
