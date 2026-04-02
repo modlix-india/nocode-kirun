@@ -26,6 +26,7 @@ import React, {
 } from 'react';
 import { toUIError, UIError } from '../util/errorHandling';
 import { generateColor } from '../colors';
+import { initializeDocumentation } from '../FunctionDocumentationRegistry';
 import ExecutionGraphLines from '../components/ExecutionGraphLines';
 import FunctionDetailsEditor from '../components/FunctionDetailsEditor';
 import KIRunContextMenu from '../components/KIRunContextMenu';
@@ -251,6 +252,13 @@ export default function KIRunEditor({
             setEditorMode(savedMode);
         }
     }, [personalization?.editorMode]);
+
+    // Initialize function documentation on mount
+    useEffect(() => {
+        initializeDocumentation().catch(err => {
+            console.error('Failed to load function documentation:', err);
+        });
+    }, []);
 
     const measureStatementNodeHeights = useCallback(
         (stepNames: string[]): Map<string, number> => {

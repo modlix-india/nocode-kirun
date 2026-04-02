@@ -3,11 +3,40 @@ import { DSLFunctionProvider, FunctionInfo, Repository, Function } from '@fincit
 
 let monaco!: typeof MonacoEditor;
 let currentFunctionRepository: Repository<Function> | undefined = undefined;
+let cachedFunctions: FunctionInfo[] = [];
+let functionsCache: Promise<FunctionInfo[]> | null = null;
+let loadGeneration = 0;
 
 export function setCompletionFunctionRepository(repo: Repository<Function> | undefined) {
     if (currentFunctionRepository !== repo) {
         currentFunctionRepository = repo;
+        cachedFunctions = [];
+        functionsCache = null;
+        // Pre-load functions so they're ready when autocomplete triggers
+        if (repo) {
+            preloadFunctions(repo);
+        }
     }
+}
+
+function preloadFunctions(repo: Repository<Function>) {
+    const generation = ++loadGeneration;
+    functionsCache = DSLFunctionProvider.getAllFunctions(repo);
+    functionsCache
+        .then((functions) => {
+            // Only update cache if the repository hasn't changed since we started loading
+            if (generation === loadGeneration) {
+                cachedFunctions = functions;
+            }
+        })
+        .catch((error) => {
+            console.warn('Failed to preload functions for autocomplete:', error);
+        })
+        .finally(() => {
+            if (generation === loadGeneration) {
+                functionsCache = null;
+            }
+        });
 }
 
 function parseFunctionNameFromContext(textBeforeCursor: string): string | null {
@@ -74,6 +103,32 @@ function getUsedParameters(textBeforeCursor: string): Set<string> {
     return usedParams;
 }
 
+async function loadFunctions(): Promise<FunctionInfo[]> {
+    if (cachedFunctions.length > 0) return cachedFunctions;
+
+    const pending = functionsCache;
+    if (pending) {
+        try {
+            return await pending;
+        } catch (error) {
+            console.warn('Failed to load functions for autocomplete:', error);
+            return [];
+        }
+    }
+
+    if (currentFunctionRepository) {
+        preloadFunctions(currentFunctionRepository);
+        try {
+            return await (functionsCache ?? Promise.resolve([]));
+        } catch (error) {
+            console.warn('Failed to load functions for autocomplete:', error);
+            return [];
+        }
+    }
+
+    return [];
+}
+
 export function registerKIRunCompletionProvider(monacoInstance: typeof MonacoEditor) {
     monaco = monacoInstance;
     monaco.languages.registerCompletionItemProvider('kirun-dsl', {
@@ -91,12 +146,7 @@ export function registerKIRunCompletionProvider(monacoInstance: typeof MonacoEdi
             const lineContent = model.getLineContent(position.lineNumber);
             const textBeforeCursor = lineContent.substring(0, position.column - 1);
 
-            let functions: FunctionInfo[] = [];
-            try {
-                functions = await DSLFunctionProvider.getAllFunctions(currentFunctionRepository);
-            } catch (error) {
-                console.warn('Failed to load functions for autocomplete:', error);
-            }
+            const functions = await loadFunctions();
 
             const suggestions: MonacoEditor.languages.CompletionItem[] = [];
 

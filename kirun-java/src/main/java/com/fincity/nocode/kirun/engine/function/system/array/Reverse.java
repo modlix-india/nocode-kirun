@@ -33,7 +33,7 @@ public class Reverse extends AbstractArrayFunction {
 		if (length == -1)
 			length = source.size() - st;
 
-		if (length >= source.size() || length < 0 || st < 0)
+		if (st + length > source.size() || length < 0 || st < 0)
 			throw new KIRuntimeException(
 					"Please provide start point between the start and end indexes or provide the length which was less than the source size ");
 

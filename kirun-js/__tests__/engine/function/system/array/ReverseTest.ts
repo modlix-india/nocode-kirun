@@ -197,6 +197,90 @@ test('Rev test 4', async () => {
     expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toMatchObject(res1);
 });
 
+test('Reverse test - full array reverse with len -1', async () => {
+    let src: any[] = [1, 2, 3, 4, 5];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
+        .setArguments(
+            new Map<string, any>([
+                [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
+                [Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), 0],
+                [Reverse.PARAMETER_INT_LENGTH.getParameterName(), -1],
+            ]),
+        )
+        .setContext(new Map([]))
+        .setSteps(new Map([]));
+
+    let res = [5, 4, 3, 2, 1];
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
+});
+
+test('Reverse test - full array reverse with explicit length', async () => {
+    let src: any[] = ['a', 'b', 'c', 'd'];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
+        .setArguments(
+            new Map<string, any>([
+                [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
+                [Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), 0],
+                [Reverse.PARAMETER_INT_LENGTH.getParameterName(), 4],
+            ]),
+        )
+        .setContext(new Map([]))
+        .setSteps(new Map([]));
+
+    let res = ['d', 'c', 'b', 'a'];
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
+});
+
+test('Reverse test - single element array', async () => {
+    let src: any[] = [42];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
+        .setArguments(
+            new Map<string, any>([
+                [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
+                [Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), 0],
+                [Reverse.PARAMETER_INT_LENGTH.getParameterName(), -1],
+            ]),
+        )
+        .setContext(new Map([]))
+        .setSteps(new Map([]));
+
+    let res = [42];
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
+});
+
+test('Reverse test - full reverse from non-zero start', async () => {
+    let src: any[] = [1, 2, 3, 4, 5];
+
+    let fep: FunctionExecutionParameters = new FunctionExecutionParameters(
+        new KIRunFunctionRepository(),
+        new KIRunSchemaRepository(),
+    )
+        .setArguments(
+            new Map<string, any>([
+                [Reverse.PARAMETER_ARRAY_SOURCE.getParameterName(), src],
+                [Reverse.PARAMETER_INT_SOURCE_FROM.getParameterName(), 0],
+                [Reverse.PARAMETER_INT_LENGTH.getParameterName(), 5],
+            ]),
+        )
+        .setContext(new Map([]))
+        .setSteps(new Map([]));
+
+    let res = [5, 4, 3, 2, 1];
+    expect((await rev.execute(fep)).allResults()[0].getResult().get('result')).toStrictEqual(res);
+});
+
 test('rev test 5', async () => {
     let arr: any[] = [];
     arr.push('a');

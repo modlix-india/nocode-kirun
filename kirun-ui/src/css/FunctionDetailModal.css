@@ -1,0 +1,229 @@
+/* Function Detail Modal Styles */
+
+._function-detail-modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	padding: 2rem;
+	overflow-y: auto;
+}
+
+._function-detail-modal-content {
+	background: white;
+	border-radius: 12px;
+	max-width: 900px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	position: relative;
+	animation: _modalSlideIn 0.3s ease-out;
+}
+
+@keyframes _modalSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Header */
+._function-detail-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 2rem 2rem 1rem 2rem;
+	border-bottom: 1px solid #e2e8f0;
+	position: sticky;
+	top: 0;
+	background: white;
+	z-index: 10;
+}
+
+._function-detail-header h1 {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #1a202c;
+	margin: 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	flex: 1;
+	padding-right: 2rem;
+}
+
+._function-detail-close {
+	background: none;
+	border: none;
+	font-size: 2.5rem;
+	line-height: 1;
+	color: #718096;
+	cursor: pointer;
+	padding: 0;
+	width: 2.5rem;
+	height: 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	transition: all 0.2s;
+	flex-shrink: 0;
+}
+
+._function-detail-close:hover {
+	background: #f7fafc;
+	color: #2d3748;
+}
+
+/* Badges */
+._function-detail-badges {
+	padding: 0 2rem 1rem 2rem;
+	display: flex;
+	gap: 0.5rem;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+/* Description */
+._function-detail-description {
+	padding: 1.5rem 2rem;
+	background: #f7fafc;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+._function-detail-description p {
+	font-size: 1.125rem;
+	color: #2d3748;
+	margin: 0;
+	line-height: 1.6;
+}
+
+/* Documentation */
+._function-detail-documentation {
+	padding: 2rem;
+}
+
+/* Examples */
+._function-detail-examples {
+	padding: 2rem;
+	background: #f7fafc;
+	border-top: 1px solid #e2e8f0;
+}
+
+._function-detail-examples > h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1a202c;
+	margin: 0 0 1.5rem 0;
+}
+
+._function-detail-example {
+	background: white;
+	padding: 1.5rem;
+	border-radius: 8px;
+	margin-bottom: 1.5rem;
+	border: 1px solid #e2e8f0;
+}
+
+._function-detail-example:last-child {
+	margin-bottom: 0;
+}
+
+._function-detail-example h3 {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #2d3748;
+	margin: 0 0 0.5rem 0;
+}
+
+._function-detail-example p {
+	color: #4a5568;
+	margin: 0 0 1rem 0;
+	line-height: 1.6;
+}
+
+._function-detail-example-code {
+	background: #1a202c;
+	color: #e2e8f0;
+	padding: 1rem;
+	border-radius: 6px;
+	overflow-x: auto;
+	margin: 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+}
+
+._function-detail-example-code code {
+	background: none;
+	padding: 0;
+	color: inherit;
+}
+
+/* Footer */
+._function-detail-footer {
+	padding: 1.5rem 2rem;
+	border-top: 1px solid #e2e8f0;
+	display: flex;
+	justify-content: flex-end;
+	position: sticky;
+	bottom: 0;
+	background: white;
+}
+
+._function-detail-close-button {
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: white;
+	background: #4299e1;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+._function-detail-close-button:hover {
+	background: #3182ce;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	._function-detail-modal-backdrop {
+		padding: 1rem;
+	}
+
+	._function-detail-modal-content {
+		max-height: 95vh;
+	}
+
+	._function-detail-header {
+		padding: 1.5rem 1rem 1rem 1rem;
+	}
+
+	._function-detail-header h1 {
+		font-size: 1.5rem;
+		padding-right: 1rem;
+	}
+
+	._function-detail-badges,
+	._function-detail-description,
+	._function-detail-documentation,
+	._function-detail-examples,
+	._function-detail-footer {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	._function-detail-example {
+		padding: 1rem;
+	}
+}

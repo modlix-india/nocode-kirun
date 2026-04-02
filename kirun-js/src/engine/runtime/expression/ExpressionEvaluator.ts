@@ -747,11 +747,9 @@ export class ExpressionEvaluator {
         if (key.length > 2 && valuesMap.has(key))
             workingStack.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
         else {
-            let v: any;
-            try {
-                v = LiteralTokenValueExtractor.INSTANCE.getValue(str);
-            } catch (err) {
-                // Check if this is a literal (number, string, boolean, null) with property access
+            let v: any = LiteralTokenValueExtractor.INSTANCE.tryGetValue(str);
+            if (LiteralTokenValueExtractor.isFailed(v)) {
+                // Not a valid literal — check if it's a literal with property access
                 // e.g., "2.val" should evaluate to undefined (accessing .val on number 2)
                 v = this.evaluateLiteralPropertyAccess(str);
             }
@@ -774,11 +772,9 @@ export class ExpressionEvaluator {
         const basePart = str.substring(0, dotIdx);
         const propPart = str.substring(dotIdx + 1);
         
-        // Try to parse the base as a literal
-        let baseValue: any;
-        try {
-            baseValue = LiteralTokenValueExtractor.INSTANCE.getValue(basePart);
-        } catch (err) {
+        // Try to parse the base as a literal without throwing
+        const baseValue: any = LiteralTokenValueExtractor.INSTANCE.tryGetValue(basePart);
+        if (LiteralTokenValueExtractor.isFailed(baseValue)) {
             // Not a valid literal, return the original string
             return str;
         }
