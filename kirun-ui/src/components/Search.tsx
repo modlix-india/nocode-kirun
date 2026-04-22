@@ -91,9 +91,9 @@ export default function Search({ value, options, style, onClose, onChange, showD
                 <div className="_options">
                     {(filtered ?? enhancedOptions)
                         .sort((a, b) =>
-                            (a.label ?? a.value)
+                            (a.label ?? a.value ?? '')
                                 .toLowerCase()
-                                .localeCompare((b.label ?? b.value).toLowerCase()),
+                                .localeCompare((b.label ?? b.value ?? '').toLowerCase()),
                         )
                         .map((option) => {
                             const hasDescription = option.description && option.description.trim().length > 0;
