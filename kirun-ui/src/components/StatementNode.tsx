@@ -180,7 +180,7 @@ export default function StatementNode({
         >
             <div className="_paramHeader">Parameters</div>
             {filledParameters
-                .sort((a, b) => a.getParameterName().localeCompare(b.getParameterName()))
+                .sort((a, b) => (a.getParameterName() ?? '').localeCompare(b.getParameterName() ?? ''))
                 .map((e) => {
                     const paramValue = statement.parameterMap?.[e.getParameterName()];
                     const hasValue = paramValue && Object.values(paramValue).length;
@@ -247,8 +247,8 @@ export default function StatementNode({
         events
             .sort((a, b) => {
                 // Put OUTPUT at the top, then sort alphabetically
-                const aName = a.getName();
-                const bName = b.getName();
+                const aName = a.getName() ?? '';
+                const bName = b.getName() ?? '';
                 if (aName === 'output') return -1;
                 if (bName === 'output') return 1;
                 return aName.localeCompare(bName);
@@ -290,7 +290,7 @@ export default function StatementNode({
                             }}
                         ></div>
                         {eventParams
-                            .sort((a, b) => a[0].localeCompare(b[0]))
+                            .sort((a, b) => (a[0] ?? '').localeCompare(b[0] ?? ''))
                             .map(([pname]) => {
                                 const paramPath = `Steps.${statement.statementName}.${e.getName()}.${pname}`;
                                 return (
