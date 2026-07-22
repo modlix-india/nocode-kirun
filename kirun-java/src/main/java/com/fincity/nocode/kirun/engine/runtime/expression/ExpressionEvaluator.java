@@ -171,7 +171,11 @@ public class ExpressionEvaluator {
         
         // Fast path 1: Literals (true, false, numbers, strings)
         if (pattern == PATTERN_LITERAL) {
-            return evaluateLiteral(this.expression);
+            // detectPattern classifies the TRIMMED Expression, so evaluateLiteral must
+            // see the trimmed form too - otherwise a bare literal with trailing
+            // whitespace (or a {{}} template that expands to one) misses the anchored
+            // ^'...'$ match and falls through to null.
+            return evaluateLiteral(this.expression.trim());
         }
         
         // Fast path 2: Simple paths (Store.path.to.value)

@@ -364,7 +364,12 @@ export class ExpressionEvaluator {
 
         // Fast path 1: Literals (true, false, numbers, strings)
         if (pattern === ExpressionEvaluator.PATTERN_LITERAL) {
-            return ExpressionEvaluator.evaluateLiteral(expandedExpression);
+            // detectPattern classifies the TRIMMED Expression, so evaluateLiteral must
+            // see the trimmed form too. Passing the raw expandedExpression made a bare
+            // literal with surrounding whitespace (e.g. "'hello' " or a {{}} template
+            // that expands to a quoted string with trailing spaces) miss the anchored
+            // ^'...'$ regex and fall through to undefined.
+            return ExpressionEvaluator.evaluateLiteral(expandedExpression.trim());
         }
 
         // Fast path 2: Simple paths (Store.path.to.value)
