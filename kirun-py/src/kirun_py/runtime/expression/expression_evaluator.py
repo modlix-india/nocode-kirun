@@ -222,7 +222,11 @@ class ExpressionEvaluator:
             pattern = ExpressionEvaluator._detect_pattern(expanded_exp)
 
             if pattern == ExpressionEvaluator.PATTERN_LITERAL:
-                return ExpressionEvaluator._evaluate_literal(expanded_expression)
+                # _detect_pattern classifies the TRIMMED Expression, so _evaluate_literal
+                # must see the trimmed form too - otherwise a bare literal with trailing
+                # whitespace (or a {{}} template that expands to one) misses the anchored
+                # ^'...'$ match and falls through to None.
+                return ExpressionEvaluator._evaluate_literal(expanded_expression.strip())
 
             if pattern == ExpressionEvaluator.PATTERN_SIMPLE_PATH:
                 return self._evaluate_simple_path(expanded_exp, values_map)

@@ -46,7 +46,7 @@ export default function FunctionDocumentationViewer() {
 			functions = functions.filter(fn => fn.availableIn.includes(platformFilter));
 		}
 
-		return functions.sort((a, b) => a.fullName.localeCompare(b.fullName));
+		return functions.sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? ''));
 	}, [searchTerm, selectedNamespace, platformFilter, functionsByNamespace]);
 
 	// Get all unique top-level namespaces

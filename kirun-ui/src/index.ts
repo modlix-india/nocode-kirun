@@ -27,6 +27,7 @@ export {
 	searchFunctionDocumentation,
 	getFunctionsByTopLevelNamespace,
 	isFunctionAvailableOn,
+	registerFunctionDocumentation,
 } from './FunctionDocumentationRegistry';
 
 // Function Documentation Types
