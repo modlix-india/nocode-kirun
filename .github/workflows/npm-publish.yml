@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 21.7.3
+          node-version: 24.18.1
       - name: Install Dependencies
         working-directory: ./kirun-js
         run: npm ci
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 21.7.3
+          node-version: 24.18.1
           registry-url: https://registry.npmjs.org/
       - name: Install Dependencies
         working-directory: ./kirun-js
