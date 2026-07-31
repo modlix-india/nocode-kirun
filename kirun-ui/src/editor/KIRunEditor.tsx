@@ -239,7 +239,7 @@ export default function KIRunEditor({
     const [textContent, setTextContent] = useState<string>('');
     const [syncError, setSyncError] = useState<string>();
     const textChangeOriginRef = useRef(false);
-    const textCompileTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+    const textCompileTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const editorModeInitRef = useRef(false);
 
     useEffect(() => {

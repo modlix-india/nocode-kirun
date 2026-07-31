@@ -17,7 +17,7 @@ import { shortUUID } from '../util/shortUUID';
 
 interface ExecutionGraphLinesProps {
     executionPlan: ExecutionGraph<string, StatementExecution> | UIError | undefined;
-    designerRef: React.RefObject<HTMLDivElement>;
+    designerRef: React.RefObject<HTMLDivElement | null>;
     rawDef: any;
     selectedStatements: Map<string, boolean>;
     menu: any;
@@ -266,7 +266,7 @@ function makeLineFromExpression(
     gradients: Map<string, React.ReactNode>,
     toNode: HTMLElement,
     statementName: string,
-    designerRef: React.RefObject<HTMLDivElement>,
+    designerRef: React.RefObject<HTMLDivElement | null>,
     selectedStatements: Map<string, boolean>,
     setSelectedStatements: (statements: Map<string, boolean>) => void,
     regexMap: Map<string, RegExp>,

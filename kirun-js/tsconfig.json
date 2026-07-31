@@ -7,6 +7,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "lib": ["ES2022"],
-        "moduleResolution": "node"
+        "moduleResolution": "bundler",
+        "types": ["jest", "node"]
     }
 }
