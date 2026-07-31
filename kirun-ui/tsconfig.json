@@ -7,7 +7,8 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
+        "types": ["jest", "node"],
         "jsx": "react-jsx",
         "declaration": true
     },
