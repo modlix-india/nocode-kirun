@@ -73,7 +73,12 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 	private static final int VERSION = 1;
 
-	private static final int MAX_EXECUTION_ITERATIONS = 10000000;
+	// Counts statement iterations, not loop passes: a ForEachLoop over N rows with S statements
+	// in its body consumes roughly N * (S + 1). 1_000_000 still leaves ~10x headroom over a
+	// 100k-row loop while tripping a slow runaway 10x sooner than the previous 10_000_000.
+	// Overridable so a genuine batch workload can raise it without a rebuild.
+	private static final int MAX_EXECUTION_ITERATIONS = Integer.getInteger(
+			"kirun.execution.maxIterations", 1000000);
 
 	private static final Logger logger = LoggerFactory.getLogger(ReactiveKIRuntime.class);
 
@@ -248,8 +253,14 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 							.flatMap(e -> {
 								inContext.setCount(inContext.getCount() + 1);
 
-								if (inContext.getCount() == MAX_EXECUTION_ITERATIONS)
-									return Mono.error(new KIRuntimeException("Execution locked in an infinite loop"));
+								// Must be >=, not ==. The counter is a plain int bumped with a
+								// read-modify-write, and nested executeGraph calls share the same
+								// context, so the exact boundary value can be skipped and an ==
+								// check would then never trip at all.
+								if (inContext.getCount() >= MAX_EXECUTION_ITERATIONS)
+									return Mono.error(new KIRuntimeException(StringFormatter.format(
+											"Execution locked in an infinite loop : $.$ exceeded $ statement iterations",
+											this.fd.getNamespace(), this.fd.getName(), MAX_EXECUTION_ITERATIONS)));
 
 								return Mono.just(Tuples.of(tup.getT1(), tup.getT2()));
 							});
@@ -370,6 +381,12 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 											.put(nextOutput.getName(),
 													resolveInternalExpressions(nextOutput.getResult(), inContext));
 								}
+
+								// next() returns null once the branch's event stream is exhausted.
+								// Optional.of(null) would throw NPE here, turning a normal
+								// end-of-branch into an opaque failure. Stop expanding instead.
+								if (nextOutput == null)
+									return Mono.empty();
 
 								return Mono.just(Tuples.of(branch.getT1(), inContext, Optional.of(nextOutput)));
 

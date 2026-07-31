@@ -43,7 +43,11 @@ export class KIRuntime extends AbstractFunction {
 
     private static readonly VERSION: number = 1;
 
-    private static readonly MAX_EXECUTION_ITERATIONS: number = 10000000;
+    // Counts statement iterations, not loop passes: a ForEachLoop over N rows with S statements
+    // in its body consumes roughly N * (S + 1). 1_000_000 still leaves ~10x headroom over a
+    // 100k-row loop while tripping a slow runaway 10x sooner than the previous 10_000_000.
+    // Public so a genuine batch workload can raise it without a rebuild.
+    public static MAX_EXECUTION_ITERATIONS: number = 1000000;
 
     private fd: FunctionDefinition;
 
@@ -195,19 +199,20 @@ export class KIRuntime extends AbstractFunction {
             (!executionQue.isEmpty() || !branchQue.isEmpty()) &&
             !inContext.getEvents()?.has(Event.OUTPUT)
         ) {
-            const prevExecQueSize = executionQue.length;
-            const prevBranchQueSize = branchQue.length;
-            
             await this.processBranchQue(inContext, executionQue, branchQue);
             await this.processExecutionQue(inContext, executionQue, branchQue);
 
-            // Only increment count when actual work was done
-            if (prevExecQueSize !== executionQue.length || prevBranchQueSize !== branchQue.length) {
-                inContext.setCount(inContext.getCount() + 1);
+            // Count every pass, unconditionally. Gating this on a queue-size change disabled the
+            // guard in exactly the case it exists for: a graph that makes no progress leaves the
+            // sizes untouched, so the counter never advanced and this loop could spin forever.
+            // A pop-one-push-one pass also leaves the size unchanged despite doing real work.
+            inContext.setCount(inContext.getCount() + 1);
 
-                if (inContext.getCount() == KIRuntime.MAX_EXECUTION_ITERATIONS)
-                    throw new KIRuntimeException('Execution locked in an infinite loop');
-            }
+            // >= not ==, so the limit still trips if the exact boundary value is ever skipped.
+            if (inContext.getCount() >= KIRuntime.MAX_EXECUTION_ITERATIONS)
+                throw new KIRuntimeException(
+                    `Execution locked in an infinite loop : ${this.fd.getNamespace()}.${this.fd.getName()} exceeded ${KIRuntime.MAX_EXECUTION_ITERATIONS} statement iterations`,
+                );
         }
 
         if (!eGraph.isSubGraph() && !inContext.getEvents()?.size) {

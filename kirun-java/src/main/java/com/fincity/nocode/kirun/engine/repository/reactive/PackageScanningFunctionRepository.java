@@ -1,9 +1,11 @@
 package com.fincity.nocode.kirun.engine.repository.reactive;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
@@ -21,13 +23,28 @@ import reactor.util.function.Tuples;
 
 public class PackageScanningFunctionRepository implements ReactiveRepository<ReactiveFunction> {
 
+	// Scanning a package means a full Reflections classpath scan plus a reflective
+	// newInstance() of every function class it finds. That is far too expensive to redo
+	// per instance, and instances are created per request on some call paths. The scan
+	// result is immutable once built and only ever read, so it is safe to share.
+	private static final Map<String, Tuple2<Map<String, Map<String, ReactiveFunction>>, List<String>>> SCAN_CACHE = new ConcurrentHashMap<>();
+
 	private final Map<String, Map<String, ReactiveFunction>> map;
 	private final List<String> filterable;
 
 	public PackageScanningFunctionRepository(String packageName) {
 
+		Tuple2<Map<String, Map<String, ReactiveFunction>>, List<String>> scanned = SCAN_CACHE
+		        .computeIfAbsent(packageName, PackageScanningFunctionRepository::scan);
+
+		this.map = scanned.getT1();
+		this.filterable = scanned.getT2();
+	}
+
+	private static Tuple2<Map<String, Map<String, ReactiveFunction>>, List<String>> scan(String packageName) {
+
 		Reflections reflections = new Reflections(packageName, Scanners.SubTypes);
-		map = reflections.getSubTypesOf(AbstractReactiveFunction.class)
+		Map<String, Map<String, ReactiveFunction>> map = reflections.getSubTypesOf(AbstractReactiveFunction.class)
 		        .stream()
 		        .map(e ->
 				{
@@ -44,19 +61,22 @@ public class PackageScanningFunctionRepository implements ReactiveRepository<Rea
 		                .getNamespace()))
 		        .entrySet()
 		        .stream()
-		        .map(e -> Tuples.of(e.getKey(), e.getValue()
+		        .map(e -> Tuples.of(e.getKey(), Collections.unmodifiableMap(e.getValue()
 		                .stream()
 		                .collect(Collectors.toMap(f -> f.getSignature()
-		                        .getName(), java.util.function.Function.identity()))))
+		                        .getName(), java.util.function.Function.identity())))))
 		        .collect(Collectors.toMap(Tuple2::getT1, Tuple2::getT2));
 
-		filterable = map.values()
+		List<String> filterable = map.values()
 		        .stream()
 		        .map(Map::values)
 		        .flatMap(Collection::stream)
 		        .map(ReactiveFunction::getSignature)
 		        .map(FunctionSignature::getFullName)
 		        .toList();
+
+		// Shared across every instance from here on, so hand out a read-only view.
+		return Tuples.of(Collections.unmodifiableMap(map), filterable);
 	}
 
 	@Override

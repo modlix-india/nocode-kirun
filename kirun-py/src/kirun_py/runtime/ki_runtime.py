@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 from collections import deque
 from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
@@ -52,7 +53,13 @@ class KIRuntime(AbstractFunction):
 
     VERSION: int = 1
 
-    MAX_EXECUTION_ITERATIONS: int = 10_000_000
+    # Counts statement iterations, not loop passes: a ForEachLoop over N rows with S statements
+    # in its body consumes roughly N * (S + 1). 1_000_000 still leaves ~10x headroom over a
+    # 100k-row loop while tripping a slow runaway 10x sooner than the previous 10_000_000.
+    # Overridable (class attribute or KIRUN_MAX_EXECUTION_ITERATIONS) for genuine batch workloads.
+    MAX_EXECUTION_ITERATIONS: int = int(
+        os.environ.get('KIRUN_MAX_EXECUTION_ITERATIONS', 1_000_000)
+    )
 
     def __init__(self, fd: FunctionDefinition, debug_mode: bool = False) -> None:
         super().__init__()
@@ -201,17 +208,22 @@ class KIRuntime(AbstractFunction):
         while (execution_que or branch_que) and Event.OUTPUT not in (
             in_context.get_events() or {}
         ):
-            prev_exec_que_size = len(execution_que)
-            prev_branch_que_size = len(branch_que)
-
             await self._process_branch_que(in_context, execution_que, branch_que)
             await self._process_execution_que(in_context, execution_que, branch_que)
 
-            if prev_exec_que_size != len(execution_que) or prev_branch_que_size != len(branch_que):
-                in_context.set_count(in_context.get_count() + 1)
+            # Count every pass, unconditionally. Gating this on a queue-size change disabled the
+            # guard in exactly the case it exists for: a graph that makes no progress leaves the
+            # sizes untouched, so the counter never advanced and this loop could spin forever.
+            # A pop-one-push-one pass also leaves the size unchanged despite doing real work.
+            in_context.set_count(in_context.get_count() + 1)
 
-                if in_context.get_count() == KIRuntime.MAX_EXECUTION_ITERATIONS:
-                    raise KIRuntimeException('Execution locked in an infinite loop')
+            # >= not ==, so the limit still trips if the exact boundary value is ever skipped.
+            if in_context.get_count() >= KIRuntime.MAX_EXECUTION_ITERATIONS:
+                raise KIRuntimeException(
+                    f'Execution locked in an infinite loop : '
+                    f'{self._fd.get_namespace()}.{self._fd.get_name()} exceeded '
+                    f'{KIRuntime.MAX_EXECUTION_ITERATIONS} statement iterations'
+                )
 
         events = in_context.get_events()
         if not e_graph.is_sub_graph() and not events:
