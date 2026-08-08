@@ -71,4 +71,51 @@ class ExpressionEqualityTest {
         result = exp.evaluate(parameters.getValuesMap());
         assertEquals(new JsonPrimitive(false), result);
     }
+
+    @Test
+    void objectIsNeverEqualToArray() {
+
+        JsonObject obj = new JsonObject();
+        obj.add("emptyObject", new JsonObject());
+        obj.add("emptyArray", new JsonArray());
+
+        JsonArray oneElement = new JsonArray();
+        oneElement.add(new JsonPrimitive(1));
+        JsonObject indexKeyed = new JsonObject();
+        indexKeyed.add("0", new JsonPrimitive(1));
+
+        obj.add("oneElementArray", oneElement);
+        obj.add("indexKeyedObject", indexKeyed);
+
+        Map<String, Map<String, Map<String, JsonElement>>> output = Map.of("step1",
+                Map.of("output", Map.of("obj", obj)));
+
+        ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(),
+                new KIRunReactiveSchemaRepository()).setArguments(Map.of())
+                .setContext(Map.of())
+                .setSteps(output);
+
+        // both directions, empty and non empty - kirun-js deepEqual used to
+        // report the object-on-the-left cases as true
+        String[] falseExpressions = {
+                "Steps.step1.output.obj.emptyObject = Steps.step1.output.obj.emptyArray",
+                "Steps.step1.output.obj.emptyArray = Steps.step1.output.obj.emptyObject",
+                "Steps.step1.output.obj.indexKeyedObject = Steps.step1.output.obj.oneElementArray",
+                "Steps.step1.output.obj.oneElementArray = Steps.step1.output.obj.indexKeyedObject",
+        };
+
+        for (String expression : falseExpressions) {
+            var e = new ExpressionEvaluator(expression);
+            assertEquals(new JsonPrimitive(false), e.evaluate(parameters.getValuesMap()), expression);
+        }
+
+        // and the same-type cases still compare structurally
+        var same = new ExpressionEvaluator(
+                "Steps.step1.output.obj.emptyObject = Steps.step1.output.obj.emptyObject");
+        assertEquals(new JsonPrimitive(true), same.evaluate(parameters.getValuesMap()));
+
+        same = new ExpressionEvaluator("Steps.step1.output.obj.emptyArray = Steps.step1.output.obj.emptyArray");
+        assertEquals(new JsonPrimitive(true), same.evaluate(parameters.getValuesMap()));
+    }
 }

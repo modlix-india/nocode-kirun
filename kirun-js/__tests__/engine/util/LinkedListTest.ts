@@ -28,6 +28,21 @@ test('LinkedList Test', () => {
     expect(x.toArray()).toStrictEqual([1, 2, 3, 4]);
 });
 
+test('LinkedList Test - set at every index', () => {
+    // the walk in set() used to re-read from head each iteration, so any index
+    // of 2 or more wrote over element 1 instead of the requested one
+    for (let i = 0; i < 5; i++) {
+        const x = new LinkedList([10, 20, 30, 40, 50]);
+        x.set(i, 999);
+        const expected = [10, 20, 30, 40, 50];
+        expected[i] = 999;
+        expect(x.toArray()).toStrictEqual(expected);
+    }
+    const y = new LinkedList([1, 2, 3]);
+    expect(() => y.set(-1, 0)).toThrow();
+    expect(() => y.set(3, 0)).toThrow();
+});
+
 test('LinkedList Test - peekLastTest', () => {
     let x = new LinkedList();
     x.push(230);

@@ -33,19 +33,17 @@ def deep_equal(x: Any, y: Any) -> bool:
         if isinstance(a, list):
             if not isinstance(b, list) or len(a) != len(b):
                 return False
-            for i in range(len(a)):
-                xa.append(a[i])
-                yb.append(b[i])
+            xa.extend(a)
+            yb.extend(b)
             continue
 
         if isinstance(a, dict):
-            if not isinstance(b, dict):
+            # len() on the dicts directly; materialising both item lists just to
+            # compare their lengths allocated a throwaway list of tuples for
+            # every dict visited
+            if not isinstance(b, dict) or len(a) != len(b):
                 return False
-            entries_a = list(a.items())
-            entries_b = list(b.items())
-            if len(entries_a) != len(entries_b):
-                return False
-            for k, v in entries_a:
+            for k, v in a.items():
                 xa.append(v)
                 yb.append(b.get(k))
             continue
