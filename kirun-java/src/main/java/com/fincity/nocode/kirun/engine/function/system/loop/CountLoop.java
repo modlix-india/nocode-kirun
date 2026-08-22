@@ -3,7 +3,6 @@ package com.fincity.nocode.kirun.engine.function.system.loop;
 import static com.fincity.nocode.kirun.engine.namespaces.Namespaces.SYSTEM_LOOP;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -15,6 +14,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutputGenerator;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.suspend.LoopCursor;
 import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
@@ -46,26 +46,32 @@ public class CountLoop extends AbstractReactiveFunction {
 		        .get(COUNT)
 		        .getAsInt();
 
-		AtomicInteger current = new AtomicInteger(0);
-
 		String statementName = context.getStatementExecution() == null ? null
 		        : context.getStatementExecution()
 		                .getStatement()
 		                .getStatementName();
 
+		// The position lives in the execution context rather than in this closure, so that a
+		// suspension inside the loop body can be snapshotted and this loop can be re-entered on
+		// resume at the iteration it stopped on.
+		LoopCursor.Cursor cursor = LoopCursor.of(context, statementName);
+
 		FunctionOutputGenerator generator = () -> {
 
-			if (current.intValue() >= count || (statementName != null && context.getExecutionContext()
+			int current = cursor.getAsInt();
+
+			if (current >= count || (statementName != null && context.getExecutionContext()
 			        .getOrDefault(statementName, new JsonPrimitive(false))
 			        .getAsBoolean())) {
 				if (statementName != null)
 					context.getExecutionContext()
 					        .remove(statementName);
+				cursor.clear();
 				return EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(count)));
 			}
 
-			EventResult er = EventResult.of(Event.ITERATION, Map.of(INDEX, new JsonPrimitive(current.get())));
-			current.incrementAndGet();
+			EventResult er = EventResult.of(Event.ITERATION, Map.of(INDEX, new JsonPrimitive(current)));
+			cursor.set(current + 1d);
 			return er;
 		};
 

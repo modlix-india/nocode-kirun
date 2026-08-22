@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
@@ -20,6 +19,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionOutputGenerator;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.suspend.LoopCursor;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -73,13 +73,16 @@ public class RangeLoop extends AbstractReactiveFunction {
 		var step = context.getArguments()
 				.get(STEP);
 
-		AtomicReference<Double> current = new AtomicReference<>(from.getAsNumber()
-				.doubleValue());
-
 		String statementName = context.getStatementExecution() == null ? null
 				: context.getStatementExecution()
 						.getStatement()
 						.getStatementName();
+
+		// The position lives in the execution context rather than in this closure, so that a
+		// suspension inside the loop body can be snapshotted and this loop can be re-entered on
+		// resume at the value it stopped on. Presence of the entry, not its value, marks "started":
+		// a range beginning at a non-zero from would otherwise be indistinguishable from zero.
+		LoopCursor.Cursor cursor = LoopCursor.of(context, statementName);
 
 		Number f = from.getAsNumber();
 		Number t = toElement.getAsNumber();
@@ -92,19 +95,22 @@ public class RangeLoop extends AbstractReactiveFunction {
 			return Mono.error(() -> new KIRuntimeException("Unable to find value Method : ", e));
 		}
 
-		FunctionOutputGenerator generator = makeGenerator(context, current, statementName, step, t, valueOf);
+		FunctionOutputGenerator generator = makeGenerator(context, cursor, from, statementName, step, t, valueOf);
 
 		return Mono.just(generator)
 				.map(FunctionOutput::new);
 	}
 
 	private FunctionOutputGenerator makeGenerator(ReactiveFunctionExecutionParameters context,
-			AtomicReference<Double> current, String statementName, JsonElement step, Number t, Method valueOf) {
+			LoopCursor.Cursor cursor, JsonElement from, String statementName, JsonElement step, Number t,
+			Method valueOf) {
 
 		Number s = step.getAsNumber();
 
 		final boolean forward = step.getAsDouble() > 0d;
 		final double to = t.doubleValue();
+		final double start = from.getAsNumber()
+				.doubleValue();
 
 		AtomicBoolean done = new AtomicBoolean(false);
 
@@ -113,10 +119,9 @@ public class RangeLoop extends AbstractReactiveFunction {
 			if (done.get())
 				return null;
 
-			if ((forward && current.get()
-					.doubleValue() >= to) || (!forward
-							&& current.get()
-									.doubleValue() <= to)
+			double current = cursor.getOr(start);
+
+			if ((forward && current >= to) || (!forward && current <= to)
 					|| (statementName != null && context.getExecutionContext()
 							.getOrDefault(statementName, new JsonPrimitive(false))
 							.getAsBoolean())) {
@@ -125,18 +130,21 @@ public class RangeLoop extends AbstractReactiveFunction {
 				if (statementName != null)
 					context.getExecutionContext()
 							.remove(statementName);
-				return EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(current.get())));
+				cursor.clear();
+				return EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(current)));
 			}
 
 			EventResult er;
 			try {
 				er = EventResult.of(Event.ITERATION,
-						Map.of(INDEX, new JsonPrimitive((Number) valueOf.invoke(current.get()))));
+						Map.of(INDEX, new JsonPrimitive((Number) valueOf.invoke(current))));
 			} catch (Exception e) {
-				throw new KIRuntimeException("Error in invoking method valueOf with value : " + current.get(), e);
+				throw new KIRuntimeException("Error in invoking method valueOf with value : " + current, e);
 			}
 
-			current.getAndUpdate(num -> num.doubleValue() + s.doubleValue());
+			// Repeated addition, matching the arithmetic this loop has always used - deriving the
+			// value as start + n * step would drift differently for fractional steps.
+			cursor.set(current + s.doubleValue());
 
 			return er;
 		};
