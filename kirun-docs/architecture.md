@@ -228,6 +228,88 @@ Functions communicate results through events. The most common pattern:
 }
 ```
 
+## Stopping and resuming an execution
+
+*Java runtime only (`ReactiveKIRuntime`).*
+
+An execution normally runs from its first step to its last in one go. A workflow cannot: "wait three
+days, then send the follow-up" has to outlive the request, the process, and any execution timeout the
+host imposes. So a step can instead **stop** the execution, hand back a serialisable snapshot, and
+let the host **resume** it later.
+
+### How a stop surfaces
+
+A stopping step - `System.WaitUntil` or `System.WaitForSignal` - raises the reserved `suspended`
+event. Like `output` it ends the enclosing graph, but unlike every other non-output event it does not
+open a branch. `execute()` still returns a `FunctionOutput`, so nothing that calls the runtime today
+needs to change; a host that cares looks for the event:
+
+```java
+ReactiveFunctionExecutionParameters params =
+        new ReactiveFunctionExecutionParameters(fRepo, sRepo);
+
+FunctionOutput output = runtime.execute(params).block();
+
+SuspendedExecution state = params.getSuspension();   // null when it ran to completion
+```
+
+The event itself carries only the execution id and the wake condition, so it stays small enough to
+return over HTTP. The full snapshot is left on the execution parameters the caller already owns.
+
+### The snapshot
+
+`SuspendedExecution` holds the arguments, context, step outputs, raised events and execution context,
+plus one **frame** per nested graph level recording what that level still had left to do. The
+execution graph is deliberately not stored - it is rebuilt from the definition on resume and vertices
+are found again by statement name, so a snapshot stays valid across a redeploy.
+
+Everything in it is a `JsonElement` or a primitive, so `SuspendedExecutionSerializer` round-trips it
+to JSON for a host to park in a database.
+
+Stopping inside a loop body works because loop positions live in the execution context rather than in
+the generator's closure (see `LoopCursor`), and so travel with the snapshot. Stopping inside a nested
+function call works too: that inner activation's own snapshot hangs off `child`, and the chain of
+children is the call stack at the moment it stopped.
+
+### Resuming
+
+```java
+runtime.resume(state, Map.of("token", new JsonPrimitive("abc")), false, fRepo, sRepo, hostExtractors)
+```
+
+The step that stopped is **not** run again - its result is seeded from the resume payload, so a wait
+cannot stop the execution again the instant it comes back. Later steps read that payload through
+`Steps.<waitStep>.output`. Pass `timedOut = true` to resume a `WaitForSignal` down its `timeout`
+event instead of `output`.
+
+The host must supply what the snapshot deliberately does not carry: the function and schema
+repositories, and any token value extractors of its own that the definition's expressions refer to.
+The iteration guard's count starts again on each resume, so a long-lived journey does not trip the
+infinite-loop check merely for having been resumed often.
+
+### Persistence and scheduling are the host's
+
+The runtime owns no clock and no store - a day-scale wait cannot be a live subscription. It defines
+the two contracts and leaves the implementations to the host:
+
+| Interface | Responsibility |
+|-----------|----------------|
+| `ExecutionStateStore` | Save, load and delete snapshots by execution id |
+| `ResumeScheduler` | Arrange the wake-up for a `WakeCondition`, and cancel it |
+
+`InMemoryExecutionStateStore` implements the first for tests and for hosts that want the mechanics
+without durability.
+
+### Limits
+
+- Only one step may stop an execution per pass. Two waits with nothing ordering them are dispatched
+  concurrently, and an execution stopped in two places has no single point to resume from, so this is
+  refused with an error rather than silently losing one.
+- A step that owns a branch is executed again when the branch is rebuilt on resume. That is safe for
+  `If` and the loops; a side-effecting function used that way would run its side effect twice.
+- Non-deterministic expressions (`System.Math.Random`, the current time) re-evaluate on resume if
+  they feed a branch-owning step's arguments.
+
 ## Runtime Implementations
 
 ### JavaScript/TypeScript (`KIRuntime`)

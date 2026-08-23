@@ -43,7 +43,7 @@ interface StatementNodeProps {
     ) => void;
     selected: boolean;
     onClick?: (append: boolean, statementName: string) => void;
-    container: RefObject<HTMLDivElement>;
+    container: RefObject<HTMLDivElement | null>;
     dragNode: any;
     executionPlanMessage?: string[];
     onChange: (statement: any) => void;

@@ -17,6 +17,17 @@ import com.google.gson.JsonPrimitive;
 
 import reactor.core.publisher.Mono;
 
+/**
+ * Delays the running execution by a number of milliseconds.
+ *
+ * This holds the reactive chain open for the whole delay, so it is bounded by whatever execution
+ * timeout the host imposes and does not survive a restart. It is meant for short pauses - rate
+ * limiting, backing off, letting something settle.
+ *
+ * For anything longer, and for anything that has to outlive the request, use
+ * {@link WaitUntil}: it stops the execution and hands the host a snapshot to resume from, so the
+ * wait can be days long.
+ */
 public class Wait extends AbstractReactiveFunction {
 
 	static final String MILLIS = "millis";

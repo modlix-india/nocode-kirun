@@ -1,6 +1,6 @@
 {
     "name": "@fincity/kirun-js",
-    "version": "3.6.0",
+    "version": "3.9.0",
     "description": "Javascript Runtime for Kinetic Instructions",
     "source": "src/index.ts",
     "main": "dist/index.js",
@@ -35,17 +35,17 @@
         "@parcel/transformer-typescript-types": "^2.16.3",
         "@tsconfig/recommended": "^1.0.13",
         "@types/jest": "^30.0.0",
-        "@types/luxon": "^3.7.1",
-        "jest": "^30.0.0",
+        "@types/luxon": "^3.7.2",
+        "jest": "^30.4.2",
         "parcel": "^2.16.3",
-        "prettier": "^3.8.1",
-        "ts-jest": "^29.4.6",
-        "ts-loader": "^9.5.4",
-        "typescript": "^5.9.3"
+        "prettier": "^3.9.6",
+        "ts-jest": "^29.4.12",
+        "ts-loader": "^9.6.2",
+        "typescript": "^6.0.3"
     },
     "jest": {
         "transform": {
-            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+            ".(ts|tsx)": "ts-jest"
         },
         "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
         "moduleFileExtensions": [

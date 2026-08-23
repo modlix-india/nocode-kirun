@@ -102,3 +102,65 @@ test('deepEqual', () => {
         deepEqual([1, 2, 3, { a: [3, 4], b: null }], [1, 2, 3, { a: [3, 4], b: undefined }]),
     ).toBeTruthy();
 });
+
+test('deepEqual key sets of the same size but different names', () => {
+    expect(deepEqual({ x: 1 }, { y: 1 })).toBeFalsy();
+    expect(deepEqual({ a: 1, b: 2 }, { a: 1, c: 2 })).toBeFalsy();
+    // a present-but-undefined key still counts towards the key set
+    expect(deepEqual({ a: 1 }, { a: 1, b: undefined })).toBeFalsy();
+});
+
+test('deepEqual does not conflate falsy values of different types', () => {
+    expect(deepEqual(0, '')).toBeFalsy();
+    expect(deepEqual(0, false)).toBeFalsy();
+    expect(deepEqual({ a: 0 }, { a: false })).toBeFalsy();
+    expect(deepEqual([1], null)).toBeFalsy();
+    expect(deepEqual(null, [1])).toBeFalsy();
+});
+
+// An array is never equal to a plain object, in either direction. This matches
+// kirun-java (LogicalEqualOperator guards both directions explicitly) and
+// kirun-py (deep_equal rejects on type(a) is not type(b)).
+test('deepEqual never equates an object with an array', () => {
+    expect(deepEqual([], {})).toBeFalsy();
+    expect(deepEqual({}, [])).toBeFalsy();
+    expect(deepEqual([1], { 0: 1 })).toBeFalsy();
+    expect(deepEqual({ 0: 1 }, [1])).toBeFalsy();
+    expect(deepEqual([1], { a: 1 })).toBeFalsy();
+    expect(deepEqual({ a: 1 }, [1])).toBeFalsy();
+    // nested, not just at the top level
+    expect(deepEqual({ v: {} }, { v: [] })).toBeFalsy();
+    expect(deepEqual({ v: [] }, { v: {} })).toBeFalsy();
+    expect(deepEqual([[]], [{}])).toBeFalsy();
+    // and the cases that must keep working
+    expect(deepEqual([], [])).toBeTruthy();
+    expect(deepEqual({}, {})).toBeTruthy();
+    expect(deepEqual({ v: [1, 2] }, { v: [1, 2] })).toBeTruthy();
+});
+
+test('deepEqual short circuits on shared references', () => {
+    const shared = { big: Array.from({ length: 1000 }, (_, i) => ({ i })) };
+    expect(deepEqual({ v: shared }, { v: shared })).toBeTruthy();
+    expect(deepEqual({ v: shared }, { v: { ...shared } })).toBeTruthy();
+});
+
+test('deepEqual handles deeply nested values without overflowing the stack', () => {
+    const chain = (n: number) => {
+        const root: any = {};
+        let cur = root;
+        for (let i = 0; i < n; i++) {
+            cur.next = {};
+            cur = cur.next;
+        }
+        cur.value = 1;
+        return root;
+    };
+    expect(deepEqual(chain(50000), chain(50000))).toBeTruthy();
+
+    const nestedArray = (n: number) => {
+        let a: any = [1];
+        for (let i = 0; i < n; i++) a = [a];
+        return a;
+    };
+    expect(deepEqual(nestedArray(50000), nestedArray(50000))).toBeTruthy();
+});
