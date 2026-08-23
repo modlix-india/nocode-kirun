@@ -6,10 +6,7 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.convertor.enums.ConversionMode;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
-import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.json.schema.validator.reactive.ReactiveSchemaValidator;
 import com.fincity.nocode.kirun.engine.model.Event;
 import com.fincity.nocode.kirun.engine.model.EventResult;
@@ -20,8 +17,8 @@ import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.util.json.KIRunGson;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
 import reactor.core.publisher.Mono;
@@ -32,20 +29,7 @@ public class ObjectConvert extends AbstractReactiveFunction {
 	static final String SCHEMA = "schema";
 	private static final String VALUE = "value";
 	private static final String CONVERSION_MODE = "conversionMode";
-	private final Gson gson;
-
-	public ObjectConvert() {
-
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Type.class, new Type.SchemaTypeAdapter());
-		AdditionalType.AdditionalTypeAdapter ata = new AdditionalType.AdditionalTypeAdapter();
-		builder.registerTypeAdapter(AdditionalType.class, ata);
-		ArraySchemaType.ArraySchemaTypeAdapter asta = new ArraySchemaType.ArraySchemaTypeAdapter();
-		builder.registerTypeAdapter(ArraySchemaType.class, asta);
-		gson = builder.create();
-		ata.setGson(gson);
-		asta.setGson(gson);
-	}
+	private final Gson gson = KIRunGson.get();
 
 	@Override
 	protected Mono<FunctionOutput> internalExecute(ReactiveFunctionExecutionParameters context) {

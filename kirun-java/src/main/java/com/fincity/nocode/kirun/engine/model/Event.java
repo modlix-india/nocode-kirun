@@ -32,6 +32,21 @@ public class Event implements Serializable {
 
 	public static final String FALSE = "false";
 
+	/**
+	 * Raised when a step stops the execution to be resumed later - see
+	 * {@link com.fincity.nocode.kirun.engine.runtime.suspend.SuspendedExecution}. Like
+	 * {@link #OUTPUT} it terminates the enclosing graph, but unlike every other non-output event
+	 * it does not open a branch. Its result carries only the execution id and the wake condition;
+	 * the state snapshot is handed to the host on the execution parameters.
+	 */
+	public static final String SUSPENDED = "suspended";
+
+	/**
+	 * Raised by a signal wait whose deadline passed before the signal arrived, so a definition can
+	 * branch on "approved" versus "expired".
+	 */
+	public static final String TIMEOUT = "timeout";
+
 	public static final String SCHEMA_NAME = "Event";
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)

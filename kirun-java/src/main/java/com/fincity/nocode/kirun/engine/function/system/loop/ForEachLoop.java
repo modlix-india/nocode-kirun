@@ -1,7 +1,6 @@
 package com.fincity.nocode.kirun.engine.function.system.loop;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
@@ -13,6 +12,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
+import com.fincity.nocode.kirun.engine.runtime.suspend.LoopCursor;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
@@ -45,28 +45,34 @@ public class ForEachLoop extends AbstractReactiveFunction {
 		        .get(SOURCE)
 		        .getAsJsonArray();
 
-		AtomicInteger current = new AtomicInteger(0);
-
 		String statementName = context.getStatementExecution() == null ? null
 		        : context.getStatementExecution()
 		                .getStatement()
 		                .getStatementName();
 
+		// The position lives in the execution context rather than in this closure, so that a
+		// suspension inside the loop body can be snapshotted and this loop can be re-entered on
+		// resume at the item it stopped on.
+		LoopCursor.Cursor cursor = LoopCursor.of(context, statementName);
+
 		return Mono.just(new FunctionOutput(() -> {
 
-			if (current.get() >= source.size() || (statementName != null && context.getExecutionContext()
+			int current = cursor.getAsInt();
+
+			if (current >= source.size() || (statementName != null && context.getExecutionContext()
 			        .getOrDefault(statementName, new JsonPrimitive(false))
 			        .getAsBoolean())) {
 				if (statementName != null)
 					context.getExecutionContext()
 					        .remove(statementName);
-				return EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(current.get())));
+				cursor.clear();
+				return EventResult.outputOf(Map.of(VALUE, new JsonPrimitive(current)));
 			}
 
 			var eve = EventResult.of(Event.ITERATION,
-			        Map.of(INDEX, new JsonPrimitive(current.get()), EACH, source.get(current.get())));
+			        Map.of(INDEX, new JsonPrimitive(current), EACH, source.get(current)));
 
-			current.getAndIncrement();
+			cursor.set(current + 1d);
 
 			return eve;
 		}));

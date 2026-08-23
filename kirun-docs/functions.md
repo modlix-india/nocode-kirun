@@ -120,6 +120,62 @@ Pauses execution for a specified duration.
 |------|------|-------------|
 | `millis` | Long | Duration in milliseconds |
 
+This holds the reactive chain open for the whole delay, so it is bounded by whatever execution
+timeout the host imposes and does not survive a restart. Use it for short pauses only - rate
+limiting, backing off, letting something settle. For longer waits use `System.WaitUntil`.
+
+---
+
+### WaitUntil (`System.WaitUntil`)
+
+Stops the execution until a point in time, to be resumed later by the host. Unlike `System.Wait`
+this holds nothing open: the execution is snapshotted and can be resumed minutes or months later, in
+a different process. This is the primitive long-running workflows are built from - "wait three days,
+then send the follow-up".
+
+**Parameters:** (exactly one of the two)
+| Name | Type | Description |
+|------|------|-------------|
+| `until` | String | An ISO-8601 instant, e.g. `2026-09-01T09:30:00Z` |
+| `durationMillis` | Long | How long to wait from now, in milliseconds |
+
+**Events:**
+| Name | Description |
+|------|-------------|
+| `output` | Raised on resume. Its result is whatever payload the host resumed with |
+
+Raises the reserved `suspended` event instead of `output` when it stops. See
+[Stopping and resuming](architecture.md#stopping-and-resuming-an-execution).
+
+---
+
+### WaitForSignal (`System.WaitForSignal`)
+
+Stops the execution until a named signal arrives. The gate for anything the workflow cannot decide
+by itself - an approval, a reply, a webhook, a link being clicked. The host decides what a signal is
+and how it is delivered; the runtime only records which one this execution is waiting for.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| `signalName` | String | The signal to wait for, e.g. `manager-approved` |
+| `timeoutMillis` | Long | Optional. How long to wait before the timeout path is taken |
+
+**Events:**
+| Name | Description |
+|------|-------------|
+| `output` | The signal arrived; its payload is this step's result |
+| `timeout` | `timeoutMillis` elapsed first and the host resumed down this path |
+
+Wiring both events lets a definition branch on approved versus expired:
+
+```json
+{
+  "sendOffer":   { "dependentStatements": { "Steps.approval.output": true } },
+  "notifyStale": { "dependentStatements": { "Steps.approval.timeout": true } }
+}
+```
+
 ---
 
 ### ValidateSchema (`System.ValidateSchema`)

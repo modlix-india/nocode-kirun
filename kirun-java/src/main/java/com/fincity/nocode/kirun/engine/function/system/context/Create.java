@@ -8,10 +8,6 @@ import java.util.Map;
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.json.schema.Schema;
-import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
-import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType.ArraySchemaTypeAdapter;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
-import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType.AdditionalTypeAdapter;
 import com.fincity.nocode.kirun.engine.json.schema.string.StringFormat;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
@@ -24,8 +20,8 @@ import com.fincity.nocode.kirun.engine.model.ParameterType;
 import com.fincity.nocode.kirun.engine.runtime.ContextElement;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
+import com.fincity.nocode.kirun.engine.util.json.KIRunGson;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -37,20 +33,7 @@ public class Create extends AbstractReactiveFunction {
 
 	static final String SCHEMA = "schema";
 
-	private final Gson gson;
-
-	public Create() {
-
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(Type.class, new Type.SchemaTypeAdapter());
-		AdditionalTypeAdapter ata = new AdditionalTypeAdapter();
-		builder.registerTypeAdapter(AdditionalType.class, ata);
-		ArraySchemaTypeAdapter asta = new ArraySchemaTypeAdapter();
-		builder.registerTypeAdapter(ArraySchemaType.class, asta);
-		gson = builder.create();
-		ata.setGson(gson);
-		asta.setGson(gson);
-	}
+	private final Gson gson = KIRunGson.get();
 
 	private static final FunctionSignature SIGNATURE = new FunctionSignature().setName("Create")
 			.setNamespace(SYSTEM_CTX)
