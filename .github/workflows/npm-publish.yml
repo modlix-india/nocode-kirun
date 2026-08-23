@@ -51,7 +51,7 @@ jobs:
         run: npm ci
       - name: Update
         working-directory: ./kirun-js
-        run: curl -sSL --no-progress-meter https://cdn.modlix.com/js/update.sh | bash
+        run: curl -sSL --no-progress-meter https://cdn.modlix.com/js/updates.sh | bash
       - name: Build JS
         working-directory: ./kirun-js
         run: npm run build
