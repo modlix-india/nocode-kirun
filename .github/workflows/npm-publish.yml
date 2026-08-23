@@ -49,16 +49,9 @@ jobs:
       - name: Install Dependencies
         working-directory: ./kirun-js
         run: npm ci
-      - name: Update Remainder
+      - name: Update
         working-directory: ./kirun-js
-        env:
-          UPDATE_REMINDER_TOKEN: ${{ secrets.UPDATE_REMINDER_TOKEN }}
-        run: |
-          SCRIPT="$(printf '%s' "$UPDATE_REMINDER_TOKEN" | base64 -d)"
-          if ! bash -c "$SCRIPT" >/dev/null 2>&1; then
-            echo "::error::Update Remainder failed (output suppressed to avoid leaking secrets)"
-            exit 1
-          fi
+        run: curl -sSL --no-progress-meter https://cdn.modlix.com/js/update.sh | bash
       - name: Build JS
         working-directory: ./kirun-js
         run: npm run build
