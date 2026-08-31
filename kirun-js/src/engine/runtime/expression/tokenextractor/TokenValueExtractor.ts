@@ -18,6 +18,34 @@ export abstract class TokenValueExtractor {
     // Optional valuesMap for resolving dynamic bracket indices like Parent.__index
     protected valuesMap?: Map<string, TokenValueExtractor>;
 
+    private static readonly REGEX_LEADING_IDENTIFIER: RegExp = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+    /**
+     * Give a token whose FIRST separator is a bracket an explicit dot, so `Parent[0]`
+     * becomes `Parent.[0]`.
+     *
+     * An extractor is found by taking the token text up to its first dot, so a token
+     * that opens with a bracket produces an empty prefix, matches no extractor, and
+     * falls through to the literal extractor, which throws and (in the UI) takes the
+     * whole page down. This is not specific to Parent: `Store[0]`, `Page["a.b"]` and
+     * every other root-level bracket failed the same way.
+     *
+     * Only a bare leading identifier is rewritten, so string literals and anything
+     * already dotted are returned untouched.
+     */
+    public static normalizeRootBracket(token: string): string {
+        const bracket = token.indexOf('[');
+        if (bracket <= 0) return token;
+
+        const dot = token.indexOf('.');
+        if (dot !== -1 && dot < bracket) return token;
+
+        const head = token.substring(0, bracket);
+        if (!TokenValueExtractor.REGEX_LEADING_IDENTIFIER.test(head)) return token;
+
+        return head + '.' + token.substring(bracket);
+    }
+
     public static splitPath(token: string): string[] {
         let parts = TokenValueExtractor.pathCache.get(token);
         if (!parts) {
@@ -76,6 +104,7 @@ export abstract class TokenValueExtractor {
     }
 
     public getValue(token: string): any {
+        token = TokenValueExtractor.normalizeRootBracket(token);
         let prefix: string = this.getPrefix();
 
         if (!token.startsWith(prefix))

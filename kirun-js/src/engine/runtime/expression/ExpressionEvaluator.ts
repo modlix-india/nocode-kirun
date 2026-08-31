@@ -748,6 +748,7 @@ export class ExpressionEvaluator {
             }
             str = str + operator!.getOperator() + tokenVal + (operator == Operation.ARRAY_OPERATOR ? ']' : '');
         }
+        str = TokenValueExtractor.normalizeRootBracket(str);
         let key: string = str.substring(0, str.indexOf('.') + 1);
         if (key.length > 2 && valuesMap.has(key))
             workingStack.push(new ExpressionTokenValue(str, this.getValue(str, valuesMap)));
@@ -999,6 +1000,7 @@ export class ExpressionEvaluator {
     }
 
     private getValue(path: string, valuesMap: Map<string, TokenValueExtractor>): any {
+        path = TokenValueExtractor.normalizeRootBracket(path);
         const pathPrefix: string = path.substring(0, path.indexOf('.') + 1);
         if (valuesMap.has(pathPrefix)) {
             return valuesMap.get(pathPrefix)!.getValue(path);

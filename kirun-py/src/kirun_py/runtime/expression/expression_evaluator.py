@@ -532,6 +532,7 @@ class ExpressionEvaluator:
 
             s = s + op.get_operator() + token_val + (']' if op is Operation.ARRAY_OPERATOR else '')
 
+        s = TokenValueExtractor.normalize_root_bracket(s)
         dot_idx = s.find('.')
         key = s[:dot_idx + 1] if dot_idx >= 0 else ''
         if len(key) > 2 and key in values_map:
@@ -648,6 +649,7 @@ class ExpressionEvaluator:
         return self._get_value(token.get_expression(), values_map)
 
     def _get_value(self, path: str, values_map: dict) -> Any:
+        path = TokenValueExtractor.normalize_root_bracket(path)
         dot_idx = path.find('.')
         path_prefix = path[:dot_idx + 1] if dot_idx >= 0 else ''
         if path_prefix in values_map:
