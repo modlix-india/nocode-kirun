@@ -138,6 +138,10 @@ public class ExpressionEvaluator {
     
     // Cache for expression pattern detection
     private static final Map<String, Integer> patternCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    // A bracket index that is written out literally, e.g. [2] or [-1] - anything else has to be evaluated
+    private static final java.util.regex.Pattern STATIC_NUMBER_LITERAL = java.util.regex.Pattern
+            .compile("^-?\\d+(\\.\\d+)?$");
     
     // Regex patterns for fast detection (compiled once)
     private static final String LITERAL_TRUE = "true";
@@ -796,7 +800,13 @@ public class ExpressionEvaluator {
                 // For path components (identifiers with OBJECT_OPERATOR, ARRAY_OPERATOR, or no operations),
                 // build the path string without parentheses - don't evaluate as a value.
                 // For expressions with other operators (like +, -, etc.), evaluate to get the actual value.
-                if (isPathExpression(ex)) {
+                //
+                // For ARRAY_OPERATOR the token is the bracket content, which is an index or a key and
+                // must always be resolved to its value - a bare path such as [Steps.loop.index] is a
+                // path expression, so without this it was kept as literal key text and the lookup
+                // silently missed (object) or failed to parse as an integer (array). kirun-js and
+                // kirun-py both force evaluation here; this keeps the three runtimes in agreement.
+                if (operator != ARRAY_OPERATOR && isPathExpression(ex)) {
                     // Build path string without parentheses
                     String tokenStr = buildPathString(ex);
                     objTokens.push(new ExpressionToken(tokenStr));
@@ -855,7 +865,7 @@ public class ExpressionEvaluator {
             String tokenStr;
             if (objToken instanceof ExpressionTokenValue etv) {
                 String originalExpr = etv.getExpression();
-                String evaluatedValue = etv.getTokenValue().getAsString();
+                String evaluatedValue = pathTextOf(etv.getTokenValue());
                 // Preserve quotes for bracket notation with quoted keys containing dots (like ["mail.props.port"])
                 // Only preserve when the key contains dots, to distinguish from simple bracket access like ["length"]
                 if (operator == ARRAY_OPERATOR && originalExpr != null && !originalExpr.isEmpty()
@@ -873,7 +883,7 @@ public class ExpressionEvaluator {
                 sb.append(']');
         }
 
-        String str = sb.toString();
+        String str = TokenValueExtractor.normalizeRootBracket(sb.toString());
         String key = str.substring(0, str.indexOf('.') + 1);
         if (key.length() > 2 && valuesMap.containsKey(key)) {
             workingStack.push(new ExpressionTokenValue(str, getValue(str, valuesMap)));
@@ -886,6 +896,19 @@ public class ExpressionEvaluator {
             }
             workingStack.push(new ExpressionTokenValue(str, v));
         }
+    }
+
+    /**
+     * Render an evaluated bracket/object segment as the text that goes into the path string.
+     * A segment that did not resolve becomes text that simply misses on lookup, rather than
+     * throwing out of {@code getAsString()} the way a JsonNull would.
+     */
+    private static String pathTextOf(JsonElement element) {
+
+        if (element == null || element.isJsonNull())
+            return "null";
+
+        return element.isJsonPrimitive() ? element.getAsString() : element.toString();
     }
 
     private ExpressionToken applyOperation(Operation operator, JsonElement v1, JsonElement v2, JsonElement v3) {
@@ -993,6 +1016,7 @@ public class ExpressionEvaluator {
         if (path.length() <= 5)
             return LiteralTokenValueExtractor.INSTANCE.getValueFromExtractors(path, valuesMap);
 
+        path = TokenValueExtractor.normalizeRootBracket(path);
         String pathPrefix = path.substring(0, path.indexOf('.') + 1);
         if (valuesMap.containsKey(pathPrefix)) {
             return valuesMap.get(pathPrefix)
@@ -1093,6 +1117,8 @@ public class ExpressionEvaluator {
             return true;
         }
         
+        ExpressionToken[] tokens = expr.getTokensArray();
+
         // Check if all operations are path-related (OBJECT_OPERATOR or ARRAY_OPERATOR)
         // ARRAY_RANGE_INDEX_OPERATOR should NOT be treated as a path expression
         // because it needs to be evaluated to produce the range string "start..end"
@@ -1102,10 +1128,17 @@ public class ExpressionEvaluator {
                 // Has non-path operator - needs evaluation
                 return false;
             }
+
+            // An ARRAY_OPERATOR whose index is not a static literal is NOT a path component:
+            // [Steps.loop.iteration.index] has to be evaluated to its value, and treating it as
+            // path text is what made a bare token inside brackets miss silently in this runtime
+            // while resolving in kirun-js and kirun-py. tokens[0] is the index, tokens[1] the base.
+            if (op == ARRAY_OPERATOR && tokens.length > 0 && !isStaticArrayIndex(tokens[0])) {
+                return false;
+            }
         }
-        
+
         // Also check nested expressions in tokens
-        ExpressionToken[] tokens = expr.getTokensArray();
         for (ExpressionToken token : tokens) {
             if (token instanceof Expression ex) {
                 if (!isPathExpression(ex)) {
@@ -1113,7 +1146,53 @@ public class ExpressionEvaluator {
                 }
             }
         }
-        
+
         return true;
+    }
+
+    /**
+     * Check if a token represents a static array index (number or string literal), as opposed to
+     * something that has to be evaluated before it can be used as an index or key.
+     */
+    private boolean isStaticArrayIndex(ExpressionToken token) {
+
+        if (token instanceof Expression ex)
+            return isStaticArrayIndexExpression(ex);
+
+        return isStaticLiteral(token.getExpression());
+    }
+
+    private boolean isStaticArrayIndexExpression(Expression expr) {
+
+        Operation[] ops = expr.getOpsArray();
+        ExpressionToken[] tokens = expr.getTokensArray();
+
+        // Leaf expression with a single token - static only if that token is a literal
+        if (ops.length == 0 && tokens.length == 1)
+            return isStaticLiteral(tokens[0].getExpression());
+
+        // A range is static when both of its ends are
+        if (ops.length == 1 && ops[0] == ARRAY_RANGE_INDEX_OPERATOR) {
+            for (ExpressionToken token : tokens) {
+                if (!isStaticArrayIndex(token))
+                    return false;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isStaticLiteral(String str) {
+
+        if (str == null || str.isEmpty())
+            return false;
+
+        if (STATIC_NUMBER_LITERAL.matcher(str).matches())
+            return true;
+
+        return (str.length() > 1)
+                && ((str.charAt(0) == '"' && str.charAt(str.length() - 1) == '"')
+                        || (str.charAt(0) == '\'' && str.charAt(str.length() - 1) == '\''));
     }
 }
