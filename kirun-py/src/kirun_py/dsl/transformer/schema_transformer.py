@@ -51,6 +51,23 @@ class SchemaTransformer:
         return {'type': 'STRING'}
 
     @staticmethod
+    def _sole_type(schema: dict) -> Union[str, None]:
+        """The schema's type as a scalar, or None when it does not have exactly one.
+
+        Kirun stores `type` as an array as often as a scalar ({"type": ["STRING"]}),
+        and a nullable field is a genuine union ({"type": ["STRING", "NULL"]}). A
+        union is not a simple type, so it renders as JSON. Returning None here
+        (rather than testing the raw value) also keeps an unhashable list out of
+        the `in _PRIMITIVE_TYPES` membership tests below.
+        """
+        schema_type = schema.get('type')
+        if isinstance(schema_type, list):
+            if len(schema_type) == 1 and isinstance(schema_type[0], str):
+                return schema_type[0]
+            return None
+        return schema_type if isinstance(schema_type, str) else None
+
+    @staticmethod
     def to_text(schema: Any) -> str:
         """
         Transform JSON Schema back to simple schema syntax (best effort).
@@ -63,11 +80,12 @@ class SchemaTransformer:
         if not schema or not isinstance(schema, dict):
             return str(schema)
 
-        if schema.get('type') == 'ARRAY' and 'items' in schema:
+        schema_type = SchemaTransformer._sole_type(schema)
+
+        if schema_type == 'ARRAY' and 'items' in schema:
             items_text = SchemaTransformer.to_text(schema['items'])
             return f"ARRAY OF {items_text}"
 
-        schema_type = schema.get('type')
         if schema_type and schema_type in SchemaTransformer._PRIMITIVE_TYPES:
             keys = list(schema.keys())
             if len(keys) == 1 and keys[0] == 'type':
@@ -81,12 +99,12 @@ class SchemaTransformer:
         if not schema or not isinstance(schema, dict):
             return False
 
-        schema_type = schema.get('type')
+        schema_type = SchemaTransformer._sole_type(schema)
         if schema_type and schema_type in SchemaTransformer._PRIMITIVE_TYPES:
             if len(schema.keys()) == 1:
                 return True
 
-        if schema.get('type') == 'ARRAY' and 'items' in schema:
+        if schema_type == 'ARRAY' and 'items' in schema:
             return SchemaTransformer.is_simple_schema(schema['items'])
 
         return False

@@ -8,6 +8,20 @@ from kirun_py.dsl.transformer.expression_handler import ExpressionHandler
 from kirun_py.dsl.transformer.schema_transformer import SchemaTransformer
 
 
+def _dependent_statements(step: Any) -> Dict[str, Any]:
+    """A step's `dependentStatements` as a map, whatever shape it is stored in.
+
+    Normally {"Steps.x.output": True}, but real saved definitions also carry it
+    as a plain list of keys, and as an explicit null. Three separate call sites
+    used to read it directly and each raised on a shape it did not expect, which
+    failed the whole decompile rather than one step.
+    """
+    deps = step.get('dependentStatements') or {}
+    if isinstance(deps, list):
+        return {dep_key: True for dep_key in deps if isinstance(dep_key, str)}
+    return deps if isinstance(deps, dict) else {}
+
+
 class _NestedStructure:
     __slots__ = ('block_name', 'parent')
 
@@ -172,7 +186,7 @@ class JSONToTextTransformer:
                         self._extract_expressions_from_value(ref['value'], add_dep)
 
         # Extract from dependentStatements
-        dependent_stmts = step.get('dependentStatements')
+        dependent_stmts = _dependent_statements(step)
         if dependent_stmts:
             for dep_key, dep_value in dependent_stmts.items():
                 if dep_value is not True:
@@ -306,7 +320,7 @@ class JSONToTextTransformer:
             dependencies[step_name] = set()
             step = steps[step_name]
 
-            explicit_deps = step.get('dependentStatements', {})
+            explicit_deps = _dependent_statements(step)
             for dep_key in explicit_deps:
                 decoded_key = self._decode_dots(dep_key)
                 match = re.match(r'^Steps\.([^.]+)', decoded_key)
@@ -420,7 +434,7 @@ class JSONToTextTransformer:
 
         # Add AFTER clause
         after_steps: List[str] = []
-        deps = step.get('dependentStatements', {})
+        deps = _dependent_statements(step)
 
         for dep_key, dep_value in deps.items():
             if dep_value is not True:
