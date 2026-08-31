@@ -14,6 +14,7 @@ class TokenValueExtractor(ABC):
 
     REGEX_SQUARE_BRACKETS: re.Pattern = re.compile(r'[\[\]]')
     REGEX_DOT: re.Pattern = re.compile(r'(?<!\.)\.(?!\.)')
+    REGEX_LEADING_IDENTIFIER: re.Pattern = re.compile(r'^[A-Za-z_$][A-Za-z0-9_$]*$')
 
     # Cache for parsed paths to avoid repeated regex splits
     _path_cache: Dict[str, List[str]] = {}
@@ -25,6 +26,37 @@ class TokenValueExtractor(ABC):
         super().__init__()
         # Optional valuesMap for resolving dynamic bracket indices like Parent.__index
         self.values_map: Optional[Dict[str, TokenValueExtractor]] = None
+
+    @staticmethod
+    def normalize_root_bracket(token: str) -> str:
+        """Give a token whose FIRST separator is a bracket an explicit dot, so
+        ``Parent[0]`` becomes ``Parent.[0]``.
+
+        An extractor is found by taking the token text up to its first dot, so a
+        token that opens with a bracket produces an empty prefix, matches no
+        extractor, and falls through to the literal extractor, which raises. This
+        is not specific to Parent: ``Store[0]``, ``Page["a.b"]`` and every other
+        root-level bracket failed the same way.
+
+        Only a bare leading identifier is rewritten, so string literals and
+        anything already dotted are returned untouched.
+        """
+        if token is None:
+            return token
+
+        bracket = token.find('[')
+        if bracket <= 0:
+            return token
+
+        dot = token.find('.')
+        if dot != -1 and dot < bracket:
+            return token
+
+        head = token[:bracket]
+        if not TokenValueExtractor.REGEX_LEADING_IDENTIFIER.match(head):
+            return token
+
+        return head + '.' + token[bracket:]
 
     @staticmethod
     def split_path(token: str) -> List[str]:
@@ -77,6 +109,7 @@ class TokenValueExtractor(ABC):
         return cached
 
     def get_value(self, token: str) -> Any:
+        token = TokenValueExtractor.normalize_root_bracket(token)
         prefix: str = self.get_prefix()
 
         if not token.startswith(prefix):

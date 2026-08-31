@@ -31,6 +31,41 @@ public abstract class TokenValueExtractor {
 
     private static final String LENGTH = "length";
 
+    private static final java.util.regex.Pattern LEADING_IDENTIFIER = java.util.regex.Pattern
+            .compile("^[A-Za-z_$][A-Za-z0-9_$]*$");
+
+    /**
+     * Give a token whose FIRST separator is a bracket an explicit dot, so {@code Parent[0]}
+     * becomes {@code Parent.[0]}.
+     *
+     * An extractor is found by taking the token text up to its first dot, so a token that
+     * opens with a bracket produces an empty prefix, matches no extractor, and falls through
+     * to the literal extractor, which throws. This is not specific to Parent: {@code Store[0]},
+     * {@code Page["a.b"]} and every other root-level bracket failed the same way.
+     *
+     * Only a bare leading identifier is rewritten, so string literals and anything already
+     * dotted are returned untouched.
+     */
+    public static String normalizeRootBracket(String token) {
+
+        if (token == null)
+            return null;
+
+        int bracket = token.indexOf('[');
+        if (bracket <= 0)
+            return token;
+
+        int dot = token.indexOf('.');
+        if (dot != -1 && dot < bracket)
+            return token;
+
+        String head = token.substring(0, bracket);
+        if (!LEADING_IDENTIFIER.matcher(head).matches())
+            return token;
+
+        return head + "." + token.substring(bracket);
+    }
+
     /**
      * Split a token by dots and cache the result.
      * Enhanced to handle bracket notation with keys containing dots.
@@ -82,6 +117,7 @@ public abstract class TokenValueExtractor {
 
     public JsonElement getValue(String token) {
 
+        token = normalizeRootBracket(token);
         String prefix = this.getPrefix();
 
         if (!token.startsWith(prefix))
