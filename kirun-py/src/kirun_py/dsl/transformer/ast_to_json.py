@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Any, Dict, List, Optional
 
+from kirun_py.dsl.number_literal import parse_number
 from kirun_py.dsl.parser.ast.argument_node import ArgumentNode, ArgumentValue
 from kirun_py.dsl.parser.ast.complex_value_node import ComplexValueNode
 from kirun_py.dsl.parser.ast.event_decl_node import EventDeclNode
@@ -228,8 +229,7 @@ class ASTToJSONTransformer:
             return False
 
         try:
-            num = float(expr_text)
-            return num
+            return parse_number(expr_text)
         except (ValueError, TypeError):
             pass
 
