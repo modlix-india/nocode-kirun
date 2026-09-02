@@ -71,7 +71,7 @@ class ParameterReference:
     @staticmethod
     def from_value(e: dict) -> ParameterReference:
         return (
-            ParameterReference(ParameterReferenceType(e.get('type', 'VALUE')))
+            ParameterReference(ParameterReferenceType.of(e.get('type', 'VALUE')))
             .set_value(e.get('value'))
             .set_expression(e.get('expression', ''))
             .set_key(e.get('key', uuid()))

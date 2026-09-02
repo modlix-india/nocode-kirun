@@ -22,6 +22,29 @@ def _dependent_statements(step: Any) -> Dict[str, Any]:
     return deps if isinstance(deps, dict) else {}
 
 
+def _ref_type(ref: Any) -> Any:
+    """A ParameterReference's `type` as the schema declares it: a plain string.
+
+    `ParameterReference.SCHEMA` types it as a string with enums EXPRESSION |
+    VALUE, but a large amount of stored data carries it as a single-element
+    ARRAY, `["EXPRESSION"]` -- that is what modlix-mcp and the appbuilder
+    generator tools have always written. The JS runtime never minded, because
+    KIRuntime compares with `==` and `['EXPRESSION'] == 'EXPRESSION'` is true in
+    JS, so those definitions reach this transformer intact.
+
+    Python has no such coercion: `['EXPRESSION'] == 'EXPRESSION'` is False. So
+    comparing `ref['type']` directly missed the expression branch, fell through
+    to the value branch and emitted the ref's `value`, which for an expression
+    ref is None. The round trip then replaced every expression in the function
+    with `null`, silently, in what reads as a formatting operation. Read the
+    type through this, never directly. Same fix as JSONToText.ts `refType`.
+    """
+    if not isinstance(ref, dict):
+        return None
+    ref_type = ref.get('type')
+    return ref_type[0] if isinstance(ref_type, list) and ref_type else ref_type
+
+
 class _NestedStructure:
     __slots__ = ('block_name', 'parent')
 
@@ -180,9 +203,9 @@ class JSONToTextTransformer:
                 for ref in param_refs.values():
                     if not isinstance(ref, dict):
                         continue
-                    if ref.get('type') == 'EXPRESSION' and ref.get('expression'):
+                    if _ref_type(ref) == 'EXPRESSION' and ref.get('expression'):
                         add_dep(ref['expression'])
-                    if ref.get('type') == 'VALUE' and ref.get('value') is not None:
+                    if _ref_type(ref) == 'VALUE' and ref.get('value') is not None:
                         self._extract_expressions_from_value(ref['value'], add_dep)
 
         # Extract from dependentStatements
@@ -217,7 +240,7 @@ class JSONToTextTransformer:
         elif isinstance(value, dict):
             if value.get('isExpression') is True and isinstance(value.get('value'), str):
                 add_dep(value['value'])
-            elif value.get('type') == 'EXPRESSION' and isinstance(value.get('expression'), str):
+            elif _ref_type(value) == 'EXPRESSION' and isinstance(value.get('expression'), str):
                 add_dep(value['expression'])
             else:
                 for prop_value in value.values():
@@ -303,9 +326,9 @@ class JSONToTextTransformer:
             for ref in param_refs.values():
                 if not isinstance(ref, dict):
                     continue
-                if ref.get('type') == 'EXPRESSION' and ref.get('expression'):
+                if _ref_type(ref) == 'EXPRESSION' and ref.get('expression'):
                     deps.extend(self._extract_step_references(ref['expression']))
-                if ref.get('type') == 'VALUE' and ref.get('value'):
+                if _ref_type(ref) == 'VALUE' and ref.get('value'):
                     value_str = json.dumps(ref['value'])
                     deps.extend(self._extract_step_references(value_str))
 
@@ -486,7 +509,7 @@ class JSONToTextTransformer:
 
     def _param_ref_to_text(self, ref: Any) -> str:
         """Convert parameter reference to text."""
-        if ref.get('type') == 'EXPRESSION':
+        if _ref_type(ref) == 'EXPRESSION':
             expr = ref.get('expression')
             if not expr and expr != 0:
                 return '``'
