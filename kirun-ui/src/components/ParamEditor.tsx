@@ -8,6 +8,7 @@ import {
 } from '@fincity/kirun-js';
 import React, { useCallback, useEffect, useState } from 'react';
 import { shortUUID } from '../util/shortUUID';
+import { normalizeParamRefTypes } from '../util/paramRefType';
 import { duplicate } from '@fincity/kirun-js';
 import SchemaForm from './SchemaForm/SchemaForm';
 import JsonEditorPopup from './JsonEditorPopup';
@@ -52,7 +53,12 @@ export default function ParamEditor({
                     }
                 }
             } else {
-                arr = duplicate(Array.from(Object.values(inValue ?? {})));
+                // Normalise `type` on the way IN, not at each comparison below.
+                // A stored `["EXPRESSION"]` otherwise renders as an empty VALUE
+                // box with neither toggle active, and every write-back path here
+                // spreads this object, so the next change would persist
+                // `{type: 'VALUE', value: null}` over the expression.
+                arr = normalizeParamRefTypes(duplicate(Array.from(Object.values(inValue ?? {}))));
             }
 
             arr.sort((a: any, b: any) => {
