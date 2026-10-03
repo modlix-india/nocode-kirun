@@ -106,6 +106,22 @@ test('String date time valid case', async () => {
     expect(StringValidator.validate([], schema, value)).toBe(value);
 });
 
+test('String date valid on the 10th and 20th', async () => {
+    let schema: Schema = new Schema().setFormat(StringFormat.DATE);
+
+    for (const value of ['2026-01-10', '2026-01-20', '2026-01-19', '2026-01-29']) {
+        expect(StringValidator.validate([], schema, value)).toBe(value);
+    }
+});
+
+test('String date time valid on the 10th and 20th', async () => {
+    let schema: Schema = new Schema().setFormat(StringFormat.DATETIME);
+
+    for (const value of ['2026-01-10T10:00:00', '2026-01-20T10:00:00', '2026-01-20T10:00:00+05:30']) {
+        expect(StringValidator.validate([], schema, value)).toBe(value);
+    }
+});
+
 test('String email invalid case', async () => {
     let value: String = 'testemail fai%6&8ls@gmail.com';
 

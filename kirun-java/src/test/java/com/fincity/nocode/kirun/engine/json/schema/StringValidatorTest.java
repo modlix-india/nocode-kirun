@@ -145,7 +145,31 @@ public class StringValidatorTest {
 				() -> StringValidator.validate(null, schema, formatElement.get("value")));
 
 		assertEquals(formatElement.get("value").toString() + " is not matched with the " + "date time pattern", schemaValidationExceptionTimeFormat.getMessage());
-		
+
+	}
+
+	@Test
+	public void StringValidatorTestForDateOnTenthAndTwentieth() {
+
+		Schema schema = new Schema();
+		schema.setFormat(StringFormat.DATE);
+
+		for (String value : new String[] { "2026-01-10", "2026-01-20", "2026-01-19", "2026-01-29" }) {
+			JsonPrimitive element = new JsonPrimitive(value);
+			assertEquals(element, StringValidator.validate(null, schema, element));
+		}
+	}
+
+	@Test
+	public void StringValidatorTestForDateTimeOnTenthAndTwentieth() {
+
+		Schema schema = new Schema();
+		schema.setFormat(StringFormat.DATETIME);
+
+		for (String value : new String[] { "2026-01-10T10:00:00", "2026-01-20T10:00:00", "2026-01-20T10:00:00+05:30" }) {
+			JsonPrimitive element = new JsonPrimitive(value);
+			assertEquals(element, StringValidator.validate(null, schema, element));
+		}
 	}
 	
     @Test

@@ -99,6 +99,20 @@ def test_string_date_time_valid_case():
     assert StringValidator.validate([], schema, value) == value
 
 
+@pytest.mark.parametrize('value', ['2026-01-10', '2026-01-20', '2026-01-19', '2026-01-29'])
+def test_string_date_valid_on_tenth_and_twentieth(value):
+    schema = Schema().set_format(StringFormat.DATE)
+
+    assert StringValidator.validate([], schema, value) == value
+
+
+@pytest.mark.parametrize('value', ['2026-01-10T10:00:00', '2026-01-20T10:00:00', '2026-01-20T10:00:00+05:30'])
+def test_string_date_time_valid_on_tenth_and_twentieth(value):
+    schema = Schema().set_format(StringFormat.DATETIME)
+
+    assert StringValidator.validate([], schema, value) == value
+
+
 def test_string_email_invalid_case():
     value = 'testemail fai%6&8ls@gmail.com'
     schema = Schema().set_format(StringFormat.EMAIL)
