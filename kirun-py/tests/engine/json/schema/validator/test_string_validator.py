@@ -113,6 +113,51 @@ def test_string_date_time_valid_on_tenth_and_twentieth(value):
     assert StringValidator.validate([], schema, value) == value
 
 
+@pytest.mark.parametrize('fmt,value', [
+    (StringFormat.DATETIME, '2026-01-15T10:00:00Z'),
+    (StringFormat.DATETIME, '2026-01-15T10:00:00.123Z'),
+    (StringFormat.DATETIME, '2026-01-15T10:00:00.123456789+05:30'),
+    (StringFormat.TIME, '10:00:00Z'),
+    (StringFormat.TIME, '10:00:00.123'),
+    (StringFormat.TIME, '10:00:00.123+05:30'),
+    (StringFormat.DECIMAL, '0'),
+    (StringFormat.DECIMAL, '100'),
+    (StringFormat.DECIMAL, '-12.50'),
+    (StringFormat.DECIMAL, '+3.14159'),
+    (StringFormat.ID, '65f1c2a9e4b0a1b2c3d4e5f6'),
+    (StringFormat.ID, '01J9ZQ3V8K2M4N6P8R0S2T4V6W'),
+    (StringFormat.ID, '01j9zq3v8k2m4n6p8r0s2t4v6w'),
+])
+def test_string_format_valid(fmt, value):
+    schema = Schema().set_format(fmt)
+
+    assert StringValidator.validate([], schema, value) == value
+
+
+@pytest.mark.parametrize('fmt,value,pattern_name', [
+    (StringFormat.DATETIME, '2026-01-15T10:00.123', 'date time pattern'),
+    (StringFormat.DATETIME, '2026-01-15T10:00:00.1234567890Z', 'date time pattern'),
+    (StringFormat.DATETIME, '2026-01-15T10:00:00.Z', 'date time pattern'),
+    (StringFormat.TIME, '10:00.5', 'time pattern'),
+    (StringFormat.TIME, '10:00:00.', 'time pattern'),
+    (StringFormat.DECIMAL, '1e5', 'decimal pattern'),
+    (StringFormat.DECIMAL, '12.', 'decimal pattern'),
+    (StringFormat.DECIMAL, '.5', 'decimal pattern'),
+    (StringFormat.DECIMAL, '1,000', 'decimal pattern'),
+    (StringFormat.DECIMAL, 'abc', 'decimal pattern'),
+    (StringFormat.DECIMAL, '', 'decimal pattern'),
+    (StringFormat.ID, '65f1c2a9e4b0a1b2c3d4e5fg', 'id pattern'),
+    (StringFormat.ID, '01J9ZQ3V8K2M4N6P8R0S2T4V6U', 'id pattern'),
+    (StringFormat.ID, '01J9ZQ3V8K2M4N6P8R0S2T4V6', 'id pattern'),
+    (StringFormat.ID, 'abc', 'id pattern'),
+])
+def test_string_format_invalid(fmt, value, pattern_name):
+    schema = Schema().set_format(fmt)
+
+    with pytest.raises(Exception, match=' is not matched with the ' + pattern_name):
+        StringValidator.validate([], schema, value)
+
+
 def test_string_email_invalid_case():
     value = 'testemail fai%6&8ls@gmail.com'
     schema = Schema().set_format(StringFormat.EMAIL)

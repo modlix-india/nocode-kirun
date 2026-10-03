@@ -122,6 +122,65 @@ test('String date time valid on the 10th and 20th', async () => {
     }
 });
 
+function expectValid(format: StringFormat, ...values: string[]) {
+    let schema: Schema = new Schema().setFormat(format);
+
+    for (const value of values) {
+        expect(StringValidator.validate([], schema, value)).toBe(value);
+    }
+}
+
+function expectInvalid(format: StringFormat, patternName: string, ...values: string[]) {
+    let schema: Schema = new Schema().setFormat(format);
+
+    for (const value of values) {
+        expect(() => StringValidator.validate([], schema, value)).toThrow(
+            value + ' is not matched with the ' + patternName,
+        );
+    }
+}
+
+test('String date time and time with fractional seconds and Z', async () => {
+    expectValid(
+        StringFormat.DATETIME,
+        '2026-01-15T10:00:00Z',
+        '2026-01-15T10:00:00.123Z',
+        '2026-01-15T10:00:00.123456789+05:30',
+    );
+    expectInvalid(
+        StringFormat.DATETIME,
+        'date time pattern',
+        '2026-01-15T10:00.123',
+        '2026-01-15T10:00:00.1234567890Z',
+        '2026-01-15T10:00:00.Z',
+    );
+
+    expectValid(StringFormat.TIME, '10:00:00Z', '10:00:00.123', '10:00:00.123+05:30');
+    expectInvalid(StringFormat.TIME, 'time pattern', '10:00.5', '10:00:00.');
+});
+
+test('String decimal', async () => {
+    expectValid(StringFormat.DECIMAL, '0', '100', '-12.50', '+3.14159');
+    expectInvalid(StringFormat.DECIMAL, 'decimal pattern', '1e5', '12.', '.5', '1,000', 'abc', '');
+});
+
+test('String id', async () => {
+    expectValid(
+        StringFormat.ID,
+        '65f1c2a9e4b0a1b2c3d4e5f6',
+        '01J9ZQ3V8K2M4N6P8R0S2T4V6W',
+        '01j9zq3v8k2m4n6p8r0s2t4v6w',
+    );
+    expectInvalid(
+        StringFormat.ID,
+        'id pattern',
+        '65f1c2a9e4b0a1b2c3d4e5fg',
+        '01J9ZQ3V8K2M4N6P8R0S2T4V6U',
+        '01J9ZQ3V8K2M4N6P8R0S2T4V6',
+        'abc',
+    );
+});
+
 test('String email invalid case', async () => {
     let value: String = 'testemail fai%6&8ls@gmail.com';
 

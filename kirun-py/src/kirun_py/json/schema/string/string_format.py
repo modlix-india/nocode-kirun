@@ -7,3 +7,5 @@ class StringFormat(str, Enum):
     DATE = 'DATE'
     EMAIL = 'EMAIL'
     REGEX = 'REGEX'
+    DECIMAL = 'DECIMAL'
+    ID = 'ID'

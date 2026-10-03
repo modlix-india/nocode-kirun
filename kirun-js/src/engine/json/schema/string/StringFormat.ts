@@ -4,4 +4,6 @@ export enum StringFormat {
     DATE = 'DATE',
     EMAIL = 'EMAIL',
     REGEX = 'REGEX',
+    DECIMAL = 'DECIMAL',
+    ID = 'ID',
 }

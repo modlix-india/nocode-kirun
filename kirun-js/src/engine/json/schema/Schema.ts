@@ -229,6 +229,8 @@ export class Schema {
                         'DATE',
                         'EMAIL',
                         'REGEX',
+                        'DECIMAL',
+                        'ID',
                     ]),
                 ],
                 ['minLength', Schema.ofInteger('minLength')],

@@ -7,16 +7,22 @@ import { SchemaValidator } from './SchemaValidator';
 
 export class StringValidator {
     private static readonly TIME: RegExp =
-        /^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$/;
+        /^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
 
     private static readonly DATE: RegExp =
         /^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])$/;
 
     private static readonly DATETIME: RegExp =
-        /^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$/;
+        /^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
 
     private static readonly EMAIL: RegExp =
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+    private static readonly DECIMAL: RegExp = /^[+-]?[0-9]+(\.[0-9]+)?$/;
+
+    // A row id on either app data backend: a Mongo ObjectId (24 hex) or a ULID (26 Crockford base32).
+    private static readonly ID: RegExp =
+        /^([0-9a-fA-F]{24}|[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26})$/;
 
     public static validate(parents: Schema[], schema: Schema, element: any): any {
         if (isNullValue(element))
@@ -62,6 +68,22 @@ export class StringValidator {
                 element,
                 StringValidator.EMAIL,
                 'email pattern',
+            );
+        } else if (schema.getFormat() == StringFormat.DECIMAL) {
+            StringValidator.patternMatcher(
+                parents,
+                schema,
+                element,
+                StringValidator.DECIMAL,
+                'decimal pattern',
+            );
+        } else if (schema.getFormat() == StringFormat.ID) {
+            StringValidator.patternMatcher(
+                parents,
+                schema,
+                element,
+                StringValidator.ID,
+                'id pattern',
             );
         } else if (schema.getPattern()) {
             StringValidator.patternMatcher(
