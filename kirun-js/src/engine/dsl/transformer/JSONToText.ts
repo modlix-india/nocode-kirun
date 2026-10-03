@@ -7,6 +7,25 @@ interface NestedStructure {
 }
 
 /**
+ * A ParameterReference's `type` as the schema declares it: a plain string.
+ *
+ * `ParameterReference.SCHEMA` types it as a string with enums EXPRESSION | VALUE,
+ * but a large amount of stored data carries it as a single-element ARRAY,
+ * `["EXPRESSION"]`. The runtime never minded — `KIRuntime` compares with `==`,
+ * and `['EXPRESSION'] == 'EXPRESSION'` is true in JS — so those functions run
+ * correctly and reach this transformer intact.
+ *
+ * Comparing `type === 'EXPRESSION'` here therefore missed the expression branch,
+ * fell through to the value branch, and emitted the ref's `value`, which for an
+ * expression ref is null. The round trip then silently replaced every expression
+ * in the function with `null`. Read the type through this, never directly.
+ */
+function refType(ref: any): string | undefined {
+    const type = ref?.type;
+    return Array.isArray(type) ? type[0] : type;
+}
+
+/**
  * JSON to Text Transformer
  * Converts FunctionDefinition JSON back to DSL text
  * Extracts implicit dependencies from expressions using same logic as KIRuntime
@@ -185,12 +204,12 @@ export class JSONToTextTransformer {
                     const refObj = ref as any;
 
                     // EXPRESSION type - extract from expression string
-                    if (refObj.type === 'EXPRESSION' && refObj.expression) {
+                    if (refType(refObj) === 'EXPRESSION' && refObj.expression) {
                         addDep(refObj.expression);
                     }
 
                     // VALUE type - check for nested expressions
-                    if (refObj.type === 'VALUE' && refObj.value != null) {
+                    if (refType(refObj) === 'VALUE' && refObj.value != null) {
                         // Recursively search for expressions in the value
                         this.extractExpressionsFromValue(refObj.value, addDep);
                     }
@@ -237,7 +256,7 @@ export class JSONToTextTransformer {
             // Check for JsonExpression pattern (isExpression: true, value: "...")
             if (value.isExpression === true && typeof value.value === 'string') {
                 addDep(value.value);
-            } else if (value.type === 'EXPRESSION' && typeof value.expression === 'string') {
+            } else if (refType(value) === 'EXPRESSION' && typeof value.expression === 'string') {
                 // Another expression pattern
                 addDep(value.expression);
             } else {
@@ -363,10 +382,10 @@ export class JSONToTextTransformer {
         for (const [, paramRefs] of Object.entries(parameterMap)) {
             for (const [, ref] of Object.entries(paramRefs as any)) {
                 const refObj = ref as any;
-                if (refObj.type === 'EXPRESSION' && refObj.expression) {
+                if (refType(refObj) === 'EXPRESSION' && refObj.expression) {
                     deps.push(...this.extractStepReferences(refObj.expression));
                 }
-                if (refObj.type === 'VALUE' && refObj.value) {
+                if (refType(refObj) === 'VALUE' && refObj.value) {
                     const valueStr = JSON.stringify(refObj.value);
                     deps.push(...this.extractStepReferences(valueStr));
                 }
@@ -603,7 +622,7 @@ export class JSONToTextTransformer {
      * Convert parameter reference to text
      */
     private paramRefToText(ref: any): string {
-        if (ref.type === 'EXPRESSION') {
+        if (refType(ref) === 'EXPRESSION') {
             const expr = ref.expression;
             if (expr === '' || expr === undefined || expr === null) {
                 return '``';

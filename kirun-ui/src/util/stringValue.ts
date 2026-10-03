@@ -1,4 +1,5 @@
 import { duplicate, isNullValue, Repository, Schema, SchemaType, SchemaUtil } from '@fincity/kirun-js';
+import { paramRefType } from './paramRefType';
 
 interface StringValue {
     isExpression: boolean;
@@ -14,12 +15,12 @@ export function stringValue(paramValue: any): StringValue | undefined {
         .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
         .reduce(
             (a: StringValue, c: any) => ({
-                isExpression: a.isExpression || c.type === 'EXPRESSION',
-                isValue: a.isValue || c.type === 'VALUE',
+                isExpression: a.isExpression || paramRefType(c.type) === 'EXPRESSION',
+                isValue: a.isValue || paramRefType(c.type) === 'VALUE',
                 string:
                     a.string +
                     (a.string ? '\n' : '') +
-                    (c.type === 'EXPRESSION'
+                    (paramRefType(c.type) === 'EXPRESSION'
                         ? c.expression
                         : typeof c.value === 'object'
                           ? JSON.stringify(c.value, undefined, 2)

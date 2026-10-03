@@ -14,6 +14,7 @@ import React, { ReactNode, useEffect, useMemo } from 'react';
 import { UIError } from '../util/errorHandling';
 import { generateColor } from '../colors';
 import { shortUUID } from '../util/shortUUID';
+import { paramRefType } from '../util/paramRefType';
 
 interface ExecutionGraphLinesProps {
     executionPlan: ExecutionGraph<string, StatementExecution> | UIError | undefined;
@@ -179,7 +180,7 @@ export default function ExecutionGraphLines({
 
                 return Array.from(paramValue.values() ?? []).flatMap((pr) => {
                     if (!pr) return undefined;
-                    if (pr.getType() === ParameterReferenceType.EXPRESSION) {
+                    if (paramRefType(pr.getType()) === ParameterReferenceType.EXPRESSION) {
                         let expression = pr.getExpression();
                         if (!expression) return undefined;
 

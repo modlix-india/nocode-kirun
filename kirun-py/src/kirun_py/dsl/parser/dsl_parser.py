@@ -4,6 +4,7 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from kirun_py.dsl.lexer.dsl_token import DSLToken, DSLTokenType
+from kirun_py.dsl.number_literal import parse_number
 from kirun_py.dsl.parser.ast.argument_node import ArgumentNode, ArgumentValue
 from kirun_py.dsl.parser.ast.complex_value_node import ComplexValueNode
 from kirun_py.dsl.parser.ast.event_decl_node import EventDeclNode
@@ -343,7 +344,7 @@ class DSLParser:
             if next_token is not None and next_token.type in (DSLTokenType.OPERATOR, DSLTokenType.EQUALS):
                 return self._parse_expression()
             num_token = self._advance()
-            return ComplexValueNode(float(num_token.value), num_token.location)
+            return ComplexValueNode(parse_number(num_token.value), num_token.location)
 
         # Check for boolean literal
         if (
@@ -624,7 +625,7 @@ class DSLParser:
 
         if token.type == DSLTokenType.NUMBER:
             num_token = self._advance()
-            return float(num_token.value)
+            return parse_number(num_token.value)
 
         if token.type == DSLTokenType.BOOLEAN or \
            (token.type == DSLTokenType.KEYWORD and token.value in ('true', 'false')):
