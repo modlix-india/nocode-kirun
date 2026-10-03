@@ -16,14 +16,19 @@ import com.google.gson.JsonPrimitive;
 public class StringValidator {
 
 	private static final Pattern TIME = Pattern
-	        .compile("^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$");
+	        .compile("^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$");
 
-	private static final Pattern DATE = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])$");
+	private static final Pattern DATE = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])$");
 
-	private static final Pattern DATETIME = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][1-9]|3[01])T" // NOSONAR
-	        + "([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?([+-][01][0-9]:[0-5][0-9])?$");
+	private static final Pattern DATETIME = Pattern.compile("^[0-9]{4,4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])T" // NOSONAR
+	        + "([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$");
 
 	private static final Pattern EMAIL = Pattern.compile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"); // NOSONAR
+
+	private static final Pattern DECIMAL = Pattern.compile("^[+-]?[0-9]+(\\.[0-9]+)?$");
+
+	// A row id on either app data backend: a Mongo ObjectId (24 hex) or a ULID (26 Crockford base32).
+	private static final Pattern ID = Pattern.compile("^([0-9a-fA-F]{24}|[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26})$");
 	
 	
 	public static JsonElement validate(List<Schema> parents, Schema schema, JsonElement element) {
@@ -46,6 +51,10 @@ public class StringValidator {
 			patternMatcher(parents, schema, element, jp, DATETIME, "date time pattern");
 		} else if (schema.getFormat() == StringFormat.EMAIL) {
 		    patternMatcher(parents, schema, element, jp, EMAIL, "email pattern");
+		} else if (schema.getFormat() == StringFormat.DECIMAL) {
+			patternMatcher(parents, schema, element, jp, DECIMAL, "decimal pattern");
+		} else if (schema.getFormat() == StringFormat.ID) {
+			patternMatcher(parents, schema, element, jp, ID, "id pattern");
 		} else if (schema.getPattern() != null) {
 			patternMatcher(parents, schema, element, jp, Pattern.compile(schema.getPattern()),
 					getValidationMessage(schema, PATTERN, "pattern " + schema.getPattern()));

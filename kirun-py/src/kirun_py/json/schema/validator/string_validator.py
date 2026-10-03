@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # Pre-compiled format patterns
 _TIME_PATTERN = re.compile(
-    r'^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?(\.\d{1,3})?(Z|[+-][01][0-9]:[0-5][0-9])?$'
+    r'^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$'
 )
 
 _DATE_PATTERN = re.compile(
@@ -20,12 +20,17 @@ _DATE_PATTERN = re.compile(
 )
 
 _DATETIME_PATTERN = re.compile(
-    r'^[0-9]{4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?(\.\d{1,3})?(Z|[+-][01][0-9]:[0-5][0-9])?$'
+    r'^[0-9]{4}-([0][0-9]|[1][0-2])-(0[1-9]|[1-2][0-9]|3[01])T([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9](\.[0-9]{1,9})?)?(Z|[+-][01][0-9]:[0-5][0-9])?$'
 )
 
 _EMAIL_PATTERN = re.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
 )
+
+_DECIMAL_PATTERN = re.compile(r'^[+-]?[0-9]+(\.[0-9]+)?$')
+
+# A row id on either app data backend: a Mongo ObjectId (24 hex) or a ULID (26 Crockford base32).
+_ID_PATTERN = re.compile(r'^([0-9a-fA-F]{24}|[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26})$')
 
 
 class StringValidator:
@@ -63,6 +68,14 @@ class StringValidator:
         elif fmt == StringFormat.EMAIL:
             StringValidator._pattern_matcher(
                 parents, schema, element, _EMAIL_PATTERN, 'email pattern',
+            )
+        elif fmt == StringFormat.DECIMAL:
+            StringValidator._pattern_matcher(
+                parents, schema, element, _DECIMAL_PATTERN, 'decimal pattern',
+            )
+        elif fmt == StringFormat.ID:
+            StringValidator._pattern_matcher(
+                parents, schema, element, _ID_PATTERN, 'id pattern',
             )
         elif fmt == StringFormat.REGEX:
             # For REGEX format, validate that the string is a valid regex

@@ -75,7 +75,8 @@ public class Schema implements Serializable {
 					entry("pattern", ofString("pattern")), entry("format", Schema.of("format", SchemaType.STRING)
 							.setEnums(List.of(new JsonPrimitive("DATETIME"), new JsonPrimitive("TIME"),
 									new JsonPrimitive("DATE"), new JsonPrimitive("EMAIL"),
-									new JsonPrimitive("REGEX")))),
+									new JsonPrimitive("REGEX"), new JsonPrimitive("DECIMAL"),
+									new JsonPrimitive("ID")))),
 					entry("minLength", ofInteger("minLength")), entry("maxLength", ofInteger("maxLength")),
 
 					entry("multipleOf", ofLong("multipleOf")), entry("minimum", ofNumber("minimum")),
