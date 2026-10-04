@@ -214,3 +214,19 @@ test('String custom message', async () => {
     expect(async () => SchemaValidator.validate([], schema!, undefined, "asdf"))
         .rejects.toThrow("You must enter something with minimum of ten characters");
 });
+
+test('String date rejects month zero', async () => {
+    // The month alternation was ([0][0-9]|[1][0-2]), so 00 matched the first
+    // branch. 2026-00-15 validated on all three runtimes and then failed wherever
+    // something tried to make a real date out of it.
+    const date: Schema = new Schema().setFormat(StringFormat.DATE);
+
+    expect(() => StringValidator.validate([], date, '2026-00-15')).toThrow();
+    expect(() => StringValidator.validate([], date, '2026-00-01')).toThrow();
+
+    for (const valid of ['2026-01-15', '2026-09-30', '2026-10-01', '2026-12-31'])
+        expect(StringValidator.validate([], date, valid)).toBe(valid);
+
+    const dateTime: Schema = new Schema().setFormat(StringFormat.DATETIME);
+    expect(() => StringValidator.validate([], dateTime, '2026-00-15T10:00:00Z')).toThrow();
+});
