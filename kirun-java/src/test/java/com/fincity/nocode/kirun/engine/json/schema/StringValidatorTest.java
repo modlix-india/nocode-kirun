@@ -161,6 +161,18 @@ public class StringValidatorTest {
 	}
 
 	@Test
+	public void StringValidatorTestRejectsMonthZero() {
+
+		// The month alternation was ([0][0-9]|[1][0-2]), so 00 matched the first
+		// branch. A date of 2026-00-15 validated on all three runtimes and then
+		// failed wherever something tried to make a real date out of it.
+		assertInvalid(StringFormat.DATE, "date pattern", "2026-00-15", "2026-00-01");
+		assertInvalid(StringFormat.DATETIME, "date time pattern", "2026-00-15T10:00:00Z");
+
+		assertValid(StringFormat.DATE, "2026-01-15", "2026-09-30", "2026-10-01", "2026-12-31");
+	}
+
+	@Test
 	public void StringValidatorTestForFractionalSecondsAndZulu() {
 
 		assertValid(StringFormat.DATETIME, "2026-01-15T10:00:00Z", "2026-01-15T10:00:00.123Z",

@@ -189,3 +189,21 @@ async def test_string_custom_message():
         await SchemaValidator.validate([], schema, None, 'asdf')
 
     assert 'You must enter something with minimum of ten characters' in str(exc_info.value)
+
+
+def test_date_rejects_month_zero():
+    # The month alternation was ([0][0-9]|[1][0-2]), so 00 matched the first
+    # branch. 2026-00-15 validated on all three runtimes and then failed wherever
+    # something tried to make a real date out of it.
+    date = Schema().set_format(StringFormat.DATE)
+
+    for bad in ['2026-00-15', '2026-00-01']:
+        with pytest.raises(Exception):
+            StringValidator.validate([], date, bad)
+
+    for good in ['2026-01-15', '2026-09-30', '2026-10-01', '2026-12-31']:
+        assert StringValidator.validate([], date, good) == good
+
+    date_time = Schema().set_format(StringFormat.DATETIME)
+    with pytest.raises(Exception):
+        StringValidator.validate([], date_time, '2026-00-15T10:00:00Z')
