@@ -71,4 +71,58 @@ class DateFunctionRepositoryTest {
                 .expectNext("2024-01-02T00:00:00.000Z")
                 .verifyComplete();
     }
+
+    // Comparisons, mirrored in kirun-js (DateFunctionRepositoryTest.ts) and kirun-py
+    // (test_date_ops.py): IsSame compares the INSTANT, so the same moment written in two
+    // offsets is the same, and 1 ms apart is not. kirun-js used to compare luxon objects with
+    // ===, which was always false; Java's isEqual was right, these pin it.
+
+    private Boolean compare(String name, String t1, String t2) {
+        ReactiveFunctionExecutionParameters parameters = new ReactiveFunctionExecutionParameters(
+                new KIRunReactiveFunctionRepository(), new KIRunReactiveSchemaRepository())
+                .setArguments(Map.of(
+                        AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_ONE, new JsonPrimitive(t1),
+                        AbstractDateFunction.PARAMETER_TIMESTAMP_NAME_TWO, new JsonPrimitive(t2)));
+
+        return new DateFunctionRepository().find(Namespaces.DATE, name)
+                .flatMap(func -> func.execute(parameters))
+                .map(out -> out.allResults().get(0).getResult()
+                        .get(AbstractDateFunction.EVENT_RESULT_NAME).getAsBoolean())
+                .block();
+    }
+
+    @Test
+    void testIsSameForIdenticalTimestamps() {
+        org.junit.jupiter.api.Assertions.assertTrue(
+                compare("IsSame", "2024-01-01T10:00:00.000Z", "2024-01-01T10:00:00.000Z"));
+    }
+
+    @Test
+    void testIsSameForSameInstantInDifferentOffsets() {
+        org.junit.jupiter.api.Assertions.assertTrue(
+                compare("IsSame", "2024-01-01T10:00:00.000Z", "2024-01-01T15:30:00.000+05:30"));
+    }
+
+    @Test
+    void testIsSameIsFalseForDifferentInstants() {
+        org.junit.jupiter.api.Assertions.assertFalse(
+                compare("IsSame", "2024-01-01T10:00:00.000Z", "2024-01-01T10:00:00.001Z"));
+        org.junit.jupiter.api.Assertions.assertFalse(compare("IsSame", "2024-01-01", "2024-01-02"));
+    }
+
+    @Test
+    void testOrderingComparisonsAgreeWithIsSame() {
+        String a = "2024-01-01T10:00:00.000Z";
+        String sameAsA = "2024-01-01T15:30:00.000+05:30";
+        String b = "2024-01-01T11:00:00.000Z";
+
+        org.junit.jupiter.api.Assertions.assertTrue(compare("IsBefore", a, b));
+        org.junit.jupiter.api.Assertions.assertFalse(compare("IsBefore", a, sameAsA));
+        org.junit.jupiter.api.Assertions.assertTrue(compare("IsAfter", b, a));
+        org.junit.jupiter.api.Assertions.assertFalse(compare("IsAfter", a, sameAsA));
+        org.junit.jupiter.api.Assertions.assertTrue(compare("IsSameOrBefore", a, sameAsA));
+        org.junit.jupiter.api.Assertions.assertFalse(compare("IsSameOrBefore", b, a));
+        org.junit.jupiter.api.Assertions.assertTrue(compare("IsSameOrAfter", a, sameAsA));
+        org.junit.jupiter.api.Assertions.assertFalse(compare("IsSameOrAfter", a, b));
+    }
 }
