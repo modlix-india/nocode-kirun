@@ -303,7 +303,7 @@ public class Schema implements Serializable {
 						.map(Schema::new)
 						.toList();
 
-		this.not = this.not == null ? null : new Schema(this.not);
+		this.not = schema.not == null ? null : new Schema(schema.not);
 
 		this.description = schema.description;
 		this.examples = schema.examples == null ? null
@@ -352,7 +352,7 @@ public class Schema implements Serializable {
 						.collect(Collectors.toMap(Entry::getKey, e -> new Schema(e.getValue())));
 
 		this.items = schema.items == null ? null : new ArraySchemaType(schema.items);
-		this.contains = schema.contains == null ? null : new Schema(this.contains);
+		this.contains = schema.contains == null ? null : new Schema(schema.contains);
 		this.minContains = schema.minContains;
 		this.maxContains = schema.maxContains;
 		this.minItems = schema.minItems;
