@@ -489,3 +489,44 @@ async def test_from_now_no_base_does_not_raise():
     text = result[EVENT_RESULT]
     assert isinstance(text, str)
     assert len(text) > 0
+
+
+# ---------------------------------------------------------------------------
+# Comparisons (IsSame compares instants, like Java ZonedDateTime.isEqual)
+# ---------------------------------------------------------------------------
+
+async def _compare(name: str, t1: str, t2: str) -> bool:
+    fn = await DateFunctionRepository().find(Namespaces.DATE, name)
+    result = (await fn.execute(fep({PARAM_TS1: t1, PARAM_TS2: t2}))).all_results()[0].get_result()
+    return result[EVENT_RESULT]
+
+
+@pytest.mark.asyncio
+async def test_is_same_identical():
+    assert await _compare('IsSame', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:00.000Z') is True
+
+
+@pytest.mark.asyncio
+async def test_is_same_same_instant_different_offsets():
+    assert await _compare('IsSame', '2024-01-01T10:00:00.000Z', '2024-01-01T15:30:00.000+05:30') is True
+
+
+@pytest.mark.asyncio
+async def test_is_same_different_instants():
+    assert await _compare('IsSame', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:00.001Z') is False
+    assert await _compare('IsSame', '2024-01-01', '2024-01-02') is False
+
+
+@pytest.mark.asyncio
+async def test_ordering_comparisons_agree_with_is_same():
+    a = '2024-01-01T10:00:00.000Z'
+    same_as_a = '2024-01-01T15:30:00.000+05:30'
+    b = '2024-01-01T11:00:00.000Z'
+    assert await _compare('IsBefore', a, b) is True
+    assert await _compare('IsBefore', a, same_as_a) is False
+    assert await _compare('IsAfter', b, a) is True
+    assert await _compare('IsAfter', a, same_as_a) is False
+    assert await _compare('IsSameOrBefore', a, same_as_a) is True
+    assert await _compare('IsSameOrBefore', b, a) is False
+    assert await _compare('IsSameOrAfter', a, same_as_a) is True
+    assert await _compare('IsSameOrAfter', a, b) is False

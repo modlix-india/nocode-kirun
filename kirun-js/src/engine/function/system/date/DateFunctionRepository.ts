@@ -196,7 +196,9 @@ export class DateFunctionRepository implements Repository<Function> {
                     Schema.ofBoolean(AbstractDateFunction.EVENT_RESULT_NAME),
                 ),
             ),
-            (t1: string, t2: string) => getDateTime(t1) === getDateTime(t2),
+            // Same instant (Java ZonedDateTime.isEqual). DateTime objects must not be
+            // compared with ===: that is a reference check and is always false.
+            (t1: string, t2: string) => getDateTime(t1).toMillis() === getDateTime(t2).toMillis(),
         ),
 
         AbstractDateFunction.ofEntryTimestampTimestampAndTOutput<boolean>(
