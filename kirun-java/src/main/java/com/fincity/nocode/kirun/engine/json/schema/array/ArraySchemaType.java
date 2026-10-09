@@ -44,7 +44,7 @@ public class ArraySchemaType implements Serializable {
 
 		this.singleSchema = ast.singleSchema == null ? null : new Schema(ast.singleSchema);
 		this.tupleSchema = ast.tupleSchema == null ? null
-		        : this.tupleSchema.stream()
+		        : ast.tupleSchema.stream()
 		                .map(Schema::new)
 		                .toList();
 	}

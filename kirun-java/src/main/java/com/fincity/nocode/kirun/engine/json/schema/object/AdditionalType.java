@@ -32,7 +32,10 @@ public class AdditionalType implements Serializable {
 	public AdditionalType(AdditionalType props) {
 
 		this.booleanValue = props.booleanValue;
-		this.schemaValue = new Schema(props.schemaValue);
+		// A boolean-only value (additionalProperties: true / false) has no schema, and
+		// copying it used to throw a NullPointerException from the Schema copy
+		// constructor, so any schema carrying one could not be copied at all.
+		this.schemaValue = props.schemaValue == null ? null : new Schema(props.schemaValue);
 	}
 
 	public static boolean canHaveAddtionalItems(AdditionalType at) {

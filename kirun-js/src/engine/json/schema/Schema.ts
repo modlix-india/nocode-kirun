@@ -578,7 +578,7 @@ export class Schema {
         this.allOf = schema.allOf?.map((x) => new Schema(x));
         this.oneOf = schema.oneOf?.map((x) => new Schema(x));
 
-        this.not = this.not ? new Schema(this.not) : undefined;
+        this.not = schema.not ? new Schema(schema.not) : undefined;
 
         this.description = schema.description;
         this.examples = schema.examples ? JSON.parse(JSON.stringify(schema.examples)) : undefined;
@@ -626,7 +626,7 @@ export class Schema {
             : undefined;
 
         this.items = schema.items ? new ArraySchemaType(schema.items) : undefined;
-        this.contains = schema.contains ? new Schema(this.contains) : undefined;
+        this.contains = schema.contains ? new Schema(schema.contains) : undefined;
         this.minContains = schema.minContains;
         this.maxContains = schema.maxContains;
         this.minItems = schema.minItems;
