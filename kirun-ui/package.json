@@ -43,7 +43,7 @@
         "react-dom": ">=17.0.0"
     },
     "devDependencies": {
-        "@fincity/kirun-js": "^3.15.0",
+        "@fincity/kirun-js": "^3.16.3",
         "@parcel/packager-ts": "^2.16.3",
         "@parcel/transformer-typescript-types": "^2.16.3",
         "@tsconfig/recommended": "^1.0.13",
