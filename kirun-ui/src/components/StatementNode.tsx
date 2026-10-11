@@ -65,7 +65,7 @@ interface StatementNodeProps {
 
 const DEFAULT_POSITION = { left: 0, top: 0 };
 
-const VARIBALE_NAME_REGEX = /^[A-Za-z_]{1,1}[_A-Za-z0-9]+$/;
+const VARIBALE_NAME_REGEX = /^[A-Za-z_][_A-Za-z0-9]*$/;
 
 export default function StatementNode({
     position = DEFAULT_POSITION,
