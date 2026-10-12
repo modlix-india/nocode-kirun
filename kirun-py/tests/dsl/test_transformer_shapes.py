@@ -45,9 +45,9 @@ class TestDependentStatementsShapes:
             'namespace': 'Test', 'name': 'Fn',
             'parameters': {}, 'events': {}, 'steps': steps,
         }
-        return asyncio.get_event_loop().run_until_complete(
-            DSLCompiler.decompile(definition)
-        )
+        # asyncio.run, not get_event_loop(): from 3.10 there is no current loop once an
+        # async test (pytest-asyncio) has run and closed its own, and 3.12 raises.
+        return asyncio.run(DSLCompiler.decompile(definition))
 
     def _one_step(self, deps):
         return {
