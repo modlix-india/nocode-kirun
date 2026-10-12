@@ -40,6 +40,7 @@ export function registerKIRunLanguage(monaco: typeof MonacoEditor) {
             'PARAMETERS',
             'EVENTS',
             'LOGIC',
+            'VALUES',
             'AS',
             'OF',
             'AFTER',
@@ -86,7 +87,12 @@ export function registerKIRunLanguage(monaco: typeof MonacoEditor) {
         tokenizer: {
             root: [
                 [/`/, 'string.expression', '@backtick_string'],
-                [/([a-zA-Z_]\w*)(\s*)(:)/, ['entity.name.tag', '', 'delimiter']],
+                // A named value from the VALUES section: @cfg.resultShape. `[@]` because Monarch
+                // reads `@word` in a regex as one of its own attributes.
+                [/[@][A-Za-z0-9_][\w.]*/, 'variable.value'],
+                // A step name is followed by its call; any other `name:` is an object key
+                [/([a-zA-Z_]\w*)(\s*)(:)(?=\s*[a-zA-Z_][\w.]*\s*\()/, ['entity.name.tag', '', 'delimiter']],
+                [/([a-zA-Z_]\w*)(\s*)(:)/, ['attribute.name', '', 'delimiter']],
                 [/([a-zA-Z_][\w.]*)(\s*)(\()/, ['entity.name.function', '', '@brackets']],
                 [/([a-zA-Z_]\w*)(\s*)(=)/, ['variable.parameter', '', 'operator']],
                 [
