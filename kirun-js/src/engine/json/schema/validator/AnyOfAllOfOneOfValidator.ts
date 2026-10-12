@@ -14,7 +14,7 @@ export class AnyOfAllOfOneOfValidator {
         mode?: ConversionMode,
     ): Promise<any> {
         let list: SchemaValidationException[] = [];
-        if (schema.getOneOf() && !schema.getOneOf()) {
+        if (schema.getOneOf()?.length) {
             return await AnyOfAllOfOneOfValidator.oneOf(
                 parents,
                 schema,
@@ -24,7 +24,7 @@ export class AnyOfAllOfOneOfValidator {
                 convert,
                 mode,
             );
-        } else if (schema.getAllOf() && !schema.getAllOf()) {
+        } else if (schema.getAllOf()?.length) {
             return await AnyOfAllOfOneOfValidator.allOf(
                 parents,
                 schema,
@@ -34,7 +34,7 @@ export class AnyOfAllOfOneOfValidator {
                 convert,
                 mode,
             );
-        } else if (schema.getAnyOf() && !schema.getAnyOf()) {
+        } else if (schema.getAnyOf()?.length) {
             return await AnyOfAllOfOneOfValidator.anyOf(
                 parents,
                 schema,
@@ -59,10 +59,11 @@ export class AnyOfAllOfOneOfValidator {
         mode?: ConversionMode,
     ): Promise<any> {
         let flag: boolean = false;
+        let result: any = element;
         for (let s of schema.getAnyOf() ?? []) {
             try {
-                await AnyOfAllOfOneOfValidator.validate(
-                    parents,
+                result = await SchemaValidator.validate(
+                    [...parents],
                     s,
                     repository,
                     element,
@@ -78,7 +79,7 @@ export class AnyOfAllOfOneOfValidator {
         }
 
         if (flag) {
-            return element;
+            return result;
         }
 
         throw new SchemaValidationException(
@@ -100,8 +101,8 @@ export class AnyOfAllOfOneOfValidator {
         let flag: number = 0;
         for (let s of schema.getAllOf() ?? []) {
             try {
-                await AnyOfAllOfOneOfValidator.validate(
-                    parents,
+                await SchemaValidator.validate(
+                    [...parents],
                     s,
                     repository,
                     element,
@@ -137,8 +138,8 @@ export class AnyOfAllOfOneOfValidator {
         let flag: number = 0;
         for (let s of schema.getOneOf() ?? []) {
             try {
-                await AnyOfAllOfOneOfValidator.validate(
-                    parents,
+                await SchemaValidator.validate(
+                    [...parents],
                     s,
                     repository,
                     element,

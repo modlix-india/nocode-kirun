@@ -1,0 +1,41 @@
+[package]
+name = "kirun"
+version = "1.0.0"
+edition = "2021"
+description = "Rust runtime for Kinetic Instructions (KIRun)"
+license = "MIT"
+authors = ["Kiran Kumar Grandhi"]
+repository = "https://github.com/modlix-india/nocode-kirun"
+homepage = "https://modlix.com"
+documentation = "https://docs.rs/kirun"
+readme = "README.md"
+keywords = ["kirun", "low-code", "no-code", "workflow", "runtime"]
+categories = ["compilers", "development-tools", "parser-implementations"]
+# LazyLock (1.80) and Option::is_none_or (1.82).
+rust-version = "1.82"
+# Conformance and benchmark tooling needs the other ports' checkouts; keep it out of the package.
+exclude = ["scripts/", "bench/"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+indexmap = { version = "2", features = ["serde"] }
+async-trait = "0.1"
+parking_lot = "0.12"
+thiserror = "2"
+regex = "1"
+fancy-regex = "0.14"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+futures = "0.3"
+tokio = { version = "1", features = ["time", "sync"] }
+rand = "0.8"
+
+[dev-dependencies]
+# Benchmarks only: `cargo run --release --example bench --features mimalloc` swaps the allocator.
+mimalloc = { version = "0.1", default-features = false }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+[features]
+# Benchmark switch for examples/bench.rs; the library itself never sets a global allocator.
+mimalloc = []

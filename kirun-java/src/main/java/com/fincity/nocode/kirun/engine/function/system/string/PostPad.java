@@ -70,12 +70,13 @@ public class PostPad extends AbstractReactiveFunction {
 
 		outputString.append(inputString);
 
-		while (prepadStringLength <= length) {
+		// An empty pad string never grows the padding: skip the loop instead of spinning.
+		while (!postpadString.isEmpty() && prepadStringLength <= length) {
 			outputString.append(postpadString);
 			prepadStringLength += postpadString.length();
 		}
 
-		if (outputString.length() - inputString.length() < length) {
+		if (!postpadString.isEmpty() && outputString.length() - inputString.length() < length) {
 			outputString.append(postpadString.substring(0, length - (outputString.length() - inputString.length())));
 		}
 

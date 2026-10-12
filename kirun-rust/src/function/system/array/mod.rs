@@ -1,0 +1,35 @@
+//! Port of kirun-js `function/system/array/*`.
+
+pub mod abstract_array_function;
+pub mod add_first;
+pub mod array_function_repository;
+pub mod array_to_array_of_objects;
+pub mod array_to_object;
+pub mod binary_search;
+pub mod compare;
+pub mod concatenate;
+pub mod copy;
+pub mod delete;
+pub mod delete_first;
+pub mod delete_from;
+pub mod delete_last;
+pub mod disjoint;
+pub mod equals;
+pub mod fill;
+pub mod frequency;
+pub mod index_of;
+pub mod index_of_array;
+pub mod insert;
+pub mod insert_last;
+pub mod join;
+pub mod last_index_of;
+pub mod last_index_of_array;
+pub mod max;
+pub mod min;
+pub mod mis_match;
+pub mod remove_duplicates;
+pub mod reverse;
+pub mod rotate;
+pub mod shuffle;
+pub mod sort;
+pub mod sub_array;
