@@ -194,6 +194,7 @@ function getKeywordSuggestions(range: MonacoEditor.IRange): MonacoEditor.languag
         { label: 'PARAMETERS', insertText: 'PARAMETERS\n\t$0', detail: 'Parameters section' },
         { label: 'EVENTS', insertText: 'EVENTS\n\t$0', detail: 'Events section' },
         { label: 'LOGIC', insertText: 'LOGIC\n\t$0', detail: 'Logic section' },
+        { label: 'VALUES', insertText: 'VALUES\n\t@${1:name} = $0', detail: 'Named values section, after LOGIC' },
         { label: 'AFTER', insertText: 'AFTER Steps.$0', detail: 'After clause' },
         { label: 'IF', insertText: 'IF Steps.$0', detail: 'If clause' },
     ];
