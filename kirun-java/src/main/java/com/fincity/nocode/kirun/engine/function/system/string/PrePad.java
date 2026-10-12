@@ -68,12 +68,13 @@ public class PrePad extends AbstractReactiveFunction {
 		StringBuilder outputString = new StringBuilder(inputString.length() + length);
 		Integer prepadStringLength = prepadString.length();
 
-		while (prepadStringLength <= length) {
+		// An empty pad string never grows the padding: skip the loop instead of spinning.
+		while (!prepadString.isEmpty() && prepadStringLength <= length) {
 			outputString.append(prepadString);
 			prepadStringLength += prepadString.length();
 		}
 
-		if (outputString.length() < length) {
+		if (!prepadString.isEmpty() && outputString.length() < length) {
 			outputString.append(prepadString.substring(0, length - outputString.length()));
 		}
 

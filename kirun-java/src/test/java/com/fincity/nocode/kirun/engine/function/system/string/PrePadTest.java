@@ -75,4 +75,20 @@ class PrePadTest {
 				.expectNext("hira THIScompatY IS A NOcoDE plATFNORM")
 				.verifyComplete();
 	}
+
+	// An empty pad string used to loop forever (the padding never grew), then throw on substring.
+	@Test
+	@org.junit.jupiter.api.Timeout(5)
+	void emptyPadStringReturnsTheInput() {
+
+		StepVerifier.create(new PrePad()
+				.execute(new ReactiveFunctionExecutionParameters(new KIRunReactiveFunctionRepository(),
+						new KIRunReactiveSchemaRepository()).setArguments(
+								Map.of(PrePad.PARAMETER_STRING_NAME, new JsonPrimitive("5"),
+										PrePad.PARAMETER_PREPAD_STRING_NAME, new JsonPrimitive(""),
+										PrePad.PARAMETER_LENGTH_NAME, new JsonPrimitive(3))))
+				.map(fo -> fo.allResults().get(0).getResult().get(PrePad.EVENT_RESULT_NAME).getAsString()))
+				.expectNext("5")
+				.verifyComplete();
+	}
 }

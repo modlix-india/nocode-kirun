@@ -66,7 +66,8 @@ class PostPad(AbstractFunction):
         output_string = input_string
         pad_len = len(postpad_string)
 
-        while len(output_string) - len(input_string) + pad_len <= length:
+        # An empty pad string never grows the padding: skip the loop instead of spinning.
+        while pad_len > 0 and len(output_string) - len(input_string) + pad_len <= length:
             output_string += postpad_string
             if len(output_string) - len(input_string) >= length:
                 break

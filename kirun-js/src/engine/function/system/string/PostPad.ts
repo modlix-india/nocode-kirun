@@ -71,7 +71,8 @@ export class PostPad extends AbstractFunction {
 
         outputString += inputString;
 
-        while (prepadStringLength <= length) {
+        // An empty pad string never grows the padding: skip the loop instead of spinning.
+        while (postpadString.length > 0 && prepadStringLength <= length) {
             outputString += postpadString;
             prepadStringLength += postpadString.length;
         }
