@@ -64,10 +64,11 @@ export class SchemaUtil {
 
         if (!ref.startsWith('#')) {
             var tuple = await SchemaUtil.resolveExternalSchema(schema, sRepository, ref);
-            if (tuple) {
-                schema = tuple.getT1();
-                ref = tuple.getT2();
-            }
+            // Not found: falling back to the referring schema made validation follow the same
+            // ref forever.
+            if (!tuple) return undefined;
+            schema = tuple.getT1();
+            ref = tuple.getT2();
         }
 
         let parts: string[] = ref.split('/');

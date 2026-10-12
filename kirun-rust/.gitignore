@@ -1,0 +1,13 @@
+# Cargo build output
+/target/
+
+# rustfmt backups
+**/*.rs.bk
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+/bench/results
+/bench/data

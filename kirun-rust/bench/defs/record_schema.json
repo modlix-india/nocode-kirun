@@ -1,0 +1,24 @@
+{
+  "name": "Records",
+  "type": "ARRAY",
+  "items": {
+    "name": "Record",
+    "type": "OBJECT",
+    "required": ["id", "name", "email"],
+    "properties": {
+      "id": { "name": "id", "type": "INTEGER", "minimum": 0 },
+      "name": { "name": "name", "type": "STRING", "minLength": 1, "maxLength": 64 },
+      "email": { "name": "email", "type": "STRING", "format": "EMAIL" },
+      "score": { "name": "score", "type": "DOUBLE", "minimum": 0, "maximum": 100 },
+      "active": { "name": "active", "type": "BOOLEAN", "defaultValue": true },
+      "tags": { "name": "tags", "type": "ARRAY", "items": { "name": "tag", "type": "STRING" }, "maxItems": 10 },
+      "address": {
+        "name": "address", "type": "OBJECT",
+        "properties": {
+          "city": { "name": "city", "type": "STRING" },
+          "zip": { "name": "zip", "type": "STRING", "pattern": "^[0-9]{6}$" }
+        }
+      }
+    }
+  }
+}

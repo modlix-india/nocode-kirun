@@ -1,0 +1,2502 @@
+{
+  "name": "onLoad",
+  "steps": {
+    "addTop": {
+      "dependentStatements": {
+        "Steps.initList.output": true
+      },
+      "name": "Insert",
+      "namespace": "System.Array",
+      "parameterMap": {
+        "element": {
+          "a03e68a9-8838-449c-866a-7449d82dc8f3": {
+            "expression": "Page.recentEl",
+            "key": "a03e68a9-8838-449c-866a-7449d82dc8f3",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        },
+        "offset": {
+          "0fbffdc3-12c3-4442-9dee-1ea9008dfef2": {
+            "expression": null,
+            "key": "0fbffdc3-12c3-4442-9dee-1ea9008dfef2",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": 0.0
+          }
+        },
+        "source": {
+          "b522297b-1b25-473e-94d3-fa1c41a0683a": {
+            "expression": "Page.recentNew",
+            "key": "b522297b-1b25-473e-94d3-fa1c41a0683a",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 4610.0,
+        "top": 50.0
+      },
+      "statementName": "addTop"
+    },
+    "boot": {
+      "dependentStatements": {},
+      "name": "bootstrap",
+      "namespace": "_",
+      "parameterMap": {},
+      "position": {
+        "left": 50.0,
+        "top": 1200.0
+      },
+      "statementName": "boot"
+    },
+    "clearStApp": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "deleteKey": {
+          "d17edca7-18e0-4d56-8cfd-2aad371d941b": {
+            "expression": null,
+            "key": "d17edca7-18e0-4d56-8cfd-2aad371d941b",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": true
+          }
+        },
+        "path": {
+          "809feb7c-ae8c-45ac-b13c-449972f909ae": {
+            "expression": null,
+            "key": "809feb7c-ae8c-45ac-b13c-449972f909ae",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.stApp"
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "clearStApp"
+    },
+    "dedupe": {
+      "name": "If",
+      "namespace": "System",
+      "parameterMap": {
+        "condition": {
+          "d43b4cdd-0932-47ea-a64d-a33246bb9ebe": {
+            "expression": "Page.recentPrev[Steps.keepLoop.iteration.index].appCode != Page.recentEl.appCode and (Page.recentNew.length ?? 0) < 5",
+            "key": "d43b4cdd-0932-47ea-a64d-a33246bb9ebe",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 5750.0,
+        "top": 50.0
+      },
+      "statementName": "dedupe"
+    },
+    "elAt": {
+      "dependentStatements": {
+        "Steps.elType.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "f6e014a2-8463-4f79-82fc-8cafc76a1cfe": {
+            "expression": null,
+            "key": "f6e014a2-8463-4f79-82fc-8cafc76a1cfe",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentEl.at"
+          }
+        },
+        "value": {
+          "c4400542-cbb7-425b-b08d-653266679566": {
+            "expression": "Steps.epoch.output.result",
+            "key": "c4400542-cbb7-425b-b08d-653266679566",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 3850.0,
+        "top": 50.0
+      },
+      "statementName": "elAt"
+    },
+    "elCode": {
+      "dependentStatements": {
+        "Steps.initEl.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "6295be62-0e7e-495c-8a61-ee97e4df90d8": {
+            "expression": null,
+            "key": "6295be62-0e7e-495c-8a61-ee97e4df90d8",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentEl.appCode"
+          }
+        },
+        "value": {
+          "fb7ba186-f4d2-444b-ae09-946e8264980d": {
+            "expression": "Steps.fetchApp.output.data.appCode",
+            "key": "fb7ba186-f4d2-444b-ae09-946e8264980d",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 2710.0,
+        "top": 50.0
+      },
+      "statementName": "elCode"
+    },
+    "elName": {
+      "dependentStatements": {
+        "Steps.elCode.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "17f38b20-d8b0-4ca5-827c-7c14a7087c58": {
+            "expression": null,
+            "key": "17f38b20-d8b0-4ca5-827c-7c14a7087c58",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentEl.appName"
+          }
+        },
+        "value": {
+          "bea4e24a-e1a0-40e0-9480-630de239d833": {
+            "expression": "Steps.fetchApp.output.data.appName",
+            "key": "bea4e24a-e1a0-40e0-9480-630de239d833",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 3090.0,
+        "top": 50.0
+      },
+      "statementName": "elName"
+    },
+    "elType": {
+      "dependentStatements": {
+        "Steps.elName.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "0638ae4c-7e6f-4f61-aec1-a62b870d4e6f": {
+            "expression": null,
+            "key": "0638ae4c-7e6f-4f61-aec1-a62b870d4e6f",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentEl.appType"
+          }
+        },
+        "value": {
+          "7ff83fa8-5e1b-4e9e-b9a8-20808120dd59": {
+            "expression": "Steps.fetchApp.output.data.appType",
+            "key": "7ff83fa8-5e1b-4e9e-b9a8-20808120dd59",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 3470.0,
+        "top": 50.0
+      },
+      "statementName": "elType"
+    },
+    "epoch": {
+      "dependentStatements": {
+        "Steps.stamp.output": true
+      },
+      "name": "TimestampToEpochSeconds",
+      "namespace": "System.Date",
+      "parameterMap": {
+        "isoTimeStamp": {
+          "238abef4-61b2-425e-b53f-aac00b77aa83": {
+            "expression": "Steps.stamp.output.isoTimeStamp",
+            "key": "238abef4-61b2-425e-b53f-aac00b77aa83",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 1190.0,
+        "top": 50.0
+      },
+      "statementName": "epoch"
+    },
+    "fetchApp": {
+      "dependentStatements": {
+        "Steps.guard.true": true
+      },
+      "name": "FetchData",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "url": {
+          "aeab9ff6-03ee-4076-bded-452ed49a6035": {
+            "expression": "'/api/security/applications/appCode/' + Url.pathParts[1]",
+            "key": "aeab9ff6-03ee-4076-bded-452ed49a6035",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 430.0,
+        "top": 50.0
+      },
+      "statementName": "fetchApp"
+    },
+    "fetchRecent": {
+      "dependentStatements": {
+        "Steps.epoch.output": true
+      },
+      "name": "FetchData",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "url": {
+          "afad8f68-0372-4f4f-8388-176f81dc1b71": {
+            "expression": null,
+            "key": "afad8f68-0372-4f4f-8388-176f81dc1b71",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "/api/ui/personalization/appbuilder/recentApps"
+          }
+        }
+      },
+      "position": {
+        "left": 1570.0,
+        "top": 50.0
+      },
+      "statementName": "fetchRecent"
+    },
+    "guard": {
+      "name": "If",
+      "namespace": "System",
+      "parameterMap": {
+        "condition": {
+          "2d9c3c06-c45f-454c-ade0-afa8478a5794": {
+            "expression": "Url.pathParts[1] != null",
+            "key": "2d9c3c06-c45f-454c-ade0-afa8478a5794",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "guard"
+    },
+    "initBody": {
+      "dependentStatements": {
+        "Steps.keepLoop.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "fc104343-832e-4521-af6f-b11e66c73505": {
+            "expression": null,
+            "key": "fc104343-832e-4521-af6f-b11e66c73505",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentBody"
+          }
+        },
+        "value": {
+          "587ce395-ecfb-4de8-8fc3-6f7fb6c306f0": {
+            "expression": null,
+            "key": "587ce395-ecfb-4de8-8fc3-6f7fb6c306f0",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {}
+          }
+        }
+      },
+      "position": {
+        "left": 5750.0,
+        "top": 330.0
+      },
+      "statementName": "initBody"
+    },
+    "initEl": {
+      "dependentStatements": {
+        "Steps.setPrev.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "28615580-9338-4e35-bf6a-349d3b70dcc8": {
+            "expression": null,
+            "key": "28615580-9338-4e35-bf6a-349d3b70dcc8",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentEl"
+          }
+        },
+        "value": {
+          "ad349c84-0e43-4600-8793-ab913cf5d58e": {
+            "expression": null,
+            "key": "ad349c84-0e43-4600-8793-ab913cf5d58e",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {}
+          }
+        }
+      },
+      "position": {
+        "left": 2330.0,
+        "top": 50.0
+      },
+      "statementName": "initEl"
+    },
+    "initList": {
+      "dependentStatements": {
+        "Steps.elAt.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "7f62f8e5-22ea-43ae-843a-d2a19e841ad3": {
+            "expression": null,
+            "key": "7f62f8e5-22ea-43ae-843a-d2a19e841ad3",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentNew"
+          }
+        },
+        "value": {
+          "161fafdf-a459-4327-8caf-6311d13e3efd": {
+            "expression": null,
+            "key": "161fafdf-a459-4327-8caf-6311d13e3efd",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": []
+          }
+        }
+      },
+      "position": {
+        "left": 4230.0,
+        "top": 50.0
+      },
+      "statementName": "initList"
+    },
+    "keep": {
+      "dependentStatements": {
+        "Steps.dedupe.true": true
+      },
+      "name": "Insert",
+      "namespace": "System.Array",
+      "parameterMap": {
+        "element": {
+          "528d6105-c810-476e-abb1-ed196de0cb6c": {
+            "expression": "Page.recentPrev[Steps.keepLoop.iteration.index]",
+            "key": "528d6105-c810-476e-abb1-ed196de0cb6c",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        },
+        "offset": {
+          "84794c41-f7d8-44ce-af8e-ad3db7ca3fea": {
+            "expression": "Page.recentNew.length ?? 0",
+            "key": "84794c41-f7d8-44ce-af8e-ad3db7ca3fea",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        },
+        "source": {
+          "246137fa-6405-42d8-8452-c37a97dec486": {
+            "expression": "Page.recentNew",
+            "key": "246137fa-6405-42d8-8452-c37a97dec486",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 6130.0,
+        "top": 50.0
+      },
+      "statementName": "keep"
+    },
+    "keepLoop": {
+      "dependentStatements": {
+        "Steps.setTop.output": true
+      },
+      "name": "CountLoop",
+      "namespace": "System.Loop",
+      "parameterMap": {
+        "count": {
+          "e4e0c7d0-b3ee-4b55-b79d-50873bc72412": {
+            "expression": "Page.recentPrev.length ?? 0",
+            "key": "e4e0c7d0-b3ee-4b55-b79d-50873bc72412",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 5370.0,
+        "top": 50.0
+      },
+      "statementName": "keepLoop"
+    },
+    "save": {
+      "dependentStatements": {
+        "Steps.setBody.output": true
+      },
+      "name": "SendData",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "method": {
+          "88f4311c-6d1f-4987-b21b-858347238126": {
+            "expression": null,
+            "key": "88f4311c-6d1f-4987-b21b-858347238126",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "POST"
+          }
+        },
+        "payload": {
+          "8496e826-d2bc-48a6-8130-fd431fbb8e59": {
+            "expression": "Page.recentBody",
+            "key": "8496e826-d2bc-48a6-8130-fd431fbb8e59",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        },
+        "url": {
+          "ee9766bd-9220-4edc-b3d9-dda397a0cdd4": {
+            "expression": null,
+            "key": "ee9766bd-9220-4edc-b3d9-dda397a0cdd4",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "/api/ui/personalization/appbuilder/recentApps"
+          }
+        }
+      },
+      "position": {
+        "left": 6510.0,
+        "top": 330.0
+      },
+      "statementName": "save"
+    },
+    "seedFsFilter": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "6ee9de07-35c1-41c8-9043-215e23ccf6af": {
+            "expression": null,
+            "key": "6ee9de07-35c1-41c8-9043-215e23ccf6af",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.fsFilter"
+          }
+        },
+        "value": {
+          "3f21a41e-6957-4409-9d0a-8c4053329df3": {
+            "expression": null,
+            "key": "3f21a41e-6957-4409-9d0a-8c4053329df3",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": []
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedFsFilter"
+    },
+    "seedFsPath": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "7e191951-07c0-458b-b4a7-059dbcff441a": {
+            "expression": null,
+            "key": "7e191951-07c0-458b-b4a7-059dbcff441a",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.fsPath"
+          }
+        },
+        "value": {
+          "fd0fce52-faa1-4e39-aafb-5b0393d202bf": {
+            "expression": null,
+            "key": "fd0fce52-faa1-4e39-aafb-5b0393d202bf",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": ""
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedFsPath"
+    },
+    "seedFsTypes": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "d1e3d1f8-a708-4245-bd12-56e833dbb0ed": {
+            "expression": null,
+            "key": "d1e3d1f8-a708-4245-bd12-56e833dbb0ed",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.fsTypes"
+          }
+        },
+        "value": {
+          "25dbd348-ec4e-4b70-a9c8-06a99b2a3652": {
+            "expression": null,
+            "key": "25dbd348-ec4e-4b70-a9c8-06a99b2a3652",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {
+              "ARCHIVE": {
+                "key": "ARCHIVE",
+                "label": "Archive",
+                "order": 4
+              },
+              "DOCUMENTS": {
+                "key": "DOCUMENTS",
+                "label": "Documents",
+                "order": 3
+              },
+              "IMAGES": {
+                "key": "IMAGES",
+                "label": "Images",
+                "order": 1
+              },
+              "VIDEOS": {
+                "key": "VIDEOS",
+                "label": "Videos",
+                "order": 2
+              }
+            }
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedFsTypes"
+    },
+    "seedHeadAttrs": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "c0f68d1e-4866-4a9e-939c-7b53c61efdf3": {
+            "expression": null,
+            "key": "c0f68d1e-4866-4a9e-939c-7b53c61efdf3",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.headAttrs"
+          }
+        },
+        "value": {
+          "3e2f7f74-3b01-4d0a-8bee-906e976f97d2": {
+            "expression": null,
+            "key": "3e2f7f74-3b01-4d0a-8bee-906e976f97d2",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {
+              "links": [
+                {
+                  "name": "rel",
+                  "order": 1
+                },
+                {
+                  "name": "href",
+                  "order": 2
+                },
+                {
+                  "name": "type",
+                  "order": 3
+                },
+                {
+                  "name": "sizes",
+                  "order": 4
+                },
+                {
+                  "name": "media",
+                  "order": 5
+                },
+                {
+                  "name": "hreflang",
+                  "order": 6
+                },
+                {
+                  "name": "crossorigin",
+                  "order": 7
+                },
+                {
+                  "name": "referrerpolicy",
+                  "order": 8
+                },
+                {
+                  "name": "title",
+                  "order": 9
+                }
+              ],
+              "metas": [
+                {
+                  "name": "name",
+                  "order": 1
+                },
+                {
+                  "name": "content",
+                  "order": 2
+                },
+                {
+                  "name": "charset",
+                  "order": 3
+                },
+                {
+                  "name": "http-equiv",
+                  "order": 4
+                }
+              ],
+              "scripts": [
+                {
+                  "name": "src",
+                  "order": 1
+                },
+                {
+                  "name": "type",
+                  "order": 2
+                },
+                {
+                  "name": "async",
+                  "order": 3
+                },
+                {
+                  "name": "defer",
+                  "order": 4
+                },
+                {
+                  "name": "integrity",
+                  "order": 5
+                },
+                {
+                  "name": "nomodule",
+                  "order": 6
+                },
+                {
+                  "name": "crossorigin",
+                  "order": 7
+                },
+                {
+                  "name": "referrerpolicy",
+                  "order": 8
+                }
+              ]
+            }
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedHeadAttrs"
+    },
+    "seedIconPacks": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "4b66e475-c3c0-4c54-9b0d-3acbbb82becf": {
+            "expression": null,
+            "key": "4b66e475-c3c0-4c54-9b0d-3acbbb82becf",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.optIconPacks"
+          }
+        },
+        "value": {
+          "2b9ebc7b-f31c-43d7-be14-9885234bd007": {
+            "expression": null,
+            "key": "2b9ebc7b-f31c-43d7-be14-9885234bd007",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "icon": "_medium ms material-symbols-outlined mso-emoji_symbols",
+                "id": "FREE_FONT_AWESOME_ALL",
+                "label": "Font Awesome",
+                "order": 1
+              },
+              {
+                "icon": "mi material-icons mio-image",
+                "id": "MATERIAL_ICONS_FILLED",
+                "label": "Material Icons, filled",
+                "order": 2
+              },
+              {
+                "icon": "mi material-icons-outlined mio-image",
+                "id": "MATERIAL_ICONS_OUTLINED",
+                "label": "Material Icons, outlined",
+                "order": 3
+              },
+              {
+                "icon": "mi material-icons-round mio-image",
+                "id": "MATERIAL_ICONS_ROUNDED",
+                "label": "Material Icons, rounded",
+                "order": 4
+              },
+              {
+                "icon": "mi material-icons-sharp mio-image",
+                "id": "MATERIAL_ICONS_SHARP",
+                "label": "Material Icons, sharp",
+                "order": 5
+              },
+              {
+                "icon": "mi material-icons-two-tone mio-image",
+                "id": "MATERIAL_ICONS_TWO_TONE",
+                "label": "Material Icons, two tone",
+                "order": 6
+              },
+              {
+                "icon": "_medium ms material-symbols-outlined mso-wallpaper",
+                "id": "MATERIAL_SYMBOLS_OUTLINED",
+                "label": "Material Symbols, outlined",
+                "order": 7
+              },
+              {
+                "icon": "_medium ms material-symbols-rounded mso-wallpaper",
+                "id": "MATERIAL_SYMBOLS_ROUNDED",
+                "label": "Material Symbols, rounded",
+                "order": 8
+              },
+              {
+                "icon": "_medium ms material-symbols-sharp mso-wallpaper",
+                "id": "MATERIAL_SYMBOLS_SHARP",
+                "label": "Material Symbols, sharp",
+                "order": 9
+              }
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedIconPacks"
+    },
+    "seedIconSizes": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "dcddc07c-eda2-441f-ad3e-d79aba646905": {
+            "expression": null,
+            "key": "dcddc07c-eda2-441f-ad3e-d79aba646905",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.optIconSizes"
+          }
+        },
+        "value": {
+          "e1f15938-7ace-4f6a-910f-464cc9cb4e61": {
+            "expression": null,
+            "key": "e1f15938-7ace-4f6a-910f-464cc9cb4e61",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              "48",
+              "72",
+              "96",
+              "144",
+              "168",
+              "192",
+              "256",
+              "512"
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedIconSizes"
+    },
+    "seedNewCards": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "34e963f1-2d9b-46f5-afdf-d7c79b591326": {
+            "expression": null,
+            "key": "34e963f1-2d9b-46f5-afdf-d7c79b591326",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.newCards"
+          }
+        },
+        "value": {
+          "566ee780-af5d-4555-a846-b42a6f8055a4": {
+            "expression": null,
+            "key": "566ee780-af5d-4555-a846-b42a6f8055a4",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "createLabel": "Create page",
+                "desc": "A screen. Opens in the page editor.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-description",
+                "key": "page",
+                "label": "Page",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/ui/pages",
+                    "appFields": [],
+                    "key": "ui_page",
+                    "label": "Page",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "ui",
+                    "type": "page"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create function",
+                "desc": "Kirun step graph, browser or JVM.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-account_tree",
+                "key": "function",
+                "label": "Function",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/functions",
+                    "appFields": [
+                      "definition.namespace"
+                    ],
+                    "key": "core_function",
+                    "label": "Core, on the JVM",
+                    "nameFields": [
+                      "definition.name"
+                    ],
+                    "seed": {
+                      "definition": {
+                        "name": "",
+                        "namespace": "_",
+                        "steps": {}
+                      }
+                    },
+                    "service": "core",
+                    "type": "function"
+                  },
+                  {
+                    "api": "/api/ui/functions",
+                    "appFields": [
+                      "definition.namespace"
+                    ],
+                    "key": "ui_function",
+                    "label": "UI, in the browser",
+                    "nameFields": [
+                      "definition.name"
+                    ],
+                    "seed": {
+                      "definition": {
+                        "name": "",
+                        "namespace": "_",
+                        "steps": {}
+                      }
+                    },
+                    "service": "ui",
+                    "type": "function"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create storage",
+                "desc": "Typed collection with relations, triggers, permissions.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-database",
+                "key": "storage",
+                "label": "Storage",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/storages",
+                    "appFields": [
+                      "schema.namespace"
+                    ],
+                    "key": "core_storage",
+                    "label": "Storage",
+                    "nameFields": [
+                      "schema.name"
+                    ],
+                    "seed": {
+                      "schema": {
+                        "name": "",
+                        "namespace": "_",
+                        "type": "OBJECT"
+                      }
+                    },
+                    "service": "core",
+                    "type": "storage"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create schema",
+                "desc": "A reusable data shape.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-account_tree",
+                "key": "schema",
+                "label": "Schema",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/schemas",
+                    "appFields": [
+                      "definition.namespace"
+                    ],
+                    "key": "core_schema",
+                    "label": "Core",
+                    "nameFields": [
+                      "definition.name"
+                    ],
+                    "seed": {
+                      "definition": {
+                        "name": "",
+                        "namespace": "_",
+                        "type": "OBJECT"
+                      }
+                    },
+                    "service": "core",
+                    "type": "schema"
+                  },
+                  {
+                    "api": "/api/ui/schemas",
+                    "appFields": [
+                      "definition.namespace"
+                    ],
+                    "key": "ui_schema",
+                    "label": "UI",
+                    "nameFields": [
+                      "definition.name"
+                    ],
+                    "seed": {
+                      "definition": {
+                        "name": "",
+                        "namespace": "_",
+                        "type": "OBJECT"
+                      }
+                    },
+                    "service": "ui",
+                    "type": "schema"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create template",
+                "desc": "Email, SMS, WhatsApp, PDF.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-code_blocks",
+                "key": "template",
+                "label": "Template",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/templates",
+                    "appFields": [],
+                    "key": "core_template",
+                    "label": "Template",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "core",
+                    "type": "template"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create connection",
+                "desc": "REST, mail, WhatsApp, Exotel, AI.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-power",
+                "key": "connection",
+                "label": "Connection",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/connections",
+                    "appFields": [],
+                    "key": "core_connection",
+                    "label": "Connection",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "core",
+                    "type": "connection"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create event",
+                "desc": "Definition or action pipeline.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-bolt",
+                "key": "event",
+                "label": "Event",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/eventDefinitions",
+                    "appFields": [],
+                    "key": "core_eventDefinition",
+                    "label": "Definition",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "core",
+                    "type": "eventDefinition"
+                  },
+                  {
+                    "api": "/api/core/eventActions",
+                    "appFields": [],
+                    "key": "core_eventAction",
+                    "label": "Action",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "core",
+                    "type": "eventAction"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create uri path",
+                "desc": "Public endpoint to a function.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-public",
+                "key": "uripath",
+                "label": "URI path",
+                "mode": "create",
+                "nameHelp": "The path this route answers on, and its identity. Segments in braces become named parameters. It cannot be changed later.",
+                "namePlaceholder": "/api/something/{id}",
+                "variants": [
+                  {
+                    "api": "/api/ui/uripaths",
+                    "appFields": [],
+                    "key": "ui_uripath",
+                    "label": "URI path",
+                    "nameFields": [
+                      "pathString"
+                    ],
+                    "seed": {
+                      "pathDefinitions": {
+                        "GET": {
+                          "kiRunFxDefinition": {
+                            "name": "",
+                            "namespace": ""
+                          },
+                          "uriType": "KIRUN_FUNCTION"
+                        }
+                      }
+                    },
+                    "service": "ui",
+                    "type": "uripath"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create theme",
+                "desc": "Tokens per breakpoint; raw CSS as a last resort.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-palette",
+                "key": "theme",
+                "label": "Theme / Style",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/ui/themes",
+                    "appFields": [],
+                    "key": "ui_theme",
+                    "label": "Theme",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "ui",
+                    "type": "theme"
+                  },
+                  {
+                    "api": "/api/ui/styles",
+                    "appFields": [],
+                    "key": "ui_style",
+                    "label": "Style",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "ui",
+                    "type": "style"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create profile",
+                "desc": "Roles carry authorities; profiles bundle roles.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "Open Organization",
+                "gotoNote": "Profiles and roles belong to the client, not to one app, so they live in Organization. Pick an app there and its profiles are listed under People.",
+                "gotoPage": "org",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-badge",
+                "key": "profile",
+                "label": "Profile / Role",
+                "mode": "goto",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": []
+              },
+              {
+                "createLabel": "Create notification",
+                "desc": "Channels and templates for an event.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "",
+                "gotoNote": "",
+                "gotoPage": "",
+                "gotoTab": "",
+                "icon": "_medium ms material-symbols-outlined mso-notifications",
+                "key": "notification",
+                "label": "Notification",
+                "mode": "create",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": [
+                  {
+                    "api": "/api/core/notifications",
+                    "appFields": [],
+                    "key": "core_notification",
+                    "label": "Notification",
+                    "nameFields": [],
+                    "seed": {},
+                    "service": "core",
+                    "type": "notification"
+                  }
+                ]
+              },
+              {
+                "createLabel": "Create blog post",
+                "desc": "Markdown content; also drives Docs.",
+                "footNote": "Creates it and opens its editor here. It is reachable in the app right away; visibility is what gates it.",
+                "gotoLabel": "Open Blog",
+                "gotoNote": "A blog post is a row in this app's blog storage rather than a definition, so it has its own place rather than living here. Open Blog to see the posts and write one. If the app has no blog yet, that is where you set one up.",
+                "gotoPage": "",
+                "gotoTab": "__blog",
+                "icon": "_medium ms material-symbols-outlined mso-feed",
+                "key": "blog",
+                "label": "Blog post",
+                "mode": "goto",
+                "nameHelp": "The identity everything else references. It cannot be changed later.",
+                "namePlaceholder": "camelCaseName",
+                "variants": []
+              }
+            ]
+          }
+        }
+      },
+      "statementName": "seedNewCards"
+    },
+    "seedNewStarts": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "a7ea48a7-8b21-423a-9227-2ecf74d41823": {
+            "expression": null,
+            "key": "a7ea48a7-8b21-423a-9227-2ecf74d41823",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.newStarts"
+          }
+        },
+        "value": {
+          "c092fb3f-1631-4671-97a0-376d0e1ae1da": {
+            "expression": null,
+            "key": "c092fb3f-1631-4671-97a0-376d0e1ae1da",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "desc": "Nothing in it yet.",
+                "key": "blank",
+                "label": "Blank",
+                "ready": true
+              },
+              {
+                "desc": "Copy an existing one and rename it.",
+                "key": "duplicate",
+                "label": "Duplicate",
+                "ready": true
+              },
+              {
+                "desc": "Say what you want; the agent builds it.",
+                "goes": "ai",
+                "key": "describe",
+                "label": "Describe it",
+                "ready": true
+              }
+            ]
+          }
+        }
+      },
+      "statementName": "seedNewStarts"
+    },
+    "seedPageFields": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "5f3271dd-aad2-4d84-a241-ffa61a1c9ad2": {
+            "expression": null,
+            "key": "5f3271dd-aad2-4d84-a241-ffa61a1c9ad2",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.setPageFields"
+          }
+        },
+        "value": {
+          "3d612b2a-367e-46c6-a1d3-8937c76e40f7": {
+            "expression": null,
+            "key": "3d612b2a-367e-46c6-a1d3-8937c76e40f7",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "hint": "Loads when the app is opened with no page in the URL.",
+                "key": "defaultPage",
+                "label": "Default page",
+                "order": 1
+              },
+              {
+                "hint": "Where an anonymous visitor is sent to sign in.",
+                "key": "loginPage",
+                "label": "Login page",
+                "order": 2
+              },
+              {
+                "hint": "Wraps every page that asks for it.",
+                "key": "shellPage",
+                "label": "Shell page",
+                "order": 3
+              },
+              {
+                "hint": "Shown when someone is signed in but not allowed.",
+                "key": "forbiddenPage",
+                "label": "Forbidden page",
+                "order": 4
+              },
+              {
+                "hint": "Shown when the URL matches no page.",
+                "key": "notFoundPage",
+                "label": "Not found page",
+                "order": 5
+              },
+              {
+                "hint": "Where registration starts.",
+                "key": "signUp",
+                "label": "Sign-up page",
+                "order": 6
+              },
+              {
+                "hint": "Where a password reset starts.",
+                "key": "forgotPasswordPage",
+                "label": "Forgot password page",
+                "order": 7
+              },
+              {
+                "hint": "Linked from sign-up and the footer.",
+                "key": "privacyPolicyPage",
+                "label": "Privacy policy page",
+                "order": 8
+              },
+              {
+                "hint": "Linked from sign-up and the footer.",
+                "key": "termsConditionPage",
+                "label": "Terms and conditions page",
+                "order": 9
+              }
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPageFields"
+    },
+    "seedPendApi": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "604eff14-0e5f-4227-a0d5-3f0abef20ebf": {
+            "expression": null,
+            "key": "604eff14-0e5f-4227-a0d5-3f0abef20ebf",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.pendApi"
+          }
+        },
+        "value": {
+          "0f264fba-e867-4f94-aec0-e478f0b2aa03": {
+            "expression": null,
+            "key": "0f264fba-e867-4f94-aec0-e478f0b2aa03",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {
+              "core:ACTION": "/api/core/workflow/actions",
+              "core:CONNECTION": "/api/core/connections",
+              "core:EVENTACTION": "/api/core/eventActions",
+              "core:EVENTDEFINITION": "/api/core/eventDefinitions",
+              "core:FILLER": "/api/core/filler",
+              "core:FUNCTION": "/api/core/functions",
+              "core:NOTIFICATION": "/api/core/notifications",
+              "core:SCHEMA": "/api/core/schemas",
+              "core:STORAGE": "/api/core/storages",
+              "core:TEMPLATE": "/api/core/templates",
+              "core:WORKFLOW": "/api/core/workflows",
+              "ui:APPLICATION": "/api/ui/applications",
+              "ui:FILLER": "/api/ui/filler",
+              "ui:FUNCTION": "/api/ui/functions",
+              "ui:PAGE": "/api/ui/pages",
+              "ui:SCHEMA": "/api/ui/schemas",
+              "ui:STYLE": "/api/ui/styles",
+              "ui:THEME": "/api/ui/themes",
+              "ui:URIPATH": "/api/ui/uripaths"
+            }
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPendApi"
+    },
+    "seedPendEmpty": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "834b9bb0-4853-40a7-a4c6-89c0ad040289": {
+            "expression": null,
+            "key": "834b9bb0-4853-40a7-a4c6-89c0ad040289",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.pend.emptyObj"
+          }
+        },
+        "value": {
+          "fdffea3c-6bc0-4cea-85b1-5bfa348f216d": {
+            "expression": null,
+            "key": "fdffea3c-6bc0-4cea-85b1-5bfa348f216d",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {}
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPendEmpty"
+    },
+    "seedPendLabel": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "b4ab96d9-e569-4402-abf5-37d3e87d879d": {
+            "expression": null,
+            "key": "b4ab96d9-e569-4402-abf5-37d3e87d879d",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.pendLabel"
+          }
+        },
+        "value": {
+          "c579213b-5949-4820-b895-5f1b30c8322b": {
+            "expression": null,
+            "key": "c579213b-5949-4820-b895-5f1b30c8322b",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {
+              "core:ACTION": "Workflow action",
+              "core:CONNECTION": "Connection",
+              "core:EVENTACTION": "Event action",
+              "core:EVENTDEFINITION": "Event definition",
+              "core:FILLER": "Core filler",
+              "core:FUNCTION": "Core function",
+              "core:NOTIFICATION": "Notification",
+              "core:SCHEMA": "Core schema",
+              "core:STORAGE": "Storage",
+              "core:TEMPLATE": "Template",
+              "core:WORKFLOW": "Workflow",
+              "ui:APPLICATION": "App definition",
+              "ui:FILLER": "UI filler",
+              "ui:FUNCTION": "UI function",
+              "ui:PAGE": "Page",
+              "ui:SCHEMA": "UI schema",
+              "ui:STYLE": "Style",
+              "ui:THEME": "Theme",
+              "ui:URIPATH": "URI path"
+            }
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPendLabel"
+    },
+    "seedPendList": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "32496bc0-40a7-4d42-a96c-9e3bf3e60911": {
+            "expression": null,
+            "key": "32496bc0-40a7-4d42-a96c-9e3bf3e60911",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.pend.emptyList"
+          }
+        },
+        "value": {
+          "781c43bb-7ac4-496e-8657-7ea306979f05": {
+            "expression": null,
+            "key": "781c43bb-7ac4-496e-8657-7ea306979f05",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": []
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPendList"
+    },
+    "seedPlaces": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "d785d3fd-9e80-489d-8101-94c3f14e3553": {
+            "expression": null,
+            "key": "d785d3fd-9e80-489d-8101-94c3f14e3553",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.optPlaces"
+          }
+        },
+        "value": {
+          "200c1495-5012-4043-b3e3-3c02a22a2293": {
+            "expression": null,
+            "key": "200c1495-5012-4043-b3e3-3c02a22a2293",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "id": "BEFORE_HEAD",
+                "label": "Before head",
+                "order": 1
+              },
+              {
+                "id": "AFTER_HEAD",
+                "label": "After head",
+                "order": 2
+              },
+              {
+                "id": "BEFORE_BODY",
+                "label": "Before body",
+                "order": 3
+              },
+              {
+                "id": "AFTER_BODY",
+                "label": "After body",
+                "order": 4
+              }
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPlaces"
+    },
+    "seedPresets": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "8a13dac4-3af1-4a71-9ff2-1f3a4afe9fe5": {
+            "expression": null,
+            "key": "8a13dac4-3af1-4a71-9ff2-1f3a4afe9fe5",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.mapPresets"
+          }
+        },
+        "value": {
+          "5d3a28e7-99d9-4d08-af98-21de9625ea55": {
+            "expression": null,
+            "key": "5d3a28e7-99d9-4d08-af98-21de9625ea55",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": {
+              "links": [
+                {
+                  "attrs": {
+                    "rel": "icon",
+                    "sizes": "32x32",
+                    "type": "image/png"
+                  },
+                  "hint": "rel=\"icon\"  type=\"image/png\"  sizes=\"32x32\"",
+                  "id": "links_0",
+                  "label": "Favicon",
+                  "order": 1
+                },
+                {
+                  "attrs": {
+                    "rel": "apple-touch-icon",
+                    "sizes": "180x180"
+                  },
+                  "hint": "rel=\"apple-touch-icon\"  sizes=\"180x180\"",
+                  "id": "links_1",
+                  "label": "Apple touch icon",
+                  "order": 2
+                },
+                {
+                  "attrs": {
+                    "rel": "stylesheet",
+                    "type": "text/css"
+                  },
+                  "hint": "rel=\"stylesheet\"  type=\"text/css\"",
+                  "id": "links_2",
+                  "label": "Stylesheet",
+                  "order": 3
+                },
+                {
+                  "attrs": {
+                    "media": "print",
+                    "rel": "stylesheet",
+                    "type": "text/css"
+                  },
+                  "hint": "rel=\"stylesheet\"  type=\"text/css\"  media=\"print\"",
+                  "id": "links_3",
+                  "label": "Print stylesheet",
+                  "order": 4
+                },
+                {
+                  "attrs": {
+                    "crossorigin": "anonymous",
+                    "rel": "preconnect"
+                  },
+                  "hint": "rel=\"preconnect\"  crossorigin=\"anonymous\"",
+                  "id": "links_4",
+                  "label": "Preconnect",
+                  "order": 5
+                },
+                {
+                  "attrs": {
+                    "rel": "dns-prefetch"
+                  },
+                  "hint": "rel=\"dns-prefetch\"",
+                  "id": "links_5",
+                  "label": "DNS prefetch",
+                  "order": 6
+                },
+                {
+                  "attrs": {
+                    "rel": "canonical"
+                  },
+                  "hint": "rel=\"canonical\"",
+                  "id": "links_6",
+                  "label": "Canonical URL",
+                  "order": 7
+                },
+                {
+                  "attrs": {
+                    "hreflang": "en",
+                    "rel": "alternate"
+                  },
+                  "hint": "rel=\"alternate\"  hreflang=\"en\"",
+                  "id": "links_7",
+                  "label": "Alternate language",
+                  "order": 8
+                },
+                {
+                  "attrs": {
+                    "rel": "alternate",
+                    "title": "RSS",
+                    "type": "application/rss+xml"
+                  },
+                  "hint": "rel=\"alternate\"  type=\"application/rss+xml\"  title=\"RSS\"",
+                  "id": "links_8",
+                  "label": "RSS feed",
+                  "order": 9
+                }
+              ],
+              "metas": [
+                {
+                  "attrs": {
+                    "content": "",
+                    "name": "description"
+                  },
+                  "hint": "name=\"description\"  content",
+                  "id": "metas_0",
+                  "label": "Description",
+                  "order": 1
+                },
+                {
+                  "attrs": {
+                    "content": "width=device-width, initial-scale=1",
+                    "name": "viewport"
+                  },
+                  "hint": "name=\"viewport\"  content=\"width=device-width, initial-scale=1\"",
+                  "id": "metas_1",
+                  "label": "Viewport",
+                  "order": 2
+                },
+                {
+                  "attrs": {
+                    "content": "",
+                    "name": "theme-color"
+                  },
+                  "hint": "name=\"theme-color\"  content",
+                  "id": "metas_2",
+                  "label": "Theme colour",
+                  "order": 3
+                },
+                {
+                  "attrs": {
+                    "content": "index, follow",
+                    "name": "robots"
+                  },
+                  "hint": "name=\"robots\"  content=\"index, follow\"",
+                  "id": "metas_3",
+                  "label": "Robots",
+                  "order": 4
+                },
+                {
+                  "attrs": {
+                    "content": "",
+                    "name": "author"
+                  },
+                  "hint": "name=\"author\"  content",
+                  "id": "metas_4",
+                  "label": "Author",
+                  "order": 5
+                },
+                {
+                  "attrs": {
+                    "content": "",
+                    "name": "keywords"
+                  },
+                  "hint": "name=\"keywords\"  content",
+                  "id": "metas_5",
+                  "label": "Keywords",
+                  "order": 6
+                },
+                {
+                  "attrs": {
+                    "charset": "UTF-8"
+                  },
+                  "hint": "charset=\"UTF-8\"",
+                  "id": "metas_6",
+                  "label": "Character set",
+                  "order": 7
+                },
+                {
+                  "attrs": {
+                    "content": "IE=edge",
+                    "http-equiv": "X-UA-Compatible"
+                  },
+                  "hint": "http-equiv=\"X-UA-Compatible\"  content=\"IE=edge\"",
+                  "id": "metas_7",
+                  "label": "Legacy IE mode",
+                  "order": 8
+                },
+                {
+                  "attrs": {
+                    "content": "30",
+                    "http-equiv": "refresh"
+                  },
+                  "hint": "http-equiv=\"refresh\"  content=\"30\"",
+                  "id": "metas_8",
+                  "label": "Refresh",
+                  "order": 9
+                }
+              ],
+              "scripts": [
+                {
+                  "attrs": {
+                    "defer": "true",
+                    "type": "text/javascript"
+                  },
+                  "hint": "type=\"text/javascript\"  defer=\"true\"",
+                  "id": "scripts_0",
+                  "label": "Deferred script",
+                  "order": 1
+                },
+                {
+                  "attrs": {
+                    "async": "true",
+                    "type": "text/javascript"
+                  },
+                  "hint": "type=\"text/javascript\"  async=\"true\"",
+                  "id": "scripts_1",
+                  "label": "Async script",
+                  "order": 2
+                },
+                {
+                  "attrs": {
+                    "type": "module"
+                  },
+                  "hint": "type=\"module\"",
+                  "id": "scripts_2",
+                  "label": "ES module",
+                  "order": 3
+                },
+                {
+                  "attrs": {
+                    "nomodule": "true",
+                    "type": "text/javascript"
+                  },
+                  "hint": "type=\"text/javascript\"  nomodule=\"true\"",
+                  "id": "scripts_3",
+                  "label": "Legacy fallback",
+                  "order": 4
+                },
+                {
+                  "attrs": {
+                    "crossorigin": "anonymous",
+                    "integrity": "",
+                    "type": "text/javascript"
+                  },
+                  "hint": "type=\"text/javascript\"  crossorigin=\"anonymous\"  integrity",
+                  "id": "scripts_4",
+                  "label": "Subresource integrity",
+                  "order": 5
+                }
+              ]
+            }
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedPresets"
+    },
+    "seedSetFaces": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "f54e3bf3-6360-4992-b9b4-c1372bef99db": {
+            "expression": null,
+            "key": "f54e3bf3-6360-4992-b9b4-c1372bef99db",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.setFaces"
+          }
+        },
+        "value": {
+          "fe05c8a7-1071-4194-8541-fcc4dd43b9d5": {
+            "expression": null,
+            "key": "fe05c8a7-1071-4194-8541-fcc4dd43b9d5",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "desc": "The special pages the runtime needs, and how the app names itself.",
+                "key": "general",
+                "label": "General",
+                "order": 1,
+                "pane": "wsSetGeneral"
+              },
+              {
+                "desc": "Which theme and style documents this app starts from.",
+                "key": "look",
+                "label": "Theme & style",
+                "order": 2,
+                "pane": "wsSetLook"
+              },
+              {
+                "desc": "Where a session can come from, and where it lands afterwards.",
+                "key": "sso",
+                "label": "Single sign-on",
+                "order": 3,
+                "pane": "wsSetSso"
+              },
+              {
+                "desc": "Built-in measurement, and the snippets injected for anyone else's.",
+                "key": "analytics",
+                "label": "Analytics",
+                "order": 4,
+                "pane": "wsSetAnalytics"
+              },
+              {
+                "desc": "What the browser is allowed to load, enforced and report-only.",
+                "key": "csp",
+                "label": "Content security",
+                "order": 5,
+                "pane": "wsSetCsp"
+              },
+              {
+                "desc": "Links, scripts and metas injected into the page head, and the loader.",
+                "key": "head",
+                "label": "Head tags",
+                "order": 6,
+                "pane": "wsSetHead"
+              },
+              {
+                "desc": "Install metadata and the icon set generated from it.",
+                "key": "manifest",
+                "label": "PWA & manifest",
+                "order": 7,
+                "pane": "wsSetManifest"
+              },
+              {
+                "desc": "Font packs this app loads.",
+                "key": "fonts",
+                "label": "Fonts",
+                "order": 8,
+                "pane": "wsSetFonts"
+              },
+              {
+                "desc": "Which icon packs are available to components.",
+                "key": "icons",
+                "label": "Icons",
+                "order": 9,
+                "pane": "wsSetIcons"
+              },
+              {
+                "desc": "Languages this app offers, and the strings for each.",
+                "key": "i18n",
+                "label": "Translations",
+                "order": 10,
+                "pane": "wsSetI18n"
+              }
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedSetFaces"
+    },
+    "seedSetReg": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "07eda8cf-8a1a-4800-84b6-3bf8b76844c9": {
+            "expression": null,
+            "key": "07eda8cf-8a1a-4800-84b6-3bf8b76844c9",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.setReg"
+          }
+        },
+        "value": {
+          "206d934d-2005-46f0-ac0e-2a77897635b0": {
+            "expression": null,
+            "key": "206d934d-2005-46f0-ac0e-2a77897635b0",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": [
+              {
+                "desc": "The app definition: special pages, sign-on, analytics, CSP, manifest, fonts, icons.",
+                "editorPage": "wsSettings",
+                "face": "general",
+                "icon": "_medium ms material-symbols-outlined mso-settings",
+                "key": "general",
+                "label": "General",
+                "order": 1,
+                "tabKey": "__setGeneral"
+              },
+              {
+                "desc": "Name, access type and usage type on the security record.",
+                "editorPage": "wsSetNaming",
+                "face": "naming",
+                "icon": "_medium ms material-symbols-outlined mso-badge",
+                "key": "naming",
+                "label": "App name & type",
+                "order": 2,
+                "tabKey": "__setNaming"
+              },
+              {
+                "desc": "Which addresses serve this app, and their certificates.",
+                "editorPage": "wsSetUrls",
+                "face": "urls",
+                "icon": "_medium ms material-symbols-outlined mso-link",
+                "key": "urls",
+                "label": "URLs & SSL",
+                "order": 3,
+                "tabKey": "__setUrls"
+              },
+              {
+                "desc": "Named values this app reads at runtime, set per client.",
+                "editorPage": "wsSetProps",
+                "face": "props",
+                "icon": "_medium ms material-symbols-outlined mso-tune",
+                "key": "props",
+                "label": "Properties",
+                "order": 4,
+                "tabKey": "__setProps"
+              },
+              {
+                "desc": "Social providers and how someone gets into this app.",
+                "editorPage": "wsSetSignin",
+                "face": "signin",
+                "icon": "_medium ms material-symbols-outlined mso-login",
+                "key": "signin",
+                "label": "Sign-in",
+                "order": 5,
+                "tabKey": "__setSignin"
+              },
+              {
+                "desc": "Whether people can register, and what they get when they do.",
+                "editorPage": "wsSetReg",
+                "face": "registration",
+                "icon": "_medium ms material-symbols-outlined mso-person_add",
+                "key": "registration",
+                "label": "Registration",
+                "order": 6,
+                "tabKey": "__setReg"
+              },
+              {
+                "desc": "Password, PIN and OTP rules for this app.",
+                "editorPage": "wsSetPolicies",
+                "face": "policies",
+                "icon": "_medium ms material-symbols-outlined mso-key",
+                "key": "policies",
+                "label": "Policies",
+                "order": 7,
+                "tabKey": "__setPolicies"
+              },
+              {
+                "desc": "Other applications this one needs.",
+                "editorPage": "wsSetDeps",
+                "face": "deps",
+                "icon": "_medium ms material-symbols-outlined mso-power",
+                "key": "deps",
+                "label": "Dependencies",
+                "order": 8,
+                "tabKey": "__setDeps"
+              },
+              {
+                "desc": "Rents, token rates and the bundles people can buy.",
+                "editorPage": "wsSetBilling",
+                "face": "billing",
+                "icon": "_medium ms material-symbols-outlined mso-credit_card",
+                "key": "billing",
+                "label": "Billing config",
+                "order": 9,
+                "tabKey": "__setBilling"
+              },
+              {
+                "desc": "Builds, signing certificates and store metadata.",
+                "editorPage": "wsSetMobile",
+                "face": "mobile",
+                "icon": "_medium ms material-symbols-outlined mso-smartphone",
+                "key": "mobile",
+                "label": "Mobile apps",
+                "order": 10,
+                "tabKey": "__setMobile"
+              },
+              {
+                "desc": "Take this app's definitions out as a file.",
+                "editorPage": "wsSetExport",
+                "face": "export",
+                "icon": "_medium ms material-symbols-outlined mso-output",
+                "key": "export",
+                "label": "Export",
+                "order": 11,
+                "tabKey": "__setExport"
+              },
+              {
+                "desc": "Bring definitions in from a transport file.",
+                "editorPage": "wsSetImport",
+                "face": "import",
+                "icon": "_medium ms material-symbols-outlined mso-input",
+                "key": "import",
+                "label": "Import",
+                "order": 12,
+                "tabKey": "__setImport"
+              }
+            ]
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedSetReg"
+    },
+    "seedSkChanged": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "eea0dd22-4310-4685-a67c-ab1379832175": {
+            "expression": null,
+            "key": "eea0dd22-4310-4685-a67c-ab1379832175",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.skChanged"
+          }
+        },
+        "value": {
+          "bd18e9ea-7b3b-4d34-addf-6a58828bbad6": {
+            "expression": null,
+            "key": "bd18e9ea-7b3b-4d34-addf-6a58828bbad6",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": []
+          }
+        }
+      },
+      "position": {
+        "left": 50.0,
+        "top": 50.0
+      },
+      "statementName": "seedSkChanged"
+    },
+    "setApp": {
+      "dependentStatements": {
+        "Steps.fetchApp.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "e5b68acdafe1434192ab9921d542a9d6": {
+            "expression": "",
+            "key": "e5b68acdafe1434192ab9921d542a9d6",
+            "order": 1,
+            "type": "VALUE",
+            "value": "Page.app"
+          }
+        },
+        "value": {
+          "b9bde1cc24a64c0d909f7e96dda12c70": {
+            "expression": "Steps.fetchApp.output.data",
+            "key": "b9bde1cc24a64c0d909f7e96dda12c70",
+            "order": 1,
+            "type": "EXPRESSION"
+          }
+        }
+      },
+      "position": {
+        "left": 430.0,
+        "top": 1200.0
+      },
+      "statementName": "setApp"
+    },
+    "setBody": {
+      "dependentStatements": {
+        "Steps.initBody.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "5d4466aa-f344-4ed3-a294-66a5558611fe": {
+            "expression": null,
+            "key": "5d4466aa-f344-4ed3-a294-66a5558611fe",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentBody.items"
+          }
+        },
+        "value": {
+          "5f24ca9c-6b7a-4ee5-a0cb-bd50edde3d1d": {
+            "expression": "Page.recentNew",
+            "key": "5f24ca9c-6b7a-4ee5-a0cb-bd50edde3d1d",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 6130.0,
+        "top": 330.0
+      },
+      "statementName": "setBody"
+    },
+    "setKeep": {
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "d2e9c174-ad3f-4fdb-b236-62a7a7599701": {
+            "expression": null,
+            "key": "d2e9c174-ad3f-4fdb-b236-62a7a7599701",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentNew"
+          }
+        },
+        "value": {
+          "a2b376af-8030-44be-ba70-66bff7a17886": {
+            "expression": "Steps.keep.output.result",
+            "key": "a2b376af-8030-44be-ba70-66bff7a17886",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 6510.0,
+        "top": 50.0
+      },
+      "statementName": "setKeep"
+    },
+    "setPrev": {
+      "dependentStatements": {
+        "Steps.fetchRecent.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "d3ae738e-fcd9-414c-81a4-b59693932cb4": {
+            "expression": null,
+            "key": "d3ae738e-fcd9-414c-81a4-b59693932cb4",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentPrev"
+          }
+        },
+        "value": {
+          "88a17012-1da8-4b91-9d73-2d4311c8c9f2": {
+            "expression": "Steps.fetchRecent.output.data.items",
+            "key": "88a17012-1da8-4b91-9d73-2d4311c8c9f2",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 1950.0,
+        "top": 50.0
+      },
+      "statementName": "setPrev"
+    },
+    "setTop": {
+      "dependentStatements": {
+        "Steps.addTop.output": true
+      },
+      "name": "SetStore",
+      "namespace": "UIEngine",
+      "parameterMap": {
+        "path": {
+          "2be0406b-a30b-4679-9f15-07b94573deab": {
+            "expression": null,
+            "key": "2be0406b-a30b-4679-9f15-07b94573deab",
+            "order": 1,
+            "type": [
+              "VALUE"
+            ],
+            "value": "Page.recentNew"
+          }
+        },
+        "value": {
+          "6ef65020-f168-4949-be36-fdff5bffc7b8": {
+            "expression": "Steps.addTop.output.result",
+            "key": "6ef65020-f168-4949-be36-fdff5bffc7b8",
+            "order": 1,
+            "type": [
+              "EXPRESSION"
+            ],
+            "value": null
+          }
+        }
+      },
+      "position": {
+        "left": 4990.0,
+        "top": 50.0
+      },
+      "statementName": "setTop"
+    },
+    "stamp": {
+      "dependentStatements": {
+        "Steps.fetchApp.output": true
+      },
+      "name": "GetCurrentTimestamp",
+      "namespace": "System.Date",
+      "position": {
+        "left": 810.0,
+        "top": 50.0
+      },
+      "statementName": "stamp"
+    }
+  }
+}

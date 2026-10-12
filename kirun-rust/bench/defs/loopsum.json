@@ -1,0 +1,42 @@
+{
+  "name": "loopSum",
+  "namespace": "Bench",
+  "parameters": {
+    "n": { "parameterName": "n", "schema": { "name": "n", "type": "INTEGER" } }
+  },
+  "events": {
+    "output": { "name": "output", "parameters": { "sum": { "name": "sum", "type": "DOUBLE" } } }
+  },
+  "steps": {
+    "create": {
+      "statementName": "create", "namespace": "System.Context", "name": "Create",
+      "parameterMap": {
+        "name": { "a": { "key": "a", "type": "VALUE", "value": "sum" } },
+        "schema": { "b": { "key": "b", "type": "VALUE", "value": { "name": "sum", "type": "DOUBLE", "defaultValue": 0 } } }
+      }
+    },
+    "loop": {
+      "statementName": "loop", "namespace": "System.Loop", "name": "RangeLoop",
+      "parameterMap": {
+        "from": { "c": { "key": "c", "type": "VALUE", "value": 0 } },
+        "to": { "d": { "key": "d", "type": "EXPRESSION", "expression": "Arguments.n" } }
+      },
+      "dependentStatements": { "Steps.create.output": true }
+    },
+    "add": {
+      "statementName": "add", "namespace": "System.Context", "name": "Set",
+      "parameterMap": {
+        "name": { "e": { "key": "e", "type": "VALUE", "value": "Context.sum" } },
+        "value": { "f": { "key": "f", "type": "EXPRESSION", "expression": "Context.sum + Steps.loop.iteration.index" } }
+      }
+    },
+    "out": {
+      "statementName": "out", "namespace": "System", "name": "GenerateEvent",
+      "parameterMap": {
+        "eventName": { "g": { "key": "g", "type": "VALUE", "value": "output" } },
+        "results": { "h": { "key": "h", "type": "VALUE", "value": { "name": "sum", "value": { "isExpression": true, "value": "Context.sum" } } } }
+      },
+      "dependentStatements": { "Steps.loop.output": true }
+    }
+  }
+}

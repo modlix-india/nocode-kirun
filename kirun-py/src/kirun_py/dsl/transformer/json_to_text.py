@@ -4,8 +4,24 @@ import json
 import re
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
+from kirun_py.dsl.js_whitespace import js_rstrip, js_strip
+from kirun_py.dsl.lexer.dsl_lexer import DSLLexer
+from kirun_py.dsl.lexer.dsl_token import DSLTokenType
 from kirun_py.dsl.transformer.expression_handler import ExpressionHandler
 from kirun_py.dsl.transformer.schema_transformer import SchemaTransformer
+
+
+def _js_length(text: str) -> int:
+    """`String.prototype.length`: UTF-16 code units, so line widths match kirun-js."""
+    return len(text.encode('utf-16-le', 'surrogatepass')) // 2
+
+
+def _json_scalar(value: Any) -> str:
+    """A string, number or boolean as JSON, matching the old `json.dumps(value, indent=4)` output."""
+    try:
+        return json.dumps(value, ensure_ascii=False)
+    except (TypeError, ValueError):
+        return json.dumps(str(value), ensure_ascii=False)
 
 
 def _dependent_statements(step: Any) -> Dict[str, Any]:
@@ -60,14 +76,25 @@ class JSONToTextTransformer:
     Extracts implicit dependencies from expressions using same logic as KIRuntime.
     """
 
+    # A step line longer than this puts its arguments one per line.
+    LINE_WIDTH = 120
+    # An object or array argument longer than this on one line moves to VALUES.
+    INLINE_VALUE_WIDTH = 100
+    _PLAIN_KEY = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
+
     def __init__(self) -> None:
         self._indent_char = '    '  # 4 spaces
+        # Values moved to the VALUES section by the current transform, in order of use.
+        self._named_values: List[Tuple[str, Any, Optional[str]]] = []
+        self._used_value_names: Set[str] = set()
 
     # Same regex pattern as KIRuntime uses for extracting step dependencies
     _STEP_REGEX_PATTERN = re.compile(r'Steps\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)')
 
     async def transform(self, json_obj: Any) -> str:
         """Transform JSON to DSL text."""
+        self._named_values = []
+        self._used_value_names = set()
         lines: List[str] = []
 
         # Function header
@@ -104,6 +131,13 @@ class JSONToTextTransformer:
         nested_structure = await self._build_nested_structure_from_runtime(json_obj)
         stmt_lines = await self._steps_to_text(json_obj.get('steps', {}), nested_structure, 2)
         lines.extend(stmt_lines)
+
+        # Large objects and arrays, kept out of the step list
+        if self._named_values:
+            lines.append(f"{self._indent(1)}VALUES")
+            for name, value, expr_key in self._named_values:
+                head = f"{self._indent(2)}@{name} = "
+                lines.append(head + self._format_json(value, 2, len(head), expr_key))
 
         return '\n'.join(lines)
 
@@ -391,12 +425,27 @@ class JSONToTextTransformer:
         if not steps:
             return lines
 
+        # A step that follows another's `output` is printed in the same block as that
+        # step, right after it, so a sequence reads top to bottom instead of moving
+        # right one level per step. Only branches (true, false, iteration, error and
+        # other events) indent. Indentation carries no meaning for the compiler:
+        # dependencies come from AFTER, IF and Steps references.
+        def block_of(sn: str) -> Optional[_NestedStructure]:
+            info = nested_structure.get(sn)
+            seen = {sn}
+            while info is not None and info.block_name == 'output' and info.parent not in seen:
+                seen.add(info.parent)
+                info = nested_structure.get(info.parent)
+            if info is not None and info.block_name == 'output':
+                return None
+            return info
+
         # Group statements by parent
         top_level: List[str] = []
         by_parent: Dict[str, Dict[str, List[str]]] = {}
 
         for step_name in steps:
-            nest_info = nested_structure.get(step_name)
+            nest_info = block_of(step_name)
             if nest_info and nest_info.parent in steps:
                 if nest_info.parent not in by_parent:
                     by_parent[nest_info.parent] = {}
@@ -452,8 +501,13 @@ class JSONToTextTransformer:
         ind = self._indent(indent)
 
         step_name = step.get('statementName', step_key)
-        func_call = f"{step['namespace']}.{step['name']}({self._args_to_text(step.get('parameterMap'))})"
-        line = f"{ind}{step_name}: {func_call}"
+        args = self._args_to_text(
+            step.get('parameterMap'),
+            step_name,
+            step.get('namespace') == 'System' and step.get('name') == 'GenerateEvent',
+        )
+        head = f"{ind}{step_name}: {step['namespace']}.{step['name']}("
+        line = f"{head}{', '.join(args)})"
 
         # Add AFTER clause
         after_steps: List[str] = []
@@ -465,29 +519,41 @@ class JSONToTextTransformer:
             decoded_key = self._decode_dots(dep_key)
             after_steps.append(decoded_key)
 
+        tail = ''
         if after_steps:
-            line += f" AFTER {', '.join(after_steps)}"
+            tail += f" AFTER {', '.join(after_steps)}"
 
         # Add IF clause
         if_steps = list((step.get('executeIftrue') or {}).keys())
         if if_steps:
-            line += f" IF {', '.join(if_steps)}"
+            tail += f" IF {', '.join(if_steps)}"
 
         # Add comment
         comment = step.get('comment', '')
         if comment and comment.strip():
             escaped_comment = comment.replace('*/', '*\\/')
-            line += f" /* {escaped_comment} */"
+            tail += f" /* {escaped_comment} */"
+
+        line += tail
+
+        # A long call puts one argument per line, closing `)` back at the step's indent
+        if _js_length(line) > self.LINE_WIDTH and len(args) > 1:
+            arg_indent = self._indent(indent + 1)
+            lines.append(head)
+            for i, arg in enumerate(args):
+                lines.append(f"{arg_indent}{arg}{',' if i < len(args) - 1 else ''}")
+            lines.append(f"{ind}){tail}")
+            return lines
 
         lines.append(line)
         return lines
 
-    def _args_to_text(self, parameter_map: Any) -> str:
-        """Convert parameter map to argument list string."""
+    def _args_to_text(self, parameter_map: Any, step_name: str, is_generate_event: bool = False) -> List[str]:
+        """Convert parameter map to a list of `name = value` arguments."""
         args: List[str] = []
 
         if not parameter_map:
-            return ''
+            return args
 
         for param_name, param_refs in parameter_map.items():
             if not isinstance(param_refs, dict):
@@ -501,14 +567,32 @@ class JSONToTextTransformer:
                 key=lambda r: r.get('order', 0),
             )
 
-            for ref in sorted_refs:
-                value = self._param_ref_to_text(ref)
+            # GenerateEvent evaluates the `value` of each `results` entry; see _compact_json
+            expr_key = 'value' if is_generate_event and param_name == 'results' else None
+            for i, ref in enumerate(sorted_refs):
+                value_name = (
+                    f"{step_name}.{param_name}.{i + 1}" if len(sorted_refs) > 1 else f"{step_name}.{param_name}"
+                )
+                value = self._param_ref_to_text(ref, value_name, expr_key)
                 args.append(f"{param_name} = {value}")
 
-        return ', '.join(args)
+        return args
 
-    def _param_ref_to_text(self, ref: Any) -> str:
-        """Convert parameter reference to text."""
+    def _param_ref_to_text(self, ref: Any, value_name: str, expr_key: Optional[str] = None) -> str:
+        """
+        Convert parameter reference to text. An object or array value too long for
+        one line is moved to the VALUES section under `value_name` and printed as
+        `@value_name`.
+        """
+        if _ref_type(ref) != 'EXPRESSION':
+            value = ref.get('value')
+            if isinstance(value, (dict, list)) and not ExpressionHandler.is_expression(value):
+                text = self._compact_json(value, expr_key)
+                if _js_length(text) <= self.INLINE_VALUE_WIDTH:
+                    return text
+                name = self._unique_value_name(value_name)
+                self._named_values.append((name, value, expr_key))
+                return f"@{name}"
         if _ref_type(ref) == 'EXPRESSION':
             expr = ref.get('expression')
             if not expr and expr != 0:
@@ -526,6 +610,12 @@ class JSONToTextTransformer:
             return False
         trimmed = expr.strip()
 
+        # Whitespace at the end would be lost before a `)` on the next line
+        if expr != js_rstrip(expr):
+            return True
+        # `@name` is a named value
+        if re.match(r'^@\w', js_strip(expr), re.ASCII):
+            return True
         if '"' in expr:
             return True
         if "'" in expr:
@@ -572,6 +662,147 @@ class JSONToTextTransformer:
             return json.dumps(value, indent=4)
 
         return str(value)
+
+    @staticmethod
+    def _is_plain_expression(value: Any) -> bool:
+        """`{isExpression: true, value: "<text>"}` and nothing else."""
+        return isinstance(value, dict) and bool(ExpressionHandler.is_expression(value)) and len(value) == 2
+
+    def _compact_json(self, value: Any, expr_key: Optional[str] = None) -> str:
+        """
+        One-line JSON in DSL form, with plain keys unquoted.
+
+        In the object's `expr_key` entry, `{isExpression: true, value}` is written as the
+        expression itself, which the parser turns back into that object. Only
+        GenerateEvent evaluates such an object (the `value` of each `results` entry);
+        anywhere else the runtime passes it through as data, so it stays written out in
+        full rather than look like an expression that runs.
+        """
+        if value is None:
+            return 'null'
+        if not isinstance(value, (dict, list)):
+            return _json_scalar(value)
+        if isinstance(value, list):
+            return f"[{', '.join(self._compact_json(v) for v in value)}]"
+        if not value:
+            return '{}'
+        return '{' + ', '.join(
+            f"{self._json_key(k)}: {self._entry_text(k, v, expr_key)}" for k, v in value.items()
+        ) + '}'
+
+    def _entry_text(self, key: str, value: Any, expr_key: Optional[str]) -> str:
+        if key == expr_key and self._is_plain_expression(value):
+            return self._json_expression_text(value['value'])
+        return self._compact_json(value)
+
+    def _format_json(self, value: Any, level: int, column: int, expr_key: Optional[str] = None) -> str:
+        """
+        JSON that breaks over lines, one entry per line, only where the one-line form
+        would run past LINE_WIDTH starting at `column`.
+        """
+        compact = self._compact_json(value, expr_key)
+        if (
+            column + _js_length(compact) <= self.LINE_WIDTH
+            or not isinstance(value, (dict, list))
+            or not value
+        ):
+            return compact
+
+        inner = self._indent(level + 1)
+        items: List[str] = []
+        if isinstance(value, list):
+            for v in value:
+                items.append(inner + self._format_json(v, level + 1, len(inner)))
+            open_, close = '[', ']'
+        else:
+            for k, v in value.items():
+                head = f"{inner}{self._json_key(k)}: "
+                if k == expr_key and self._is_plain_expression(v):
+                    items.append(head + self._json_expression_text(v['value']))
+                else:
+                    items.append(head + self._format_json(v, level + 1, _js_length(head)))
+            open_, close = '{', '}'
+        return f"{open_}\n" + ',\n'.join(items) + f"\n{self._indent(level)}{close}"
+
+    def _json_key(self, key: str) -> str:
+        # `null` lexes as a null literal, which the parser does not take as a key
+        if self._PLAIN_KEY.match(key) and key != 'null':
+            return key
+        return json.dumps(key, ensure_ascii=False)
+
+    def _json_expression_text(self, expr: str) -> str:
+        """
+        An expression inside a JSON value: bare when the parser reads it back as the
+        same expression, otherwise in backticks.
+        """
+        if self._is_bare_json_expression(expr):
+            return expr
+        escaped = expr.replace('\\', '\\\\').replace('`', '\\`')
+        return f'`{escaped}`'
+
+    _LITERAL_START = (
+        DSLTokenType.STRING,
+        DSLTokenType.NUMBER,
+        DSLTokenType.BOOLEAN,
+        DSLTokenType.NULL,
+        DSLTokenType.BACKTICK_STRING,
+        DSLTokenType.LEFT_BRACE,
+        DSLTokenType.LEFT_BRACKET,
+    )
+    _OPENERS = (DSLTokenType.LEFT_PAREN, DSLTokenType.LEFT_BRACKET, DSLTokenType.LEFT_BRACE)
+    _CLOSERS = (DSLTokenType.RIGHT_PAREN, DSLTokenType.RIGHT_BRACKET, DSLTokenType.RIGHT_BRACE)
+
+    def _is_bare_json_expression(self, expr: str) -> bool:
+        """
+        Inside JSON the parser reads a string, number, boolean, null, undefined, object
+        or array literal as that literal, and an expression runs to the first `,` or
+        closing bracket at its own depth. So an expression can go bare only if it
+        starts with none of those literals, its brackets balance, it has no top-level
+        comma, and it has no whitespace at either end to lose.
+        """
+        if not expr or expr != js_strip(expr):
+            return False
+        try:
+            tokens = [t for t in DSLLexer(expr).tokenize() if t.type != DSLTokenType.EOF]
+        except Exception:
+            return False
+        if not tokens:
+            return False
+
+        first = tokens[0]
+        if (
+            first.type in self._LITERAL_START
+            or (first.type == DSLTokenType.OPERATOR and first.value == '@')
+            or (first.type == DSLTokenType.KEYWORD and first.value in ('true', 'false', 'null'))
+            or (first.type == DSLTokenType.IDENTIFIER and first.value == 'undefined')
+        ):
+            return False
+
+        depth = 0
+        for token in tokens:
+            if token.type == DSLTokenType.COMMENT:
+                return False
+            if token.type in self._OPENERS:
+                depth += 1
+            elif token.type in self._CLOSERS:
+                if depth == 0:
+                    return False
+                depth -= 1
+            elif token.type == DSLTokenType.COMMA and depth == 0:
+                return False
+        return depth == 0
+
+    def _unique_value_name(self, base: str) -> str:
+        """A VALUES name not used yet in this function: `step.param`, then `step.param_2`, ..."""
+        clean = re.sub(r'[^A-Za-z0-9_.]', '_', base)
+        clean = re.sub(r'\.(?=\.|$)|^\.', '_', clean)
+        name = clean
+        n = 2
+        while name in self._used_value_names:
+            name = f"{clean}_{n}"
+            n += 1
+        self._used_value_names.add(name)
+        return name
 
     def _schema_to_text(self, schema: Any) -> str:
         """Convert schema to text."""

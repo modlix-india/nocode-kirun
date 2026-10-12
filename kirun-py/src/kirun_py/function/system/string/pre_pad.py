@@ -67,7 +67,8 @@ class PrePad(AbstractFunction):
         pad_len = len(prepad_string)
         current_len = pad_len
 
-        while current_len <= length:
+        # An empty pad string never grows the padding: skip the loop instead of spinning.
+        while pad_len > 0 and current_len <= length:
             output_string += prepad_string
             current_len += pad_len
 

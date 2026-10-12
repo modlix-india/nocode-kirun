@@ -1,0 +1,22 @@
+//! Port of kirun-js `runtime/expression/operators/binary/BitwiseOrOperator.ts`.
+
+use super::binary_operator::BinaryOperator;
+use crate::{Result, Value};
+use crate::runtime::expression::js;
+use crate::runtime::expression::operation::Operation;
+
+#[derive(Debug, Default, Clone, Copy)]
+pub struct BitwiseOrOperator;
+
+impl BitwiseOrOperator {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl BinaryOperator for BitwiseOrOperator {
+    fn apply(&self, t: &Value, u: &Value) -> Result<Value> {
+                self.null_check(t, u, &Operation::BITWISE_OR)?;
+        Ok(js::num((js::to_int32(js::to_number(t)) | js::to_int32(js::to_number(u))) as f64))
+    }
+}

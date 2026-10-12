@@ -22,6 +22,8 @@ export class DSLParser {
     private tokens: DSLToken[];
     private current: number = 0;
     private originalInput: string;
+    // `@name` uses, filled in once the VALUES section is parsed
+    private valueRefs: { name: string; node: ComplexValueNode }[] = [];
 
     constructor(tokens: DSLToken[], originalInput: string = '') {
         this.tokens = tokens;
@@ -48,8 +50,106 @@ export class DSLParser {
 
         this.expect(DSLTokenType.KEYWORD, 'LOGIC');
         const logic = this.parseLogicBlock();
+        this.parseValuesSection();
 
         return new FunctionDefNode(name, namespace, parameters, events, logic, startToken.location);
+    }
+
+    /**
+     * Named values, `@name`, used in argument position and defined after LOGIC:
+     *
+     *     LOGIC
+     *         cfg: System.Make(resultShape = @cfg.resultShape)
+     *     VALUES
+     *         @cfg.resultShape = { ... }
+     *
+     * They keep large JSON out of the step list. Each use is replaced by a copy of
+     * the value at compile time, so the compiled JSON is the same as writing the
+     * value inline.
+     */
+
+    /** `VALUES` followed by `@` or the end: the start of the values section. */
+    private atValuesSection(): boolean {
+        const token = this.peek();
+        if (token.value !== 'VALUES') return false;
+        if (token.type !== DSLTokenType.IDENTIFIER && token.type !== DSLTokenType.KEYWORD) return false;
+        const next = this.peekAhead(1);
+        return !next || next.type === DSLTokenType.EOF || (next.type === DSLTokenType.OPERATOR && next.value === '@');
+    }
+
+    /** `@` immediately followed by a name: a reference to a named value. */
+    private atValueRef(): boolean {
+        const token = this.peek();
+        const next = this.peekAhead(1);
+        return (
+            token.type === DSLTokenType.OPERATOR &&
+            token.value === '@' &&
+            !!next &&
+            next.location.startPos === token.location.endPos &&
+            DSLParser.isValueNameToken(next)
+        );
+    }
+
+    private static isValueNameToken(token: DSLToken): boolean {
+        return (
+            token.type === DSLTokenType.IDENTIFIER ||
+            token.type === DSLTokenType.KEYWORD ||
+            token.type === DSLTokenType.BOOLEAN ||
+            token.type === DSLTokenType.NULL ||
+            token.type === DSLTokenType.NUMBER ||
+            token.type === DSLTokenType.DOT
+        );
+    }
+
+    /** Reads `@name`; the name is every adjacent identifier, number and dot. */
+    private parseValueName(): string {
+        let last = this.expect(DSLTokenType.OPERATOR, '@');
+        let name = '';
+        while (
+            this.peek().location.startPos === last.location.endPos &&
+            DSLParser.isValueNameToken(this.peek())
+        ) {
+            last = this.advance();
+            name += last.value;
+        }
+        if (!name) {
+            const token = this.peek();
+            throw new DSLParserError('Expected a value name after @', token.location, ['name'], token);
+        }
+        return name;
+    }
+
+    private parseValuesSection(): void {
+        const values = new Map<string, any>();
+        if (this.atValuesSection()) {
+            this.advance(); // consume VALUES
+            while (!this.match(DSLTokenType.EOF)) {
+                const nameToken = this.peek();
+                const name = this.parseValueName();
+                if (values.has(name)) {
+                    throw new DSLParserError(`Value @${name} is defined twice`, nameToken.location, [], nameToken);
+                }
+                this.expect(DSLTokenType.EQUALS);
+                values.set(name, this.parseJsonValue());
+            }
+        }
+
+        for (const { name, node } of this.valueRefs) {
+            if (!values.has(name)) {
+                throw new DSLParserError(`Value @${name} is not defined in VALUES`, node.location, [], undefined);
+            }
+            node.value = DSLParser.copyValue(values.get(name));
+        }
+    }
+
+    private static copyValue(value: any): any {
+        if (Array.isArray(value)) return value.map((v) => DSLParser.copyValue(v));
+        if (value && typeof value === 'object') {
+            const copy: any = {};
+            for (const [k, v] of Object.entries(value)) copy[k] = DSLParser.copyValue(v);
+            return copy;
+        }
+        return value;
     }
 
     /**
@@ -152,7 +252,7 @@ export class DSLParser {
     private parseLogicBlock(): StatementNode[] {
         const statements: StatementNode[] = [];
 
-        while (!this.match(DSLTokenType.EOF)) {
+        while (!this.match(DSLTokenType.EOF) && !this.atValuesSection()) {
             statements.push(this.parseStatement());
         }
 
@@ -240,7 +340,7 @@ export class DSLParser {
     private parseNestedBlocks(minBlockColumn: number = 0): Map<string, StatementNode[]> {
         const blocks = new Map<string, StatementNode[]>();
 
-        while (!this.match(DSLTokenType.EOF)) {
+        while (!this.match(DSLTokenType.EOF) && !this.atValuesSection()) {
             const token = this.peek();
 
             // Check if this is a block name
@@ -273,7 +373,7 @@ export class DSLParser {
 
                 // Parse statements in this block until we hit another block at same level
                 // or a statement at smaller indentation
-                while (!this.match(DSLTokenType.EOF)) {
+                while (!this.match(DSLTokenType.EOF) && !this.atValuesSection()) {
                     const next = this.peek();
 
                     // Check if next token is a block name or statement
@@ -393,6 +493,13 @@ export class DSLParser {
      */
     private parseArgumentValue(): ExpressionNode | ComplexValueNode | SchemaLiteralNode {
         const token = this.peek();
+
+        // Named value from the VALUES section: @name
+        if (this.atValueRef()) {
+            const node = new ComplexValueNode(undefined, token.location);
+            this.valueRefs.push({ name: this.parseValueName(), node });
+            return node;
+        }
 
         // Check for schema literal: (SchemaSpec) WITH DEFAULT VALUE expr
         if (this.match(DSLTokenType.LEFT_PAREN)) {
@@ -553,19 +660,29 @@ export class DSLParser {
             const endPos = delimiterToken.location.startPos;
             if (endPos > startPos) {
                 const exactText = this.originalInput.substring(startPos, endPos);
-                // Only trim leading whitespace, preserve trailing whitespace
-                return new ExpressionNode(exactText.trimStart(), startToken.location);
+                return new ExpressionNode(DSLParser.trimExpressionText(exactText), startToken.location);
             }
         }
         // Fallback using last token position
         if (this.originalInput && startPos >= 0 && lastToken.location.endPos > startPos) {
             const exactText = this.originalInput.substring(startPos, lastToken.location.endPos);
-            return new ExpressionNode(exactText.trimStart(), startToken.location);
+            return new ExpressionNode(DSLParser.trimExpressionText(exactText), startToken.location);
         }
 
         // Fallback: reconstruct from tokens (shouldn't normally happen)
         // This path is only used if originalInput is not provided
         return this.reconstructExpressionFromTokens(startToken, lastToken);
+    }
+
+    /**
+     * Leading whitespace is dropped. Trailing whitespace is kept, since stored
+     * expressions can end in spaces, unless it runs onto another line: that is the
+     * layout of an argument list split over lines, before its closing `)` or `}`.
+     */
+    private static trimExpressionText(text: string): string {
+        const start = text.trimStart();
+        const body = start.trimEnd();
+        return start.slice(body.length).includes('\n') ? body : start;
     }
 
     /**
@@ -902,6 +1019,11 @@ export class DSLParser {
 
         if (token.type === DSLTokenType.LEFT_BRACKET) {
             return this.parseArray();
+        }
+
+        // A backtick string is an expression, as it is in argument position
+        if (token.type === DSLTokenType.BACKTICK_STRING) {
+            return { isExpression: true, value: this.advance().value };
         }
 
         // Try to parse as expression

@@ -1,0 +1,4 @@
+# Keep `cargo update` on dependency versions that support the crate's rust-version (1.82),
+# so CI's minimum-version job keeps building with the committed Cargo.lock.
+[resolver]
+incompatible-rust-versions = "fallback"

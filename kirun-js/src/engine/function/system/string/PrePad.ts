@@ -63,7 +63,8 @@ export class PrePad extends AbstractFunction {
         let outputString: string = '';
         let prepadStringLength: number = prepadString.length;
 
-        while (prepadStringLength <= length) {
+        // An empty pad string never grows the padding: skip the loop instead of spinning.
+        while (prepadString.length > 0 && prepadStringLength <= length) {
             outputString += prepadString;
             prepadStringLength += prepadString.length;
         }
