@@ -1,0 +1,26 @@
+//! Port of kirun-js `json/schema/validator/BooleanValidator.ts`.
+
+use crate::json::schema::validator::schema_validator::{format_value, SchemaPath};
+use crate::json::schema::Schema;
+use crate::{KIRunError, Result, Value};
+
+pub struct BooleanValidator;
+
+impl BooleanValidator {
+    /// JS `BooleanValidator.validate(parents, schema, element)`.
+    pub fn validate(parents: &[Schema], schema: &Schema, element: Value) -> Result<Value> {
+        Self::validate_in(parents, schema, element)
+    }
+
+    pub(crate) fn validate_in<P: SchemaPath + ?Sized>(parents: &P, _schema: &Schema, element: Value) -> Result<Value> {
+        match element {
+            Value::Null => Err(KIRunError::schema_validation(parents.schema_path(), "Expected a boolean but found null")),
+            Value::Bool(_) => Ok(element),
+            _ => Err(KIRunError::schema_validation(
+                parents.schema_path(),
+                format!("Expected a boolean but found {}", format_value(&element)),
+            )),
+        }
+    }
+}
+

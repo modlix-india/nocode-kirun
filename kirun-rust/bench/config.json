@@ -1,0 +1,11 @@
+{
+  "fibonacci": { "n": 1000, "warmup": 3, "runs": 15 },
+  "loopsum": { "n": 100000, "warmup": 1, "runs": 5 },
+  "expression": {
+    "expression": "Arguments.a * 2 + Arguments.b[3].x - (Arguments.c ?? 5) > 10 and Arguments.name = 'kirun'",
+    "args": { "a": 7, "b": [{ "x": 1 }, { "x": 2 }, { "x": 3 }, { "x": 4 }], "c": null, "name": "kirun" },
+    "evaluations": 200000, "warmup": 1, "runs": 5
+  },
+  "schema": { "records": 5000, "warmup": 2, "runs": 10 },
+  "dsl": { "warmup": 1, "runs": 3 }
+}
