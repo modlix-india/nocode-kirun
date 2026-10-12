@@ -34,14 +34,7 @@ FUNCTION AddNumbers
             result AS {"type":["INTEGER"]}
     LOGIC
         add: System.Math.Add(undefined = Arguments.a, undefined = Arguments.b)
-            output
-                event: System.GenerateEvent(eventName = "output", results = {
-    "name": "result",
-    "value": {
-        "isExpression": true,
-        "value": "Steps.add.output.value"
-    }
-})
+        event: System.GenerateEvent(eventName = "output", results = {name: "result", value: Steps.add.output.value})
 ```
 
 ## DSL Compiler API
@@ -180,53 +173,106 @@ Parameters are passed with `=` for assignment:
 - Values can be expressions (`Arguments.x`, `Steps.step.output.value`), literals (`"string"`, `42`), or JSON objects
 - Backticks `` ` ` `` can be used for empty or template values: `` page = ` ` ``
 
-### Event Blocks and Nesting
+### Dependencies
 
-Steps that produce events use indented blocks. Dependent steps are nested inside the event block they depend on:
+A step runs after the steps it depends on. Dependencies come from two places only:
 
-```
-    create: System.Context.Create(name = "filter", schema = {"type": "OBJECT"})
-        output
-            set: System.Context.Set(name = "Context.filter", value = {"field": "callType"})
-                output
-                    readPage: CoreServices.Storage.ReadPage(size = Arguments.size)
-```
+- `AFTER Steps.<step>.<event>` on the step, for example `AFTER Steps.create.output`
+- `Steps.<step>.<event>` references in the step's argument values
 
-This nesting pattern replaces explicit `dependentStatements` - a step nested under an `output` block automatically depends on the parent step's output event.
-
-Block names: `output`, `error`, `iteration`, `true`, `false`
-
-### Dependencies with AFTER
-
-Use `AFTER` for explicit dependencies (inline with the step):
+Indentation never creates a dependency. A step written inside another step's block
+without an `AFTER` or a reference does not wait for that block.
 
 ```
-    set: System.Context.Set(name = "Context.filter", value = {...}) AFTER Steps.create.output
+    set: System.Context.Set(name = "Context.filter", value = {field: "callType"}) AFTER Steps.create.output
+```
+
+### Event Blocks
+
+The decompiler lays steps out by their dependencies:
+
+- A step that follows another step's `output` is written at the same level, right
+  after it, so a sequence reads top to bottom.
+- A step that follows any other event (`true`, `false`, `iteration`, `error`, or a
+  function's own events) is indented under that event's block name.
+
+```
+    auth: System.If(condition = Context.loggedIn = true)
+        true
+            load: Test.load() AFTER Steps.auth.true
+                error
+                    loadE: System.GenerateEvent(eventName = "error") AFTER Steps.load.error
+            show: Test.show(data = Steps.load.output.value)
+        false
+            authE: System.GenerateEvent(eventName = "error") AFTER Steps.auth.false
+```
+
+Here `show` follows `load`'s output, so it sits next to `load` inside the `true` block.
+
+### Long Calls
+
+A call can be split over lines, one argument per line. The decompiler does this when
+the step's line would be longer than 120 characters:
+
+```
+    readPage: CoreServices.Storage.ReadPage(
+        size = Arguments.size,
+        storageName = "table",
+        filter = Context.filter
+    ) AFTER Steps.set.output
 ```
 
 ### Complex Values (JSON Objects)
 
-Pass JSON objects directly as parameter values:
+Pass JSON objects and arrays directly as parameter values. Keys that are plain names
+need no quotes:
 
 ```
-    create: System.Context.Create(name = "filter", schema = {
-    "type": "OBJECT"
-})
+    create: System.Context.Create(name = "filter", schema = {type: "OBJECT"})
 ```
 
-### Expression References in Results
-
-For `GenerateEvent` results that reference step outputs, use the `isExpression` pattern:
+Inside an object or array, a value that is not a literal is an expression, and
+compiles to `{"isExpression": true, "value": "<expression>"}`. Put an expression in
+backticks when it starts with a literal or contains a top-level comma:
 
 ```
-    generateEvent: System.GenerateEvent(results = {
-    "name": "result",
-    "value": {
-        "isExpression": true,
-        "value": "Steps.readPage.output.result"
-    }
-})
+    event: System.GenerateEvent(results = {name: "result", value: Steps.readPage.output.result})
+    total: System.GenerateEvent(results = {name: "label", value: `'Total: ' + Steps.sum.output.value`})
 ```
+
+Only `System.GenerateEvent` evaluates that object, in the `value` of each `results`
+entry. Anywhere else the runtime passes `{"isExpression": true, ...}` through as plain
+data: `dataObject = {title: Page.t}` stores the marker, not the title. Build such
+objects with `System.Make` (`{{ }}` placeholders) or `SetStore` instead. The
+decompiler therefore writes the bare form only in event results, and spells the
+marker out everywhere else: `{title: {isExpression: true, value: "Page.t"}}`.
+
+### Named Values
+
+A large object or array can be written once in a `VALUES` section after `LOGIC`, and
+used as `@name`:
+
+```
+    LOGIC
+        cfg: System.Make(resultShape = @cfg.resultShape) AFTER Steps.xc.output
+    VALUES
+        @cfg.resultShape = {
+            unsorted: [{property: "id", direction: "ASC"}],
+            rels: [
+                {field: "taskId", storage: "task", spec: "task"},
+                {field: "noteId", storage: "note", spec: "note"}
+            ]
+        }
+```
+
+Each `@name` compiles to its own copy of the value, exactly as if it were written
+inline. The decompiler moves any object or array longer than 100 characters on one
+line into `VALUES`, naming it `<step>.<parameter>` (with `.1`, `.2`, ... for a
+parameter given several values).
+
+Names are not stored in the function definition. Any name works when writing, but
+reformatting or reloading the text renames each value to `<step>.<parameter>`, and a
+value used by several steps comes back as one entry per step.
 
 ## Complete Examples
 
@@ -243,14 +289,7 @@ FUNCTION AddNumbers
             result AS {"type":["INTEGER"]}
     LOGIC
         add: System.Math.Add(undefined = Arguments.a, undefined = Arguments.b)
-            output
-                event: System.GenerateEvent(eventName = "output", results = {
-    "name": "result",
-    "value": {
-        "isExpression": true,
-        "value": "Steps.add.output.value"
-    }
-})
+        event: System.GenerateEvent(eventName = "output", results = {name: "result", value: Steps.add.output.value})
 ```
 
 ### Example 2: Read Page with Context and Filtering
@@ -265,34 +304,29 @@ FUNCTION ReadPage
         output
             result AS {}
     LOGIC
-        create: System.Context.Create(name = "filter", schema = {
-    "type": "OBJECT"
-})
-            output
-                set: System.Context.Set(name = "Context.filter", value = {
-    "field": "callType",
-    "operator": "EQUALS",
-    "value": "PHONE"
-}) AFTER Steps.create.output
-                    output
-                        readPage: CoreServices.Storage.ReadPage(size = Arguments.size, appCode = "monkbars", page = ``, storageName = "table", filter = Context.filter) AFTER Steps.set.output
-                            output
-                                generateEvent: System.GenerateEvent(results = {
-    "name": "result",
-    "value": {
-        "isExpression": true,
-        "value": "Steps.readPage.output.result"
-    }
-})
+        create: System.Context.Create(name = "filter", schema = {type: "OBJECT"})
+        set: System.Context.Set(
+            name = "Context.filter",
+            value = {field: "callType", operator: "EQUALS", value: "PHONE"}
+        ) AFTER Steps.create.output
+        readPage: CoreServices.Storage.ReadPage(
+            size = Arguments.size,
+            appCode = "monkbars",
+            page = ``,
+            storageName = "table",
+            filter = Context.filter
+        ) AFTER Steps.set.output
+        generateEvent: System.GenerateEvent(results = {name: "result", value: Steps.readPage.output.result})
 ```
 
 This example demonstrates:
 - **Context creation** - Creating a context variable with a schema
 - **Context setting** - Setting a value on the context variable
-- **Nested event blocks** - Each step's `output` block contains the next dependent step
+- **A sequence** - Each step follows the previous one's `output`, so all four sit at one level
 - **AFTER declarations** - Explicit dependency ordering
+- **Long calls** - `set` and `readPage` take one argument per line
 - **Backtick values** - Empty value for `page` parameter using `` ` ` ``
-- **Expression results** - Using `isExpression` to reference step outputs in GenerateEvent
+- **Expressions in results** - `value: Steps.readPage.output.result` inside the `results` object
 
 ## Key Syntax Rules
 
@@ -304,11 +338,12 @@ This example demonstrates:
 | Event param | `<name> AS <jsonSchema>` | `result AS {}` |
 | Step | `<name>: <ns>.<func>(<params>)` | `add: System.Math.Add(...)` |
 | Param binding | `<param> = <value>` | `name = "filter"` |
-| Event block | Indented block name | `output` (indented under step) |
+| Event block | Indented block name | `true` (indented under step) |
 | Dependency | `AFTER Steps.<step>.<event>` | `AFTER Steps.create.output` |
-| JSON value | Inline JSON object | `schema = {"type": "OBJECT"}` |
+| JSON value | Inline JSON object | `schema = {type: "OBJECT"}` |
 | Empty value | Backticks | `` page = ` ` `` |
-| Expression ref | `isExpression` JSON | `{"isExpression": true, "value": "..."}` |
+| Expression in JSON | Bare, or in backticks | `{name: "result", value: Steps.add.output.value}` |
+| Named value | `@<name>`, defined under `VALUES` | `resultShape = @cfg.resultShape` |
 
 ## Monaco Editor Integration
 

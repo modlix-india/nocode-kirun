@@ -10,7 +10,7 @@ Complete port of kirun-js: schema validation and conversion, the expression engi
 every built-in function (System, Context, Loop, JSON, Math, String, Array, Object,
 Date), `KIRuntime` with the debug collector, and the DSL compiler and decompiler.
 
-* **Tests:** 769 tests, ported from every file in `kirun-js/__tests__` plus the DSL
+* **Tests:** 781 tests, ported from every file in `kirun-js/__tests__` plus the DSL
   cases that exist only in kirun-py. All pass.
 * **DSL conformance with kirun-js:** run over the 14,303 stored functions in
   `../test-data/functions`, kirun-rust's compiled JSON is identical for all 14,299

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import copy
 import re
 from typing import Any, Dict, List, Optional, Union
 
+from kirun_py.dsl.js_whitespace import js_lstrip as _js_lstrip, js_rstrip as _js_rstrip
 from kirun_py.dsl.lexer.dsl_token import DSLToken, DSLTokenType
 from kirun_py.dsl.number_literal import parse_number
 from kirun_py.dsl.parser.ast.argument_node import ArgumentNode, ArgumentValue
@@ -28,6 +30,8 @@ class DSLParser:
         self._tokens = tokens
         self._current: int = 0
         self._original_input = original_input
+        # `@name` uses, filled in once the VALUES section is parsed
+        self._value_refs: List[tuple] = []
 
     def parse(self) -> FunctionDefNode:
         """Parse tokens into AST."""
@@ -44,8 +48,85 @@ class DSLParser:
 
         self._expect(DSLTokenType.KEYWORD, 'LOGIC')
         logic = self._parse_logic_block()
+        self._parse_values_section()
 
         return FunctionDefNode(name, namespace, parameters, events, logic, start_token.location)
+
+    # Named values, `@name`, used in argument position and defined after LOGIC:
+    #
+    #     LOGIC
+    #         cfg: System.Make(resultShape = @cfg.resultShape)
+    #     VALUES
+    #         @cfg.resultShape = { ... }
+    #
+    # They keep large JSON out of the step list. Each use is replaced by a copy of
+    # the value at compile time, so the compiled JSON is the same as writing the
+    # value inline. Same as DSLParser.ts.
+
+    _VALUE_NAME_TOKENS = (
+        DSLTokenType.IDENTIFIER,
+        DSLTokenType.KEYWORD,
+        DSLTokenType.BOOLEAN,
+        DSLTokenType.NULL,
+        DSLTokenType.NUMBER,
+        DSLTokenType.DOT,
+    )
+
+    def _at_values_section(self) -> bool:
+        """`VALUES` followed by `@` or the end: the start of the values section."""
+        token = self._peek()
+        if token.value != 'VALUES' or token.type not in (DSLTokenType.IDENTIFIER, DSLTokenType.KEYWORD):
+            return False
+        nxt = self._peek_ahead(1)
+        return (
+            nxt is None
+            or nxt.type == DSLTokenType.EOF
+            or (nxt.type == DSLTokenType.OPERATOR and nxt.value == '@')
+        )
+
+    def _at_value_ref(self) -> bool:
+        """`@` immediately followed by a name: a reference to a named value."""
+        token = self._peek()
+        nxt = self._peek_ahead(1)
+        return (
+            token.type == DSLTokenType.OPERATOR
+            and token.value == '@'
+            and nxt is not None
+            and nxt.location.start_pos == token.location.end_pos
+            and nxt.type in self._VALUE_NAME_TOKENS
+        )
+
+    def _parse_value_name(self) -> str:
+        """Reads `@name`; the name is every adjacent identifier, number and dot."""
+        last = self._expect(DSLTokenType.OPERATOR, '@')
+        name = ''
+        while (
+            self._peek().location.start_pos == last.location.end_pos
+            and self._peek().type in self._VALUE_NAME_TOKENS
+        ):
+            last = self._advance()
+            name += last.value
+        if not name:
+            token = self._peek()
+            raise DSLParserError('Expected a value name after @', token.location, ['name'], token)
+        return name
+
+    def _parse_values_section(self) -> None:
+        values: Dict[str, Any] = {}
+        if self._at_values_section():
+            self._advance()  # consume VALUES
+            while not self._match(DSLTokenType.EOF):
+                name_token = self._peek()
+                name = self._parse_value_name()
+                if name in values:
+                    raise DSLParserError(f'Value @{name} is defined twice', name_token.location, [], name_token)
+                self._expect(DSLTokenType.EQUALS)
+                values[name] = self._parse_json_value()
+
+        for name, node in self._value_refs:
+            if name not in values:
+                raise DSLParserError(f'Value @{name} is not defined in VALUES', node.location, [], None)
+            node.value = copy.deepcopy(values[name])
 
     def _parse_namespace_decl(self) -> Optional[str]:
         """Parse optional namespace declaration."""
@@ -119,7 +200,7 @@ class DSLParser:
         """Parse logic block (list of statements)."""
         statements: List[StatementNode] = []
 
-        while not self._match(DSLTokenType.EOF):
+        while not self._match(DSLTokenType.EOF) and not self._at_values_section():
             statements.append(self._parse_statement())
 
         return statements
@@ -196,7 +277,7 @@ class DSLParser:
         """
         blocks: Dict[str, List[StatementNode]] = {}
 
-        while not self._match(DSLTokenType.EOF):
+        while not self._match(DSLTokenType.EOF) and not self._at_values_section():
             token = self._peek()
 
             is_block_token = token.type in (
@@ -219,7 +300,7 @@ class DSLParser:
 
                 this_block_column = block_column
 
-                while not self._match(DSLTokenType.EOF):
+                while not self._match(DSLTokenType.EOF) and not self._at_values_section():
                     next_tok = self._peek()
 
                     is_next_block_token = next_tok.type in (
@@ -308,6 +389,12 @@ class DSLParser:
     def _parse_argument_value(self) -> ArgumentValue:
         """Parse argument value (expression, complex value, or schema literal)."""
         token = self._peek()
+
+        # Named value from the VALUES section: @name
+        if self._at_value_ref():
+            node = ComplexValueNode(None, token.location)
+            self._value_refs.append((self._parse_value_name(), node))
+            return node
 
         # Check for schema literal
         if self._match(DSLTokenType.LEFT_PAREN):
@@ -415,13 +502,27 @@ class DSLParser:
             end_pos = delimiter_token.location.start_pos
             if end_pos > start_pos:
                 exact_text = self._original_input[start_pos:end_pos]
-                return ExpressionNode(exact_text.lstrip(), start_token.location)
+                return ExpressionNode(self._trim_expression_text(exact_text), start_token.location)
 
         if self._original_input and start_pos >= 0 and last_token.location.end_pos > start_pos:
             exact_text = self._original_input[start_pos:last_token.location.end_pos]
-            return ExpressionNode(exact_text.lstrip(), start_token.location)
+            return ExpressionNode(self._trim_expression_text(exact_text), start_token.location)
 
         return self._reconstruct_expression_from_tokens(start_token, last_token)
+
+    @staticmethod
+    def _trim_expression_text(text: str) -> str:
+        """
+        Leading whitespace is dropped. Trailing whitespace is kept, since stored
+        expressions can end in spaces, unless it runs onto another line: that is the
+        layout of an argument list split over lines, before its closing `)` or `}`.
+
+        Uses JS's whitespace set (`trimStart`/`trimEnd`), not str.strip's, so both
+        ports cut the same characters.
+        """
+        start = _js_lstrip(text)
+        body = _js_rstrip(start)
+        return body if '\n' in start[len(body):] else start
 
     def _reconstruct_expression_from_tokens(
         self, start_token: DSLToken, end_token: DSLToken
@@ -646,6 +747,10 @@ class DSLParser:
 
         if token.type == DSLTokenType.LEFT_BRACKET:
             return self._parse_array()
+
+        # A backtick string is an expression, as it is in argument position
+        if token.type == DSLTokenType.BACKTICK_STRING:
+            return {'isExpression': True, 'value': self._advance().value}
 
         expr = self._parse_expression()
         return {'isExpression': True, 'value': expr.expression_text}

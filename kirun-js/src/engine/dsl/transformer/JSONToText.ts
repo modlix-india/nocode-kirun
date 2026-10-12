@@ -1,3 +1,5 @@
+import { DSLLexer } from '../lexer/DSLLexer';
+import { DSLTokenType } from '../lexer/DSLToken';
 import { ExpressionHandler } from './ExpressionHandler';
 import { SchemaTransformer } from './SchemaTransformer';
 
@@ -33,10 +35,22 @@ function refType(ref: any): string | undefined {
 export class JSONToTextTransformer {
     private indentChar: string = '    '; // 4 spaces
 
+    // A step line longer than this puts its arguments one per line.
+    private static readonly LINE_WIDTH = 120;
+    // An object or array argument longer than this on one line moves to VALUES.
+    private static readonly INLINE_VALUE_WIDTH = 100;
+    private static readonly PLAIN_KEY = /^[A-Za-z_]\w*$/;
+
+    // Values moved to the VALUES section by the current transform, in order of use.
+    private namedValues: { name: string; value: any; exprKey?: string }[] = [];
+    private usedValueNames = new Set<string>();
+
     /**
      * Transform JSON to DSL text
      */
     public async transform(json: any): Promise<string> {
+        this.namedValues = [];
+        this.usedValueNames = new Set();
         const lines: string[] = [];
 
         // Function header
@@ -80,6 +94,15 @@ export class JSONToTextTransformer {
         // Generate statement lines with nesting
         const stmtLines = await this.stepsToText(json.steps, nestedStructure, 2);
         lines.push(...stmtLines);
+
+        // Large objects and arrays, kept out of the step list
+        if (this.namedValues.length > 0) {
+            lines.push(`${this.indent(1)}VALUES`);
+            for (const { name, value, exprKey } of this.namedValues) {
+                const head = `${this.indent(2)}@${name} = `;
+                lines.push(head + this.formatJson(value, 2, head.length, exprKey));
+            }
+        }
 
         return lines.join('\n');
     }
@@ -482,12 +505,27 @@ export class JSONToTextTransformer {
             return lines;
         }
 
+        // A step that follows another's `output` is printed in the same block as that
+        // step, right after it, so a sequence reads top to bottom instead of moving
+        // right one level per step. Only branches (true, false, iteration, error and
+        // other events) indent. Indentation carries no meaning for the compiler:
+        // dependencies come from AFTER, IF and Steps references.
+        const blockOf = (stepName: string): NestedStructure | undefined => {
+            let nestInfo = nestedStructure.get(stepName);
+            const seen = new Set<string>([stepName]);
+            while (nestInfo?.blockName === 'output' && !seen.has(nestInfo.parent)) {
+                seen.add(nestInfo.parent);
+                nestInfo = nestedStructure.get(nestInfo.parent);
+            }
+            return nestInfo?.blockName === 'output' ? undefined : nestInfo;
+        };
+
         // Group statements by parent
         const topLevel: string[] = [];
         const byParent = new Map<string, Map<string, string[]>>();
 
         for (const stepName of Object.keys(steps)) {
-            const nestInfo = nestedStructure.get(stepName);
+            const nestInfo = blockOf(stepName);
             if (nestInfo && steps[nestInfo.parent]) {
                 if (!byParent.has(nestInfo.parent)) {
                     byParent.set(nestInfo.parent, new Map());
@@ -562,8 +600,9 @@ export class JSONToTextTransformer {
         const ind = this.indent(indent);
 
         const stepName = step.statementName || stepKey;
-        const funcCall = `${step.namespace}.${step.name}(${this.argsToText(step.parameterMap)})`;
-        let line = `${ind}${stepName}: ${funcCall}`;
+        const args = this.argsToText(step.parameterMap, stepName, step.namespace === 'System' && step.name === 'GenerateEvent');
+        const head = `${ind}${stepName}: ${step.namespace}.${step.name}(`;
+        let line = `${head}${args.join(', ')})`;
 
         // Add AFTER clause for explicit dependencies
         const afterSteps: string[] = [];
@@ -575,20 +614,32 @@ export class JSONToTextTransformer {
             afterSteps.push(decodedKey);
         }
 
+        let tail = '';
         if (afterSteps.length > 0) {
-            line += ` AFTER ${afterSteps.join(', ')}`;
+            tail += ` AFTER ${afterSteps.join(', ')}`;
         }
 
         // Add IF clause
         const ifSteps = Object.keys(step.executeIftrue || {});
         if (ifSteps.length > 0) {
-            line += ` IF ${ifSteps.join(', ')}`;
+            tail += ` IF ${ifSteps.join(', ')}`;
         }
 
         // Add comment
         if (step.comment && step.comment.trim()) {
             const escapedComment = step.comment.replace(/\*\//g, '*\\/');
-            line += ` /* ${escapedComment} */`;
+            tail += ` /* ${escapedComment} */`;
+        }
+
+        line += tail;
+
+        // A long call puts one argument per line, closing `)` back at the step's indent
+        if (line.length > JSONToTextTransformer.LINE_WIDTH && args.length > 1) {
+            const argIndent = this.indent(indent + 1);
+            lines.push(head);
+            args.forEach((arg, i) => lines.push(`${argIndent}${arg}${i < args.length - 1 ? ',' : ''}`));
+            lines.push(`${ind})${tail}`);
+            return lines;
         }
 
         lines.push(line);
@@ -596,9 +647,9 @@ export class JSONToTextTransformer {
     }
 
     /**
-     * Convert parameter map to argument list string
+     * Convert parameter map to a list of `name = value` arguments
      */
-    private argsToText(parameterMap: any): string {
+    private argsToText(parameterMap: any, stepName: string, isGenerateEvent: boolean): string[] {
         const args: string[] = [];
 
         for (const [paramName, paramRefs] of Object.entries(parameterMap || {})) {
@@ -609,19 +660,34 @@ export class JSONToTextTransformer {
                 .map(([_, ref]) => ref as any)
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            for (const ref of sortedRefs) {
-                const value = this.paramRefToText(ref);
+            // GenerateEvent evaluates the `value` of each `results` entry; see compactJson
+            const exprKey = isGenerateEvent && paramName === 'results' ? 'value' : undefined;
+            sortedRefs.forEach((ref, i) => {
+                const valueName = sortedRefs.length > 1 ? `${stepName}.${paramName}.${i + 1}` : `${stepName}.${paramName}`;
+                const value = this.paramRefToText(ref, valueName, exprKey);
                 args.push(`${paramName} = ${value}`);
-            }
+            });
         }
 
-        return args.join(', ');
+        return args;
     }
 
     /**
-     * Convert parameter reference to text
+     * Convert parameter reference to text. An object or array value too long for
+     * one line is moved to the VALUES section under `valueName` and printed as
+     * `@valueName`.
      */
-    private paramRefToText(ref: any): string {
+    private paramRefToText(ref: any, valueName: string, exprKey?: string): string {
+        if (refType(ref) !== 'EXPRESSION') {
+            const value = ref.value;
+            if (value && typeof value === 'object' && !ExpressionHandler.isExpression(value)) {
+                const text = this.compactJson(value, exprKey);
+                if (text.length <= JSONToTextTransformer.INLINE_VALUE_WIDTH) return text;
+                const name = this.uniqueValueName(valueName);
+                this.namedValues.push({ name, value, exprKey });
+                return `@${name}`;
+            }
+        }
         if (refType(ref) === 'EXPRESSION') {
             const expr = ref.expression;
             if (expr === '' || expr === undefined || expr === null) {
@@ -643,6 +709,10 @@ export class JSONToTextTransformer {
         if (!expr) return false;
         const trimmed = expr.trim();
 
+        // Whitespace at the end would be lost before a `)` on the next line
+        if (/\s$/.test(expr)) return true;
+        // `@name` is a named value
+        if (/^@\w/.test(trimmed)) return true;
         if (expr.includes('"')) return true;
         if (expr.includes("'")) return true;
         if (trimmed === 'true' || trimmed === 'false') return true;
@@ -688,6 +758,146 @@ export class JSONToTextTransformer {
         }
 
         return String(value);
+    }
+
+    /** `{isExpression: true, value: "<text>"}` and nothing else. */
+    private static isPlainExpression(value: any): boolean {
+        return ExpressionHandler.isExpression(value) && Object.keys(value).length === 2;
+    }
+
+    /**
+     * One-line JSON in DSL form, with plain keys unquoted. Undefined is dropped from
+     * objects and becomes null in arrays, as in JSON.
+     *
+     * In the object's `exprKey` entry, `{isExpression: true, value}` is written as the
+     * expression itself, which the parser turns back into that object. Only
+     * GenerateEvent evaluates such an object (the `value` of each `results` entry);
+     * anywhere else the runtime passes it through as data, so it stays written out in
+     * full rather than look like an expression that runs.
+     */
+    private compactJson(value: any, exprKey?: string): string {
+        if (value === undefined || value === null) return 'null';
+        if (typeof value !== 'object') return JSON.stringify(value) ?? 'null';
+        if (Array.isArray(value)) {
+            return `[${value.map((v) => this.compactJson(v)).join(', ')}]`;
+        }
+        const entries = Object.entries(value).filter(([, v]) => v !== undefined);
+        if (entries.length === 0) return '{}';
+        return `{${entries.map(([k, v]) => `${this.jsonKey(k)}: ${this.entryText(k, v, exprKey)}`).join(', ')}}`;
+    }
+
+    private entryText(key: string, value: any, exprKey?: string): string {
+        if (key === exprKey && JSONToTextTransformer.isPlainExpression(value)) {
+            return this.jsonExpressionText(value.value);
+        }
+        return this.compactJson(value);
+    }
+
+    /**
+     * JSON that breaks over lines, one entry per line, only where the one-line form
+     * would run past LINE_WIDTH starting at `column`.
+     */
+    private formatJson(value: any, level: number, column: number, exprKey?: string): string {
+        const compact = this.compactJson(value, exprKey);
+        if (column + compact.length <= JSONToTextTransformer.LINE_WIDTH || !value || typeof value !== 'object') {
+            return compact;
+        }
+
+        const inner = this.indent(level + 1);
+        const items = Array.isArray(value)
+            ? value.map((v) => inner + this.formatJson(v, level + 1, inner.length))
+            : Object.entries<any>(value)
+                  .filter(([, v]) => v !== undefined)
+                  .map(([k, v]) => {
+                      const head = `${inner}${this.jsonKey(k)}: `;
+                      if (k === exprKey && JSONToTextTransformer.isPlainExpression(v)) {
+                          return head + this.jsonExpressionText(v.value);
+                      }
+                      return head + this.formatJson(v, level + 1, head.length);
+                  });
+        if (items.length === 0) return compact;
+        const [open, close] = Array.isArray(value) ? ['[', ']'] : ['{', '}'];
+        return `${open}\n${items.join(',\n')}\n${this.indent(level)}${close}`;
+    }
+
+    private jsonKey(key: string): string {
+        // `null` lexes as a null literal, which the parser does not take as a key
+        return JSONToTextTransformer.PLAIN_KEY.test(key) && key !== 'null' ? key : JSON.stringify(key);
+    }
+
+    /**
+     * An expression inside a JSON value: bare when the parser reads it back as the
+     * same expression, otherwise in backticks.
+     */
+    private jsonExpressionText(expr: string): string {
+        if (this.isBareJsonExpression(expr)) return expr;
+        return '`' + expr.replace(/\\/g, '\\\\').replace(/`/g, '\\`') + '`';
+    }
+
+    /**
+     * Inside JSON the parser reads a string, number, boolean, null, undefined, object
+     * or array literal as that literal, and an expression runs to the first `,` or
+     * closing bracket at its own depth. So an expression can go bare only if it
+     * starts with none of those literals, its brackets balance, it has no top-level
+     * comma, and it has no whitespace at either end to lose.
+     */
+    private isBareJsonExpression(expr: string): boolean {
+        if (!expr || expr !== expr.trim()) return false;
+        let tokens;
+        try {
+            tokens = new DSLLexer(expr).tokenize().filter((t) => t.type !== DSLTokenType.EOF);
+        } catch {
+            return false;
+        }
+        if (tokens.length === 0) return false;
+
+        const first = tokens[0];
+        if (
+            first.type === DSLTokenType.STRING ||
+            first.type === DSLTokenType.NUMBER ||
+            first.type === DSLTokenType.BOOLEAN ||
+            first.type === DSLTokenType.NULL ||
+            first.type === DSLTokenType.BACKTICK_STRING ||
+            first.type === DSLTokenType.LEFT_BRACE ||
+            first.type === DSLTokenType.LEFT_BRACKET ||
+            (first.type === DSLTokenType.OPERATOR && first.value === '@') ||
+            (first.type === DSLTokenType.KEYWORD && ['true', 'false', 'null'].includes(first.value)) ||
+            (first.type === DSLTokenType.IDENTIFIER && first.value === 'undefined')
+        ) {
+            return false;
+        }
+
+        let depth = 0;
+        for (const token of tokens) {
+            switch (token.type) {
+                case DSLTokenType.COMMENT:
+                    return false;
+                case DSLTokenType.LEFT_PAREN:
+                case DSLTokenType.LEFT_BRACKET:
+                case DSLTokenType.LEFT_BRACE:
+                    depth++;
+                    break;
+                case DSLTokenType.RIGHT_PAREN:
+                case DSLTokenType.RIGHT_BRACKET:
+                case DSLTokenType.RIGHT_BRACE:
+                    if (depth === 0) return false;
+                    depth--;
+                    break;
+                case DSLTokenType.COMMA:
+                    if (depth === 0) return false;
+                    break;
+            }
+        }
+        return depth === 0;
+    }
+
+    /** A VALUES name not used yet in this function: `step.param`, then `step.param_2`, ... */
+    private uniqueValueName(base: string): string {
+        const clean = base.replace(/[^\w.]/g, '_').replace(/\.(?=\.|$)|^\./g, '_');
+        let name = clean;
+        for (let n = 2; this.usedValueNames.has(name); n++) name = `${clean}_${n}`;
+        this.usedValueNames.add(name);
+        return name;
     }
 
     /**

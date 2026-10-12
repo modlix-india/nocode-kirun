@@ -4,14 +4,17 @@
 //! KIRuntime uses for dependencies), so a statement prints inside the block of the step whose
 //! event it waits on.
 
+use std::cell::RefCell;
 use std::collections::{HashSet, VecDeque};
 use std::sync::LazyLock;
 
 use regex::Regex;
 
+use crate::dsl::lexer::{DSLLexer, DSLTokenType as T};
 use crate::dsl::transformer::expression_handler::ExpressionHandler;
 use crate::dsl::transformer::schema_transformer::SchemaTransformer;
 use crate::util::primitive::js_number_value_to_string;
+use crate::util::string::js_string;
 use crate::{Map, Result, Value};
 
 /// Matches `Steps.stepName.eventName`.
@@ -19,6 +22,18 @@ static STEP_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"Steps\.([a-zA
 static STEP_REF_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"Steps\.([a-zA-Z_][a-zA-Z0-9_]*)").unwrap());
 static NUMBER_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d+(\.\d+)?$").unwrap());
 static NUMBER_OP_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d+(\.\d+)?\s*[+\-*/%]").unwrap());
+static PLAIN_KEY: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[A-Za-z_][A-Za-z0-9_]*$").unwrap());
+static VALUE_REF_START: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^@[A-Za-z0-9_]").unwrap());
+
+/// A step line longer than this puts its arguments one per line.
+const LINE_WIDTH: usize = 120;
+/// An object or array argument longer than this on one line moves to VALUES.
+const INLINE_VALUE_WIDTH: usize = 100;
+
+/// JS `String.prototype.length`: UTF-16 code units, so widths match kirun-js.
+fn js_len(s: &str) -> usize {
+    s.encode_utf16().count()
+}
 
 #[derive(Debug, Clone)]
 struct Nesting {
@@ -64,14 +79,22 @@ fn decode_dots(s: &str) -> String {
     s.replace("__d-o-t__", ".")
 }
 
+/// A value moved to the VALUES section: its name, the value, and its expression key (see
+/// `compact_json`).
+type NamedValue = (String, Value, Option<&'static str>);
+
 #[derive(Debug, Default)]
-pub struct JSONToTextTransformer;
+pub struct JSONToTextTransformer {
+    /// Values moved to the VALUES section by the current transform, in order of use.
+    named_values: RefCell<Vec<NamedValue>>,
+    used_value_names: RefCell<HashSet<String>>,
+}
 
 impl JSONToTextTransformer {
     const INDENT: &'static str = "    ";
 
     pub fn new() -> Self {
-        Self
+        Self::default()
     }
 
     fn indent(level: usize) -> String {
@@ -79,6 +102,8 @@ impl JSONToTextTransformer {
     }
 
     pub fn transform(&self, json: &Value) -> Result<String> {
+        self.named_values.borrow_mut().clear();
+        self.used_value_names.borrow_mut().clear();
         let mut lines = Vec::new();
         lines.push(format!("FUNCTION {}", js_field(json, "name")));
 
@@ -108,6 +133,17 @@ impl JSONToTextTransformer {
         lines.push(format!("{}LOGIC", Self::indent(1)));
         let nested = self.build_nested_structure(json);
         lines.extend(self.steps_to_text(&json["steps"], &nested, 2));
+
+        // Large objects and arrays, kept out of the step list
+        let named = self.named_values.borrow();
+        if !named.is_empty() {
+            lines.push(format!("{}VALUES", Self::indent(1)));
+            for (name, value, expr_key) in named.iter() {
+                let head = format!("{}@{name} = ", Self::indent(2));
+                let text = self.format_json(value, 2, js_len(&head), *expr_key);
+                lines.push(head + &text);
+            }
+        }
         Ok(lines.join("\n"))
     }
 
@@ -205,10 +241,25 @@ impl JSONToTextTransformer {
         let mut lines = Vec::new();
         let Value::Object(steps_obj) = steps else { return lines };
 
+        // A step that follows another's `output` is printed in the same block as that step,
+        // right after it, so a sequence reads top to bottom instead of moving right one level
+        // per step. Only branches (true, false, iteration, error and other events) indent.
+        // Indentation carries no meaning for the compiler: dependencies come from AFTER, IF and
+        // Steps references.
+        let block_of = |name: &str| -> Option<&Nesting> {
+            let mut info = nested.get(name);
+            let mut seen: HashSet<&str> = HashSet::from([name]);
+            while let Some(n) = info.filter(|n| n.block_name == "output" && !seen.contains(n.parent.as_str())) {
+                seen.insert(n.parent.as_str());
+                info = nested.get(&n.parent);
+            }
+            info.filter(|n| n.block_name != "output")
+        };
+
         let mut top_level: Vec<String> = Vec::new();
         let mut by_parent: Map<Map<Vec<String>>> = Map::new();
         for name in steps_obj.keys() {
-            match nested.get(name) {
+            match block_of(name) {
                 Some(n) if steps_obj.contains_key(&n.parent) => {
                     by_parent.entry(n.parent.clone()).or_default().entry(n.block_name.clone()).or_default().push(name.clone());
                 }
@@ -242,7 +293,7 @@ impl JSONToTextTransformer {
             indent: usize,
             lines: &mut Vec<String>,
         ) {
-            lines.push(this.step_to_text(&steps[name], name, indent));
+            lines.extend(this.step_to_text(&steps[name], name, indent));
             if let Some(blocks) = by_parent.get(name) {
                 let mut names: Vec<&String> = blocks.keys().collect();
                 // Stable, like Array.prototype.sort.
@@ -262,34 +313,46 @@ impl JSONToTextTransformer {
         lines
     }
 
-    fn step_to_text(&self, step: &Value, step_key: &str, indent: usize) -> String {
+    fn step_to_text(&self, step: &Value, step_key: &str, indent: usize) -> Vec<String> {
         let step_name = step["statementName"].as_str().filter(|s| !s.is_empty()).unwrap_or(step_key);
-        let mut line = format!(
-            "{}{step_name}: {}.{}({})",
-            Self::indent(indent),
-            js_field(step, "namespace"),
-            js_field(step, "name"),
-            self.args_to_text(&step["parameterMap"])
-        );
+        let is_generate_event = step["namespace"] == "System" && step["name"] == "GenerateEvent";
+        let args = self.args_to_text(&step["parameterMap"], step_name, is_generate_event);
+        let ind = Self::indent(indent);
+        let head = format!("{ind}{step_name}: {}.{}(", js_field(step, "namespace"), js_field(step, "name"));
 
+        let mut tail = String::new();
         let after: Vec<String> =
             dependent_statements(step).into_iter().filter(|(_, is_true)| *is_true).map(|(k, _)| decode_dots(k)).collect();
         if !after.is_empty() {
-            line.push_str(&format!(" AFTER {}", after.join(", ")));
+            tail.push_str(&format!(" AFTER {}", after.join(", ")));
         }
 
         let if_steps: Vec<&str> = object_entries(&step["executeIftrue"]).into_iter().map(|(k, _)| k.as_str()).collect();
         if !if_steps.is_empty() {
-            line.push_str(&format!(" IF {}", if_steps.join(", ")));
+            tail.push_str(&format!(" IF {}", if_steps.join(", ")));
         }
 
         if let Some(c) = step["comment"].as_str().filter(|c| !c.trim().is_empty()) {
-            line.push_str(&format!(" /* {} */", c.replace("*/", "*\\/")));
+            tail.push_str(&format!(" /* {} */", c.replace("*/", "*\\/")));
         }
-        line
+
+        let line = format!("{head}{}){tail}", args.join(", "));
+        // A long call puts one argument per line, closing `)` back at the step's indent
+        if js_len(&line) > LINE_WIDTH && args.len() > 1 {
+            let arg_indent = Self::indent(indent + 1);
+            let mut lines = vec![head];
+            let last = args.len() - 1;
+            for (i, arg) in args.iter().enumerate() {
+                lines.push(format!("{arg_indent}{arg}{}", if i < last { "," } else { "" }));
+            }
+            lines.push(format!("{ind}){tail}"));
+            return lines;
+        }
+        vec![line]
     }
 
-    fn args_to_text(&self, parameter_map: &Value) -> String {
+    /// The `name = value` arguments of a step.
+    fn args_to_text(&self, parameter_map: &Value, step_name: &str, is_generate_event: bool) -> Vec<String> {
         let mut args = Vec::new();
         for (param, refs) in object_entries(parameter_map) {
             let mut list: Vec<&Value> = object_entries(refs).into_iter().map(|(_, r)| r).collect();
@@ -300,14 +363,31 @@ impl JSONToTextTransformer {
                 let o = |r: &&Value| r["order"].as_f64().unwrap_or(0.0);
                 o(a).partial_cmp(&o(b)).unwrap_or(std::cmp::Ordering::Equal)
             });
-            for r in list {
-                args.push(format!("{param} = {}", self.param_ref_to_text(r)));
+            // GenerateEvent evaluates the `value` of each `results` entry; see compact_json
+            let expr_key = (is_generate_event && param == "results").then_some("value");
+            let multi = list.len() > 1;
+            for (i, r) in list.into_iter().enumerate() {
+                let value_name = if multi { format!("{step_name}.{param}.{}", i + 1) } else { format!("{step_name}.{param}") };
+                args.push(format!("{param} = {}", self.param_ref_to_text(r, &value_name, expr_key)));
             }
         }
-        args.join(", ")
+        args
     }
 
-    fn param_ref_to_text(&self, r: &Value) -> String {
+    /// An object or array value too long for one line is moved to the VALUES section under
+    /// `value_name` and printed as `@value_name`.
+    fn param_ref_to_text(&self, r: &Value, value_name: &str, expr_key: Option<&'static str>) -> String {
+        if ref_type(r) != Some("EXPRESSION") {
+            if let Some(value) = r.get("value").filter(|v| (v.is_object() || v.is_array()) && !ExpressionHandler::is_expression(v)) {
+                let text = self.compact_json(value, expr_key);
+                if js_len(&text) <= INLINE_VALUE_WIDTH {
+                    return text;
+                }
+                let name = self.unique_value_name(value_name);
+                self.named_values.borrow_mut().push((name.clone(), value.clone(), expr_key));
+                return format!("@{name}");
+            }
+        }
         if ref_type(r) == Some("EXPRESSION") {
             let expr = match &r["expression"] {
                 Value::String(s) if !s.is_empty() => s.clone(),
@@ -453,7 +533,10 @@ fn expression_needs_backticks(expr: &str) -> bool {
         return false;
     }
     let t = expr.trim();
-    expr.contains('"')
+    // Whitespace at the end would be lost before a `)` on the next line; `@name` is a named value
+    js_string::trim_end(expr) != expr
+        || VALUE_REF_START.is_match(&js_string::trim(expr))
+        || expr.contains('"')
         || expr.contains('\'')
         || t == "true"
         || t == "false"
@@ -531,3 +614,161 @@ fn pretty_json(value: &Value, level: usize, out: &mut String) {
         other => out.push_str(&serde_json::to_string(other).unwrap_or_default()),
     }
 }
+
+impl JSONToTextTransformer {
+    /// One-line JSON in DSL form, with plain keys unquoted.
+    ///
+    /// In the object's `expr_key` entry, `{isExpression: true, value}` is written as the
+    /// expression itself, which the parser turns back into that object. Only GenerateEvent
+    /// evaluates such an object (the `value` of each `results` entry); anywhere else the runtime
+    /// passes it through as data, so it stays written out in full rather than look like an
+    /// expression that runs.
+    fn compact_json(&self, value: &Value, expr_key: Option<&str>) -> String {
+        match value {
+            Value::Array(a) => format!("[{}]", a.iter().map(|v| self.compact_json(v, None)).collect::<Vec<_>>().join(", ")),
+            Value::Object(o) if o.is_empty() => "{}".to_string(),
+            Value::Object(o) => {
+                let entries: Vec<String> =
+                    o.iter().map(|(k, v)| format!("{}: {}", json_key(k), self.entry_text(k, v, expr_key))).collect();
+                format!("{{{}}}", entries.join(", "))
+            }
+            Value::Number(n) => number_text(n),
+            other => serde_json::to_string(other).unwrap_or_default(),
+        }
+    }
+
+    fn entry_text(&self, key: &str, value: &Value, expr_key: Option<&str>) -> String {
+        match value["value"].as_str() {
+            Some(e) if Some(key) == expr_key && is_plain_expression(value) => json_expression_text(e),
+            _ => self.compact_json(value, None),
+        }
+    }
+
+    /// JSON that breaks over lines, one entry per line, only where the one-line form would run
+    /// past LINE_WIDTH starting at `column`.
+    fn format_json(&self, value: &Value, level: usize, column: usize, expr_key: Option<&str>) -> String {
+        let compact = self.compact_json(value, expr_key);
+        let is_empty = match value {
+            Value::Array(a) => a.is_empty(),
+            Value::Object(o) => o.is_empty(),
+            _ => true,
+        };
+        if column + js_len(&compact) <= LINE_WIDTH || is_empty {
+            return compact;
+        }
+        let inner = Self::indent(level + 1);
+        let (open, close, items): (char, char, Vec<String>) = match value {
+            Value::Array(a) => {
+                ('[', ']', a.iter().map(|v| inner.clone() + &self.format_json(v, level + 1, inner.len(), None)).collect())
+            }
+            Value::Object(o) => (
+                '{',
+                '}',
+                o.iter()
+                    .map(|(k, v)| {
+                        let head = format!("{inner}{}: ", json_key(k));
+                        match v["value"].as_str() {
+                            Some(e) if Some(k.as_str()) == expr_key && is_plain_expression(v) => head + &json_expression_text(e),
+                            _ => {
+                                let text = self.format_json(v, level + 1, js_len(&head), None);
+                                head + &text
+                            }
+                        }
+                    })
+                    .collect(),
+            ),
+            _ => return compact,
+        };
+        format!("{open}\n{}\n{}{close}", items.join(",\n"), Self::indent(level))
+    }
+
+    /// A VALUES name not used yet in this function: `step.param`, then `step.param_2`, ...
+    fn unique_value_name(&self, base: &str) -> String {
+        let chars: Vec<char> =
+            base.chars().map(|c| if c.is_ascii_alphanumeric() || c == '_' || c == '.' { c } else { '_' }).collect();
+        // No empty segment: a leading dot, or a dot before another dot or the end, becomes `_`.
+        let clean: String = chars
+            .iter()
+            .enumerate()
+            .map(|(i, &c)| {
+                let empty_segment = c == '.' && (i == 0 || chars.get(i + 1).is_none_or(|n| *n == '.'));
+                if empty_segment {
+                    '_'
+                } else {
+                    c
+                }
+            })
+            .collect();
+        let mut used = self.used_value_names.borrow_mut();
+        let mut name = clean.clone();
+        let mut n = 2;
+        while used.contains(&name) {
+            name = format!("{clean}_{n}");
+            n += 1;
+        }
+        used.insert(name.clone());
+        name
+    }
+}
+
+/// `{isExpression: true, value: "<text>"}` and nothing else.
+fn is_plain_expression(value: &Value) -> bool {
+    ExpressionHandler::is_expression(value) && value.as_object().is_some_and(|o| o.len() == 2)
+}
+
+fn json_key(key: &str) -> String {
+    // `null` lexes as a null literal, which the parser does not take as a key
+    if PLAIN_KEY.is_match(key) && key != "null" {
+        key.to_string()
+    } else {
+        serde_json::to_string(key).unwrap_or_default()
+    }
+}
+
+/// An expression inside a JSON value: bare when the parser reads it back as the same
+/// expression, otherwise in backticks.
+fn json_expression_text(expr: &str) -> String {
+    if is_bare_json_expression(expr) {
+        expr.to_string()
+    } else {
+        format!("`{}`", expr.replace('\\', "\\\\").replace('`', "\\`"))
+    }
+}
+
+/// Inside JSON the parser reads a string, number, boolean, null, undefined, object or array
+/// literal as that literal, and an expression runs to the first `,` or closing bracket at its
+/// own depth. So an expression can go bare only if it starts with none of those literals, its
+/// brackets balance, it has no top-level comma, and it has no whitespace at either end to lose.
+fn is_bare_json_expression(expr: &str) -> bool {
+    if expr.is_empty() || js_string::trim(expr) != expr {
+        return false;
+    }
+    let Ok(tokens) = DSLLexer::new(expr).tokenize() else { return false };
+    let tokens: Vec<_> = tokens.into_iter().filter(|t| t.r#type != T::Eof).collect();
+    let Some(first) = tokens.first() else { return false };
+    let literal_start =
+        matches!(first.r#type, T::String | T::Number | T::Boolean | T::Null | T::BacktickString | T::LeftBrace | T::LeftBracket)
+            || (first.r#type == T::Operator && first.value == "@")
+            || (first.r#type == T::Keyword && ["true", "false", "null"].contains(&first.value.as_str()))
+            || (first.r#type == T::Identifier && first.value == "undefined");
+    if literal_start {
+        return false;
+    }
+    let mut depth = 0usize;
+    for t in &tokens {
+        match t.r#type {
+            T::Comment => return false,
+            T::LeftParen | T::LeftBracket | T::LeftBrace => depth += 1,
+            T::RightParen | T::RightBracket | T::RightBrace => {
+                if depth == 0 {
+                    return false;
+                }
+                depth -= 1;
+            }
+            T::Comma if depth == 0 => return false,
+            _ => {}
+        }
+    }
+    depth == 0
+}
+
