@@ -125,6 +125,15 @@ LOGIC
                                     <code>LOGIC</code>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    <code>VALUES</code>
+                                </td>
+                                <td>Optional, after LOGIC: named values used as @name</td>
+                                <td>
+                                    <code>@shape = {'{list: [1, 2]}'}</code>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -412,6 +421,32 @@ data: SetData(value = {
     tags: ["admin", "user"]
 }) /* Nested structures */`}</pre>
 
+                    <h4>4. Named VALUES (@name)</h4>
+                    <p>
+                        A large object can be written once in a <code>VALUES</code> section after
+                        LOGIC and used as <code>@name</code>. Each use compiles to its own copy, exactly
+                        as if written inline. Formatting moves objects longer than 100 characters there,
+                        named after the step and parameter; names you choose are not stored.
+                    </p>
+                    <pre>{`LOGIC
+    cfg: System.Make(resultShape = @cfg.resultShape)
+VALUES
+    @cfg.resultShape = {
+        unsorted: [{property: "id", direction: "ASC"}],
+        rels: [{field: "taskId", storage: "task", spec: "task"}]
+    }`}</pre>
+
+                    <h4>5. Expressions inside objects</h4>
+                    <p>
+                        In <code>System.GenerateEvent</code> results, the <code>value</code> may be an
+                        expression written bare; it is evaluated when the event fires. Anywhere else an
+                        expression object is stored as plain data, so formatting writes it out in full.
+                    </p>
+                    <pre>{`done: System.GenerateEvent(results = {name: "rows", value: Steps.read.output.result})
+
+/* Not evaluated: the stored row gets the marker, not the title */
+save: CoreServices.Storage.Create(dataObject = {title: {isExpression: true, value: "Page.t"}})`}</pre>
+
                     <h3>Expression References</h3>
                     <table className="_keyword-table">
                         <thead>
@@ -561,16 +596,33 @@ finalize: Complete() IF Steps.check1.true, Steps.check2.true /* Multiple conditi
         log: LogError(error = Steps.fetch.error.message)
         retry: RetryFetch()`}</pre>
 
-                    <h4>4. Output Block</h4>
+                    <h4>4. Sequences (output)</h4>
+                    <p>
+                        A step that follows another&apos;s <code>output</code> is written at the same
+                        level, right after it. Formatting lays a sequence out this way:
+                    </p>
                     <pre>{`main: ComplexOperation()
-    output
-        transform: TransformResult(data = Steps.main.output.result)`}</pre>
+transform: TransformResult(data = Steps.main.output.result) AFTER Steps.main.output
+save: Save(data = Steps.transform.output.value) AFTER Steps.transform.output`}</pre>
 
                     <h3>Block Indentation</h3>
                     <p>
                         Blocks must be indented relative to their parent statement. Use consistent
                         indentation (spaces or tabs).
                     </p>
+                    <p>
+                        Indentation is <strong>not</strong> a dependency. A step runs after another only
+                        through <code>AFTER Steps.x.event</code> or an expression that reads{' '}
+                        <code>Steps.x</code>. A step written inside a block with neither runs at once.
+                    </p>
+
+                    <h3>Long Calls</h3>
+                    <p>A call can take one argument per line; formatting does this past 120 characters:</p>
+                    <pre>{`read: CoreServices.Storage.ReadPage(
+    storageName = "member",
+    filter = Steps.byEmail.output.value,
+    size = 1
+) AFTER Steps.byEmail.output`}</pre>
 
                     <h3>Multiple Nested Blocks</h3>
                     <pre>{`outer: System.Loop.RangeLoop(to = 5)

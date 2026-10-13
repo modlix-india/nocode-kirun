@@ -172,19 +172,17 @@ export class Schema {
         .setType(TypeUtil.of(SchemaType.NULL))
         .setConstant(undefined);
 
+    // TypeUtil.from reads a type in any case and "number" as DOUBLE, so accept the same
+    // spellings: "OBJECT", "Object" (the SchemaType value) and "object".
     private static readonly TYPE_SCHEMA: Schema = new Schema()
         .setType(TypeUtil.of(SchemaType.STRING))
-        .setEnums([
-            'INTEGER',
-            'LONG',
-            'FLOAT',
-            'DOUBLE',
-            'STRING',
-            'OBJECT',
-            'ARRAY',
-            'BOOLEAN',
-            'NULL',
-        ]);
+        .setEnums(
+            [...Object.keys(SchemaType), 'NUMBER'].flatMap((e) => [
+                e,
+                e.charAt(0) + e.substring(1).toLowerCase(),
+                e.toLowerCase(),
+            ]),
+        );
 
     public static readonly SCHEMA: Schema = new Schema()
         .setNamespace(Namespaces.SYSTEM)

@@ -19,6 +19,7 @@ mod object_properties_test;
 mod object_validator_test;
 mod schema_any_of_validator_test;
 mod schema_copy_test;
+mod schema_type_spelling_test;
 mod schema_util;
 mod schema_validator_test;
 mod string_convertor_test;

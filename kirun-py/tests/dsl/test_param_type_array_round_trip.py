@@ -59,7 +59,8 @@ def is_expression(ref):
 
 
 def round_trip(fn):
-    text = asyncio.get_event_loop().run_until_complete(DSLCompiler.decompile(fn))
+    # asyncio.run: get_event_loop() raises on 3.12 once an async test has closed its loop
+    text = asyncio.run(DSLCompiler.decompile(fn))
     return DSLCompiler.compile(text)
 
 

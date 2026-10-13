@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fincity.nocode.kirun.engine.json.schema.array.ArraySchemaType;
 import com.fincity.nocode.kirun.engine.json.schema.object.AdditionalType;
@@ -48,10 +49,15 @@ public class Schema implements Serializable {
 			.setType(Type.of(SchemaType.NULL))
 			.setConstant(JsonNull.INSTANCE);
 
+	// The type adapter reads a type in any case and "number" as DOUBLE, so accept the same
+	// spellings: "OBJECT", "Object" (the printable name) and "object".
 	private static final Schema TYPE_SCHEMA = new Schema().setType(Type.of(SchemaType.STRING))
-			.setEnums(List.of(new JsonPrimitive("INTEGER"), new JsonPrimitive("LONG"), new JsonPrimitive("FLOAT"),
-					new JsonPrimitive("DOUBLE"), new JsonPrimitive("STRING"), new JsonPrimitive("OBJECT"),
-					new JsonPrimitive("ARRAY"), new JsonPrimitive("BOOLEAN"), new JsonPrimitive("NULL")));
+			.setEnums(Stream.concat(Stream.of(SchemaType.values())
+					.map(SchemaType::name), Stream.of("NUMBER"))
+					.flatMap(e -> Stream.of(e, e.charAt(0) + e.substring(1)
+							.toLowerCase(), e.toLowerCase()))
+					.map(e -> (JsonElement) new JsonPrimitive(e))
+					.toList());
 
 	public static final Schema SCHEMA = new Schema().setNamespace(Namespaces.SYSTEM)
 			.setName("Schema")
