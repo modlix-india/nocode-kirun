@@ -289,11 +289,17 @@ fn string_enums(values: &[&str]) -> Vec<Value> {
     values.iter().map(|v| Value::String((*v).to_string())).collect()
 }
 
-/// JS `Schema.TYPE_SCHEMA`.
+/// JS `Schema.TYPE_SCHEMA`. `SchemaType::parse` reads a type in any case and "number" as DOUBLE,
+/// so accept the same spellings: "OBJECT", "Object" (the `as_str` value) and "object".
 fn type_schema() -> Schema {
-    Schema::new().set_type(TypeUtil::of(&[SchemaType::String])).set_enums(string_enums(&[
-        "INTEGER", "LONG", "FLOAT", "DOUBLE", "STRING", "OBJECT", "ARRAY", "BOOLEAN", "NULL",
-    ]))
+    let enums = SchemaType::ALL
+        .iter()
+        .map(|t| t.name())
+        .chain(["NUMBER"])
+        .flat_map(|e| [e.to_string(), format!("{}{}", &e[..1], e[1..].to_lowercase()), e.to_lowercase()])
+        .map(Value::String)
+        .collect();
+    Schema::new().set_type(TypeUtil::of(&[SchemaType::String])).set_enums(enums)
 }
 
 fn ref_root() -> Schema {
