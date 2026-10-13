@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fincity.nocode.kirun.engine.exception.KIRuntimeException;
+import com.fincity.nocode.kirun.engine.exception.KIRuntimeStepTrace;
 import com.fincity.nocode.kirun.engine.function.reactive.AbstractReactiveFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.IDefinitionBasedFunction;
 import com.fincity.nocode.kirun.engine.function.reactive.ReactiveFunction;
@@ -673,6 +674,13 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 				.setExecutionContext(inContext.getExecutionContext());
 	}
 
+	/** Records on a step's error which step of which function raised it, and what it was given. */
+	private void traceStep(Throwable error, Statement s, Map<String, JsonElement> arguments) {
+		KIRuntimeStepTrace.attach(error,
+				this.fd.getNamespace() != null ? this.fd.getNamespace() + "." + this.fd.getName() : this.fd.getName(),
+				s.getStatementName(), s.getNamespace() + "." + s.getName(), arguments);
+	}
+
 	private Mono<Boolean> executeVertex(GraphVertex<String, StatementExecution> vertex,
 			ReactiveFunctionExecutionParameters inContext,
 			LinkedList<BranchEntry> branchQue,
@@ -711,7 +719,13 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 			Map<String, Parameter> paramSet = fun.getSignature()
 					.getParameters();
 
-			Map<String, JsonElement> arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
+			Map<String, JsonElement> arguments;
+			try {
+				arguments = getArgumentsFromParametersMap(inContext, s, paramSet);
+			} catch (RuntimeException ex) {
+				this.traceStep(ex, s, null);
+				throw ex;
+			}
 
 			// Start debug step tracking
 			String stepId = null;
@@ -730,8 +744,10 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 			ReactiveFunctionExecutionParameters fep = this.childParameters(inContext, fun, vertex, arguments);
 
-			return fun.execute(fep)
+			// Deferred so a function that throws instead of returning an error is traced too.
+			return Mono.defer(() -> fun.execute(fep))
 					.doOnError(error -> {
+						this.traceStep(error, s, arguments);
 						// End debug step with error
 						if (inContext.getDebugCollector() != null && finalStepId != null) {
 							inContext.getDebugCollector().endStep(
