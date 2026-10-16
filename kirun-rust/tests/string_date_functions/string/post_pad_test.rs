@@ -46,3 +46,15 @@ async fn postpad_test3() {
 
     assert_json_eq!(first_value(&reve, fep, "result").await.unwrap(), json!(reveresed));
 }
+
+/// kirun-java `PostPadTest.emptyPadStringReturnsTheInput` (4.9.0): an empty pad string leaves
+/// the input as it is (Java used to loop forever).
+#[tokio::test]
+async fn postpad_empty_pad_string_returns_the_input() {
+    let fep = fep().set_arguments(args! {
+        "string" => "5",
+        "postpadString" => "",
+        "length" => 3,
+    });
+    assert_json_eq!(first_value(&PostPad::new(), fep, "result").await.unwrap(), json!("5"));
+}
