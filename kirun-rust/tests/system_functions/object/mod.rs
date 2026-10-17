@@ -1,3 +1,4 @@
+mod object_convert_test;
 mod object_entries_test;
 mod object_keys_test;
 mod object_values_test;

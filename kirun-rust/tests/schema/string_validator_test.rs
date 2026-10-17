@@ -1,4 +1,6 @@
 //! Port of validator/StringValidatorTest.ts.
+// kirun-java prints the value as JSON in pattern messages (`"x" is not matched with the ...`);
+// kirun-js printed it bare. Stored server functions run on kirun-java.
 
 use kirun::json::schema::r#type::{SchemaType, TypeUtil};
 use kirun::json::schema::string::StringFormat;
@@ -87,7 +89,7 @@ fn string_time_invalid_case() {
 
     assert_err_contains(
         StringValidator::validate(&[], &schema, json!(value)),
-        &format!("{value} is not matched with the time pattern"),
+        &format!("\"{value}\" is not matched with the time pattern"),
     );
 }
 
@@ -108,7 +110,7 @@ fn string_date_time_invalid_case() {
 
     assert_err_contains(
         StringValidator::validate(&[], &schema, json!(value)),
-        &format!("{value} is not matched with the date time pattern"),
+        &format!("\"{value}\" is not matched with the date time pattern"),
     );
 }
 
@@ -153,7 +155,7 @@ fn expect_invalid(format: StringFormat, pattern_name: &str, values: &[&str]) {
     for value in values {
         assert_err_contains(
             StringValidator::validate(&[], &schema, json!(value)),
-            &format!("{value} is not matched with the {pattern_name}"),
+            &format!("\"{value}\" is not matched with the {pattern_name}"),
         );
     }
 }
@@ -201,7 +203,7 @@ fn string_email_invalid_case() {
 
     assert_err_contains(
         StringValidator::validate(&[], &schema, json!(value)),
-        &format!("{value} is not matched with the email pattern"),
+        &format!("\"{value}\" is not matched with the email pattern"),
     );
 }
 

@@ -1,26 +1,29 @@
-//! Port of kirun-js `function/system/date/EpochToTimestamp.ts`.
+//! kirun-java `function/system/date/EpochToTimestamp.java`: Gson `getAsLong` of the epoch (a
+//! string must be a plain `long`), placed in the system zone.
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
-use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::function::system::date::java_time::{java_error, system_default_zone, ZonedDateTime};
 use crate::json::schema::r#type::{SchemaType, TypeUtil};
+use crate::json::schema::Schema;
+use crate::model::{Event, FunctionSignature, Parameter};
+use crate::namespaces::Namespaces;
+use crate::{Map, Value};
 
 pub struct EpochToTimestamp(DateFunction);
+
+/// Gson `JsonElement.getAsLong()`.
+fn as_long(v: Option<&Value>) -> crate::Result<i64> {
+    match v {
+        Some(Value::Number(n)) => Ok(n.as_i64().unwrap_or_else(|| n.as_f64().map_or(0, |f| f as i64))),
+        Some(Value::String(s)) => s.parse::<i64>().map_err(|_| java_error(format!("For input string: \"{s}\""))),
+        Some(Value::Bool(_)) => Err(java_error("For input string: \"true\"")),
+        _ => Err(java_error("JsonNull")),
+    }
+}
 
 impl EpochToTimestamp {
     pub fn new(name: &str, is_seconds: bool) -> Self {
@@ -41,18 +44,14 @@ impl EpochToTimestamp {
             signature,
             Event::OUTPUT,
             Arc::new(move |a| {
-                // JS parseInt(value): leading integer digits of the number or string.
-                let epoch = match a.get(&param_name) {
-                    Some(Value::Number(n)) => n.as_f64().map(f64::trunc),
-                    Some(Value::String(s)) => crate::runtime::expression::js::parse_int(s),
-                    _ => None,
+                let epoch = as_long(a.get(&param_name))?;
+                let (secs, nanos) = if is_seconds {
+                    (epoch, 0)
+                } else {
+                    (epoch.div_euclid(1000), (epoch.rem_euclid(1000) * 1_000_000) as u32)
                 };
-                let ts = epoch.map(|e| if is_seconds { e * 1000.0 } else { e });
-                let iso = ts
-                    .filter(|t| !t.is_nan())
-                    .and_then(|t| luxon::js_date_to_iso_string(t as i64))
-                    .ok_or_else(|| KIRunError::runtime(format!("Please provide a valid value for {param_name}.")))?;
-                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(iso)))
+                let dt = ZonedDateTime::of_instant(secs, nanos, system_default_zone())?;
+                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(dt.format_iso())))
             }),
         ))
     }

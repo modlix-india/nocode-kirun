@@ -1,23 +1,17 @@
-//! Port of kirun-js `function/system/date/TimeAs.ts`.
+//! kirun-java `function/system/date/TimeAs.java`: the parts of the local date-time.
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
+use chrono::{Datelike, Timelike};
+
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_time::get_date_time;
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
+use crate::model::Event;
 use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::{Map, Value};
 
 pub struct TimeAs(DateFunction);
 
@@ -37,12 +31,21 @@ impl TimeAs {
             Event::new(Event::OUTPUT, Map::from([(key.to_string(), schema)])),
             vec![A::parameter_timestamp()],
             Arc::new(move |a| {
-                let dt = get_date_time(arg_str(a, A::PARAMETER_TIMESTAMP_NAME))?;
+                let dt = get_date_time(&arg_string(a, A::PARAMETER_TIMESTAMP_NAME)?)?;
+                let l = dt.local;
+                let parts: [(&str, i64); 7] = [
+                    ("year", l.year() as i64),
+                    ("month", l.month() as i64),
+                    ("day", l.day() as i64),
+                    ("hour", l.hour() as i64),
+                    ("minute", l.minute() as i64),
+                    ("second", l.second() as i64),
+                    ("millisecond", (dt.nano() / 1_000_000) as i64),
+                ];
                 let value = if is_array {
-                    let c = dt.c;
-                    serde_json::json!([c.year, c.month, c.day, c.hour, c.minute, c.second, c.millisecond])
+                    Value::Array(parts.iter().map(|(_, v)| Value::from(*v)).collect())
                 } else {
-                    dt.to_object()
+                    Value::Object(parts.iter().map(|(k, v)| (k.to_string(), Value::from(*v))).collect())
                 };
                 Ok(result_map(key, value))
             }),

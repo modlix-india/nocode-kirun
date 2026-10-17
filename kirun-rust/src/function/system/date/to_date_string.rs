@@ -1,23 +1,17 @@
-//! Port of kirun-js `function/system/date/ToDateString.ts`.
+//! kirun-java `function/system/date/ToDateString.java`: the luxon format turned into a Java
+//! pattern (`DateUtil.toDateTimeFormat`) and printed in the default locale (the `locale`
+//! parameter is not used, as in kirun-java).
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_format::{format_pattern, to_date_time_format};
+use crate::function::system::date::java_time::get_date_time;
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::model::Parameter;
+use crate::Value;
 
 pub struct ToDateString(DateFunction);
 
@@ -34,20 +28,15 @@ impl ToDateString {
                 Parameter::of(Self::PARAMETER_FORMAT_NAME, Schema::of_string(Self::PARAMETER_FORMAT_NAME), false),
                 Parameter::of(
                     Self::PARAMETER_LOCALE_NAME,
-                    Schema::of_string(Self::PARAMETER_LOCALE_NAME).set_default_value(Value::from("")),
+                    Schema::of_string(Self::PARAMETER_LOCALE_NAME).set_default_value(Value::from("en")),
                     false,
                 ),
             ],
             Arc::new(|a| {
-                let dt = get_date_time(arg_str(a, A::PARAMETER_TIMESTAMP_NAME))?;
-                let locale = match arg_str(a, Self::PARAMETER_LOCALE_NAME) {
-                    "" => "system",
-                    l => l,
-                };
-                Ok(result_map(
-                    A::EVENT_RESULT_NAME,
-                    Value::String(luxon::to_format(&dt, arg_str(a, Self::PARAMETER_FORMAT_NAME), locale)),
-                ))
+                let dt = get_date_time(&arg_string(a, A::PARAMETER_TIMESTAMP_NAME)?)?;
+                let format = arg_string(a, Self::PARAMETER_FORMAT_NAME)?;
+                let text = format_pattern(&dt, &to_date_time_format(&format))?;
+                Ok(result_map(A::EVENT_RESULT_NAME, Value::String(text)))
             }),
         ))
     }

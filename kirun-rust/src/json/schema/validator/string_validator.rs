@@ -1,11 +1,14 @@
-//! Port of kirun-js `json/schema/validator/StringValidator.ts`.
+//! Port of kirun-js `json/schema/validator/StringValidator.ts`, with kirun-java's rules where they
+//! differ: a `pattern` must match the whole string (Java `Matcher.matches`; JS `RegExp.test`
+//! finds it anywhere), `maxLength: 0` allows only the empty string, and the messages print the
+//! value as JSON (`"abc" is not String`, `"abc" is not matched with the pattern ...`).
 
 use std::sync::LazyLock;
 
 use regex::Regex;
 
 use crate::json::schema::string::StringFormat;
-use crate::json::schema::validator::schema_validator::{format_value, SchemaPath};
+use crate::json::schema::validator::schema_validator::{java_json, SchemaPath};
 use crate::json::schema::Schema;
 use crate::{KIRunError, Result, Value};
 
@@ -42,42 +45,45 @@ impl StringValidator {
     }
 
     pub(crate) fn validate_in<P: SchemaPath + ?Sized>(parents: &P, schema: &Schema, element: Value) -> Result<Value> {
-        let Value::String(s) = &element else {
-            return Err(KIRunError::schema_validation(
-                parents.schema_path(),
-                format!("Expected a string but found {}", format_value(&element)),
-            ));
+        let s = match &element {
+            Value::String(s) => s,
+            Value::Null => {
+                return Err(KIRunError::schema_validation(parents.schema_path(), "Expected a string but found null"))
+            }
+            other => {
+                return Err(KIRunError::schema_validation(
+                    parents.schema_path(),
+                    format!("{} is not String", java_json(other)),
+                ))
+            }
         };
 
         match schema.get_format() {
-            Some(StringFormat::Time) => Self::pattern_matcher(parents, schema, s, TIME.is_match(s), "time pattern")?,
-            Some(StringFormat::Date) => Self::pattern_matcher(parents, schema, s, DATE.is_match(s), "date pattern")?,
+            Some(StringFormat::Time) => Self::pattern_matcher(parents, &element, TIME.is_match(s), "time pattern")?,
+            Some(StringFormat::Date) => Self::pattern_matcher(parents, &element, DATE.is_match(s), "date pattern")?,
             Some(StringFormat::DateTime) => {
-                Self::pattern_matcher(parents, schema, s, DATETIME.is_match(s), "date time pattern")?
+                Self::pattern_matcher(parents, &element, DATETIME.is_match(s), "date time pattern")?
             }
-            Some(StringFormat::Email) => {
-                Self::pattern_matcher(parents, schema, s, EMAIL.is_match(s), "email pattern")?
-            }
+            Some(StringFormat::Email) => Self::pattern_matcher(parents, &element, EMAIL.is_match(s), "email pattern")?,
             Some(StringFormat::Decimal) => {
-                Self::pattern_matcher(parents, schema, s, DECIMAL.is_match(s), "decimal pattern")?
+                Self::pattern_matcher(parents, &element, DECIMAL.is_match(s), "decimal pattern")?
             }
-            Some(StringFormat::Id) => Self::pattern_matcher(parents, schema, s, ID.is_match(s), "id pattern")?,
+            Some(StringFormat::Id) => Self::pattern_matcher(parents, &element, ID.is_match(s), "id pattern")?,
             _ => {
-                if let Some(pattern) = schema.get_pattern().filter(|p| !p.is_empty()) {
-                    let matched = js_regex_test(pattern, s).map_err(|e| {
-                        KIRunError::schema_validation(
-                            parents.schema_path(),
-                            format!("Invalid regular expression: /{pattern}/: {e}"),
-                        )
+                if let Some(pattern) = schema.get_pattern() {
+                    let matched = java_regex_matches(pattern, s).map_err(|e| {
+                        KIRunError::schema_validation(parents.schema_path(), format!("Unknown error occurred : {e}"))
                     })?;
-                    Self::pattern_matcher(parents, schema, s, matched, &format!("pattern {pattern}"))?;
+                    // kirun-java puts a custom pattern message inside its sentence.
+                    let what = message(schema, "pattern").unwrap_or_else(|| format!("pattern {pattern}"));
+                    Self::pattern_matcher(parents, &element, matched, &what)?;
                 }
             }
         }
 
         // JS `string.length` counts UTF-16 code units.
         let length = s.encode_utf16().count();
-        if let Some(min) = schema.get_min_length().copied().filter(|m| *m != 0) {
+        if let Some(min) = schema.get_min_length().copied() {
             if length < min {
                 return Err(KIRunError::schema_validation(
                     parents.schema_path(),
@@ -85,7 +91,7 @@ impl StringValidator {
                 ));
             }
         }
-        if let Some(max) = schema.get_max_length().copied().filter(|m| *m != 0) {
+        if let Some(max) = schema.get_max_length().copied() {
             if length > max {
                 return Err(KIRunError::schema_validation(
                     parents.schema_path(),
@@ -97,21 +103,22 @@ impl StringValidator {
         Ok(element)
     }
 
-    fn pattern_matcher<P: SchemaPath + ?Sized>(
-        parents: &P,
-        schema: &Schema,
-        element: &str,
-        matched: bool,
-        message_text: &str,
-    ) -> Result<()> {
+    /// kirun-java `patternMatcher`: `<value as JSON> is not matched with the <what>`.
+    fn pattern_matcher<P: SchemaPath + ?Sized>(parents: &P, element: &Value, matched: bool, what: &str) -> Result<()> {
         if !matched {
             return Err(KIRunError::schema_validation(
                 parents.schema_path(),
-                message(schema, "pattern").unwrap_or_else(|| format!("{element} is not matched with the {message_text}")),
+                format!("{} is not matched with the {what}", java_json(element)),
             ));
         }
         Ok(())
     }
+}
+
+/// Java `Pattern.compile(pattern).matcher(s).matches()`: the whole string. Patterns may use
+/// lookaround, so this uses `fancy_regex`.
+pub(crate) fn java_regex_matches(pattern: &str, s: &str) -> std::result::Result<bool, String> {
+    js_regex_test(&format!("^(?:{pattern})$"), s)
 }
 
 /// JS `new RegExp(pattern).test(s)`. JS patterns may use lookaround, so this uses `fancy_regex`.

@@ -1,5 +1,6 @@
 //! Port of kirun-js `function/system/date/AbstractDateFunction.ts`: shared parameters, events and
-//! the `ofEntry*` factories behind most `System.Date` functions.
+//! the `ofEntry*` factories behind most `System.Date` functions, which read timestamps with
+//! kirun-java's `DateUtil.getDateTime`.
 //!
 //! JS builds an anonymous subclass per entry; Rust uses one `DateFunction` holding the signature
 //! and a closure from the validated arguments to the output event's result map.
@@ -8,13 +9,12 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::function::system::date::common::get_date_time;
+use crate::function::system::date::java_time::{get_date_time, java_error, ZonedDateTime};
 use crate::function::{AbstractFunction, Function};
 use crate::json::schema::Schema;
 use crate::model::{Event, EventResult, FunctionOutput, FunctionSignature, Parameter};
 use crate::namespaces::Namespaces;
 use crate::runtime::function_execution_parameters::FunctionExecutionParameters;
-use crate::util::primitive::number_value;
 use crate::{Map, Result, Value};
 
 pub type DateBody = Arc<dyn Fn(&Map<Value>) -> Result<Map<Value>> + Send + Sync>;
@@ -42,6 +42,12 @@ impl DateFunction {
     /// A function whose signature does not come from the abstract constructor.
     pub fn with_signature(signature: FunctionSignature, event_name: &str, body: DateBody) -> Self {
         Self { signature, event_name: event_name.to_string(), body }
+    }
+
+    /// Raise the result under `event_name` whatever the signature declares.
+    pub fn raising(mut self, event_name: &str) -> Self {
+        self.event_name = event_name.to_string();
+        self
     }
 }
 
@@ -78,12 +84,35 @@ macro_rules! delegate_date_function {
 }
 pub(crate) use delegate_date_function;
 
-pub fn arg_str<'a>(args: &'a Map<Value>, name: &str) -> &'a str {
-    args.get(name).and_then(Value::as_str).unwrap_or("")
+/// Gson `JsonElement.getAsString()` of an argument (validated arguments are always present).
+pub fn arg_string(args: &Map<Value>, name: &str) -> Result<String> {
+    match args.get(name) {
+        Some(Value::String(s)) => Ok(s.clone()),
+        Some(Value::Number(n)) => Ok(n.to_string()),
+        Some(Value::Bool(b)) => Ok(b.to_string()),
+        Some(Value::Object(_)) => Err(java_error("JsonObject")),
+        Some(Value::Array(a)) if a.len() == 1 => {
+            let one = Map::from([(name.to_string(), a[0].clone())]);
+            arg_string(&one, name)
+        }
+        Some(Value::Array(a)) => Err(java_error(format!("Array must have size 1, but has size {}", a.len()))),
+        Some(Value::Null) => Err(java_error("JsonNull")),
+        None => Err(java_error(
+            "Cannot invoke \"com.google.gson.JsonElement.getAsString()\" because the return value of \"java.util.Map.get(Object)\" is null",
+        )),
+    }
 }
 
-pub fn arg_num(args: &Map<Value>, name: &str) -> f64 {
-    args.get(name).and_then(Value::as_f64).unwrap_or(f64::NAN)
+/// Gson `JsonElement.getAsInt()`: a fraction is cut off, a `long` keeps its low 32 bits.
+pub fn arg_int(args: &Map<Value>, name: &str) -> i32 {
+    match args.get(name) {
+        Some(Value::Number(n)) => match n.as_i64() {
+            Some(i) => i as i32,
+            None => n.as_f64().map_or(0, |f| f as i32),
+        },
+        Some(Value::String(s)) => s.trim().parse::<i64>().map_or(0, |i| i as i32),
+        _ => 0,
+    }
 }
 
 pub fn result_map(key: &str, value: Value) -> Map<Value> {
@@ -151,60 +180,62 @@ impl AbstractDateFunction {
 
     pub fn of_entry_timestamp_and_integer_output(
         name: &str,
-        fun: impl Fn(&str) -> Result<f64> + Send + Sync + 'static,
+        fun: impl Fn(&ZonedDateTime) -> i64 + Send + Sync + 'static,
     ) -> (String, Arc<dyn Function>) {
         Self::entry(
             name,
             Self::event_int(),
             vec![Self::parameter_timestamp()],
             Arc::new(move |a| {
-                Ok(result_map(Self::EVENT_RESULT_NAME, number_value(fun(arg_str(a, Self::PARAMETER_TIMESTAMP_NAME))?)))
+                let dt = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME)?)?;
+                Ok(result_map(Self::EVENT_RESULT_NAME, Value::from(fun(&dt))))
             }),
         )
     }
 
     pub fn of_entry_timestamp_and_boolean_output(
         name: &str,
-        fun: impl Fn(&str) -> Result<bool> + Send + Sync + 'static,
+        fun: impl Fn(&ZonedDateTime) -> bool + Send + Sync + 'static,
     ) -> (String, Arc<dyn Function>) {
         Self::entry(
             name,
             Self::event_boolean(),
             vec![Self::parameter_timestamp()],
             Arc::new(move |a| {
-                Ok(result_map(Self::EVENT_RESULT_NAME, Value::Bool(fun(arg_str(a, Self::PARAMETER_TIMESTAMP_NAME))?)))
+                let dt = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME)?)?;
+                Ok(result_map(Self::EVENT_RESULT_NAME, Value::Bool(fun(&dt))))
             }),
         )
     }
 
     pub fn of_entry_timestamp_and_string_output(
         name: &str,
-        fun: impl Fn(&str) -> Result<String> + Send + Sync + 'static,
+        fun: impl Fn(&ZonedDateTime) -> String + Send + Sync + 'static,
     ) -> (String, Arc<dyn Function>) {
         Self::entry(
             name,
             Self::event_string(),
             vec![Self::parameter_timestamp()],
             Arc::new(move |a| {
-                Ok(result_map(Self::EVENT_RESULT_NAME, Value::String(fun(arg_str(a, Self::PARAMETER_TIMESTAMP_NAME))?)))
+                let dt = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME)?)?;
+                Ok(result_map(Self::EVENT_RESULT_NAME, Value::String(fun(&dt))))
             }),
         )
     }
 
-    /// JS declares the `isoTimeStamp` event key but emits the value under `result`; kept.
+    /// kirun-java declares the `isoTimeStamp` event key but emits the value under `result`; kept.
     pub fn of_entry_timestamp_integer_and_timestamp_output(
         name: &str,
-        fun: impl Fn(&str, f64) -> Result<String> + Send + Sync + 'static,
+        fun: impl Fn(&ZonedDateTime, i64) -> Result<ZonedDateTime> + Send + Sync + 'static,
     ) -> (String, Arc<dyn Function>) {
         Self::entry(
             name,
             Self::event_timestamp(),
             vec![Self::parameter_timestamp(), Self::parameter_number()],
             Arc::new(move |a| {
-                Ok(result_map(
-                    Self::EVENT_RESULT_NAME,
-                    Value::String(fun(arg_str(a, Self::PARAMETER_TIMESTAMP_NAME), arg_num(a, Self::PARAMETER_NUMBER_NAME))?),
-                ))
+                let dt = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME)?)?;
+                let out = fun(&dt, arg_int(a, Self::PARAMETER_NUMBER_NAME) as i64)?;
+                Ok(result_map(Self::EVENT_RESULT_NAME, Value::String(out.format_iso())))
             }),
         )
     }
@@ -213,7 +244,7 @@ impl AbstractDateFunction {
     pub fn of_entry_timestamp_timestamp_and_t_output(
         name: &str,
         event: Event,
-        fun: impl Fn(&str, &str, &[Value]) -> Result<Value> + Send + Sync + 'static,
+        fun: impl Fn(&ZonedDateTime, &ZonedDateTime, &[Value]) -> Result<Value> + Send + Sync + 'static,
         extra: Vec<Parameter>,
     ) -> (String, Arc<dyn Function>) {
         let extra_names: Vec<String> = extra.iter().map(|p| p.get_parameter_name().to_string()).collect();
@@ -226,16 +257,15 @@ impl AbstractDateFunction {
             Arc::new(move |a| {
                 let extra_values: Vec<Value> =
                     extra_names.iter().map(|n| a.get(n).cloned().unwrap_or(Value::Null)).collect();
-                Ok(result_map(
-                    Self::EVENT_RESULT_NAME,
-                    fun(arg_str(a, Self::PARAMETER_TIMESTAMP_NAME_ONE), arg_str(a, Self::PARAMETER_TIMESTAMP_NAME_TWO), &extra_values)?,
-                ))
+                let t1 = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME_ONE)?)?;
+                let t2 = get_date_time(&arg_string(a, Self::PARAMETER_TIMESTAMP_NAME_TWO)?)?;
+                Ok(result_map(Self::EVENT_RESULT_NAME, fun(&t1, &t2, &extra_values)?))
             }),
         )
     }
 
-    /// `get_date_time` for closures.
-    pub fn dt(iso: &str) -> Result<crate::function::system::date::luxon::DateTime> {
+    /// kirun-java `DateUtil.getDateTime`, for closures.
+    pub fn dt(iso: &str) -> Result<ZonedDateTime> {
         get_date_time(iso)
     }
 }

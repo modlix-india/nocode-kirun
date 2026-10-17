@@ -1,4 +1,5 @@
-//! Port of kirun-js `function/system/date/*`.
+//! `System.Date` functions: the kirun-js set and signatures, behaving as kirun-java's (see
+//! `java_time` and `java_format`).
 
 pub mod abstract_date_function;
 pub mod add_subtract_time;
@@ -11,8 +12,9 @@ pub mod get_current;
 pub mod get_names;
 pub mod is_between;
 pub mod is_valid_iso_date;
+pub mod java_format;
+pub mod java_time;
 pub mod last_first_of;
-pub mod luxon;
 pub mod set_time_zone;
 pub mod start_end_of;
 pub mod time_as;

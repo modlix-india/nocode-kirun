@@ -1,6 +1,7 @@
-//! Port of kirun-js `json/schema/validator/BooleanValidator.ts`.
+//! Port of kirun-js `json/schema/validator/BooleanValidator.ts`, with kirun-java's message for a
+//! value that is not a boolean (`<value> is not a boolean`, the value as JSON).
 
-use crate::json::schema::validator::schema_validator::{format_value, SchemaPath};
+use crate::json::schema::validator::schema_validator::{java_json, SchemaPath};
 use crate::json::schema::Schema;
 use crate::{KIRunError, Result, Value};
 
@@ -18,7 +19,7 @@ impl BooleanValidator {
             Value::Bool(_) => Ok(element),
             _ => Err(KIRunError::schema_validation(
                 parents.schema_path(),
-                format!("Expected a boolean but found {}", format_value(&element)),
+                format!("{} is not a boolean", java_json(&element)),
             )),
         }
     }

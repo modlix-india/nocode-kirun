@@ -445,8 +445,9 @@ fn string_vs_number_equality_with_nested_expression_substitution() {
     let stv = StoreTokenValueExtractor { store: json!({ "strNumber": "413", "number": 413 }) };
     let vm = values_map(vec![Arc::new(stv)]);
 
-    // "413" (string) != 413 (number): different types
-    assert_json_eq!(eval(&vm, "Store.strNumber = Store.number"), json!(false));
+    // kirun-java compares a string with a number by text, so "413" = 413 (kirun-js: false,
+    // different types).
+    assert_json_eq!(eval(&vm, "Store.strNumber = Store.number"), json!(true));
 
     // {{Store.strNumber}} is substituted textually, giving "413 = Store.number"
     assert_json_eq!(eval(&vm, "{{Store.strNumber}} = Store.number"), json!(true));

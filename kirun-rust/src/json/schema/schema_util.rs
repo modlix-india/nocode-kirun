@@ -59,14 +59,18 @@ impl SchemaUtil {
         };
         let mut current = Arc::new(s.clone());
         loop {
-            if current.get_constant().is_some_and(js_truthy) {
-                return Ok(true);
-            }
-            if current.get_default_value().is_some_and(|d| !d.is_null()) {
+            // kirun-java: any constant or default value counts; a schema with neither, no
+            // `$ref` and no `type` fails (`getType().getAllowedSchemaTypes()` on null).
+            if current.get_constant().is_some() || current.get_default_value().is_some() {
                 return Ok(true);
             }
             if current.get_ref().is_none() {
-                return Ok(current.get_type().is_some_and(|t| t.contains(SchemaType::Null)));
+                return match current.get_type() {
+                    Some(t) => Ok(t.contains(SchemaType::Null)),
+                    None => Err(KIRunError::uncaught(
+                        "Cannot invoke \"com.fincity.nocode.kirun.engine.json.schema.type.Type.getAllowedSchemaTypes()\" because the return value of \"com.fincity.nocode.kirun.engine.json.schema.Schema.getType()\" is null",
+                    )),
+                };
             }
             let r = current.get_ref().map(str::to_string);
             match Self::get_schema_from_ref_arc(current, s_repository, r.as_deref(), 0).await? {

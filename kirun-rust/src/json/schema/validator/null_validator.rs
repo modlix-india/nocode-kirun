@@ -1,8 +1,8 @@
-//! Port of kirun-js `json/schema/validator/NullValidator.ts`.
+//! Port of kirun-js `json/schema/validator/NullValidator.ts`; the value in the message is JSON, as
+//! kirun-java prints it.
 
-use crate::json::schema::validator::schema_validator::SchemaPath;
+use crate::json::schema::validator::schema_validator::{java_json, SchemaPath};
 use crate::json::schema::Schema;
-use crate::util::primitive::js_to_string;
 use crate::{KIRunError, Result, Value};
 
 pub struct NullValidator;
@@ -19,7 +19,7 @@ impl NullValidator {
         }
         Err(KIRunError::schema_validation(
             parents.schema_path(),
-            format!("Expected a null but found {}", js_to_string(&element)),
+            format!("Expected a null but found {}", java_json(&element)),
         ))
     }
 }

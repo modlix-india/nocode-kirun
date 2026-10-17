@@ -1,10 +1,11 @@
-//! Port of kirun-js `function/system/math/MathFunctionRepository.ts`.
+//! Port of kirun-js `function/system/math/MathFunctionRepository.ts`, with kirun-java's result
+//! types (`MathOutput`) and kirun-java's `ToDegrees` / `ToRadians` (kirun-js has them swapped).
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use super::generic_math_function::{js_round, GenericMathFunction};
+use super::generic_math_function::{js_round, GenericMathFunction, MathOutput};
 use super::{Add, Hypotenuse, Maximum, Minimum, Random, RandomAny};
 use crate::function::Function;
 use crate::json::schema::r#type::SchemaType;
@@ -27,7 +28,13 @@ impl MathFunctionRepository {
     pub fn new() -> Self {
         use SchemaType::*;
         let functions: Vec<(&str, Arc<dyn Function>)> = vec![
-            ("Absolute", Arc::new(GenericMathFunction::new("Absolute", |v, _| v.abs(), 1, &[Integer, Long, Float, Double]))),
+            (
+                "Absolute",
+                Arc::new(
+                    GenericMathFunction::new("Absolute", |v, _| v.abs(), 1, &[Integer, Long, Float, Double])
+                        .with_output(MathOutput::SameType),
+                ),
+            ),
             ("ArcCosine", Arc::new(generic("ArcCosine", |v, _| v.acos()))),
             ("ArcSine", Arc::new(generic("ArcSine", |v, _| v.asin()))),
             ("ArcTangent", Arc::new(generic("ArcTangent", |v, _| v.atan()))),
@@ -40,14 +47,17 @@ impl MathFunctionRepository {
             ("Floor", Arc::new(generic("Floor", |v, _| v.floor()))),
             ("LogNatural", Arc::new(generic("LogNatural", |v, _| v.ln()))),
             ("Log10", Arc::new(generic("Log10", |v, _| v.log10()))),
-            ("Round", Arc::new(GenericMathFunction::new("Round", |v, _| js_round(v), 1, &[Integer, Long]))),
+            (
+                "Round",
+                Arc::new(GenericMathFunction::new("Round", |v, _| js_round(v), 1, &[Integer, Long]).with_output(MathOutput::Round)),
+            ),
             ("Sine", Arc::new(generic("Sine", |v, _| v.sin()))),
             ("HyperbolicSine", Arc::new(generic("HyperbolicSine", |v, _| v.sinh()))),
             ("Tangent", Arc::new(generic("Tangent", |v, _| v.tan()))),
             ("HyperbolicTangent", Arc::new(generic("HyperbolicTangent", |v, _| v.tanh()))),
-            // JS has ToDegrees and ToRadians swapped; kept as in JS.
-            ("ToDegrees", Arc::new(generic("ToDegrees", |v, _| v * (std::f64::consts::PI / 180.0)))),
-            ("ToRadians", Arc::new(generic("ToRadians", |v, _| v * (180.0 / std::f64::consts::PI)))),
+            // kirun-java `Math.toDegrees` / `Math.toRadians` (kirun-js has the two swapped).
+            ("ToDegrees", Arc::new(generic("ToDegrees", |v, _| v * 57.295_779_513_082_32))),
+            ("ToRadians", Arc::new(generic("ToRadians", |v, _| v * 0.017_453_292_519_943_295))),
             ("SquareRoot", Arc::new(generic("SquareRoot", |v, _| v.sqrt()))),
             (
                 "ArcTangent2",

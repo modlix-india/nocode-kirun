@@ -1,8 +1,9 @@
-//! Port of kirun-js `runtime/expression/operators/binary/LogicalGreaterThanOperator.ts`.
+//! Port of kirun-js `runtime/expression/operators/binary/LogicalGreaterThanOperator.ts`, answering as kirun-java's
+//! (see `java_semantics`).
 
 use super::binary_operator::BinaryOperator;
+use crate::runtime::expression::operators::java_semantics as java;
 use crate::{Result, Value};
-use crate::runtime::expression::js;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct LogicalGreaterThanOperator;
@@ -15,6 +16,6 @@ impl LogicalGreaterThanOperator {
 
 impl BinaryOperator for LogicalGreaterThanOperator {
     fn apply(&self, t: &Value, u: &Value) -> Result<Value> {
-                js::compare(t, u, ">", |a, b| a > b, |a, b| a > b)
+        java::compare(t, u, ">")
     }
 }

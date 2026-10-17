@@ -1,23 +1,16 @@
-//! Port of kirun-js `function/system/date/AddSubtractTime.ts`.
+//! kirun-java `function/system/date/AddSubtractTime.java`: years, months and days on the local
+//! date-time, then hours, minutes, seconds and milliseconds on the instant, each amount read
+//! with Gson's `getAsInt` (a fraction is cut off).
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_int, arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_time::{get_date_time, Unit};
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::model::Parameter;
+use crate::Value;
 
 pub struct AddSubtractTime(DateFunction);
 
@@ -30,11 +23,19 @@ impl AddSubtractTime {
     pub const PARAMETER_SECONDS_NAME: &'static str = "seconds";
     pub const PARAMETER_MILLISECONDS_NAME: &'static str = "milliseconds";
 
-    const UNITS: [&'static str; 7] = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
+    const UNITS: [(&'static str, Unit); 7] = [
+        ("years", Unit::Years),
+        ("months", Unit::Months),
+        ("days", Unit::Days),
+        ("hours", Unit::Hours),
+        ("minutes", Unit::Minutes),
+        ("seconds", Unit::Seconds),
+        ("milliseconds", Unit::Millis),
+    ];
 
     pub fn new(is_add: bool) -> Self {
         let mut params = vec![A::parameter_timestamp()];
-        for u in Self::UNITS {
+        for (u, _) in Self::UNITS {
             params.push(Parameter::of(u, Schema::of_number(u).set_default_value(Value::from(0)), false));
         }
         Self(DateFunction::new(
@@ -42,12 +43,12 @@ impl AddSubtractTime {
             A::event_timestamp(),
             params,
             Arc::new(move |a| {
-                let dt = get_date_time(arg_str(a, A::PARAMETER_TIMESTAMP_NAME))?;
-                let pairs: Vec<(&str, f64)> =
-                    Self::UNITS.iter().map(|u| (*u, a.get(*u).and_then(Value::as_f64).unwrap_or(0.0))).collect();
-                let dur = Duration::from_pairs(&pairs);
-                let out = if is_add { dt.plus(&dur) } else { dt.minus(&dur) };
-                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(out.to_iso())))
+                let mut dt = get_date_time(&arg_string(a, A::PARAMETER_TIMESTAMP_NAME)?)?;
+                let amounts: Vec<i64> = Self::UNITS.iter().map(|(u, _)| arg_int(a, u) as i64).collect();
+                for ((_, unit), amount) in Self::UNITS.iter().zip(amounts) {
+                    dt = dt.plus(if is_add { amount } else { -amount }, *unit)?;
+                }
+                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(dt.format_iso())))
             }),
         ))
     }

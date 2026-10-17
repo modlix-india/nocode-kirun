@@ -1,5 +1,8 @@
 //! Port of kirun-js `exception/*` plus the schema validator/convertor exceptions.
-//! `Display` reproduces the JS `error.message` of each exception class exactly.
+//! `Display` reproduces the `error.message` of each exception class. The schema exceptions
+//! follow kirun-java's `getMessage()` (`<schema path> - <message>`), which stored server
+//! functions answer with; kirun-js leaves the path out (and writes `path-message` for a
+//! reference error). `Uncaught` is kirun-java's own unchecked exceptions.
 
 use thiserror::Error;
 
@@ -13,24 +16,34 @@ pub enum KIRunError {
     #[error("{0}")]
     Execution(String),
 
+    /// An unchecked Java exception kirun-java lets out of a function as it is: a
+    /// `NullPointerException` from Reactor (`value` for `Mono.just(null)`, `t2` for
+    /// `Tuples.of(k, null)`) or from Gson (the JVM's helpful message), an `IllegalStateException`
+    /// from `Collectors.toMap`. Its message is the Java message, and no wrapper adds the function
+    /// or parameter to it (kirun-java's `AbstractReactiveFunction` and argument validation do
+    /// not catch these), so it reaches the caller exactly as kirun-java's does.
+    #[error("{0}")]
+    Uncaught(String),
+
     /// JS `ExpressionEvaluationException`: `expression + ' : ' + message`.
     #[error("{expression} : {message}")]
     ExpressionEvaluation { expression: String, message: String },
 
-    /// JS `SchemaValidationException`: message, then each cause's message on its own line.
-    #[error("{}", with_causes(.message, .causes))]
+    /// kirun-java `SchemaValidationException`: `path - ` when the path is not blank, the message,
+    /// then each cause's message (with its own path) on its own line.
+    #[error("{}", with_path(.schema_path, &with_causes(.message, .causes)))]
     SchemaValidation {
         schema_path: String,
         message: String,
         causes: Vec<KIRunError>,
     },
 
-    /// JS `SchemaReferenceException`: `path-message` when the path is not blank.
-    #[error("{}", if .schema_path.trim().is_empty() { .message.clone() } else { format!("{}-{}", .schema_path, .message) })]
+    /// kirun-java `SchemaReferenceException`: `path - message` when the path is not blank.
+    #[error("{}", with_path(.schema_path, .message))]
     SchemaReference { schema_path: String, message: String },
 
-    /// JS `SchemaConversionException`.
-    #[error("{}", with_causes(.message, .causes))]
+    /// kirun-java `SchemaConversionException`: as `SchemaValidation`.
+    #[error("{}", with_path(.schema_path, &with_causes(.message, .causes)))]
     SchemaConversion {
         schema_path: String,
         source_value: String,
@@ -38,6 +51,16 @@ pub enum KIRunError {
         mode: Option<String>,
         causes: Vec<KIRunError>,
     },
+}
+
+/// kirun-java's `getMessage()` for the schema exceptions: the path first, unless it is blank
+/// (Java `String.isBlank`).
+fn with_path(schema_path: &str, message: &str) -> String {
+    if schema_path.trim().is_empty() {
+        message.to_string()
+    } else {
+        format!("{schema_path} - {message}")
+    }
 }
 
 fn with_causes(message: &str, causes: &[KIRunError]) -> String {
@@ -53,6 +76,16 @@ impl KIRunError {
 
     pub fn execution(message: impl Into<String>) -> Self {
         KIRunError::Execution(message.into())
+    }
+
+    /// See [`KIRunError::Uncaught`].
+    pub fn uncaught(message: impl Into<String>) -> Self {
+        KIRunError::Uncaught(message.into())
+    }
+
+    /// Whether wrappers must pass this error on unchanged ([`KIRunError::Uncaught`]).
+    pub fn is_uncaught(&self) -> bool {
+        matches!(self, KIRunError::Uncaught(_))
     }
 
     pub fn expression_evaluation(expression: impl Into<String>, message: impl Into<String>) -> Self {

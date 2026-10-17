@@ -31,7 +31,8 @@ async fn schema_validator_test_1() {
 
     assert_err_contains(
         SchemaValidator::validate(Some(vec![]), Some(&obj_schema), Some(&repo), json!({ "name": 123 })).await,
-        "Expected a string but found 123",
+        // kirun-java's wording (kirun-js: "Expected a string but found 123").
+        "123 is not String",
     );
 
     // expect(await SchemaValidator.validate([], schema, repo, 2.5)).toThrowError(new SchemaValidationException('', '2.5 is not a number of type Integer'));
