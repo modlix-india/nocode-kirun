@@ -7,6 +7,7 @@ mod array_contains_validator_test;
 mod array_schema_adapter_type_test;
 mod array_schema_type_test;
 mod array_validator_test;
+mod java_parity_test;
 mod any_of_all_of_one_of_enforced_test;
 mod any_of_all_of_one_of_validator_test;
 mod boolean_convertor_test;

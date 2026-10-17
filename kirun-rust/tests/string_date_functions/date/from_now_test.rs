@@ -1,6 +1,8 @@
 //! Port of kirun-js `__tests__/engine/function/system/date/FromNowTest.ts`.
-//! JS: `Settings.defaultZone = 'Asia/Kolkata'`. Strings come from luxon `toRelative`, which
-//! uses `Intl.RelativeTimeFormat` (en and fr locale data).
+//! JS: `Settings.defaultZone = 'Asia/Kolkata'`. kirun-js prints luxon's `toRelative`; kirun-java
+//! (which stored server functions run on) calls `DateUtil.toRelative(base, timestamp)`, base
+//! first, so a timestamp after the base reads "... ago", always in English long units (it ignores
+//! `locale`, and reads `format` with its JSON quotes so `SHORT` never applies).
 
 use kirun::function::system::date::from_now::FromNow;
 use serde_json::json;
@@ -15,7 +17,7 @@ async fn should_return_the_relative_date() {
 
     let result = first_value(&FromNow::new(), fep, "result").await.unwrap();
 
-    assert_json_eq!(result, json!("in 8 months"));
+    assert_json_eq!(result, json!("8 months ago"));
 }
 
 #[tokio::test]
@@ -30,7 +32,7 @@ async fn should_return_the_relative_date_with_units() {
 
     let ret_value = first_value(&FromNow::new(), fep, "result").await.unwrap();
 
-    assert!(ret_value == json!("in 20 mo") || ret_value == json!("in 20 mo."), "got {ret_value}");
+    assert_json_eq!(ret_value, json!("20 months ago"));
 }
 
 #[tokio::test]
@@ -46,5 +48,5 @@ async fn should_return_the_relative_date_with_locale() {
 
     let result = first_value(&FromNow::new(), fep, "result").await.unwrap();
 
-    assert_json_eq!(result, json!("dans 617 jours"));
+    assert_json_eq!(result, json!("617 days ago"));
 }

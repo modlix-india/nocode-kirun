@@ -118,7 +118,8 @@ impl AnyOfAllOfOneOfValidator {
 
         Err(KIRunError::schema_validation_with(
             parents.path(),
-            "The value doesn't satisfy some of the schemas.",
+            // kirun-java's wording (kirun-js writes "doesn't").
+            "The value don't satisfy some of the schemas.",
             std::mem::take(list),
         ))
     }

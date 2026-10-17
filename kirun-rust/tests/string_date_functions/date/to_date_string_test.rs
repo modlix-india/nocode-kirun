@@ -32,7 +32,8 @@ async fn should_return_the_date_string_in_the_given_format_with_locale() {
 
     let result = first_value(&ToDateString::new(), fep, "result").await.unwrap();
 
-    assert_json_eq!(result, json!("1 janvier 2024"));
+    // kirun-java ignores `locale` and formats in the default locale; kirun-js gave "1 janvier 2024".
+    assert_json_eq!(result, json!("January 1, 2024"));
 }
 
 #[tokio::test]

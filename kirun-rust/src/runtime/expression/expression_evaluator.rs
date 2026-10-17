@@ -29,6 +29,7 @@ use crate::runtime::expression::tokenextractor::token_value_extractor::{
     normalize_root_bracket, TokenValueExtractor, ValuesMap,
 };
 use crate::runtime::expression::Expression;
+use crate::json::schema::validator::schema_validator::java_json;
 use crate::util::string::string_formatter::StringFormatter;
 use crate::{KIRunError, Result, Value};
 
@@ -205,6 +206,12 @@ fn evaluate_literal(exp_str: &str) -> Value {
         _ => {}
     }
     if number_regex().is_match(exp_str) {
+        // kirun-java `Long.parseLong` for a whole number: exact, not through a double.
+        if !exp_str.contains('.') {
+            if let Ok(i) = exp_str.parse::<i64>() {
+                return Value::from(i);
+            }
+        }
         return exp_str.parse::<f64>().map(js::num).unwrap_or(Value::Null);
     }
     if single_quote_regex().is_match(exp_str) || double_quote_regex().is_match(exp_str) {
@@ -276,6 +283,16 @@ impl ExpressionEvaluator {
         // Lives on the stack and stays empty (no allocation) unless an object path needs it.
         let internal = ExpressionInternalValueExtractor::new();
         self.evaluate_with_internal(values_map, &internal)
+    }
+
+    /// `evaluate`, but `None` where kirun-java's evaluator returns Java `null` (a plain path to
+    /// a missing value) rather than JSON `null`; see [`super::java_null`].
+    pub fn evaluate_or_missing(&self, values_map: &ValuesMap) -> Result<Option<Value>> {
+        let v = self.evaluate(values_map)?;
+        if v.is_null() && super::java_null::is_missing(&self.expression, values_map) {
+            return Ok(None);
+        }
+        Ok(Some(v))
     }
 
     pub fn get_expression(&self) -> Result<Expression> {
@@ -459,10 +476,19 @@ impl ExpressionEvaluator {
         }
 
         if st.working.len() != 1 {
-            let list = st.working.iter().map(|t| t.get().to_string()).collect::<Vec<_>>().join(",");
-            return Err(KIRunError::execution(StringFormatter::format(
-                "Expression : $ evaluated multiple values $",
-                &[&exp.to_string(), &list],
+            // kirun-java evaluates the tokens left over, then refuses more than one, printing its
+            // deque of `ExpressionTokenValue("", value)`s (`[: "a", : "b"]`, in text order).
+            let mut values = Vec::with_capacity(st.working.len());
+            for t in &st.working {
+                values.push(match t.get() {
+                    ExpressionToken::Value(v) => v.get_element().clone(),
+                    other => self.get_value_from_token(values_map, other, internal)?,
+                });
+            }
+            let list: Vec<String> = values.iter().rev().map(|v| format!(": {}", java_json(v))).collect();
+            return Err(KIRunError::execution(format!(
+                "Expression : {exp} evaluated multiple values [{}]",
+                list.join(", ")
             )));
         }
 
@@ -634,9 +660,11 @@ impl ExpressionEvaluator {
         operator: Operation,
         v1: Value,
         v2: Value,
-        values_map: &ValuesMap,
+        _values_map: &ValuesMap,
     ) -> Result<ExpressionToken> {
-        if (js::is_object(&v1) || js::is_object(&v2))
+        // kirun-java refuses only when both sides are arrays or objects (kirun-js: either side);
+        // one primitive side is left to the operator, which names the other.
+        if (js::is_object(&v1) && js::is_object(&v2))
             && operator != Operation::EQUAL
             && operator != Operation::NOT_EQUAL
             && operator != Operation::NULLISH_COALESCING_OPERATOR
@@ -647,7 +675,7 @@ impl ExpressionEvaluator {
                 &self.expression,
                 &StringFormatter::format(
                     "Cannot evaluate expression $ $ $",
-                    &[&js::to_js_string(&v1), operator.get_operator(), &js::to_js_string(&v2)],
+                    &[&java_json(&v1), operator.get_operator(), &java_json(&v2)],
                 ),
             ));
         }
@@ -657,22 +685,14 @@ impl ExpressionEvaluator {
                 &self.expression,
                 &StringFormatter::format(
                     "No operator found to evaluate $ $ $",
-                    &[&js::to_js_string(&v1), operator.get_operator(), &js::to_js_string(&v2)],
+                    &[&java_json(&v1), operator.get_operator(), &java_json(&v2)],
                 ),
             ));
         };
 
-        let mut result = op.apply(&v1, &v2)?;
-
-        if operator == Operation::NULLISH_COALESCING_OPERATOR {
-            if let Some(s) = result.as_str() {
-                if !s.trim().is_empty() && looks_like_expression(s) {
-                    if let Ok(r) = ExpressionEvaluator::new(s).evaluate(values_map) {
-                        result = r;
-                    }
-                }
-            }
-        }
+        // kirun-js evaluates a `??` result again when it looks like an expression; kirun-java
+        // returns it as it is.
+        let result = op.apply(&v1, &v2)?;
 
         Ok(ExpressionToken::Value(ExpressionTokenValue::new(operator.get_operator(), result)))
     }
@@ -684,20 +704,14 @@ impl ExpressionEvaluator {
         {
             return Err(expression_evaluation_exception(
                 &self.expression,
-                &StringFormatter::format(
-                    "The operator $ cannot be applied to $",
-                    &[operator.get_operator(), &js::to_js_string(&value)],
-                ),
+                &StringFormatter::format("The operator $ cannot be applied to $", &[operator.get_operator(), &java_json(&value)]),
             ));
         }
 
         let Some(op) = unary_operator(operator) else {
             return Err(expression_evaluation_exception(
                 &self.expression,
-                &StringFormatter::format(
-                    "No Unary operator $ is found to apply on $",
-                    &[operator.get_operator(), &js::to_js_string(&value)],
-                ),
+                &StringFormatter::format("No Unary operator $ is found to apply on $", &[operator.get_operator(), &java_json(&value)]),
             ));
         };
 
@@ -729,19 +743,6 @@ impl ExpressionEvaluator {
         }
         LiteralTokenValueExtractor::INSTANCE.get_value_from_extractors(&path, values_map)
     }
-}
-
-fn looks_like_expression(s: &str) -> bool {
-    let trimmed = s.trim();
-    if trimmed.is_empty() {
-        return false;
-    }
-    if trimmed.chars().any(|c| "+-*/%=<>!&|?:".contains(c)) {
-        return true;
-    }
-    ["Store.", "Context.", "Arguments.", "Steps.", "Page.", "Parent."]
-        .iter()
-        .any(|p| trimmed.contains(p))
 }
 
 /// Finds the innermost `{{ }}` pair (one whose content has no `{{`): `(start, end, content)`,
@@ -790,95 +791,11 @@ fn find_innermost_pair(expr: &str) -> Option<(usize, usize, String)> {
     None
 }
 
-/// JS `evaluateLiteralPropertyAccess`: `2.val` is `undefined`, `"abc".length` is 3.
+/// JS `evaluateLiteralPropertyAccess` (`2.val` is `undefined`, `"abc".length` is 3). kirun-java
+/// has no property access on literals: a path whose prefix names no extractor is the literal
+/// text of the whole path (`2.val`, `"abc".length`).
 fn evaluate_literal_property_access(str: &str) -> Value {
-    let Some(dot_idx) = str.find('.') else { return Value::String(str.to_string()) };
-    let base_part = &str[..dot_idx];
-    let prop_part = &str[dot_idx + 1..];
-
-    let Some(base_value) = LiteralTokenValueExtractor::INSTANCE.try_get_value(base_part) else {
-        return Value::String(str.to_string());
-    };
-    if base_value.is_null() {
-        return Value::Null;
-    }
-
-    let mut result = base_value;
-    for prop in split_property_path(prop_part) {
-        if result.is_null() {
-            return Value::Null;
-        }
-        result = if prop.contains('[') { access_property_with_brackets(&result, &prop) } else { js_property(&result, &prop) };
-    }
-    result
-}
-
-fn split_property_path(path: &str) -> Vec<String> {
-    let mut parts = Vec::new();
-    let mut current = String::new();
-    let mut in_bracket = false;
-    for ch in path.chars() {
-        if ch == '[' {
-            if !current.is_empty() {
-                parts.push(std::mem::take(&mut current));
-            }
-            in_bracket = true;
-            current.push(ch);
-        } else if ch == ']' {
-            current.push(ch);
-            in_bracket = false;
-            parts.push(std::mem::take(&mut current));
-        } else if ch == '.' && !in_bracket {
-            if !current.is_empty() {
-                parts.push(std::mem::take(&mut current));
-            }
-        } else {
-            current.push(ch);
-        }
-    }
-    if !current.is_empty() {
-        parts.push(current);
-    }
-    parts
-}
-
-/// JS `value[prop]` for JSON values.
-fn js_property(value: &Value, prop: &str) -> Value {
-    let index = |len: usize| prop.parse::<usize>().ok().filter(|i| *i < len && prop.chars().all(|c| c.is_ascii_digit()));
-    match value {
-        Value::Object(o) => o.get(prop).cloned().unwrap_or(Value::Null),
-        Value::Array(a) => {
-            if prop == "length" {
-                Value::from(a.len())
-            } else {
-                index(a.len()).map(|i| a[i].clone()).unwrap_or(Value::Null)
-            }
-        }
-        Value::String(s) => {
-            if prop == "length" {
-                Value::from(js::str_len(s))
-            } else {
-                index(js::str_len(s)).and_then(|i| js::char_at(s, i)).map(Value::String).unwrap_or(Value::Null)
-            }
-        }
-        _ => Value::Null,
-    }
-}
-
-fn access_property_with_brackets(obj: &Value, prop: &str) -> Value {
-    if prop.len() > 2 && prop.starts_with('[') && prop.ends_with(']') {
-        let mut key = &prop[1..prop.len() - 1];
-        if key.len() >= 2
-            && ((key.starts_with('"') && key.ends_with('"')) || (key.starts_with('\'') && key.ends_with('\'')))
-        {
-            key = &key[1..key.len() - 1];
-        }
-        if let Some(n) = js::parse_int(key) {
-            return js_property(obj, &js::number_to_string(n));
-        }
-        return js_property(obj, key);
-    }
-    js_property(obj, prop)
+    Value::String(str.to_string())
 }
 
 /// JS `buildPathString`: a path expression without parentheses (`a.(b.c)` -> `a.b.c`).

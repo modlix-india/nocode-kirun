@@ -1,8 +1,12 @@
 # kirun-rust
 
 Rust runtime for **KIRun** (Kinetic Instructions), the function-graph engine behind
-Modlix. It is a port of [kirun-js](https://github.com/modlix-india/nocode-kirun/tree/master/kirun-js) and runs the same JSON function
-definitions with the same results.
+Modlix. It is a port of [kirun-js](https://github.com/modlix-india/nocode-kirun/tree/master/kirun-js) (same layout and names) and runs the
+same JSON function definitions. Since 2.0.0 its results follow
+[kirun-java](https://github.com/modlix-india/nocode-kirun/tree/master/kirun-java) 4.9.2 where kirun-js
+and kirun-java differ (dates, Math result types, operators, schema messages, errors), because the
+server functions it runs were written against kirun-java. [DESIGN.md](https://github.com/modlix-india/nocode-kirun/blob/master/kirun-rust/DESIGN.md)
+lists each difference.
 
 ## Status
 
@@ -10,8 +14,8 @@ Complete port of kirun-js: schema validation and conversion, the expression engi
 every built-in function (System, Context, Loop, JSON, Math, String, Array, Object,
 Date), `KIRuntime` with the debug collector, and the DSL compiler and decompiler.
 
-* **Tests:** 781 tests, ported from every file in `kirun-js/__tests__` plus the DSL
-  cases that exist only in kirun-py. All pass.
+* **Tests:** ported from every file in `kirun-js/__tests__` plus the DSL cases that exist
+  only in kirun-py, and the `java_*` files with answers measured on kirun-java. All pass.
 * **DSL conformance with kirun-js:** run over the 14,303 stored functions in
   `../test-data/functions`, kirun-rust's compiled JSON is identical for all 14,299
   that kirun-js can process. Decompiled text is identical for 14,298; the one
@@ -41,10 +45,23 @@ kirun-java everywhere except expressions.
 
 ```toml
 [dependencies]
-kirun = "1"
+kirun = "2"
 ```
 
 or `cargo add kirun`. The library is used as `kirun` (`use kirun::runtime::KIRuntime;`).
+
+Dates use the process's default zone and locale, as the JVM does: the zone from `TZ` (else
+`/etc/timezone`, else the `/etc/localtime` link), the locale from `KIRUN_LOCALE` (else `LC_ALL`,
+`LC_TIME`, `LANG`, else `en_US`). To get the same answers as a kirun-java server, set both to that
+JVM's values.
+
+### Upgrading from 1.x
+
+* Answers change where kirun-js and kirun-java differ (see DESIGN.md, "Where kirun-rust answers as
+  kirun-java"); for example `Floor` and `SquareRoot` return doubles, `Round` is `Math.round`, and
+  date patterns are `DateTimeFormatter` patterns.
+* `function::system::date::luxon` is gone (`DateTime`, `Zone` and the calendar helpers); the date
+  functions are built on `function::system::date::java_time` and `java_format`.
 
 ## Layout
 

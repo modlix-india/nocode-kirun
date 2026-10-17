@@ -1,27 +1,22 @@
-//! Port of kirun-js `function/system/date/common.ts`, plus the Rust stand-in for luxon's
-//! process-wide `Settings.defaultZone`.
-//!
-//! The default zone is **thread-local** so that tests running in parallel (each
-//! `#[tokio::test]` uses a current-thread runtime on its own thread) can each pick a zone,
-//! the way every jest file sets `Settings.defaultZone` in its own module registry.
-//! Accepted values follow luxon: an IANA name (`Asia/Kolkata`), `UTC`, or `UTC+05:30`.
+//! Thread-local defaults for the date functions' tests: the zone (`TimeZone.setDefault` in
+//! kirun-java's tests) and the locale. Production uses the machine's, as the JVM does (see
+//! `java_time`).
 
-use crate::function::system::date::luxon::{DateTime, Zone};
-use crate::{KIRunError, Result};
+use crate::function::system::date::java_time::{set_thread_locale, set_thread_zone, system_default_zone, ZoneId};
+pub use crate::function::system::date::java_time::get_date_time;
 
-/// JS `getDateTime(isoTimestamp)`: `DateTime.fromISO(iso, { setZone: true })`, error
-/// `Invalid ISO timestamp` when invalid.
-pub fn get_date_time(iso_timestamp: &str) -> Result<DateTime> {
-    DateTime::from_iso(iso_timestamp, true).ok_or_else(|| KIRunError::runtime("Invalid ISO timestamp"))
-}
-
-/// luxon `Settings.defaultZone = zone` for the current thread. An unknown zone resets to the
-/// system zone (luxon would make every DateTime invalid instead).
+/// Sets the default zone for the current thread (a Java zone ID: `Asia/Kolkata`, `UTC`,
+/// `+05:30`). An ID Java refuses resets to the machine's zone.
 pub fn set_default_zone(zone: &str) {
-    Zone::set_default_zone(Zone::parse(zone));
+    set_thread_zone(ZoneId::of(zone).ok());
 }
 
-/// luxon `Settings.defaultZone.name` for the current thread.
+/// The default zone's ID for the current thread.
 pub fn get_default_zone() -> String {
-    Zone::default_zone().name()
+    system_default_zone().id()
+}
+
+/// Sets (or with `None`, clears) the default locale for the current thread (`en_US`, `en-IN`).
+pub fn set_default_locale(locale: Option<&str>) {
+    set_thread_locale(locale);
 }

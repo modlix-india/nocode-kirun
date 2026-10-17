@@ -61,9 +61,6 @@ impl<T: AbstractFunction> Function for T {
 
     async fn execute(&self, context: &mut FunctionExecutionParameters) -> Result<FunctionOutput> {
         let signature = AbstractFunction::get_signature(self);
-        let statement_name = context
-            .get_statement_execution()
-            .map(|se| se.get_statement().get_statement_name().to_string());
         let args = validate_arguments(
             signature,
             context.get_arguments().cloned().unwrap_or_default(),
@@ -72,15 +69,11 @@ impl<T: AbstractFunction> Function for T {
         )
         .await?;
         context.set_arguments_in_place(args);
-        self.internal_execute(context).await.map_err(|err| {
-            KIRunError::runtime(ErrorMessageFormatter::build_function_execution_error(
-                &ErrorMessageFormatter::format_function_name(signature.get_namespace(), signature.get_name()),
-                &ErrorMessageFormatter::format_statement_name(statement_name.as_deref()),
-                &ErrorMessageFormatter::format_error_message(&err),
-                None,
-                None,
-            ))
-        })
+        // kirun-java's `AbstractReactiveFunction.execute` names the function and parameter only
+        // for an argument that fails validation; an error the function raises while it runs
+        // reaches the caller as it is (kirun-js wraps it in "Error while executing the function
+        // <name> in statement '<step>': ...").
+        self.internal_execute(context).await
     }
 
     fn as_any(&self) -> Option<&dyn Any> {
@@ -88,7 +81,15 @@ impl<T: AbstractFunction> Function for T {
     }
 }
 
-/// JS `AbstractFunction.validateArguments`.
+/// JS `AbstractFunction.validateArguments`, with kirun-java's
+/// `ReactiveArgumentsValidationUtil.validateArguments` where they differ.
+///
+/// kirun-java tells an argument that is not there (Java `null`; a step's argument whose
+/// expression came to nothing is left out) from one that is JSON `null`: an absent argument
+/// whose parameter schema has no `type` (a bare `$ref`, `{}`) and nothing that answers before
+/// the type check (default, constant, enums, format) makes `ReactiveSchemaValidator` call
+/// `Mono.just(null)`, and the run fails with Reactor's `NullPointerException` "value", outside
+/// the wrapper that names the parameter. kirun-js validates `undefined` like `null`.
 pub async fn validate_arguments(
     signature: &FunctionSignature,
     args: Map<Value>,
@@ -97,6 +98,9 @@ pub async fn validate_arguments(
 ) -> Result<Map<Value>> {
     let mut retmap = Map::new();
     for (key, param) in signature.get_parameters() {
+        if !param.is_variable_argument() && !args.contains_key(key) && java_null_reaches_mono_just(param.get_schema()) {
+            return Err(KIRunError::uncaught("value"));
+        }
         let element = args.get(key).cloned().unwrap_or(Value::Null);
         let validated: Result<Value> = async {
             if !param.is_variable_argument() {
@@ -147,4 +151,15 @@ pub async fn validate_arguments(
         }
     }
     Ok(retmap)
+}
+
+/// kirun-java `ReactiveSchemaValidator.validateSchema` with a Java `null` element: a default
+/// value, a constant, enums or a format answer first; otherwise `typeValidation` returns
+/// `Mono.just(element)` for a schema without a `type`, which throws on `null`.
+fn java_null_reaches_mono_just(schema: &Schema) -> bool {
+    schema.get_default_value().is_none()
+        && schema.get_constant().is_none()
+        && schema.get_enums().is_none_or(|e| e.is_empty())
+        && schema.get_format().is_none()
+        && schema.get_type().is_none()
 }

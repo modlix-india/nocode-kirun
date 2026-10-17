@@ -56,8 +56,10 @@ async fn should_return_the_difference_in_negative_months_days_hours_minutes() {
         "unit" => json!(["MONTHS", "DAYS", "HOURS", "MINUTES"]),
     })
     .await;
-    // JS compares primitives with Object.is, so `days` must be +0 there; json_eq treats -0 == 0.
-    assert_match_object(&result, &json!({ "months": -16, "days": 0, "hours": -10, "minutes": -30 }));
+    // kirun-java splits the millisecond gap over fixed-length units (a month is 30 days) and
+    // skips a unit larger than what is left, so there is no `days` key; the last unit is a
+    // double. kirun-js (luxon) answered { months: -16, days: 0, hours: -10, minutes: -30 }.
+    assert_json_eq!(result, json!({ "months": -16, "hours": -10, "minutes": -30.0 }));
 }
 
 #[tokio::test]
@@ -79,6 +81,7 @@ async fn should_return_the_difference_in_multiple_fractions() {
         "unit" => json!(["DAYS", "HOURS"]),
     })
     .await;
-    // Exact JS float (luxon's floating-point remainder), kept verbatim.
-    assert_match_object(&result, &json!({ "days": -480, "hours": -9.448055555554674 }));
+    // kirun-java's float (the remaining milliseconds over an hour); luxon's remainder gave
+    // -9.448055555554674.
+    assert_match_object(&result, &json!({ "days": -480, "hours": -9.448055555555555 }));
 }

@@ -15,7 +15,6 @@ use kirun::namespaces::Namespaces;
 use kirun::repository::Repository;
 use kirun::runtime::{FunctionExecutionParameters, KIRuntime};
 use kirun::util::map_util::MapUtil;
-use kirun::util::primitive::number_value;
 use kirun::Value;
 use serde_json::json;
 
@@ -26,20 +25,17 @@ use crate::{expr_ref, hybrid_with, shared_lock, value_ref};
 async fn ki_runtime_test_1() {
     let _lock = shared_lock();
     let num: usize = 7000;
-    // JS numbers are doubles: from fib(79) on the values lose precision, and from fib(1477)
-    // on they are Infinity. JS keeps Infinity in memory (Infinity + x stays Infinity) and only
-    // serialises it as null; serde_json::Value cannot hold Infinity, so Rust stores null at
-    // 1477, and `null + x` is `x` in KIRun (as in JS). The values therefore diverge after the
-    // first non-finite one: compare the length, and the finite prefix by value (see json_eq).
-    let mut array: Vec<f64> = Vec::with_capacity(num);
-    let (a, b) = (0.0, 1.0);
-    array.push(a);
-    array.push(b);
+    // kirun-java's KIRuntimeTest: the expression `+` adds Java `int`s, which wrap at 32 bits,
+    // so the expected series is built with `int` addition (kirun-js adds doubles, losing
+    // precision from fib(79) and reaching Infinity at fib(1477)).
+    let mut array: Vec<i32> = Vec::with_capacity(num);
+    array.push(0);
+    array.push(1);
 
     for i in 2..num {
-        array.push(array[i - 2] + array[i - 1]);
+        array.push(array[i - 2].wrapping_add(array[i - 1]));
     }
-    let expected = Value::Array(array.iter().map(|&n| number_value(n)).collect());
+    let expected = Value::Array(array.iter().map(|&n| json!(n)).collect());
 
     let integer_schema = json!({ "name": "EachElement", "type": "INTEGER" });
     let array_of_integer_schema = json!({
@@ -111,12 +107,7 @@ async fn ki_runtime_test_1() {
     println!("KIRuntime Logic : {}ms", start.elapsed().as_millis());
 
     let actual = out[0].get_result().get("result").cloned().unwrap_or_default();
-    let finite = array.iter().take_while(|n| n.is_finite()).count();
-    assert_eq!(actual.as_array().map(Vec::len), expected.as_array().map(Vec::len));
-    assert_json_eq!(
-        Value::Array(actual.as_array().unwrap()[..finite].to_vec()),
-        Value::Array(expected.as_array().unwrap()[..finite].to_vec())
-    );
+    assert_eq!(actual, expected);
 }
 
 #[tokio::test]

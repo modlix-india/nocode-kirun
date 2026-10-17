@@ -17,6 +17,7 @@ mod get_current_time_stamp_test;
 mod get_names_test;
 mod is_between_test;
 mod is_valid_iso_date_test;
+mod java_parity_test;
 mod last_first_of_test;
 mod set_time_zone_test;
 mod start_end_of_test;

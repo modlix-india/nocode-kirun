@@ -1,12 +1,16 @@
-//! Port of kirun-js `function/system/date/DateFunctionRepository.ts`.
+//! Port of kirun-js `function/system/date/DateFunctionRepository.ts` (the same functions), each
+//! answering as kirun-java's: its `DateFunctionRepository` entries and the package-scanned
+//! `Difference`, `FromNow`, `GetNames`, ... classes.
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 
+use chrono::{Datelike, Timelike};
+
 use crate::function::system::date::abstract_date_function::AbstractDateFunction as A;
-use crate::function::system::date::common::get_date_time as dt;
-use crate::function::system::date::luxon::{self, Duration};
+use crate::function::system::date::java_format::zone_display_name;
+use crate::function::system::date::java_time::{is_leap, java_error, month_length, SetField, ZonedDateTime};
 use crate::function::system::date::{
     add_subtract_time::AddSubtractTime, epoch_to_timestamp::EpochToTimestamp, from_date_string::FromDateString,
     from_now::FromNow, get_current::GetCurrentTimestamp, get_names::GetNames, is_between::IsBetween,
@@ -33,18 +37,71 @@ fn bool_event() -> Event {
     Event::new(Event::OUTPUT, Map::from([(A::EVENT_RESULT_NAME.to_string(), Schema::of_boolean(A::EVENT_RESULT_NAME))]))
 }
 
-/// The `set({ unit })` entries: SetDay, SetMonth, ...
-fn setter(name: &str, unit: &'static str) -> (String, Arc<dyn Function>) {
-    A::of_entry_timestamp_integer_and_timestamp_output(name, move |iso, n| Ok(dt(iso)?.set(&[(unit, n as i64)]).to_iso()))
+/// `SetDay`, `SetMonth`, ...: `with(ChronoField, number)`.
+fn setter(name: &str, field: SetField) -> (String, Arc<dyn Function>) {
+    A::of_entry_timestamp_integer_and_timestamp_output(name, move |dt, n| dt.with(field, n))
 }
 
-fn compare(name: &str, f: fn(i64, i64) -> bool) -> (String, Arc<dyn Function>) {
-    A::of_entry_timestamp_timestamp_and_t_output(
-        name,
-        bool_event(),
-        move |t1, t2, _| Ok(Value::Bool(f(dt(t1)?.to_millis(), dt(t2)?.to_millis()))),
-        vec![],
-    )
+fn compare(name: &str, f: fn(&ZonedDateTime, &ZonedDateTime) -> bool) -> (String, Arc<dyn Function>) {
+    A::of_entry_timestamp_timestamp_and_t_output(name, bool_event(), move |t1, t2, _| Ok(Value::Bool(f(t1, t2))), vec![])
+}
+
+/// kirun-java `DateUnit`: the `Difference` units, largest first, with their fixed lengths.
+const DATE_UNITS: [(&str, i64); 9] = [
+    ("YEARS", 365 * 86_400_000),
+    ("QUARTERS", 3 * 30 * 86_400_000),
+    ("MONTHS", 30 * 86_400_000),
+    ("WEEKS", 7 * 86_400_000),
+    ("DAYS", 86_400_000),
+    ("HOURS", 3_600_000),
+    ("MINUTES", 60_000),
+    ("SECONDS", 1000),
+    ("MILLISECONDS", 1),
+];
+
+/// kirun-java `Difference`: the millisecond gap split over the units (largest first); units
+/// larger than what is left are skipped, every unit but the last is whole (a `long`), the last
+/// keeps the fraction (a `double`).
+fn difference(t1: &ZonedDateTime, t2: &ZonedDateTime, units: &[Value]) -> crate::Result<Value> {
+    let mut list: Vec<(&str, i64)> = Vec::new();
+    for u in units {
+        let name = u.as_str().unwrap_or_default().to_uppercase();
+        let Some(unit) = DATE_UNITS.iter().find(|(n, _)| *n == name) else {
+            return Err(java_error(format!(
+                "No enum constant com.fincity.nocode.kirun.engine.function.system.date.DateUnit.{name}"
+            )));
+        };
+        list.push(*unit);
+    }
+    // Sorted by `DateUnit` order, largest first (a stable sort, as Java's).
+    list.sort_by_key(|(n, _)| DATE_UNITS.iter().position(|(m, _)| m == n));
+    if list.is_empty() {
+        list.push(("MILLISECONDS", 1));
+    }
+
+    // `Duration.between(t2, t1).toMillis()`.
+    let nanos = (t1.epoch_second() as i128 - t2.epoch_second() as i128) * 1_000_000_000
+        + (t1.nano() as i128 - t2.nano() as i128);
+    let mut millis = nanos.div_euclid(1_000_000) as i64;
+    let factor = if millis < 0 { -1 } else { 1 };
+    millis *= factor;
+
+    let mut out = serde_json::Map::new();
+    for (i, (name, len)) in list.iter().enumerate() {
+        if millis < *len {
+            continue;
+        }
+        let value = millis as f64 / *len as f64;
+        let key = name.to_lowercase();
+        if i + 1 != list.len() {
+            let whole = value.floor() as i64;
+            out.insert(key, Value::from(whole * factor));
+            millis -= whole * len;
+        } else {
+            out.insert(key, Value::from(value * factor as f64));
+        }
+    }
+    Ok(Value::Object(out))
 }
 
 impl DateFunctionRepository {
@@ -52,22 +109,25 @@ impl DateFunctionRepository {
         let entries: Vec<(String, Arc<dyn Function>)> = vec![
             entry("EpochSecondsToTimestamp", EpochToTimestamp::new("EpochSecondsToTimestamp", true)),
             entry("EpochMillisecondsToTimestamp", EpochToTimestamp::new("EpochMillisecondsToTimestamp", false)),
-            A::of_entry_timestamp_and_integer_output("GetDay", |i| Ok(dt(i)?.c.day as f64)),
-            A::of_entry_timestamp_and_integer_output("GetDayOfWeek", |i| Ok(dt(i)?.weekday() as f64)),
-            A::of_entry_timestamp_and_integer_output("GetMonth", |i| Ok(dt(i)?.c.month as f64)),
-            A::of_entry_timestamp_and_integer_output("GetYear", |i| Ok(dt(i)?.c.year as f64)),
-            A::of_entry_timestamp_and_integer_output("GetHours", |i| Ok(dt(i)?.c.hour as f64)),
-            A::of_entry_timestamp_and_integer_output("GetMinutes", |i| Ok(dt(i)?.c.minute as f64)),
-            A::of_entry_timestamp_and_integer_output("GetSeconds", |i| Ok(dt(i)?.c.second as f64)),
-            A::of_entry_timestamp_and_integer_output("GetMilliseconds", |i| Ok(dt(i)?.c.millisecond as f64)),
-            A::of_entry_timestamp_and_integer_output("GetDaysInMonth", |i| Ok(dt(i)?.days_in_month() as f64)),
-            A::of_entry_timestamp_and_integer_output("GetDaysInYear", |i| Ok(dt(i)?.days_in_year() as f64)),
+            A::of_entry_timestamp_and_integer_output("GetDay", |d| d.local.day() as i64),
+            A::of_entry_timestamp_and_integer_output("GetDayOfWeek", |d| d.local.weekday().number_from_monday() as i64),
+            A::of_entry_timestamp_and_integer_output("GetMonth", |d| d.local.month() as i64),
+            A::of_entry_timestamp_and_integer_output("GetYear", |d| d.local.year() as i64),
+            A::of_entry_timestamp_and_integer_output("GetHours", |d| d.local.hour() as i64),
+            A::of_entry_timestamp_and_integer_output("GetMinutes", |d| d.local.minute() as i64),
+            A::of_entry_timestamp_and_integer_output("GetSeconds", |d| d.local.second() as i64),
+            A::of_entry_timestamp_and_integer_output("GetMilliseconds", |d| (d.nano() / 1_000_000) as i64),
+            A::of_entry_timestamp_and_integer_output("GetDaysInMonth", |d| {
+                month_length(d.local.year(), d.local.month()) as i64
+            }),
+            A::of_entry_timestamp_and_integer_output("GetDaysInYear", |d| if is_leap(d.local.year()) { 366 } else { 365 }),
             entry("TimestampToEpochSeconds", TimestampToEpoch::new("TimestampToEpochSeconds", true)),
             entry("TimestampToEpochMilliseconds", TimestampToEpoch::new("TimestampToEpochMilliseconds", false)),
-            A::of_entry_timestamp_and_string_output("GetTimeZoneName", |i| Ok(dt(i)?.zone.name())),
-            A::of_entry_timestamp_and_string_output("GetTimeZoneOffsetLong", |i| Ok(dt(i)?.offset_name_long())),
-            A::of_entry_timestamp_and_string_output("GetTimeZoneOffsetShort", |i| Ok(dt(i)?.offset_name_short())),
-            A::of_entry_timestamp_and_integer_output("GetTimeZoneOffset", |i| Ok(dt(i)?.o as f64)),
+            A::of_entry_timestamp_and_string_output("GetTimeZoneName", |d| zone_display_name(&d.zone, false)),
+            A::of_entry_timestamp_and_string_output("GetTimeZoneOffsetLong", |d| zone_display_name(&d.zone, false)),
+            A::of_entry_timestamp_and_string_output("GetTimeZoneOffsetShort", |d| zone_display_name(&d.zone, true)),
+            // Java `getOffset().get(OFFSET_SECONDS) / 60`: integer division towards zero.
+            A::of_entry_timestamp_and_integer_output("GetTimeZoneOffset", |d| (d.offset / 60) as i64),
             entry("ToDateString", ToDateString::new()),
             entry("AddTime", AddSubtractTime::new(true)),
             entry("SubtractTime", AddSubtractTime::new(false)),
@@ -82,33 +142,27 @@ impl DateFunctionRepository {
                     )]),
                 ),
                 |t1, t2, extra| {
-                    let (d1, d2) = (dt(t1)?, dt(t2)?);
-                    let units: Vec<&'static str> = extra
-                        .first()
-                        .and_then(Value::as_array)
-                        .map(|u| u.iter().filter_map(|e| e.as_str().and_then(luxon::normalize_unit)).collect())
-                        .unwrap_or_default();
-                    let duration = Duration::from_pairs(&[("milliseconds", (d1.to_millis() - d2.to_millis()) as f64)]);
-                    Ok(if units.is_empty() { duration } else { duration.shift_to(&units) }.to_object())
+                    let units = extra.first().and_then(Value::as_array).cloned().unwrap_or_default();
+                    difference(t1, t2, &units)
                 },
                 vec![A::parameter_variable_unit()],
             ),
-            setter("SetDay", "day"),
-            setter("SetMonth", "month"),
-            setter("SetYear", "year"),
-            setter("SetHours", "hour"),
-            setter("SetMinutes", "minute"),
-            setter("SetSeconds", "second"),
-            setter("SetMilliseconds", "millisecond"),
+            setter("SetDay", SetField::DayOfMonth),
+            setter("SetMonth", SetField::MonthOfYear),
+            setter("SetYear", SetField::Year),
+            setter("SetHours", SetField::HourOfDay),
+            setter("SetMinutes", SetField::MinuteOfHour),
+            setter("SetSeconds", SetField::SecondOfMinute),
+            setter("SetMilliseconds", SetField::MilliOfSecond),
             entry("SetTimeZone", SetTimeZone::new()),
-            compare("IsBefore", |a, b| a < b),
-            compare("IsAfter", |a, b| a > b),
+            compare("IsBefore", |a, b| a.is_before(b)),
+            compare("IsAfter", |a, b| a.is_after(b)),
             // Same instant (Java ZonedDateTime.isEqual).
-            compare("IsSame", |a, b| a == b),
-            compare("IsSameOrBefore", |a, b| a <= b),
-            compare("IsSameOrAfter", |a, b| a >= b),
-            A::of_entry_timestamp_and_boolean_output("IsInLeapYear", |i| Ok(dt(i)?.is_in_leap_year())),
-            A::of_entry_timestamp_and_boolean_output("IsInDST", |i| Ok(dt(i)?.is_in_dst())),
+            compare("IsSame", |a, b| a.is_equal(b)),
+            compare("IsSameOrBefore", |a, b| a.is_before(b) || a.is_equal(b)),
+            compare("IsSameOrAfter", |a, b| a.is_after(b) || a.is_equal(b)),
+            A::of_entry_timestamp_and_boolean_output("IsInLeapYear", |d| is_leap(d.local.year())),
+            A::of_entry_timestamp_and_boolean_output("IsInDST", |d| d.is_daylight_savings()),
             entry("IsBetween", IsBetween::new()),
             entry("LastOf", LastFirstOf::new(true)),
             entry("FirstOf", LastFirstOf::new(false)),

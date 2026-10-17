@@ -7,6 +7,7 @@ pub mod expression_lexer;
 pub mod expression_parser;
 pub mod expression_token;
 pub mod expression_token_value;
+pub mod java_null;
 pub mod operation;
 pub mod js;
 pub mod operators;

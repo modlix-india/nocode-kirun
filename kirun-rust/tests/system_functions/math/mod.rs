@@ -1,4 +1,5 @@
 mod add_test;
+mod java_parity_test;
 mod math_function_repository_test;
 mod maximum_test;
 mod minimum_test;

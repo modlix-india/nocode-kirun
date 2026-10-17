@@ -1,0 +1,500 @@
+{"expr":"-1 != 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.n0 != ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.d != false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"false != Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"null != Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.m != 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"true % Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.m % '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"% cannot be applied to a null value"}
+{"expr":"'abc' % '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"false % true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"null % Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"% cannot be applied to a null value"}
+{"expr":"true % -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.d % 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.5}
+{"expr":"0 % Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.0}
+{"expr":"1 % Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1.0}
+{"expr":"Arguments.big % Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.0}
+{"expr":"Arguments.d % '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"'5' % Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.0}
+{"expr":"1 % Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"0 % '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"Arguments.big % -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"'5' % -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 % -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"Arguments.big % 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"true & Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.n0 & Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"& cannot be applied to a null value"}
+{"expr":"1 & Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"& cannot be applied to a null value"}
+{"expr":"Arguments.arr & Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"& cannot be applied to a null value"}
+{"expr":"Arguments.arr & null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"& cannot be applied to a null value"}
+{"expr":"false & 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"0 & 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"'5' & '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"Arguments.big & '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"-1 & -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"Arguments.big & Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"1 & -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"null * false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"* cannot be applied to a null value"}
+{"expr":"Arguments.obj * null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"* cannot be applied to a null value"}
+{"expr":"Arguments.n0 * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"* cannot be applied to a null value"}
+{"expr":"'abc' * ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot multiply strings abc and "}
+{"expr":"true * 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot multiply the values true and abc"}
+{"expr":"Arguments.n0 * ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"* cannot be applied to a null value"}
+{"expr":"Arguments.d * 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"0 * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.0}
+{"expr":"Arguments.d * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":6.25}
+{"expr":"-1 * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2.5}
+{"expr":"Arguments.d * 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.0}
+{"expr":"Arguments.d * -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2.5}
+{"expr":"0 * 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"1 * 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 * -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 * 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"1 * 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"1 * -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"'' * -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":""}
+{"expr":"0 * ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":""}
+{"expr":"'' * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":""}
+{"expr":"-1 * 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"cba"}
+{"expr":"'abc' * Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"abcabca"}
+{"expr":"'' * 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":""}
+{"expr":"Arguments.n0 + null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m + Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m + null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m + Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 + Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"null + Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m + true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"null + false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.n0 + true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.n0 + false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"null + true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.m + false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.arr + '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"'5' + Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.arr + 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"false + Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot add the values false and 3000000000"}
+{"expr":"true + 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot add the values true and 0"}
+{"expr":"Arguments.obj + Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"Arguments.d + 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3.5}
+{"expr":"1 + Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3.5}
+{"expr":"Arguments.m + Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"null + Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d + -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1.5}
+{"expr":"0 + Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.m + 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"Arguments.big + 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"Arguments.n0 + -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"Arguments.m + 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 + Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"0 + 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"Arguments.m + '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"5"}
+{"expr":"0 + 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"0abc"}
+{"expr":"'' + Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"2.5"}
+{"expr":"'' + '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"5"}
+{"expr":"'' + true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"true"}
+{"expr":"false + 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"falseabc"}
+{"expr":"+Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"+Arguments.arr : The operator UN: + cannot be applied to [1,2]"}
+{"expr":"+Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"+Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"+''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"+false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"+Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"+ cannot be applied to a null value"}
+{"expr":"+Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"+ cannot be applied to a null value"}
+{"expr":"+null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"+ cannot be applied to a null value"}
+{"expr":"+-1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"+'5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"5"}
+{"expr":"+Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"+Arguments.obj : The operator UN: + cannot be applied to {\"a\":1}"}
+{"expr":"+1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"+'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"+true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"+0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"Arguments.n0 - Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"Arguments.arr - Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert [1,2] to a number."}
+{"expr":"Arguments.m - Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"true - Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.m - null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"1 - Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"Arguments.d - 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1.5}
+{"expr":"-1 - Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3.5}
+{"expr":"Arguments.d - -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3.5}
+{"expr":"1 - Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1.5}
+{"expr":"Arguments.d - 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"'5' - Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"'5' - 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"0 - -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"1 - 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"-1 - Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3000000001}
+{"expr":"-1 - -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"'5' - -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":6}
+{"expr":"-Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"-Arguments.arr : The operator UN: - cannot be applied to [1,2]"}
+{"expr":"-Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3000000000}
+{"expr":"-Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2.5}
+{"expr":"-''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"-false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"-Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"-Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"-null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"- cannot be applied to a null value"}
+{"expr":"--1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"-'5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-5}
+{"expr":"-Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"-Arguments.obj : The operator UN: - cannot be applied to {\"a\":1}"}
+{"expr":"-1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"-'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"-true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"-0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"true / null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"/ cannot be applied to a null value"}
+{"expr":"false / false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"0 / Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"/ cannot be applied to a null value"}
+{"expr":"-1 / Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"/ cannot be applied to a null value"}
+{"expr":"-1 / false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"null / Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"/ cannot be applied to a null value"}
+{"expr":"1 / '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.2}
+{"expr":"-1 / Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3.333333333333333e-10}
+{"expr":"Arguments.d / -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2.5}
+{"expr":"-1 / '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-0.2}
+{"expr":"Arguments.d / Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1.0}
+{"expr":"Arguments.d / '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0.5}
+{"expr":"0 / '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"Arguments.big / 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"'5' / 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"'5' / -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-5}
+{"expr":"'5' / '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"0 / 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"'abc' < Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"false < Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"1 < Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.big < null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"-1 < null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.obj < Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"1 < ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'5' < Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'' < Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"0 < Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.d < 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"1 < 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"true < true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare < with the values true and true"}
+{"expr":"Arguments.obj < 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"'5' < Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.d < Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.arr < Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"false < Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"null << Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"<< cannot be applied to a null value"}
+{"expr":"Arguments.m << false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"<< cannot be applied to a null value"}
+{"expr":"null << null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"<< cannot be applied to a null value"}
+{"expr":"false << null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"<< cannot be applied to a null value"}
+{"expr":"Arguments.n0 << ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"<< cannot be applied to a null value"}
+{"expr":"true << 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"0 << '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"-1 << 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2}
+{"expr":"'5' << Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"0 << 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 << -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"1 << 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2}
+{"expr":"Arguments.big <= null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"1 <= null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m <= 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 <= Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 <= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"0 <= Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"'5' <= false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"1 <= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"1 <= '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"true <= 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'5' <= true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'5' <= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.obj <= Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Arguments.obj <= Arguments.arr : Cannot evaluate expression {\"a\":1} <= [1,2]"}
+{"expr":"false <= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare <= with the values false and 3000000000"}
+{"expr":"-1 <= Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"'' <= Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.d <= false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare <= with the values 2.5 and false"}
+{"expr":"Arguments.arr <= true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"-1 = Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.arr = '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"1 = 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'' = Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.big = Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"false = Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.m > -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"true > null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"null > Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m > false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"true > Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"0 > Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"-1 > -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.big > 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"0 > Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"false > '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'abc' > '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"1 > Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"false > -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare > with the values false and -1"}
+{"expr":"Arguments.big > Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.arr > '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"'5' > Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"Arguments.arr > ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"Arguments.arr > Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Arguments.arr > Arguments.arr : Cannot evaluate expression [1,2] > [1,2]"}
+{"expr":"Arguments.m >= Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"true >= Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"false >= null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"'5' >= Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 >= Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.big >= Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.d >= 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.d >= '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'' >= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.d >= ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.d >= 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"false >= ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.obj >= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"Arguments.arr >= ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"[1,2] is not a primitive type"}
+{"expr":"0 >= Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"{\"a\":1} is not a primitive type"}
+{"expr":"Arguments.big >= false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare >= with the values 3000000000 and false"}
+{"expr":"false >= true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare >= with the values false and true"}
+{"expr":"true >= Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Cannot compare >= with the values true and 3000000000"}
+{"expr":"-1 >> Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":">> cannot be applied to a null value"}
+{"expr":"0 >> 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"Arguments.obj >> Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":">> cannot be applied to a null value"}
+{"expr":"false >> '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"Arguments.d >> Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert {\"a\":1} to a number."}
+{"expr":"'' >> '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"Arguments.big >> '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":93750000}
+{"expr":"-1 >> 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"Arguments.big >> Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"0 >> -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"1 >> -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 >> '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"1 >>> Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"1 and 2.5 has to be either integer or long type"}
+{"expr":"'5' >>> null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":">>> cannot be applied to a null value"}
+{"expr":"0 >>> ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"Arguments.d >>> false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"0 >>> false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"'5' >>> Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"5 and 2.5 has to be either integer or long type"}
+{"expr":"'5' >>> Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"Arguments.big >>> Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"0 >>> 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"'5' >>> 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"Arguments.big >>> 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"-1 >>> 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2147483647}
+{"expr":"null ?? Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 ?? Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m ?? null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.m ?? Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 ?? Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"Arguments.n0 ?? null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":null}
+{"expr":"true ?? -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"false ?? Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"false ?? null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.n0 ?? false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"false ?? 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"true ?? ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.obj ?? '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"Arguments.n0 ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"Arguments.obj ?? Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"Arguments.obj ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"Arguments.obj ?? false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"null ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":{"a":1}}
+{"expr":"Arguments.d ?? Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d ?? false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d ?? Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d ?? Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d ?? true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.d ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":2.5}
+{"expr":"Arguments.big ?? 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"-1 ?? Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"0 ?? 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"0 ?? 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"null ?? -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"null ?? 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"Arguments.arr ?? null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"Arguments.arr ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"Arguments.arr ?? Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"Arguments.arr ?? 0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"Arguments.arr ?? true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"Arguments.arr ?? Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":[1,2]}
+{"expr":"'5' ?? Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"5"}
+{"expr":"'abc' ?? 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"abc"}
+{"expr":"null ?? ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":""}
+{"expr":"'abc' ?? 'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"abc"}
+{"expr":"'5' ?? Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"5"}
+{"expr":"'abc' ?? '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"abc"}
+{"expr":"'5' ^ Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert [1,2] to a number."}
+{"expr":"1 ^ true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.big ^ ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"false ^ -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"Arguments.d ^ ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"-1 ^ Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"^ cannot be applied to a null value"}
+{"expr":"'5' ^ -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-6}
+{"expr":"-1 ^ '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-6}
+{"expr":"0 ^ Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"0 ^ 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"-1 ^ 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2}
+{"expr":"-1 ^ Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3000000001}
+{"expr":"false and 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'5' and Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.obj and Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'' and Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'abc' and Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.big and Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"Arguments.arr ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"Arguments.big ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"Arguments.d ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"Arguments.m != null","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"null = null","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.m = Arguments.nul","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.s = Arguments.n and true","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.s = Arguments.n","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.m = Arguments.m2","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.t = true","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.nul = undefined","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"Arguments.n = '413'","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.nul = null","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.s != Arguments.n","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"Arguments.n = 413.0","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"(Arguments.s) = Arguments.n","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.m = false","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.z = ''","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"Arguments.arr = Arguments.arr","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.nul = false","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"413 = '413'","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.o = Arguments.o2","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.d = 2.5","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.t = 'true'","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.z = false","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"Arguments.m = null","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"{{Arguments.s}} = Arguments.n","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.s = 413","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":true}
+{"expr":"Arguments.m = undefined","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"Arguments.z = null","args":{"s":"413","n":413,"z":0,"nul":null,"t":true,"d":2.5,"o":{"a":1},"o2":{"a":1.0},"arr":[1,2]},"ok":false}
+{"expr":"'' ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"false ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"Arguments.n0 ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"undefined","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":null}
+{"expr":"null","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":null}
+{"expr":"Arguments.s = paymentDetails","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":true}
+{"expr":"Arguments.z = undefined","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":false}
+{"expr":"abc = 'abc'","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":true}
+{"expr":"true","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":true}
+{"expr":"Arguments","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":{"s":"paymentDetails","z":0,"n":10}}
+{"expr":"abc-def","args":{"z":0,"n":10,"s":"paymentDetails"},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"-abc","args":{"z":0,"n":10,"s":"paymentDetails"},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"abc def","args":{"z":0,"n":10,"s":"paymentDetails"},"err":"Expression : Error: No operations but has tokens evaluated multiple values [: \"abc\", : \"def\"]"}
+{"expr":"not","args":{"z":0,"n":10,"s":"paymentDetails"},"err":"not : Expression is ending with an operator"}
+{"expr":"2.5","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":2.5}
+{"expr":"Arguments.n / 3","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":3.3333333}
+{"expr":"Arguments.n + 0.1","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":10.1}
+{"expr":"Arguments.z + 2.5","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":2.5}
+{"expr":"1.50","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":1.5}
+{"expr":"Arguments.z * 1.1","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":0.0}
+{"expr":"007","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":7}
+{"expr":"+3","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":3}
+{"expr":"-0","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":0}
+{"expr":"Arguments.z + 2147483648","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":2147483648}
+{"expr":"12345678901","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":12345678901}
+{"expr":"-3","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":-3}
+{"expr":"abc ? 1 : 2","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":1}
+{"expr":"Arguments.z + 007","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":7}
+{"expr":"Arguments.z + 10000000000","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":10000000000}
+{"expr":"TRUE","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"TRUE"}
+{"expr":"1e5","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"1e5"}
+{"expr":"abc.def.ghi","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"abc.def.ghi"}
+{"expr":"NaN","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"NaN"}
+{"expr":"2.val","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"2.val"}
+{"expr":"1.5.2","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"1.5.2"}
+{"expr":"'x' + undefined","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"xundefined"}
+{"expr":"0x10","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"0x10"}
+{"expr":"1x","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"1x"}
+{"expr":"'abc'.length","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"'abc'.length"}
+{"expr":"Steps","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"Steps"}
+{"expr":"Infinity","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"Infinity"}
+{"expr":"abc.length","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"abc.length"}
+{"expr":"$x","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"$x"}
+{"expr":"'x' + null","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"xnull"}
+{"expr":"abc + 1","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"abc1"}
+{"expr":"x1","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"x1"}
+{"expr":"!abc","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"!abc"}
+{"expr":"\"x\".y","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"\"x\".y"}
+{"expr":"paymentDetails","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"paymentDetails"}
+{"expr":"Arguments.x + abc","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"abc"}
+{"expr":"abc[0]","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"abc.[0]"}
+{"expr":"\"abc\".length","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"\"abc\".length"}
+{"expr":"a_b","args":{"z":0,"n":10,"s":"paymentDetails"},"ok":"a_b"}
+{"expr":"Arguments.m ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"-1 ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"not Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"not -1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"not ''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"not '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"not 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"not Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'5' ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"null ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"Arguments.a ?? Arguments.b","args":{},"ok":null}
+{"expr":"Arguments.s[5]","args":{"s":"abc"},"ok":null}
+{"expr":"Arguments.a","args":{},"ok":null}
+{"expr":"undefined","args":{},"ok":null}
+{"expr":"Arguments.arr[0]","args":{"arr":[]},"ok":null}
+{"expr":"(Arguments.a)","args":{},"ok":null}
+{"expr":"Arguments.a","args":{"a":null},"ok":null}
+{"expr":"Arguments.a.b","args":{"a":{"b":null}},"ok":null}
+{"expr":"Arguments.c ? Arguments.a : Arguments.b","args":{"c":false,"b":null},"ok":null}
+{"expr":"null","args":{},"ok":null}
+{"expr":"(Arguments.a)","args":{"a":null},"ok":null}
+{"expr":"Arguments.a.c","args":{"a":{"b":null}},"ok":null}
+{"expr":"Arguments.a ?? Arguments.b","args":{"b":null},"ok":null}
+{"expr":"Arguments.arr[0]","args":{"arr":[null]},"ok":null}
+{"expr":"Arguments.c ? Arguments.a : Arguments.b","args":{"c":false},"ok":null}
+{"expr":"Arguments.a.length","args":{},"ok":null}
+{"expr":"abc = 'abc'","args":{},"ok":true}
+{"expr":"Arguments.a = null","args":{},"ok":true}
+{"expr":"3.14159265358979","args":{},"ok":3.14159265358979}
+{"expr":"0.1","args":{},"ok":0.1}
+{"expr":"Arguments.a + 1","args":{},"ok":1}
+{"expr":"9007199254740993","args":{},"ok":9007199254740993}
+{"expr":"foo.bar","args":{},"ok":"foo.bar"}
+{"expr":"0x10","args":{},"ok":"0x10"}
+{"expr":"abc + 1","args":{},"ok":"abc1"}
+{"expr":"Infinity","args":{},"ok":"Infinity"}
+{"expr":"1e5","args":{},"ok":"1e5"}
+{"expr":"2.val","args":{},"ok":"2.val"}
+{"expr":"'a' + Arguments.x","args":{},"ok":"anull"}
+{"expr":"Arguments.obj ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"1 ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"Arguments.big or true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"Arguments.n0 or Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"'abc' or false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"null or Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":false}
+{"expr":"-1 or false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'5' or Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":true}
+{"expr":"'abc' ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"true ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"T"}
+{"expr":"Arguments.x != undefined","args":{},"ok":true}
+{"expr":"Arguments.x != null","args":{},"ok":false}
+{"expr":"Arguments.kycs.{{Arguments.id}}.individual != undefined ? Arguments.kycs.{{Arguments.id}}.individual.first +' '+ Arguments.kycs.{{Arguments.id}}.individual.last : '-'","args":{"kycs":{"456":{}},"id":"456"},"ok":" null"}
+{"expr":"Arguments.kycs.{{Arguments.id}}.individual != undefined ? Arguments.kycs.{{Arguments.id}}.individual.first +' '+ Arguments.kycs.{{Arguments.id}}.individual.last : '-'","args":{"kycs":{"123":{"individual":{"first":"John","last":"Doe"}}},"id":"123"},"ok":"John Doe"}
+{"expr":"0 ? 'T' : 'F'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":"F"}
+{"expr":"-1 | Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"| cannot be applied to a null value"}
+{"expr":"null | Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"| cannot be applied to a null value"}
+{"expr":"0 | Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"| cannot be applied to a null value"}
+{"expr":"0 | true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"Arguments.d | 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"2.5 and 1 has to be either integer or long type"}
+{"expr":"Arguments.arr | null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"| cannot be applied to a null value"}
+{"expr":"1 | Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000001}
+{"expr":"'5' | 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":5}
+{"expr":"1 | 1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":1}
+{"expr":"Arguments.big | Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000000}
+{"expr":"-1 | Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}
+{"expr":"Arguments.big | '5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":3000000005}
+{"expr":"~Arguments.arr","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"~Arguments.arr : The operator UN: ~ cannot be applied to [1,2]"}
+{"expr":"~Arguments.big","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-3000000001}
+{"expr":"~Arguments.d","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to apply bitwise operator on 2.5"}
+{"expr":"~''","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"\" to a number."}
+{"expr":"~false","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert false to a number."}
+{"expr":"~Arguments.n0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"~ cannot be applied to a null value"}
+{"expr":"~Arguments.m","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"~ cannot be applied to a null value"}
+{"expr":"~null","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"~ cannot be applied to a null value"}
+{"expr":"~-1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":0}
+{"expr":"~'5'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-6}
+{"expr":"~Arguments.obj","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"~Arguments.obj : The operator UN: ~ cannot be applied to {\"a\":1}"}
+{"expr":"~1","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-2}
+{"expr":"~'abc'","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert \"abc\" to a number."}
+{"expr":"~true","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"err":"Unable to convert true to a number."}
+{"expr":"~0","args":{"n0":null,"d":2.5,"arr":[1,2],"obj":{"a":1},"big":3000000000},"ok":-1}

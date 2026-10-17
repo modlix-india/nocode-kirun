@@ -1,0 +1,944 @@
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.500Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30.5"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.123456789"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.123Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30.123456789"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15t10:20:30z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15t10:20:30z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000+05:30"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05"},"err":"Text '2024-01-15T10:20:30+05' could not be parsed, unparsed text found at index 19"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+0530"},"err":"Text '2024-01-15T10:20:30+0530' could not be parsed, unparsed text found at index 19"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+0530"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30-08:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000-08:00"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30-08:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[Asia/Kolkata]"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000+05:30"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[Asia/Kolkata]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30Z[Asia/Kolkata]"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T15:50:30.000+05:30"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30Z[Asia/Kolkata]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+00:00[America/New_York]"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T05:20:30.000-05:00"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+00:00[America/New_York]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-02-30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-02-30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2023-02-29"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-02-28T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2023-02-29"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-02-30T10:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-02-30T10:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-13-01"},"err":"Text '2024-13-01' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-13-01"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-32"},"err":"Text '2024-01-32' could not be parsed: Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-32"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T24:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-16T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T24:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T25:00"},"err":"Text '2024-01-15T25:00' could not be parsed: Invalid value for HourOfDay (valid values 0 - 23): 25"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T25:00"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15 10:20"},"err":"Text '2024-01-15 10:20' could not be parsed, unparsed text found at index 10"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15 10:20"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"abc"},"err":"Text 'abc' could not be parsed at index 0"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"abc"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":""},"err":"Text '' could not be parsed at index 0"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":""},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024/01/15"},"err":"Text '2024/01/15' could not be parsed at index 4"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024/01/15"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-1-5"},"err":"Text '2024-1-5' could not be parsed at index 5"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-1-5"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"+12024-01-15"},"ok":[{"name":"output","result":{"isoTimeStamp":"+12024-01-15T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"+12024-01-15"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"12024-01-15"},"err":"Text '12024-01-15' could not be parsed at index 0"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"12024-01-15"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"-2024-01-15"},"ok":[{"name":"output","result":{"isoTimeStamp":"-2024-01-15T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"-2024-01-15"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10"},"err":"Text '2024-01-15T10' could not be parsed, unparsed text found at index 10"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30."},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30."},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30:15"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000+05:30:15"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30:15"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000+18:00"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+18:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+19:00"},"err":"Text '2024-01-15T10:20:30+19:00' could not be parsed: Zone offset not in valid range: -18:00 to +18:00"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+19:00"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.1234567891"},"err":"Text '2024-01-15T10:20:30.1234567891' could not be parsed, unparsed text found at index 29"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30.1234567891"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-04-31"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-04-30T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-04-31"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-06-31T10:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-06-30T10:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-06-31T10:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:60"},"err":"Text '2024-01-15T10:60' could not be parsed: Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:60"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:60"},"err":"Text '2024-01-15T10:20:60' could not be parsed: Invalid value for SecondOfMinute (valid values 0 - 59): 60"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:60"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30Zjunk"},"err":"Text '2024-01-15T10:20:30Zjunk' could not be parsed, unparsed text found at index 20"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30Zjunk"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30[Asia/Kolkata]"},"err":"Text '2024-01-15T10:20:30[Asia/Kolkata]' could not be parsed, unparsed text found at index 19"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30[Asia/Kolkata]"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[asia/kolkata]"},"err":"Text '2024-01-15T10:20:30+05:30[asia/kolkata]' could not be parsed, unparsed text found at index 25"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[asia/kolkata]"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[Nope/Zone]"},"err":"Text '2024-01-15T10:20:30+05:30[Nope/Zone]' could not be parsed, unparsed text found at index 25"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30+05:30[Nope/Zone]"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"0001-01-01T00:00:00Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"0001-01-01T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"0001-01-01T00:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"9999-12-31T23:59:59.999Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"9999-12-31T23:59:59.999Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"9999-12-31T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-03-31T02:30:00+01:00[Europe/Paris]"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-31T03:30:00.000+02:00"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-03-31T02:30:00+01:00[Europe/Paris]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30-00:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30-00:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"  2024-01-15"},"err":"Text '  2024-01-15' could not be parsed at index 0"}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"  2024-01-15"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.123+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.123+05:30"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"2024-01-15T10:20:30.123+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"1970-01-01T00:00:00Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-01T00:00:00.000Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"1970-01-01T00:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"1969-12-31T23:59:59.999Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"1969-12-31T23:59:59.999Z"}}]}
+{"name":"IsValidISODate","args":{"isoTimeStamp":"1969-12-31T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"GetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":15}}]}
+{"name":"GetDayOfWeek","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":1}}]}
+{"name":"GetMonth","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":1}}]}
+{"name":"GetYear","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":2024}}]}
+{"name":"GetHours","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":10}}]}
+{"name":"GetMinutes","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":20}}]}
+{"name":"GetSeconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":30}}]}
+{"name":"GetMilliseconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":456}}]}
+{"name":"GetDaysInMonth","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":31}}]}
+{"name":"GetDaysInYear","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":366}}]}
+{"name":"TimestampToEpochSeconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":1705294230}}]}
+{"name":"TimestampToEpochMilliseconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":1705294230456}}]}
+{"name":"GetTimeZoneName","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"GetTimeZoneOffsetLong","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"GetTimeZoneOffsetShort","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"GetTimeZoneOffset","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":330}}]}
+{"name":"IsInLeapYear","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsInDST","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"TimeAsObject","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"object":{"year":2024,"month":1,"day":15,"hour":10,"minute":20,"second":30,"millisecond":456}}}]}
+{"name":"TimeAsArray","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"},"ok":[{"name":"output","result":{"array":[2024,1,15,10,20,30,456]}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":31},"ok":[{"name":"output","result":{"result":"2024-01-31T10:20:30.456+05:30"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":29},"ok":[{"name":"output","result":{"result":"2024-01-29T10:20:30.456+05:30"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":32},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":0},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 0"}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":2},"ok":[{"name":"output","result":{"result":"2024-02-15T10:20:30.456+05:30"}}]}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":13},"err":"Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"SetYear","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":2023},"ok":[{"name":"output","result":{"result":"2023-01-15T10:20:30.456+05:30"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":23},"ok":[{"name":"output","result":{"result":"2024-01-15T23:20:30.456+05:30"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":24},"err":"Invalid value for HourOfDay (valid values 0 - 23): 24"}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":59},"ok":[{"name":"output","result":{"result":"2024-01-15T10:59:30.456+05:30"}}]}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":60},"err":"Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"SetSeconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":5},"ok":[{"name":"output","result":{"result":"2024-01-15T10:20:05.456+05:30"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":7},"ok":[{"name":"output","result":{"result":"2024-01-15T10:20:30.007+05:30"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":1000},"err":"Invalid value for MilliOfSecond (valid values 0 - 999): 1000"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","number":30},"ok":[{"name":"output","result":{"result":"2024-01-30T10:20:30.456+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-01T00:00:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-12-31T23:59:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-01T00:00:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-31T23:59:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-14T00:00:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-20T23:59:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T23:59:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:59:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:00.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:59.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000+05:30"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.999+05:30"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"Asia/Tokyo"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T13:50:30.456+09:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"UTC"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T04:50:30.456Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T04:50:30.456Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"-08"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-14T20:50:30.456-08:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T09:50:30.456+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T09:50:30.456+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"UTC+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"local"},"err":"Unknown time-zone ID: local"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"Asia/kolkata"},"err":"Unknown time-zone ID: Asia/kolkata"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":""},"err":"Invalid ID for ZoneOffset, invalid format: "}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"EST"},"err":"Unknown time-zone ID: EST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"IST"},"err":"Unknown time-zone ID: IST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"US/Eastern"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-14T23:50:30.456-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"Etc/GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-14T23:50:30.456-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T22:50:30.456+18:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"+19:00"},"err":"Zone offset hours not in valid range: value 19 is not in the range -18 to 18"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","timezone":"+5:3"},"err":"Invalid ID for ZoneOffset, invalid format: +5:3"}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2025-02-16T11:21:31.457+05:30"}}]}
+{"name":"SubtractTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2022-12-14T09:19:29.455+05:30"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-15T10:20:30.456+05:30","days":1.7,"hours":-2.5},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-16T08:20:30.456+05:30"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-31T10:00:00Z","months":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"GetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":29}}]}
+{"name":"GetDayOfWeek","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":4}}]}
+{"name":"GetMonth","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":2}}]}
+{"name":"GetYear","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":2024}}]}
+{"name":"GetHours","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":23}}]}
+{"name":"GetMinutes","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":59}}]}
+{"name":"GetSeconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":59}}]}
+{"name":"GetMilliseconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":999}}]}
+{"name":"GetDaysInMonth","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":29}}]}
+{"name":"GetDaysInYear","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":366}}]}
+{"name":"TimestampToEpochSeconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":1709251199}}]}
+{"name":"TimestampToEpochMilliseconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":1709251199999}}]}
+{"name":"GetTimeZoneName","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"GetTimeZoneOffsetLong","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"GetTimeZoneOffsetShort","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"GetTimeZoneOffset","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"IsInLeapYear","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsInDST","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"TimeAsObject","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"object":{"year":2024,"month":2,"day":29,"hour":23,"minute":59,"second":59,"millisecond":999}}}]}
+{"name":"TimeAsArray","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"},"ok":[{"name":"output","result":{"array":[2024,2,29,23,59,59,999]}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":31},"err":"Invalid date 'FEBRUARY 31'"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":29},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":32},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":0},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 0"}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":2},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":13},"err":"Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"SetYear","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":2023},"ok":[{"name":"output","result":{"result":"2023-02-28T23:59:59.999Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":23},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":24},"err":"Invalid value for HourOfDay (valid values 0 - 23): 24"}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":59},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":60},"err":"Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"SetSeconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":5},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:05.999Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":7},"ok":[{"name":"output","result":{"result":"2024-02-29T23:59:59.007Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":1000},"err":"Invalid value for MilliOfSecond (valid values 0 - 999): 1000"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","number":30},"err":"Invalid date 'FEBRUARY 30'"}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-12-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-25T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-02T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"Asia/Tokyo"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T08:59:59.999+09:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"UTC"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T23:59:59.999Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T05:29:59.999+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"-08"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T15:59:59.999-08:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T04:59:59.999+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T04:59:59.999+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"UTC+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T05:29:59.999+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"local"},"err":"Unknown time-zone ID: local"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"Asia/kolkata"},"err":"Unknown time-zone ID: Asia/kolkata"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":""},"err":"Invalid ID for ZoneOffset, invalid format: "}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"EST"},"err":"Unknown time-zone ID: EST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"IST"},"err":"Unknown time-zone ID: IST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"US/Eastern"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T18:59:59.999-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"Etc/GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T18:59:59.999-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T17:59:59.999+18:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"+19:00"},"err":"Zone offset hours not in valid range: value 19 is not in the range -18 to 18"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","timezone":"+5:3"},"err":"Invalid ID for ZoneOffset, invalid format: +5:3"}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2025-03-30T01:01:01.000Z"}}]}
+{"name":"SubtractTime","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-01-27T22:58:58.998Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-02-29T23:59:59.999Z","days":1.7,"hours":-2.5},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T21:59:59.999Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-31T10:00:00Z","months":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"GetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":4}}]}
+{"name":"GetDayOfWeek","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":4}}]}
+{"name":"GetMonth","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":7}}]}
+{"name":"GetYear","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":2024}}]}
+{"name":"GetHours","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetMinutes","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetSeconds","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetMilliseconds","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetDaysInMonth","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":31}}]}
+{"name":"GetDaysInYear","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":366}}]}
+{"name":"TimestampToEpochSeconds","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":1720051200}}]}
+{"name":"TimestampToEpochMilliseconds","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":1720051200000}}]}
+{"name":"GetTimeZoneName","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":"Coordinated Universal Time"}}]}
+{"name":"GetTimeZoneOffsetLong","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":"Coordinated Universal Time"}}]}
+{"name":"GetTimeZoneOffsetShort","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"GetTimeZoneOffset","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"IsInLeapYear","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsInDST","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"TimeAsObject","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"object":{"year":2024,"month":7,"day":4,"hour":0,"minute":0,"second":0,"millisecond":0}}}]}
+{"name":"TimeAsArray","args":{"isoTimeStamp":"2024-07-04T00:00:00"},"ok":[{"name":"output","result":{"array":[2024,7,4,0,0,0,0]}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":31},"ok":[{"name":"output","result":{"result":"2024-07-31T00:00:00.000Z"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":29},"ok":[{"name":"output","result":{"result":"2024-07-29T00:00:00.000Z"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":32},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":0},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 0"}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":2},"ok":[{"name":"output","result":{"result":"2024-02-04T00:00:00.000Z"}}]}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":13},"err":"Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"SetYear","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":2023},"ok":[{"name":"output","result":{"result":"2023-07-04T00:00:00.000Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":23},"ok":[{"name":"output","result":{"result":"2024-07-04T23:00:00.000Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":24},"err":"Invalid value for HourOfDay (valid values 0 - 23): 24"}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":59},"ok":[{"name":"output","result":{"result":"2024-07-04T00:59:00.000Z"}}]}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":60},"err":"Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"SetSeconds","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":5},"ok":[{"name":"output","result":{"result":"2024-07-04T00:00:05.000Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":7},"ok":[{"name":"output","result":{"result":"2024-07-04T00:00:00.007Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":1000},"err":"Invalid value for MilliOfSecond (valid values 0 - 999): 1000"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-07-04T00:00:00","number":30},"ok":[{"name":"output","result":{"result":"2024-07-30T00:00:00.000Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-12-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-06-30T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-06T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-07-04T00:00:00","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"Asia/Tokyo"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T09:00:00.000+09:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"UTC"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T00:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T05:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"-08"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-03T16:00:00.000-08:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T05:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T05:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"UTC+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T05:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"local"},"err":"Unknown time-zone ID: local"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"Asia/kolkata"},"err":"Unknown time-zone ID: Asia/kolkata"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":""},"err":"Invalid ID for ZoneOffset, invalid format: "}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"EST"},"err":"Unknown time-zone ID: EST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"IST"},"err":"Unknown time-zone ID: IST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"US/Eastern"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-03T20:00:00.000-04:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"Etc/GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-03T19:00:00.000-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T18:00:00.000+18:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"+19:00"},"err":"Zone offset hours not in valid range: value 19 is not in the range -18 to 18"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-07-04T00:00:00","timezone":"+5:3"},"err":"Invalid ID for ZoneOffset, invalid format: +5:3"}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-07-04T00:00:00","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2025-08-05T01:01:01.001Z"}}]}
+{"name":"SubtractTime","args":{"isoTimeStamp":"2024-07-04T00:00:00","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-06-02T22:58:58.999Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-07-04T00:00:00","days":1.7,"hours":-2.5},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-07-04T22:00:00.000Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-31T10:00:00Z","months":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"GetDay","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":31}}]}
+{"name":"GetDayOfWeek","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":7}}]}
+{"name":"GetMonth","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":12}}]}
+{"name":"GetYear","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":2023}}]}
+{"name":"GetHours","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetMinutes","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetSeconds","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetMilliseconds","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetDaysInMonth","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":31}}]}
+{"name":"GetDaysInYear","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":365}}]}
+{"name":"TimestampToEpochSeconds","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":1703980800}}]}
+{"name":"TimestampToEpochMilliseconds","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":1703980800000}}]}
+{"name":"GetTimeZoneName","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":"Coordinated Universal Time"}}]}
+{"name":"GetTimeZoneOffsetLong","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":"Coordinated Universal Time"}}]}
+{"name":"GetTimeZoneOffsetShort","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"GetTimeZoneOffset","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"IsInLeapYear","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsInDST","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"TimeAsObject","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"object":{"year":2023,"month":12,"day":31,"hour":0,"minute":0,"second":0,"millisecond":0}}}]}
+{"name":"TimeAsArray","args":{"isoTimeStamp":"2023-12-31"},"ok":[{"name":"output","result":{"array":[2023,12,31,0,0,0,0]}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2023-12-31","number":31},"ok":[{"name":"output","result":{"result":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2023-12-31","number":29},"ok":[{"name":"output","result":{"result":"2023-12-29T00:00:00.000Z"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2023-12-31","number":32},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"SetDay","args":{"isoTimeStamp":"2023-12-31","number":0},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 0"}
+{"name":"SetMonth","args":{"isoTimeStamp":"2023-12-31","number":2},"ok":[{"name":"output","result":{"result":"2023-02-28T00:00:00.000Z"}}]}
+{"name":"SetMonth","args":{"isoTimeStamp":"2023-12-31","number":13},"err":"Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"SetYear","args":{"isoTimeStamp":"2023-12-31","number":2023},"ok":[{"name":"output","result":{"result":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2023-12-31","number":23},"ok":[{"name":"output","result":{"result":"2023-12-31T23:00:00.000Z"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2023-12-31","number":24},"err":"Invalid value for HourOfDay (valid values 0 - 23): 24"}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2023-12-31","number":59},"ok":[{"name":"output","result":{"result":"2023-12-31T00:59:00.000Z"}}]}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2023-12-31","number":60},"err":"Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"SetSeconds","args":{"isoTimeStamp":"2023-12-31","number":5},"ok":[{"name":"output","result":{"result":"2023-12-31T00:00:05.000Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2023-12-31","number":7},"ok":[{"name":"output","result":{"result":"2023-12-31T00:00:00.007Z"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2023-12-31","number":1000},"err":"Invalid value for MilliOfSecond (valid values 0 - 999): 1000"}
+{"name":"SetDay","args":{"isoTimeStamp":"2023-12-31","number":30},"ok":[{"name":"output","result":{"result":"2023-12-30T00:00:00.000Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-01-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-01T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-06T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T23:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:59:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:59.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.999Z"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2023-12-31","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2023-12-31","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"Asia/Tokyo"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T09:00:00.000+09:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"UTC"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T00:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T05:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"-08"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-30T16:00:00.000-08:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T05:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T05:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"UTC+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T05:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"local"},"err":"Unknown time-zone ID: local"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"Asia/kolkata"},"err":"Unknown time-zone ID: Asia/kolkata"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":""},"err":"Invalid ID for ZoneOffset, invalid format: "}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"EST"},"err":"Unknown time-zone ID: EST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"IST"},"err":"Unknown time-zone ID: IST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"US/Eastern"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-30T19:00:00.000-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"Etc/GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-30T19:00:00.000-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T18:00:00.000+18:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"+19:00"},"err":"Zone offset hours not in valid range: value 19 is not in the range -18 to 18"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2023-12-31","timezone":"+5:3"},"err":"Invalid ID for ZoneOffset, invalid format: +5:3"}
+{"name":"AddTime","args":{"isoTimeStamp":"2023-12-31","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2025-02-01T01:01:01.001Z"}}]}
+{"name":"SubtractTime","args":{"isoTimeStamp":"2023-12-31","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2022-11-28T22:58:58.999Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2023-12-31","days":1.7,"hours":-2.5},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-12-31T22:00:00.000Z"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-31T10:00:00Z","months":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"GetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":10}}]}
+{"name":"GetDayOfWeek","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":7}}]}
+{"name":"GetMonth","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":3}}]}
+{"name":"GetYear","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":2024}}]}
+{"name":"GetHours","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":13}}]}
+{"name":"GetMinutes","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetSeconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetMilliseconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":0}}]}
+{"name":"GetDaysInMonth","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":31}}]}
+{"name":"GetDaysInYear","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":366}}]}
+{"name":"TimestampToEpochSeconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":1710090000}}]}
+{"name":"TimestampToEpochMilliseconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":1710090000000}}]}
+{"name":"GetTimeZoneName","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":"Eastern Time"}}]}
+{"name":"GetTimeZoneOffsetLong","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":"Eastern Time"}}]}
+{"name":"GetTimeZoneOffsetShort","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":"ET"}}]}
+{"name":"GetTimeZoneOffset","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":-240}}]}
+{"name":"IsInLeapYear","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsInDST","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"TimeAsObject","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"object":{"year":2024,"month":3,"day":10,"hour":13,"minute":0,"second":0,"millisecond":0}}}]}
+{"name":"TimeAsArray","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]"},"ok":[{"name":"output","result":{"array":[2024,3,10,13,0,0,0]}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":31},"ok":[{"name":"output","result":{"result":"2024-03-31T13:00:00.000-04:00"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":29},"ok":[{"name":"output","result":{"result":"2024-03-29T13:00:00.000-04:00"}}]}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":32},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 32"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":0},"err":"Invalid value for DayOfMonth (valid values 1 - 28/31): 0"}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":2},"ok":[{"name":"output","result":{"result":"2024-02-10T13:00:00.000-05:00"}}]}
+{"name":"SetMonth","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":13},"err":"Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"SetYear","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":2023},"ok":[{"name":"output","result":{"result":"2023-03-10T13:00:00.000-05:00"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":23},"ok":[{"name":"output","result":{"result":"2024-03-10T23:00:00.000-04:00"}}]}
+{"name":"SetHours","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":24},"err":"Invalid value for HourOfDay (valid values 0 - 23): 24"}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":59},"ok":[{"name":"output","result":{"result":"2024-03-10T13:59:00.000-04:00"}}]}
+{"name":"SetMinutes","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":60},"err":"Invalid value for MinuteOfHour (valid values 0 - 59): 60"}
+{"name":"SetSeconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":5},"ok":[{"name":"output","result":{"result":"2024-03-10T13:00:05.000-04:00"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":7},"ok":[{"name":"output","result":{"result":"2024-03-10T13:00:00.007-04:00"}}]}
+{"name":"SetMilliseconds","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":1000},"err":"Invalid value for MilliOfSecond (valid values 0 - 999): 1000"}
+{"name":"SetDay","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","number":30},"ok":[{"name":"output","result":{"result":"2024-03-30T13:00:00.000-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-01T00:00:00.000-05:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"YEARS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-12-31T23:59:59.999-05:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"QUARTERS"},"err":"No enum constant java.time.temporal.ChronoUnit.QUARTERS"}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T00:00:00.000-05:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MONTHS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-31T23:59:59.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T00:00:00.000-05:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"WEEKS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-16T23:59:59.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T00:00:00.000-05:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"DAYS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T23:59:59.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:00.000-04:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"HOURS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:59:59.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:00.000-04:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MINUTES"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:59.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:00.000-04:00"}}]}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"SECONDS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:00.999-04:00"}}]}
+{"name":"StartOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"EndOf","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","unit":"MILLISECONDS"},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"Asia/Tokyo"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-11T02:00:00.000+09:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"UTC"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T17:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"Z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T17:00:00.000Z"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T22:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"-08"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T09:00:00.000-08:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T22:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T22:00:00.000+05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"UTC+05:30"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T22:30:00.000+05:30"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"local"},"err":"Unknown time-zone ID: local"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"Asia/kolkata"},"err":"Unknown time-zone ID: Asia/kolkata"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":""},"err":"Invalid ID for ZoneOffset, invalid format: "}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"EST"},"err":"Unknown time-zone ID: EST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"IST"},"err":"Unknown time-zone ID: IST"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"US/Eastern"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T13:00:00.000-04:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"Etc/GMT+5"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-10T12:00:00.000-05:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"+18:00"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-11T11:00:00.000+18:00"}}]}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"+19:00"},"err":"Zone offset hours not in valid range: value 19 is not in the range -18 to 18"}
+{"name":"SetTimeZone","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","timezone":"+5:3"},"err":"Invalid ID for ZoneOffset, invalid format: +5:3"}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2025-04-11T14:01:01.001-04:00"}}]}
+{"name":"SubtractTime","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","years":1,"months":1,"days":1,"hours":1,"minutes":1,"seconds":1,"milliseconds":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-02-09T11:58:58.999-05:00"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-03-10T12:00:00-05:00[America/New_York]","days":1.7,"hours":-2.5},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-11T11:00:00.000-04:00"}}]}
+{"name":"AddTime","args":{"isoTimeStamp":"2024-01-31T10:00:00Z","months":1},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T10:00:00.000Z"}}]}
+{"name":"IsBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSame","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsSameOrBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsSameOrAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":[]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":[]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T15:30:00+05:30","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T15:30:00+05:30","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T10:00:00Z","endTimestamp":"2024-01-15T15:30:00+05:30","checkTimestamp":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T15:30:00+05:30","endTimestamp":"2024-01-15T10:00:00Z","checkTimestamp":"2024-01-15T12:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"LastOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-15T15:30:00+05:30"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T15:30:00.000+05:30"}}]}
+{"name":"FirstOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-15T15:30:00+05:30"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.000Z"}}]}
+{"name":"IsBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSame","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSameOrBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsSameOrAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":-86400000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":86400000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-1.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{"days":1.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{"hours":-24}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{"hours":24}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-1.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":1.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":-86400000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":86400000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{"seconds":-86400.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{"seconds":86400.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{"days":-1}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{"days":1}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-16T10:00:00Z","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-1}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-16T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":1}}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T10:00:00Z","endTimestamp":"2024-01-16T10:00:00Z","checkTimestamp":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-16T10:00:00Z","endTimestamp":"2024-01-15T10:00:00Z","checkTimestamp":"2024-01-15T12:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"LastOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-16T10:00:00Z"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-16T10:00:00.000Z"}}]}
+{"name":"FirstOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-16T10:00:00Z"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.000Z"}}]}
+{"name":"IsBefore","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsAfter","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsSame","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSameOrBefore","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSameOrAfter","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":172800000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":-172800000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{"days":2.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-2.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{"hours":48}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{"hours":-48}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":2.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-2.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":172800000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":-172800000.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{"seconds":172800.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{"seconds":-172800.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{"days":2}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{"days":-2}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-03-01","isoTimeStamp2":"2024-02-28","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":2}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-02-28","isoTimeStamp2":"2024-03-01","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{"days":-2}}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-03-01","endTimestamp":"2024-02-28","checkTimestamp":"2024-03-01"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-02-28","endTimestamp":"2024-03-01","checkTimestamp":"2024-01-15T12:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"LastOf","args":{"isoTimeStamp":["2024-03-01","2024-02-28"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-03-01T00:00:00.000Z"}}]}
+{"name":"FirstOf","args":{"isoTimeStamp":["2024-03-01","2024-02-28"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-28T00:00:00.000Z"}}]}
+{"name":"IsBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsSame","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSameOrBefore","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"IsSameOrAfter","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":500.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":[]},"ok":[{"name":"output","result":{"result":{"milliseconds":-500.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["HOURS","MINUTES"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["YEARS","MONTHS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":500.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["MILLISECONDS"]},"ok":[{"name":"output","result":{"result":{"milliseconds":-500.0}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["SECONDS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["WEEKS","DAYS","HOURS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["QUARTERS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00.500Z","isoTimeStamp2":"2024-01-15T10:00:00Z","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"Difference","args":{"isoTimeStamp1":"2024-01-15T10:00:00Z","isoTimeStamp2":"2024-01-15T10:00:00.500Z","unit":["DAYS","DAYS"]},"ok":[{"name":"output","result":{"result":{}}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T10:00:00.500Z","endTimestamp":"2024-01-15T10:00:00Z","checkTimestamp":"2024-01-15T10:00:00.500Z"},"ok":[{"name":"output","result":{"result":true}}]}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T10:00:00Z","endTimestamp":"2024-01-15T10:00:00.500Z","checkTimestamp":"2024-01-15T12:00:00Z"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"LastOf","args":{"isoTimeStamp":["2024-01-15T10:00:00.500Z","2024-01-15T10:00:00Z"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.500Z"}}]}
+{"name":"FirstOf","args":{"isoTimeStamp":["2024-01-15T10:00:00.500Z","2024-01-15T10:00:00Z"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.000Z"}}]}
+{"name":"LastOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-15T15:30:00+05:30"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T15:30:00.000+05:30"}}]}
+{"name":"FirstOf","args":{"isoTimeStamp":["2024-01-15T10:00:00Z","2024-01-15T15:30:00+05:30"]},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:00:00.000Z"}}]}
+{"name":"LastOf","args":{"isoTimeStamp":[]},"err":"No timestamps provided"}
+{"name":"IsBetween","args":{"startTimestamp":"2024-01-15T10:00:00Z","endTimestamp":"2024-01-16T10:00:00Z","checkTimestamp":"2024-01-15T15:30:00+05:30"},"ok":[{"name":"output","result":{"result":false}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":0},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-01T00:00:00.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":0},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-01T00:00:00.000Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":1700000000},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-11-14T22:13:20.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":1700000000},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-20T16:13:20.000Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":-1},"ok":[{"name":"output","result":{"isoTimeStamp":"1969-12-31T23:59:59.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":-1},"ok":[{"name":"output","result":{"isoTimeStamp":"1969-12-31T23:59:59.999Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":1700000000123},"ok":[{"name":"output","result":{"isoTimeStamp":"+55840-11-08T22:15:23.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":1700000000123},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-11-14T22:13:20.123Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":"1700000000"},"ok":[{"name":"output","result":{"isoTimeStamp":"2023-11-14T22:13:20.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":"1700000000"},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-20T16:13:20.000Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":"17e8"},"err":"For input string: \"17e8\""}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":"17e8"},"err":"For input string: \"17e8\""}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":2147483648},"ok":[{"name":"output","result":{"isoTimeStamp":"2038-01-19T03:14:08.000Z"}}]}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":2147483648},"ok":[{"name":"output","result":{"isoTimeStamp":"1970-01-25T20:31:23.648Z"}}]}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":"abc"},"err":"For input string: \"abc\""}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":"abc"},"err":"For input string: \"abc\""}
+{"name":"EpochSecondsToTimestamp","args":{"epochSeconds":1.5},"err":"Error while executing the function System.Date.EpochSecondsToTimestamp's parameter epochSeconds [Expected: Long | Integer | String]: epochSeconds - Value 1.5 is not of valid type(s)\nepochSeconds - 1.5 is not a number of type Long\nepochSeconds - 1.5 is not a number of type Integer\nepochSeconds - 1.5 is not String"}
+{"name":"EpochMillisecondsToTimestamp","args":{"epochMilliseconds":1.5},"err":"Error while executing the function System.Date.EpochMillisecondsToTimestamp's parameter epochMilliseconds [Expected: Long | Integer | String]: epochMilliseconds - Value 1.5 is not of valid type(s)\nepochMilliseconds - 1.5 is not a number of type Long\nepochMilliseconds - 1.5 is not a number of type Integer\nepochMilliseconds - 1.5 is not String"}
+{"name":"GetNames","args":{"unit":"MONTHS"},"ok":[{"name":"output","result":{"names":["January","February","March","April","May","June","July","August","September","October","November","December"]}}]}
+{"name":"GetNames","args":{"unit":"WEEKDAYS"},"ok":[{"name":"output","result":{"names":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]}}]}
+{"name":"GetNames","args":{"unit":"NOPE"},"err":"Error while executing the function System.Date.GetNames's parameter unit [Expected: String(\"TIMEZONES\" | \"MONTHS\" | \"WEEKDAYS\")]: unit - Value is not one of [\"TIMEZONES\", \"MONTHS\", \"WEEKDAYS\"]"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"yyyy-MM-dd"},"ok":[{"name":"output","result":{"result":"2024-09-05"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"yyyy-MM-dd"},"ok":[{"name":"output","result":{"result":"2024-01-15"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"yyyy-MM-dd"},"ok":[{"name":"output","result":{"result":"2024-12-30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"dd/MM/yyyy"},"ok":[{"name":"output","result":{"result":"05/09/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"dd/MM/yyyy"},"ok":[{"name":"output","result":{"result":"15/01/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"dd/MM/yyyy"},"ok":[{"name":"output","result":{"result":"30/12/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"MM/dd/yyyy hh:mm a"},"ok":[{"name":"output","result":{"result":"09/05/2024 02:07 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"MM/dd/yyyy hh:mm a"},"ok":[{"name":"output","result":{"result":"01/15/2024 12:00 AM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"MM/dd/yyyy hh:mm a"},"ok":[{"name":"output","result":{"result":"12/30/2024 11:00 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"D"},"ok":[{"name":"output","result":{"result":"9/5/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"D"},"ok":[{"name":"output","result":{"result":"1/15/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"D"},"ok":[{"name":"output","result":{"result":"12/30/2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"DD"},"ok":[{"name":"output","result":{"result":"Sep 5, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"DD"},"ok":[{"name":"output","result":{"result":"Jan 15, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"DD"},"ok":[{"name":"output","result":{"result":"Dec 30, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"DDD"},"ok":[{"name":"output","result":{"result":"September 5, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"DDD"},"ok":[{"name":"output","result":{"result":"January 15, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"DDD"},"ok":[{"name":"output","result":{"result":"December 30, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"DDDD"},"ok":[{"name":"output","result":{"result":"Thursday, September 5, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"DDDD"},"ok":[{"name":"output","result":{"result":"Monday, January 15, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"DDDD"},"ok":[{"name":"output","result":{"result":"Monday, December 30, 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"t"},"ok":[{"name":"output","result":{"result":"2:07 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"t"},"ok":[{"name":"output","result":{"result":"12:00 AM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"t"},"ok":[{"name":"output","result":{"result":"11:00 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"tt"},"ok":[{"name":"output","result":{"result":"2:07:09 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"tt"},"ok":[{"name":"output","result":{"result":"12:00:00 AM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"tt"},"ok":[{"name":"output","result":{"result":"11:00:00 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"T"},"ok":[{"name":"output","result":{"result":"14:07"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"T"},"ok":[{"name":"output","result":{"result":"00:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"T"},"ok":[{"name":"output","result":{"result":"23:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"TT"},"ok":[{"name":"output","result":{"result":"14:07:09"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"TT"},"ok":[{"name":"output","result":{"result":"00:00:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"TT"},"ok":[{"name":"output","result":{"result":"23:00:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"yyyy-MM-dd'T'HH:mm:ss.SSSZZ"},"ok":[{"name":"output","result":{"result":"2024-09-05HH:mm14:07:09.045+0530"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"yyyy-MM-dd'T'HH:mm:ss.SSSZZ"},"ok":[{"name":"output","result":{"result":"2024-01-15HH:mm00:00:00.000Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"yyyy-MM-dd'T'HH:mm:ss.SSSZZ"},"ok":[{"name":"output","result":{"result":"2024-12-30HH:mm23:00:00.000Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"LLL"},"ok":[{"name":"output","result":{"result":"Sep"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"LLL"},"ok":[{"name":"output","result":{"result":"Jan"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"LLL"},"ok":[{"name":"output","result":{"result":"Dec"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"LLLL"},"ok":[{"name":"output","result":{"result":"September"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"LLLL"},"ok":[{"name":"output","result":{"result":"January"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"LLLL"},"ok":[{"name":"output","result":{"result":"December"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ccc"},"ok":[{"name":"output","result":{"result":"Thu"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ccc"},"ok":[{"name":"output","result":{"result":"Mon"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ccc"},"ok":[{"name":"output","result":{"result":"Mon"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"cccc"},"ok":[{"name":"output","result":{"result":"Thursday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"cccc"},"ok":[{"name":"output","result":{"result":"Monday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"cccc"},"ok":[{"name":"output","result":{"result":"Monday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"c"},"ok":[{"name":"output","result":{"result":"5"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"c"},"ok":[{"name":"output","result":{"result":"2"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"c"},"ok":[{"name":"output","result":{"result":"2"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"MMM"},"ok":[{"name":"output","result":{"result":"Sep"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"MMM"},"ok":[{"name":"output","result":{"result":"Jan"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"MMM"},"ok":[{"name":"output","result":{"result":"Dec"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"MMMM"},"ok":[{"name":"output","result":{"result":"September"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"MMMM"},"ok":[{"name":"output","result":{"result":"January"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"MMMM"},"ok":[{"name":"output","result":{"result":"December"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"EEE"},"ok":[{"name":"output","result":{"result":"Thu"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"EEE"},"ok":[{"name":"output","result":{"result":"Mon"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"EEE"},"ok":[{"name":"output","result":{"result":"Mon"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"EEEE"},"ok":[{"name":"output","result":{"result":"Thursday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"EEEE"},"ok":[{"name":"output","result":{"result":"Monday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"EEEE"},"ok":[{"name":"output","result":{"result":"Monday"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"a"},"ok":[{"name":"output","result":{"result":"PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"a"},"ok":[{"name":"output","result":{"result":"AM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"a"},"ok":[{"name":"output","result":{"result":"PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"aa"},"err":"Too many pattern letters: a"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"aa"},"err":"Too many pattern letters: a"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"aa"},"err":"Too many pattern letters: a"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"h:m:s"},"ok":[{"name":"output","result":{"result":"2:7:9"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"h:m:s"},"ok":[{"name":"output","result":{"result":"12:0:0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"h:m:s"},"ok":[{"name":"output","result":{"result":"11:0:0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"hh:mm:ss.SSS"},"ok":[{"name":"output","result":{"result":"02:07:09.045"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"hh:mm:ss.SSS"},"ok":[{"name":"output","result":{"result":"12:00:00.000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"hh:mm:ss.SSS"},"ok":[{"name":"output","result":{"result":"11:00:00.000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"H:mm"},"ok":[{"name":"output","result":{"result":"14:07"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"H:mm"},"ok":[{"name":"output","result":{"result":"0:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"H:mm"},"ok":[{"name":"output","result":{"result":"23:00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"kk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"kk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"kk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"kkkk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"kkkk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"kkkk"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"W"},"ok":[{"name":"output","result":{"result":"36"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"W"},"ok":[{"name":"output","result":{"result":"3"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"W"},"ok":[{"name":"output","result":{"result":"1"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"WW"},"ok":[{"name":"output","result":{"result":"36"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"WW"},"ok":[{"name":"output","result":{"result":"03"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"WW"},"ok":[{"name":"output","result":{"result":"01"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"o"},"ok":[{"name":"output","result":{"result":"249"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"o"},"ok":[{"name":"output","result":{"result":"15"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"o"},"ok":[{"name":"output","result":{"result":"365"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ooo"},"ok":[{"name":"output","result":{"result":"249"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ooo"},"ok":[{"name":"output","result":{"result":"015"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ooo"},"ok":[{"name":"output","result":{"result":"365"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"q"},"ok":[{"name":"output","result":{"result":"3"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"q"},"ok":[{"name":"output","result":{"result":"1"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"q"},"ok":[{"name":"output","result":{"result":"4"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"qq"},"ok":[{"name":"output","result":{"result":"03"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"qq"},"ok":[{"name":"output","result":{"result":"01"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"qq"},"ok":[{"name":"output","result":{"result":"04"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"Z"},"ok":[{"name":"output","result":{"result":"+0530"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"Z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"Z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ZZ"},"ok":[{"name":"output","result":{"result":"+0530"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ZZZ"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ZZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ZZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ZZZZ"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ZZZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ZZZZ"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ZZZZZ"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ZZZZZ"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ZZZZZ"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"z"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"z"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"z"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"G"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"G"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"G"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"GG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"GG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"GG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"GGGGG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"GGGGG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"GGGGG"},"ok":[{"name":"output","result":{"result":"AD"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"u"},"ok":[{"name":"output","result":{"result":"045"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"u"},"ok":[{"name":"output","result":{"result":"000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"u"},"ok":[{"name":"output","result":{"result":"000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"uu"},"ok":[{"name":"output","result":{"result":"04"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"uu"},"ok":[{"name":"output","result":{"result":"00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"uu"},"ok":[{"name":"output","result":{"result":"00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"uuu"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"uuu"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"uuu"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"S"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"S"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"S"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"SSS"},"ok":[{"name":"output","result":{"result":"045"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"SSS"},"ok":[{"name":"output","result":{"result":"000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"SSS"},"ok":[{"name":"output","result":{"result":"000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"yy"},"ok":[{"name":"output","result":{"result":"24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"yy"},"ok":[{"name":"output","result":{"result":"24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"yy"},"ok":[{"name":"output","result":{"result":"24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"y"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"y"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"y"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"yyyy 'at' HH"},"ok":[{"name":"output","result":{"result":"2024 ah:mm a 14"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"yyyy 'at' HH"},"ok":[{"name":"output","result":{"result":"2024 ah:mm a 00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"yyyy 'at' HH"},"ok":[{"name":"output","result":{"result":"2024 ah:mm a 23"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"dd MMM yyyy, hh:mm a"},"ok":[{"name":"output","result":{"result":"05 Sep 2024, 02:07 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"dd MMM yyyy, hh:mm a"},"ok":[{"name":"output","result":{"result":"15 Jan 2024, 12:00 AM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"dd MMM yyyy, hh:mm a"},"ok":[{"name":"output","result":{"result":"30 Dec 2024, 11:00 PM"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"#"},"err":"Pattern includes reserved character: '#'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"#"},"err":"Pattern includes reserved character: '#'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"#"},"err":"Pattern includes reserved character: '#'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"{x}"},"err":"Pattern includes reserved character: '{'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"{x}"},"err":"Pattern includes reserved character: '{'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"{x}"},"err":"Pattern includes reserved character: '{'"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"[yyyy]"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"[yyyy]"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"[yyyy]"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"b"},"err":"Unknown pattern letter: b"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"b"},"err":"Unknown pattern letter: b"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"b"},"err":"Unknown pattern letter: b"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"f"},"err":"Unknown pattern letter: f"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"f"},"err":"Unknown pattern letter: f"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"f"},"err":"Unknown pattern letter: f"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"x"},"ok":[{"name":"output","result":{"result":"+0530"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"x"},"ok":[{"name":"output","result":{"result":"+00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"x"},"ok":[{"name":"output","result":{"result":"+00"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"X"},"ok":[{"name":"output","result":{"result":"+0530"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"X"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"X"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"XXX"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"XXX"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"XXX"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"VV"},"ok":[{"name":"output","result":{"result":"+05:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"VV"},"ok":[{"name":"output","result":{"result":"Z"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"VV"},"ok":[{"name":"output","result":{"result":"UTC"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"zzzz"},"err":"Pattern letter count must be 2: V"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"zzzz"},"err":"Pattern letter count must be 2: V"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"zzzz"},"err":"Pattern letter count must be 2: V"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"O"},"ok":[{"name":"output","result":{"result":"GMT+5:30"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"O"},"ok":[{"name":"output","result":{"result":"GMT"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"O"},"ok":[{"name":"output","result":{"result":"GMT"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"E, d MMM yyyy"},"ok":[{"name":"output","result":{"result":"Thu, 5 Sep 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"E, d MMM yyyy"},"ok":[{"name":"output","result":{"result":"Mon, 15 Jan 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"E, d MMM yyyy"},"ok":[{"name":"output","result":{"result":"Mon, 30 Dec 2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"QQQ"},"ok":[{"name":"output","result":{"result":"Q3"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"QQQ"},"ok":[{"name":"output","result":{"result":"Q1"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"QQQ"},"ok":[{"name":"output","result":{"result":"Q4"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"QQQQ"},"ok":[{"name":"output","result":{"result":"3rd quarter"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"QQQQ"},"ok":[{"name":"output","result":{"result":"1st quarter"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"QQQQ"},"ok":[{"name":"output","result":{"result":"4th quarter"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"Y"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"Y"},"ok":[{"name":"output","result":{"result":"2024"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"Y"},"ok":[{"name":"output","result":{"result":"2025"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"w"},"ok":[{"name":"output","result":{"result":"36"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"w"},"ok":[{"name":"output","result":{"result":"3"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"w"},"ok":[{"name":"output","result":{"result":"1"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"ww"},"ok":[{"name":"output","result":{"result":"36"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"ww"},"ok":[{"name":"output","result":{"result":"03"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"ww"},"ok":[{"name":"output","result":{"result":"01"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"e"},"ok":[{"name":"output","result":{"result":"5"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"e"},"ok":[{"name":"output","result":{"result":"2"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"e"},"ok":[{"name":"output","result":{"result":"2"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"F"},"ok":[{"name":"output","result":{"result":"1"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"F"},"ok":[{"name":"output","result":{"result":"3"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"F"},"ok":[{"name":"output","result":{"result":"5"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"n"},"ok":[{"name":"output","result":{"result":"45000000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"n"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"n"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"N"},"ok":[{"name":"output","result":{"result":"50829045000000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"N"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"N"},"ok":[{"name":"output","result":{"result":"82800000000000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"A"},"ok":[{"name":"output","result":{"result":"50829045"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"A"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"A"},"ok":[{"name":"output","result":{"result":"82800000"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"K"},"ok":[{"name":"output","result":{"result":"2"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"K"},"ok":[{"name":"output","result":{"result":"0"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"K"},"ok":[{"name":"output","result":{"result":"11"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"''"},"ok":[{"name":"output","result":{"result":"'"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"''"},"ok":[{"name":"output","result":{"result":"'"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"''"},"ok":[{"name":"output","result":{"result":"'"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"'"},"err":"Pattern ends with an incomplete string literal: '"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"'"},"err":"Pattern ends with an incomplete string literal: '"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"'"},"err":"Pattern ends with an incomplete string literal: '"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"MMMMMM"},"err":"Too many pattern letters: M"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"MMMMMM"},"err":"Too many pattern letters: M"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"MMMMMM"},"err":"Too many pattern letters: M"}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"dd-MMM-yy"},"ok":[{"name":"output","result":{"result":"05-Sep-24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"dd-MMM-yy"},"ok":[{"name":"output","result":{"result":"15-Jan-24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"dd-MMM-yy"},"ok":[{"name":"output","result":{"result":"30-Dec-24"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-09-05T14:07:09.045+05:30","format":"B"},"ok":[{"name":"output","result":{"result":"in the afternoon"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-01-15T00:00:00Z","format":"B"},"ok":[{"name":"output","result":{"result":"midnight"}}]}
+{"name":"ToDateString","args":{"isoTimeStamp":"2024-12-30T23:00:00","format":"B"},"ok":[{"name":"output","result":{"result":"at night"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15","format":"yyyy-MM-dd"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"15/01/2024","format":"dd/MM/yyyy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"01/15/2024","format":"MM/dd/yyyy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 10:20:30","format":"yyyy-MM-dd HH:mm:ss"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15T10:20:30","format":"yyyy-MM-dd'T'HH:mm:ss"},"err":"Text '2024-01-15T10:20:30' could not be parsed at index 10"}
+{"name":"FromDateString","args":{"timestampString":"15 Jan 2024","format":"dd MMM yyyy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"January 5, 2024","format":"MMMM d, yyyy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-05T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"20240115","format":"yyyyMMdd"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-1-5","format":"yyyy-M-d"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-05T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 Mon","format":"yyyy-MM-dd EEE"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 Tue","format":"yyyy-MM-dd EEE"},"err":"Text '2024-01-15 Tue' could not be parsed: Conflict found: Field DayOfWeek 1 differs from DayOfWeek 2 derived from 2024-01-15"}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15+05:30","format":"yyyy-MM-ddZZZ"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-14T18:30:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 10:20:30.123","format":"yyyy-MM-dd HH:mm:ss.SSS"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T10:20:30.123Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-13-01","format":"yyyy-MM-dd"},"err":"Text '2024-13-01' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13"}
+{"name":"FromDateString","args":{"timestampString":"2024-02-30","format":"yyyy-MM-dd"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-02-29T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15","format":"dd/MM/yyyy"},"err":"Text '2024-01-15' could not be parsed at index 2"}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15x","format":"yyyy-MM-dd"},"err":"Text '2024-01-15x' could not be parsed, unparsed text found at index 10"}
+{"name":"FromDateString","args":{"timestampString":"15-Jan-24","format":"dd-MMM-yy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 10","format":"yyyy-MM-dd h"},"err":"Text '2024-01-15 10' could not be parsed: Conflict found: Field HourOfAmPm 0 differs from HourOfAmPm 10 derived from 00:00"}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 22:05","format":"yyyy-MM-dd H:mm"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T22:05:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15T10:20:30Z","format":"yyyy-MM-dd'T'HH:mm:ssZ"},"err":"Text '2024-01-15T10:20:30Z' could not be parsed at index 10"}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15T10:20:30+0530","format":"yyyy-MM-dd'T'HH:mm:ssZ"},"err":"Text '2024-01-15T10:20:30+0530' could not be parsed at index 10"}
+{"name":"FromDateString","args":{"timestampString":"10/5/2024","format":"D"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-10-05T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"Oct 5, 2024","format":"DD"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-10-05T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"Sept 5, 2024","format":"LLL d, yyyy"},"err":"Text 'Sept 5, 2024' could not be parsed at index 3"}
+{"name":"FromDateString","args":{"timestampString":"Sep 5, 2024","format":"LLL d, yyyy"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-09-05T00:00:00.000Z"}}]}
+{"name":"FromDateString","args":{"timestampString":"2024-01-15 Asia/Tokyo","format":"yyyy-MM-dd z"},"ok":[{"name":"output","result":{"isoTimeStamp":"2024-01-15T00:00:00.000+09:00"}}]}
+{"name":"FromDateString","args":{"timestampString":"1/2/3","format":"d/M/y"},"ok":[{"name":"output","result":{"isoTimeStamp":"0003-02-01T00:00:00.000Z"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"in 0 weeks"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"in 0.14 weeks"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 1 day"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 1 day"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"in 24 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"in 24 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 1 day"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 1 day"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-16T10:00:00Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"in 0 weeks"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"0 weeks ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"0.14 weeks ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"1 day ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"1 day ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"24 hours ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"24 hours ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"1 day ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"1 day ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-16T10:00:00Z","base":"2024-01-15T10:00:00Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"0 weeks ago"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:00Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"now"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"in 23 minutes"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"in 23 minutes"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0.02 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0.38 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0.02 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:23:00Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"in 23 minutes"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"in 1 years"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"in 1.16 years"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 425 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 425 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"in 1 years"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"in 1.16 years"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 425 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 425 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2025-03-15T10:00:00Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"in 1 years"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":[],"round":true},"ok":[{"name":"output","result":{"result":"in 30 seconds"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":[],"round":false},"ok":[{"name":"output","result":{"result":"in 30 seconds"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["HOURS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["HOURS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0.01 hours"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["MINUTES","DAYS"],"round":true},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["MINUTES","DAYS"],"round":false},"ok":[{"name":"output","result":{"result":"in 0 days"}}]}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["MILLISECONDS"],"round":true},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","unit":["MILLISECONDS"],"round":false},"err":"No enum constant java.time.temporal.ChronoUnit.MILLISECONDS"}
+{"name":"FromNow","args":{"isoTimeStamp":"2024-01-15T10:00:00Z","base":"2024-01-15T10:00:30Z","format":"SHORT"},"ok":[{"name":"output","result":{"result":"in 30 seconds"}}]}

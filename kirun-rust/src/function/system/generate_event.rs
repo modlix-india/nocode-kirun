@@ -1,4 +1,4 @@
-//! Port of kirun-js `function/system/GenerateEvent.ts`.
+//! Port of kirun-js `function/system/GenerateEvent.ts`; runs as kirun-java's `GenerateEvent`.
 
 use async_trait::async_trait;
 
@@ -8,7 +8,7 @@ use crate::model::{Event, EventResult, FunctionOutput, FunctionSignature, Parame
 use crate::namespaces::Namespaces;
 use crate::runtime::expression::ExpressionEvaluator;
 use crate::runtime::function_execution_parameters::FunctionExecutionParameters;
-use crate::util::null_check::is_null_value;
+use crate::json::schema::validator::schema_validator::java_json;
 use crate::{KIRunError, Map, Result, Value};
 
 const VALUE: &str = "value";
@@ -52,37 +52,60 @@ impl AbstractFunction for GenerateEvent {
         &self.signature
     }
 
+    /// kirun-java `GenerateEvent.internalExecute`. Its failures leave the function as Java threw
+    /// them (kirun-java wraps nothing a function throws while it runs), so they are
+    /// [`KIRunError::Uncaught`] with the Java message: Gson's `NullPointerException` for a
+    /// result without `value`, `isExpression` or `name`, Reactor's "t2" for a result value that
+    /// is Java `null` (a missing `value`, or an expression that reads nothing), and
+    /// `Collectors.toMap`'s "Duplicate key" for two results with one name. kirun-js reads all
+    /// of these as `undefined` and raises the event.
     async fn internal_execute(&self, context: &mut FunctionExecutionParameters) -> Result<FunctionOutput> {
         let args = context.get_arguments().cloned().unwrap_or_default();
 
-        let event_name = match args.get(EVENT_NAME) {
-            Some(Value::String(s)) => s.clone(),
-            Some(v) => crate::util::primitive::js_to_string(v),
-            None => "undefined".to_string(),
-        };
+        // Always there: the parameter defaults to `output`.
+        let event_name = as_string(args.get(EVENT_NAME).unwrap_or(&Value::Null))?;
 
         let mut map: Map<Value> = Map::new();
         if let Some(Value::Array(results)) = args.get(RESULTS) {
             for e in results {
-                let je = &e[VALUE];
-
-                if is_null_value(je) {
-                    return Err(KIRunError::runtime("Expect a value object"));
-                }
-
-                let mut v = je[VALUE].clone();
-                if crate::util::primitive::js_truthy(&je["isExpression"]) {
-                    let expression = match &v {
-                        Value::String(s) => s.clone(),
-                        other => crate::util::primitive::js_to_string(other),
-                    };
-                    v = ExpressionEvaluator::new(&expression).evaluate(context.get_values_map())?;
-                }
-                let name = match &e["name"] {
-                    Value::String(s) => s.clone(),
-                    other => crate::util::primitive::js_to_string(other),
+                let Some(je) = e.get(VALUE) else {
+                    return Err(npe("isJsonObject()", "\"je\""));
                 };
-                map.insert(name, v);
+                let Value::Object(jo) = je else {
+                    return Err(KIRunError::uncaught("Expect a value object"));
+                };
+
+                let v = jo.get(VALUE);
+                let is_expression = match jo.get("isExpression") {
+                    Some(b) => as_boolean(b)?,
+                    None => return Err(npe("getAsBoolean()", RETURN_OF_GET)),
+                };
+
+                let value: Option<Value> = if is_expression {
+                    let expression = match v {
+                        Some(v) => as_string(v)?,
+                        None => return Err(npe("getAsString()", "\"v\"")),
+                    };
+                    ExpressionEvaluator::new(&expression).evaluate_or_missing(context.get_values_map())?
+                } else {
+                    v.cloned()
+                };
+
+                let name = match e.get("name") {
+                    Some(n) => as_string(n)?,
+                    None => return Err(npe("getAsString()", RETURN_OF_GET)),
+                };
+                let Some(value) = value else {
+                    return Err(KIRunError::uncaught("t2"));
+                };
+                if let Some(existing) = map.get(&name) {
+                    return Err(KIRunError::uncaught(format!(
+                        "Duplicate key {name} (attempted merging values {} and {})",
+                        java_json(existing),
+                        java_json(&value)
+                    )));
+                }
+                map.insert(name, value);
             }
         }
 
@@ -91,5 +114,41 @@ impl AbstractFunction for GenerateEvent {
         }
 
         Ok(FunctionOutput::new(vec![EventResult::output_of(Map::new())]))
+    }
+}
+
+/// The receiver Java names in a helpful `NullPointerException` for `jsonObject.get(key).x()`.
+const RETURN_OF_GET: &str = "the return value of \"com.google.gson.JsonObject.get(String)\"";
+
+/// The JVM's helpful `NullPointerException` message for calling `method` on a null `receiver`.
+fn npe(method: &str, receiver: &str) -> KIRunError {
+    KIRunError::uncaught(format!(
+        "Cannot invoke \"com.google.gson.JsonElement.{method}\" because {receiver} is null"
+    ))
+}
+
+/// Gson `JsonElement.getAsString()`.
+fn as_string(v: &Value) -> Result<String> {
+    match v {
+        Value::String(s) => Ok(s.clone()),
+        Value::Number(n) => Ok(n.to_string()),
+        Value::Bool(b) => Ok(b.to_string()),
+        Value::Null => Err(KIRunError::uncaught("JsonNull")),
+        Value::Object(_) => Err(KIRunError::uncaught("JsonObject")),
+        Value::Array(a) if a.len() == 1 => as_string(&a[0]),
+        Value::Array(a) => Err(KIRunError::uncaught(format!("Array must have size 1, but has size {}", a.len()))),
+    }
+}
+
+/// Gson `JsonElement.getAsBoolean()`: a string or number reads through `Boolean.parseBoolean`.
+fn as_boolean(v: &Value) -> Result<bool> {
+    match v {
+        Value::Bool(b) => Ok(*b),
+        Value::String(s) => Ok(s.eq_ignore_ascii_case("true")),
+        Value::Number(_) => Ok(false),
+        Value::Null => Err(KIRunError::uncaught("JsonNull")),
+        Value::Object(_) => Err(KIRunError::uncaught("JsonObject")),
+        Value::Array(a) if a.len() == 1 => as_boolean(&a[0]),
+        Value::Array(a) => Err(KIRunError::uncaught(format!("Array must have size 1, but has size {}", a.len()))),
     }
 }

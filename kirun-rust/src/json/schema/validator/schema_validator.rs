@@ -10,7 +10,7 @@ use crate::json::schema::schema_util::SchemaUtil;
 use crate::json::schema::validator::{AnyOfAllOfOneOfValidator, TypeValidator};
 use crate::json::schema::Schema;
 use crate::repository::Repository;
-use crate::util::primitive::{js_number_value_to_string, js_stringify, js_to_string};
+use crate::util::primitive::js_stringify;
 use crate::util::string::string_util::StringUtil;
 use crate::{KIRunError, Result, Value};
 
@@ -138,15 +138,18 @@ impl SchemaPath for SchemaParents {
 
 pub struct SchemaValidator;
 
-/// JS `SchemaValidator.ORDER`: the order in which the allowed types of a schema are tried.
+/// kirun-java `ReactiveSchemaValidator.ORDER`: the number types first (double, float, long,
+/// integer), then the rest (kirun-java's `HashSet` order for those changes from one JVM run to
+/// the next; kirun-rust keeps object, array, string, boolean, null). kirun-js tries object and
+/// array before the numbers.
 fn type_order(t: SchemaType) -> u8 {
     match t {
-        SchemaType::Object => 0,
-        SchemaType::Array => 1,
-        SchemaType::Double => 2,
-        SchemaType::Float => 3,
-        SchemaType::Long => 4,
-        SchemaType::Integer => 5,
+        SchemaType::Double => 0,
+        SchemaType::Float => 1,
+        SchemaType::Long => 2,
+        SchemaType::Integer => 3,
+        SchemaType::Object => 4,
+        SchemaType::Array => 5,
         SchemaType::String => 6,
         SchemaType::Boolean => 7,
         SchemaType::Null => 8,
@@ -255,16 +258,9 @@ impl SchemaValidator {
             ));
         }
 
-        if convert && schema.get_type().is_none() {
-            return Err(KIRunError::schema_validation(
-                parents.path(),
-                format!(
-                    "Type is missing in schema for declared {}",
-                    mode.map(|m| m.name()).unwrap_or("undefined")
-                ),
-            ));
-        }
-
+        // kirun-js refuses to convert against a schema without a `type` ("Type is missing in
+        // schema for declared STRICT") before it looks at `$ref`; kirun-java has no such check:
+        // a typeless schema leaves the value as it is and a `$ref` is resolved and converted to.
         if schema.get_type().is_some() {
             element = Self::type_validation_in(parents, schema, repository, element, convert, mode).await?;
         }
@@ -306,28 +302,29 @@ impl SchemaValidator {
     fn constant_validation_in(parents: &SchemaParents, schema: &Schema, element: Value) -> Result<Value> {
         let constant = schema.get_constant().cloned().unwrap_or(Value::Null);
         if !js_deep_equal(&constant, &element) {
+            // kirun-java prints the value as JSON.
             return Err(KIRunError::schema_validation(
                 parents.path(),
-                format!("Expecting a constant value : {}", js_to_string(&element)),
+                format!("Expecting a constant value : {}", java_json(&element)),
             ));
         }
         Ok(element)
     }
 
-    /// JS `enumCheck`: strict (`===`) membership, so objects and arrays never match.
+    /// kirun-java `enumCheck`: `JsonElement.equals` membership, so an object or array matches an
+    /// equal one (JS `===` never matches them), and the message prints the enums as a Java
+    /// `List` of JSON values (`["A", "B"]`).
     pub fn enum_check(parents: &[Schema], schema: &Schema, element: Value) -> Result<Value> {
         Self::enum_check_in(&SchemaParents::from_slice(parents), schema, element)
     }
 
     fn enum_check_in(parents: &SchemaParents, schema: &Schema, element: Value) -> Result<Value> {
         let enums = schema.get_enums().map(Vec::as_slice).unwrap_or(&[]);
-        if enums.iter().any(|e| js_strict_equal(e, &element)) {
+        if enums.iter().any(|e| js_deep_equal(e, &element)) {
             return Ok(element);
         }
-        Err(KIRunError::schema_validation(
-            parents.path(),
-            format!("Value is not one of {}", js_to_string(&Value::Array(enums.to_vec()))),
-        ))
+        let list: Vec<String> = enums.iter().map(java_json).collect();
+        Err(KIRunError::schema_validation(parents.path(), format!("Value is not one of [{}]", list.join(", "))))
     }
 
     /// JS `typeValidation`: tries each allowed type in `ORDER`, returning the first success.
@@ -357,12 +354,21 @@ impl SchemaValidator {
             .unwrap_or_default();
         allowed.sort_by_key(|t| type_order(*t));
 
+        // kirun-java converts a primitive type before its validation `Mono` exists, so a value
+        // the converter refuses (STRICT) leaves the type check at once, as it is: no other type
+        // is tried and no "is not of valid type(s)" wrapping is added. Objects and arrays fail
+        // inside their `Mono` and are wrapped like any validation error.
+        let raw = |t: SchemaType, e: &KIRunError| {
+            convert && !matches!(t, SchemaType::Object | SchemaType::Array) && matches!(e, KIRunError::SchemaConversion { .. })
+        };
+
         // One allowed type: no other attempt needs the value, and the loop below would report
         // this attempt's error alone, so validate it in place without copying the value.
         if allowed.len() == 1 {
-            return TypeValidator::validate_in(parents, allowed[0], schema, repository, element, convert, mode)
-                .await
-                .map_err(|e| KIRunError::schema_validation(parents.path(), e.to_string()));
+            let t = allowed[0];
+            return TypeValidator::validate_in(parents, t, schema, repository, element, convert, mode).await.map_err(
+                |e| if raw(t, &e) { e } else { KIRunError::schema_validation(parents.path(), e.to_string()) },
+            );
         }
 
         // Without conversion a type can only accept its own JSON kind, so try just those first
@@ -384,6 +390,7 @@ impl SchemaValidator {
         for t in allowed {
             match TypeValidator::validate_in(parents, t, schema, repository, element.clone(), convert, mode).await {
                 Ok(v) => return Ok(v),
+                Err(e) if raw(t, &e) => return Err(e),
                 Err(e) => errors.push(e),
             }
         }
@@ -410,6 +417,12 @@ fn kind_matches(t: SchemaType, v: &Value) -> bool {
         SchemaType::Boolean => v.is_boolean(),
         SchemaType::Null => v.is_null(),
     }
+}
+
+/// kirun-java `JsonElement.toString()`, which its validators print values with: compact JSON
+/// (a string quoted, an object or array as JSON text).
+pub fn java_json(value: &Value) -> String {
+    serde_json::to_string(value).unwrap_or_default()
 }
 
 /// JS `===` on JSON values: primitives by value (numbers numerically), objects/arrays never
@@ -459,42 +472,4 @@ pub(crate) fn js_deep_equal(x: &Value, y: &Value) -> bool {
         }
     }
     true
-}
-
-/// JS `ErrorMessageFormatter.formatValue(value)` (max length 200). Local copy so the validators
-/// do not depend on the shared util module.
-pub(crate) fn format_value(value: &Value) -> String {
-    const MAX_LENGTH: usize = 200;
-    match value {
-        Value::Null => "null".into(),
-        Value::String(s) => format!("\"{s}\""),
-        Value::Number(n) => js_number_value_to_string(n),
-        Value::Bool(b) => b.to_string(),
-        Value::Array(_) | Value::Object(_) => {
-            let json = js_stringify(value);
-            let mut formatted = json.clone();
-            if json.chars().count() > 2 {
-                formatted = json.replace(',', ", ").replace(':', ": ");
-                let mut collapsed = String::with_capacity(formatted.len());
-                let mut in_ws = false;
-                for c in formatted.chars() {
-                    if c.is_whitespace() {
-                        if !in_ws {
-                            collapsed.push(' ');
-                        }
-                        in_ws = true;
-                    } else {
-                        collapsed.push(c);
-                        in_ws = false;
-                    }
-                }
-                formatted = collapsed;
-            }
-            if formatted.encode_utf16().count() > MAX_LENGTH {
-                let units: Vec<u16> = formatted.encode_utf16().take(MAX_LENGTH).collect();
-                return format!("{}...", String::from_utf16_lossy(&units));
-            }
-            formatted
-        }
-    }
 }

@@ -602,8 +602,12 @@ fn expression_9_complex_nested_ternary_with_dynamic_keys_and_string_concatenatio
         TestTokenValueExtractor::new("Parent.", json!({ "kycAccountId": "456" })),
     ]);
 
+    // kirun-java reads `undefined` inside an expression as the text "undefined", so a missing
+    // value `!= undefined` is true (null reads as `false`, compared as text) and the first
+    // branch adds two missing names: `null + ' '` is ' ', and `' ' + null` is " null". kirun-js
+    // reads `undefined` as undefined and falls through to '-'. Measured on kirun-java 4.9.2.
     let ev_fallback = ExpressionEvaluator::new(expression);
-    assert_json_eq!(ev_fallback.evaluate(&vm_fallback).unwrap(), json!("-"));
+    assert_json_eq!(ev_fallback.evaluate(&vm_fallback).unwrap(), json!(" null"));
 }
 
 /// 'Expression trimming: Leading and trailing whitespace should be trimmed'

@@ -1,23 +1,15 @@
-//! Port of kirun-js `function/system/date/IsValidISODate.ts`.
+//! kirun-java `function/system/date/IsValidISODate.java`: whether `DateUtil.getDateTime` reads it.
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_time::get_date_time;
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
 use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
 use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::{Map, Value};
 
 pub struct IsValidISODate(DateFunction);
 
@@ -38,7 +30,7 @@ impl IsValidISODate {
             signature,
             Event::OUTPUT,
             Arc::new(|a| {
-                let valid = DateTime::from_iso(arg_str(a, A::PARAMETER_TIMESTAMP_NAME), false).is_some();
+                let valid = arg_string(a, A::PARAMETER_TIMESTAMP_NAME).and_then(|t| get_date_time(&t)).is_ok();
                 Ok(result_map(A::EVENT_RESULT_NAME, Value::Bool(valid)))
             }),
         ))
