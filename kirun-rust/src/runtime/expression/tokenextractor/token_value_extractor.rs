@@ -29,6 +29,54 @@ pub trait TokenValueExtractor: Send + Sync {
     fn get_value_with(&self, token: &str, values_map: Option<&ValuesMap>) -> Result<Value> {
         get_value_base(self, token, values_map)
     }
+
+    /// Replaces the value at a plain path (`Arguments.query`, `Context.a.b[0]`) in this store.
+    /// kirun-java shares JSON objects by reference, so a function that converts an object in
+    /// place (`System.ValidateSchema`) changes what the path reads afterwards; kirun-rust copies
+    /// values, so the runtime writes the converted value back through this. Returns false when
+    /// the store cannot be written or the path does not exist.
+    fn write_back(&self, _token: &str, _value: Value) -> bool {
+        false
+    }
+}
+
+/// The segments of a plain path below its key (`query.size`, `a[0].b` → `a`, `0`, `b`), or
+/// `None` when a segment is anything but a name or a literal index (an expression inside
+/// brackets, a quoted key), which the write-back does not handle.
+pub fn plain_path_segments(parts: &[&str]) -> Option<Vec<String>> {
+    let mut out = Vec::new();
+    for part in parts {
+        let (name, rest) = match part.find('[') {
+            Some(i) => (&part[..i], &part[i..]),
+            None => (*part, ""),
+        };
+        if !name.is_empty() {
+            if !name.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '$') {
+                return None;
+            }
+            out.push(name.to_string());
+        }
+        for seg in rest.split(['[', ']']).filter(|s| !s.is_empty()) {
+            if !seg.chars().all(|c| c.is_ascii_digit()) {
+                return None;
+            }
+            out.push(seg.to_string());
+        }
+    }
+    Some(out)
+}
+
+/// The value at `segments` inside `root`, for writing; `None` when any step is missing.
+pub fn value_at_mut<'a>(root: &'a mut Value, segments: &[String]) -> Option<&'a mut Value> {
+    let mut cur = root;
+    for seg in segments {
+        cur = match cur {
+            Value::Object(o) => o.get_mut(seg)?,
+            Value::Array(a) => a.get_mut(seg.parse::<usize>().ok()?)?,
+            _ => return None,
+        };
+    }
+    Some(cur)
 }
 
 /// The shared body of JS `TokenValueExtractor.getValue` (prefix check, `.__index`).

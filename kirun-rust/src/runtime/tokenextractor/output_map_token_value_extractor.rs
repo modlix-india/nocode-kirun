@@ -1,7 +1,7 @@
 //! Port of kirun-js `runtime/tokenextractor/OutputMapTokenValueExtractor.ts`.
 
 use crate::runtime::expression::tokenextractor::token_value_extractor::{
-    retrieve_element_from, split_path_ref, TokenValueExtractor, ValuesMap,
+    plain_path_segments, retrieve_element_from, split_path_ref, value_at_mut, TokenValueExtractor, ValuesMap,
 };
 use crate::{Result, Value};
 #[allow(unused_imports)]
@@ -74,6 +74,24 @@ impl TokenValueExtractor for OutputMapTokenValueExtractor {
                 parts[ind] = &part[bracket..];
                 retrieve_element_from(token, &parts, ind, element, values_map)
             }
+        }
+    }
+
+    /// `Steps.<step>.<event>.<param>...`: the step, event and parameter names, then the path.
+    fn write_back(&self, token: &str, value: Value) -> bool {
+        let parts = split_path_ref(token);
+        let Some(segments) = parts.get(1..).and_then(plain_path_segments) else { return false };
+        let [step, event, param, rest @ ..] = segments.as_slice() else { return false };
+        let mut steps = self.store.write();
+        let Some(root) = steps.get_mut(step).and_then(|e| e.get_mut(event)).and_then(|p| p.get_mut(param)) else {
+            return false;
+        };
+        match value_at_mut(root, rest) {
+            Some(slot) => {
+                *slot = value;
+                true
+            }
+            None => false,
         }
     }
 }

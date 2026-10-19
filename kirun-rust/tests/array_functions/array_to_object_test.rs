@@ -122,3 +122,18 @@ async fn array_to_object_test_deep_path() {
     .unwrap();
     assert_json_eq!(result, json!({ "10": "A", "20": "B", "30": "C", "40": "D", "50": "E" }));
 }
+
+#[tokio::test]
+async fn an_empty_key_path_keys_each_element_by_itself() {
+    // Measured on kirun-java 4.9.2 (`Data.` reads the element): ["_id","code","name"] with
+    // keyPath "" and valuePath null gives {"_id":"_id","code":"code","name":"name"}.
+    // leadzumptwo's lzRowsScan collects the distinct row keys this way.
+    let result = first_value(
+        &ArrayToObject::new(),
+        fep().set_arguments(args! { "source" => json!(["_id", "code", "name", "code"]), "keyPath" => "", "valuePath" => serde_json::Value::Null }),
+        "result",
+    )
+    .await
+    .unwrap();
+    assert_json_eq!(result, json!({ "_id": "_id", "code": "code", "name": "name" }));
+}
