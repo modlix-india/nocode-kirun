@@ -58,6 +58,19 @@ impl ValidateSchema {
     }
 }
 
+impl ValidateSchema {
+    /// The source as kirun-java leaves it after a successful validation: converted in place
+    /// (a number where the schema says STRING becomes a string, and so on). `None` when the
+    /// arguments carry no schema or the source does not validate.
+    pub async fn converted_source(args: &Map<Value>, repository: &dyn Repository<Schema>) -> Option<Value> {
+        let schema = Schema::from_value(args.get(SCHEMA)?).ok()??;
+        let element = args.get(SOURCE).cloned().unwrap_or(Value::Null);
+        SchemaValidator::validate_with(Some(vec![]), Some(&schema), Some(repository), element, true, None)
+            .await
+            .ok()
+    }
+}
+
 impl Default for ValidateSchema {
     fn default() -> Self {
         Self::new()

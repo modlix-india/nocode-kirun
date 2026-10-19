@@ -226,3 +226,51 @@ async fn a_functions_own_error_is_not_wrapped() {
     );
     assert_eq!(run(d, json!({}), vec![]).await, Err("obj - obj - \"abc\" is not a Integer".to_string()));
 }
+
+fn expr(e: &str) -> J {
+    reference("EXPRESSION", json!({ "expression": e }))
+}
+
+fn after(mut s: J, dependency: &str) -> J {
+    s["dependentStatements"] = json!({ dependency: true });
+    s
+}
+
+#[tokio::test]
+async fn validate_schema_converts_its_source_in_place() {
+    // kirun-java's validators put converted properties back into the same JsonObject, and
+    // stored functions read the source again after the check (`leadPrepQuery` trims
+    // `Arguments.query.size` sent as a number).
+    let schema = json!({ "type": "OBJECT", "required": ["size"], "properties": { "size": { "type": "STRING" } } });
+    let steps = json!({
+        "v": step("v", "System", "ValidateSchema", json!({ "source": expr("Arguments.query"), "schema": value(schema) })),
+        "t": after(step("t", "System.String", "Trim", json!({ "string": expr("Arguments.query.size") })), "Steps.v.output"),
+        "ge": after(generate(json!([result("trimmed", "Steps.t.output.result"), result("after", "Arguments.query")])), "Steps.t.output"),
+    });
+    let params = json!({ "query": { "parameterName": "query", "schema": { "type": "OBJECT" } } });
+    assert_eq!(
+        run(def(steps, params), json!({ "query": { "size": 3, "page": 0 } }), vec![]).await,
+        output(json!({ "trimmed": "3", "after": { "size": "3", "page": 0 } }))
+    );
+}
+
+#[tokio::test]
+async fn validate_schema_converts_a_context_object_deeply_and_leaves_a_primitive_alone() {
+    // Measured on kirun-java 4.9.2: ctx {"size":"7","list":[{"n":"1"}]}, prim {"size":3}.
+    let ctx_schema = json!({ "type": "OBJECT", "properties": {
+        "size": { "type": "STRING" },
+        "list": { "type": "ARRAY", "items": { "type": "OBJECT", "properties": { "n": { "type": "STRING" } } } }
+    } });
+    let steps = json!({
+        "cC": step("cC", "System.Context", "Create", json!({ "name": value(json!("q")), "schema": value(json!({ "type": "OBJECT" })) })),
+        "cS": after(step("cS", "System.Context", "Set", json!({ "name": value(json!("Context.q")), "value": value(json!({ "size": 7, "list": [{ "n": 1 }] })) })), "Steps.cC.output"),
+        "v": after(step("v", "System", "ValidateSchema", json!({ "source": expr("Context.q"), "schema": value(ctx_schema) })), "Steps.cS.output"),
+        "p": after(step("p", "System", "ValidateSchema", json!({ "source": expr("Arguments.query.size"), "schema": value(json!({ "type": "STRING" })) })), "Steps.v.output"),
+        "ge": after(generate(json!([result("ctx", "Context.q"), result("prim", "Arguments.query")])), "Steps.p.output"),
+    });
+    let params = json!({ "query": { "parameterName": "query", "schema": { "type": "OBJECT" } } });
+    assert_eq!(
+        run(def(steps, params), json!({ "query": { "size": 3 } }), vec![]).await,
+        output(json!({ "ctx": { "size": "7", "list": [{ "n": "1" }] }, "prim": { "size": 3 } }))
+    );
+}

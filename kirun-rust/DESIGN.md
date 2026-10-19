@@ -113,8 +113,17 @@ browser keeps kirun-js):
   `Absolute` keeps the type; `Round` is `Math.round`; `Add` keeps the widest type and raises no
   event for no values; `Maximum` / `Minimum` keep the later of equal values), and `ToDegrees` /
   `ToRadians` the right way round.
+* **Strings** (`util/string/java_string.rs`): `ReplaceFirst` and `Split` take a regular expression
+  as `String.replaceFirst` / `String.split` do (`$n` and `\` in the replacement; trailing empty
+  parts dropped), where kirun-js matches plain text.
+* **In-place conversion**: kirun-java's `System.ValidateSchema` converts its source object in place,
+  and stored functions read it again afterwards (`Arguments.query.size` sent as 3 reads "3"). The
+  runtime writes the converted object back when the source is one plain path (`Arguments.x`,
+  `Context.x`, `Steps.s.e.p`, optionally `?? default`) to an object or array
+  (`write_back_validated_source`, `TokenValueExtractor::write_back`).
 
-Not reproduced: kirun-java's 32-bit `float` arithmetic on decimals parsed from text, NaN and
+Not reproduced: kirun-java's sharing of JSON objects by reference beyond `ValidateSchema` (a callee
+changing its caller's argument object, a loop's `each` changing the array it came from), kirun-java's 32-bit `float` arithmetic on decimals parsed from text, NaN and
 Infinity values, output orders kirun-java takes from hash sets that change per JVM run, and the
 last digit of some trigonometric, hyperbolic and exponential results (kirun-java's fdlibm or
 CPU intrinsics against the platform libm).

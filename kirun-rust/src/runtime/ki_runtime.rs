@@ -14,6 +14,7 @@ use futures::future::{join_all, BoxFuture};
 use parking_lot::Mutex;
 use regex::Regex;
 
+use crate::function::system::validate_schema::ValidateSchema;
 use crate::function::{AbstractFunction, Function};
 use crate::json::schema::r#type::SchemaType;
 use crate::json::schema::schema_util::SchemaUtil;
@@ -519,6 +520,7 @@ impl KIRuntime {
         };
 
         let args = get_arguments_from_parameters_map(in_context, s, fun.get_signature().get_parameters())?;
+        let validate_schema_args = is_validate_schema(s).then(|| args.clone());
 
         let debug = self.debug().filter(|d| d.is_enabled());
         let step_id = debug.and_then(|dc| {
@@ -584,6 +586,12 @@ impl KIRuntime {
 
         if let (Some(dc), Some(id)) = (debug, &step_id) {
             dc.end_step(in_context.get_execution_id(), id, er.get_name(), Some(map_to_value(er.get_result())), None);
+        }
+
+        if let Some(vs_args) = validate_schema_args {
+            if er.get_result().get("isValid") == Some(&Value::Bool(true)) {
+                write_back_validated_source(in_context, s, &vs_args).await;
+            }
         }
 
         if er.get_name() != Event::OUTPUT {
@@ -801,6 +809,50 @@ fn split_dependency(d: &str) -> (String, String) {
     let step = parts.next().unwrap_or("").to_string();
     let event = parts.next().unwrap_or("").to_string();
     (step, event)
+}
+
+fn is_validate_schema(s: &Statement) -> bool {
+    s.get_namespace() == "System" && s.get_name() == "ValidateSchema"
+}
+
+/// kirun-java's `System.ValidateSchema` converts the source object in place (its validators
+/// put each converted property back into the same `JsonObject`), and the source is the very
+/// object the step read, so `Arguments.query.size` sent as 3 reads "3" after a STRING check.
+/// Stored functions rely on it (`leadPrepQuery` trims `Arguments.query.size` after the check).
+/// kirun-rust copies values, so the converted object is written back to the path the source
+/// came from. Only a source that is one expression naming a plain path (optionally followed by
+/// `?? default`) to an object or array is written back: a primitive is never changed in place
+/// in Java either. Java's sharing across function calls (a caller's argument object changing
+/// when the callee converts it) is not reproduced.
+async fn write_back_validated_source(in_context: &FunctionExecutionParameters, s: &Statement, args: &Map<Value>) {
+    let Some(original) = args.get("source").filter(|v| v.is_object() || v.is_array()) else { return };
+    let Some(path) = validated_source_path(s) else { return };
+    let Some(converted) = ValidateSchema::converted_source(args, in_context.get_schema_repository().as_ref()).await
+    else {
+        return;
+    };
+    if &converted == original {
+        return;
+    }
+    let prefix = &path[..path.find('.').map_or(path.len(), |i| i + 1)];
+    if let Some(extractor) = in_context.get_values_map().get(prefix) {
+        extractor.write_back(&path, converted);
+    }
+}
+
+/// The plain path a `ValidateSchema` step's source reads, when the source is a single
+/// expression such as `Arguments.query` or `Context.q ?? {}`.
+fn validated_source_path(s: &Statement) -> Option<String> {
+    let refs = s.get_parameter_map().get("source")?;
+    let [r] = refs.values().collect::<Vec<_>>()[..] else { return None };
+    if r.get_type() != ParameterReferenceType::Expression {
+        return None;
+    }
+    let expression = r.get_expression()?;
+    let path = expression.split("??").next()?.trim();
+    let rooted = ["Arguments.", "Context.", "Steps."].iter().any(|p| path.starts_with(p));
+    let plain = path.chars().all(|c| c.is_alphanumeric() || matches!(c, '_' | '$' | '.' | '[' | ']'));
+    (rooted && plain).then(|| path.to_string())
 }
 
 /// kirun-java `ReactiveKIRuntime.getArgumentsFromParametersMap`. A variable argument drops the

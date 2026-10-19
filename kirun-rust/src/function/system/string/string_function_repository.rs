@@ -14,7 +14,7 @@ use crate::function::system::string::{
 use crate::function::Function;
 use crate::namespaces::Namespaces;
 use crate::repository::Repository;
-use crate::util::string::js_string;
+use crate::util::string::{java_string, js_string};
 use crate::{KIRunError, Map};
 
 pub struct StringFunctionRepository {
@@ -69,7 +69,10 @@ impl StringFunctionRepository {
                 js_string::last_index_of(a, b, c) as f64
             }),
             A::of_entry_string_string_string_and_string_output("Replace", js_string::replace_all),
-            A::of_entry_string_string_string_and_string_output("ReplaceFirst", js_string::replace_first),
+            // kirun-java calls `String.replaceFirst`: the search is a regular expression.
+            A::of_entry_string_string_string_and_string_output_or_error("ReplaceFirst", |a, b, c| {
+                java_string::replace_first(a, b, c).map_err(KIRunError::runtime)
+            }),
             A::of_entry_string_integer_integer_and_string_output("SubString", js_string::substring),
             entry(Arc::new(Concatenate::new())),
             entry(Arc::new(DeleteForGivenLength::new())),

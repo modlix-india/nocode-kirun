@@ -1,7 +1,10 @@
 //! Port of kirun-js `runtime/tokenextractor/ArgumentsTokenValueExtractor.ts`.
 
+use parking_lot::RwLock;
+
 use crate::runtime::expression::tokenextractor::token_value_extractor::{
-    key_and_parts_ref, retrieve_element_from, TokenValueExtractor, ValuesMap,
+    key_and_parts_ref, plain_path_segments, retrieve_element_from, split_path_ref, value_at_mut, TokenValueExtractor,
+    ValuesMap,
 };
 use crate::{Result, Value};
 #[allow(unused_imports)]
@@ -10,14 +13,15 @@ use crate::{Map, Shared};
 use crate::runtime::function_execution_parameters::{ContextMap, StepsMap};
 
 pub struct ArgumentsTokenValueExtractor {
-    store: Map<Value>,
+    /// Behind a lock only for `write_back` (see the trait); reads never wait on it in practice.
+    store: RwLock<Map<Value>>,
 }
 
 impl ArgumentsTokenValueExtractor {
     pub const PREFIX: &'static str = "Arguments.";
 
     pub fn new(store: Map<Value>) -> Self {
-        Self { store }
+        Self { store: RwLock::new(store) }
     }
 }
 
@@ -27,12 +31,28 @@ impl TokenValueExtractor for ArgumentsTokenValueExtractor {
     }
 
     fn get_store(&self) -> Value {
-        Value::Object(self.store.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
+        Value::Object(self.store.read().iter().map(|(k, v)| (k.clone(), v.clone())).collect())
     }
 
     fn get_value_internal(&self, token: &str, values_map: Option<&ValuesMap>) -> Result<Value> {
         let (key, parts, from_index) = key_and_parts_ref(token);
-        let element = self.store.get(key).unwrap_or(&Value::Null);
+        let store = self.store.read_recursive();
+        let element = store.get(key).unwrap_or(&Value::Null);
         retrieve_element_from(token, &parts, from_index, element, values_map)
+    }
+
+    fn write_back(&self, token: &str, value: Value) -> bool {
+        let parts = split_path_ref(token);
+        let Some(segments) = parts.get(1..).and_then(plain_path_segments) else { return false };
+        let Some((key, rest)) = segments.split_first() else { return false };
+        let mut store = self.store.write();
+        let Some(root) = store.get_mut(key) else { return false };
+        match value_at_mut(root, rest) {
+            Some(slot) => {
+                *slot = value;
+                true
+            }
+            None => false,
+        }
     }
 }
