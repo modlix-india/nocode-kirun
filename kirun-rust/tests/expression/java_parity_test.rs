@@ -76,3 +76,21 @@ fn missing_and_null_are_told_apart() {
     assert_eq!(eval("Arguments.x ?? Arguments.y"), Some(Value::Null));
     assert_eq!(eval("1 + 1"), Some(json!(2)));
 }
+
+#[test]
+fn whole_decimal_literals_stay_decimal() {
+    // kirun-java reads `1000000000.0` as a float, so the arithmetic is floating point: Java gives
+    // 3.0E9 for `3 * 1000000000.0`, where 32-bit integer maths wraps to -1294967296.
+    let vm = values(&json!({ "w": 3 }));
+    let eval = |e: &str| ExpressionEvaluator::new(e).evaluate(&vm).unwrap();
+    assert_eq!(eval("5.0"), json!(5.0));
+    assert!(eval("5.0").is_f64());
+    assert_eq!(eval("0.0"), json!(0.0));
+    assert!(eval("Arguments.w * 1000000000.0").is_f64());
+    assert_eq!(eval("Arguments.w * 1000000000.0"), json!(3.0e9));
+    assert_eq!(eval("Arguments.w * 604800000.0"), json!(1814400000.0));
+    assert_eq!(eval("Arguments.w * 1000000000"), json!(-1294967296));
+    assert_eq!(eval("5.0 = 5"), json!(true));
+    assert_eq!(eval("2.5"), json!(2.5));
+    assert_eq!(eval("7"), json!(7));
+}

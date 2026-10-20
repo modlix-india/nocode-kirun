@@ -104,7 +104,8 @@ browser keeps kirun-js):
   `uniqueItems`; `$ref` and typeless schemas in conversion; kirun-java's number and string
   convertors, and a refused primitive conversion leaving the type check at once.
 * **Expressions** (`operators::java_semantics`, `java_null`): bare words are text, number literals
-  follow `processNumbers`; operators use kirun-java's null, string, boolean and `int` / `long`
+  follow `processNumbers` (a decimal stays a decimal with no fraction, so `3 * 1000000000.0` is
+  `3.0E9`, not a wrapped `int`); operators use kirun-java's null, string, boolean and `int` / `long`
   rules; Java null and JSON null are told apart where a result can be Java null.
 * **Dates** (`function/system/date/java_time.rs`, `java_format.rs`): `java.time` semantics,
   `DateTimeFormatter` patterns, kirun-java's output names, the JVM's default zone and locale.
