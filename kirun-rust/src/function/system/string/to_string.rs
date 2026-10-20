@@ -1,4 +1,6 @@
-//! Port of kirun-js `function/system/string/ToString.ts`.
+//! Port of kirun-js `function/system/string/ToString.ts`, answering as kirun-java's `ToString`:
+//! Gson with pretty printing, so a string comes back quoted (`DESC` gives `"DESC"`) and every
+//! value prints as [`gson::to_json_pretty`] describes. kirun-js gives `'' + input` instead.
 
 use crate::function::system::string::abstract_string_function::{output_event, signature, string_function};
 #[allow(unused_imports)]
@@ -7,11 +9,12 @@ use crate::json::schema::Schema;
 use crate::model::Parameter;
 #[allow(unused_imports)]
 use crate::util::string::js_string;
+use crate::util::json::gson;
 #[allow(unused_imports)]
 use crate::{Map, Value};
 
 string_function!(
-    /// Objects and arrays become 2-space-indented JSON; anything else is `'' + input`.
+    /// kirun-java: `new GsonBuilder().setPrettyPrinting().create().toJson(input)`.
     ToString,
     signature(
         "ToString",
@@ -20,12 +23,7 @@ string_function!(
     ),
     "result",
     |a: &Map<Value>| {
-        let input = a.get("anytype").cloned().unwrap_or(Value::Null);
-        Ok(Value::String(match &input {
-            Value::Object(_) | Value::Array(_) => serde_json::to_string_pretty(&input).unwrap_or_default(),
-            // JS typeof null is 'object', and JSON.stringify(null) is 'null'.
-            Value::Null => "null".to_string(),
-            other => crate::util::primitive::js_to_string(other),
-        }))
+        let input = a.get("anytype").unwrap_or(&Value::Null);
+        Ok(Value::String(gson::to_json_pretty(input)))
     }
 );

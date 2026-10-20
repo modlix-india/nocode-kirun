@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "kirun"
-version = "2.0.1"
+version = "2.0.2"
 dependencies = [
  "async-trait",
  "chrono",

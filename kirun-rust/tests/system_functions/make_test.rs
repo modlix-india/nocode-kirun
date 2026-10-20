@@ -218,3 +218,27 @@ async fn test_array_as_root_result_shape() {
 
     assert_json_eq!(value, json!([1, 2, 3]));
 }
+
+fn keys(v: &Value) -> Vec<String> {
+    v.as_object().unwrap().keys().cloned().collect()
+}
+
+#[tokio::test]
+async fn keeps_the_result_shape_key_order() {
+    // kirun-java's Make builds a JsonObject in the order of the shape it is given (QA-0457).
+    let mut context = Map::new();
+    context.insert("nid".to_string(), kirun::runtime::context_element::ContextElement::new(None, json!("01JA2B3C4D5E6F7G8H9JKMNPQR")));
+    let shape = json!({ "condition": { "field": "id", "operator": "EQUALS", "value": "{{Context.nid}}" }, "page": 0, "size": 1 });
+    let make = Make::new();
+    let fep = fep().set_arguments(args! { "resultShape" => shape }).set_context(context).set_steps(StepsMap::new());
+    let value = first_value(&make, fep, "value").await.unwrap();
+    assert_eq!(keys(&value), ["condition", "page", "size"]);
+    assert_eq!(keys(&value["condition"]), ["field", "operator", "value"]);
+    assert_eq!(value["condition"]["value"], json!("01JA2B3C4D5E6F7G8H9JKMNPQR"));
+
+    // A shape that arrives in another order (the Java core's read path rebuilds stored
+    // definitions as HashMaps: field, value, operator) keeps that order too.
+    let shape = json!({ "field": "{{Steps.step1.output.source.f}}", "value": "{{Steps.step1.output.source.v}}", "operator": "EQUALS" });
+    let value = run_make(shape, create_output_map(json!({ "source": { "f": "id", "v": 3 } }))).await;
+    assert_eq!(keys(&value), ["field", "value", "operator"]);
+}
