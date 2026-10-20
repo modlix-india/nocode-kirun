@@ -274,3 +274,37 @@ async fn validate_schema_converts_a_context_object_deeply_and_leaves_a_primitive
         output(json!({ "ctx": { "size": "7", "list": [{ "n": "1" }] }, "prim": { "size": 3 } }))
     );
 }
+
+#[tokio::test]
+async fn to_string_quotes_a_string_so_quoted_regexes_match() {
+    // QA-0457: LeadZumpV2.rulesQueryCheck checks a sort direction with
+    // `\A("(ASC|DESC)"|(ASC|DESC))\z` and rulesCondCheck a field with `\A"[A-Za-z_][A-Za-z0-9_]*"\z`
+    // against ToString's output; kirun-java's ToString (Gson) quotes the string.
+    let shape = json!({ "sort": [{ "property": "createdAt", "direction": "DESC" }], "condition": { "field": "id", "value": "{{Arguments.id}}", "operator": "EQUALS" } });
+    let steps = json!({
+        "mk": step("mk", "System", "Make", json!({ "resultShape": value(shape) })),
+        "dj": step("dj", "System.String", "ToString", json!({ "anytype": expr("Steps.mk.output.value.sort[0].direction") })),
+        "fj": step("fj", "System.String", "ToString", json!({ "anytype": expr("Steps.mk.output.value.condition.field") })),
+        "cj": step("cj", "System.String", "ToString", json!({ "anytype": expr("Steps.mk.output.value.condition") })),
+        "dOk": step("dOk", "System.String", "Matches", json!({ "string": expr("Steps.dj.output.result"), "regex": value(json!("\\A(\"(ASC|DESC)\")\\z")) })),
+        "fId": step("fId", "System.String", "Matches", json!({ "string": expr("Steps.fj.output.result"), "regex": value(json!("\\A\"[A-Za-z_][A-Za-z0-9_]*\"\\z")) })),
+        "ge": generate(json!([
+            result("d", "Steps.dj.output.result"),
+            result("dOk", "Steps.dOk.output.result"),
+            result("fId", "Steps.fId.output.result"),
+            result("c", "Steps.cj.output.result"),
+        ])),
+    });
+    let mut steps = steps;
+    steps["ge"]["dependentStatements"] = json!({ "Steps.dOk.output": true, "Steps.fId.output": true, "Steps.cj.output": true });
+    let params = json!({ "id": { "parameterName": "id", "schema": { "type": "STRING" } } });
+    assert_eq!(
+        run(def(steps, params), json!({ "id": "01JA2B3C4D5E6F7G8H9JKMNPQR" }), vec![]).await,
+        output(json!({
+            "d": "\"DESC\"",
+            "dOk": true,
+            "fId": true,
+            "c": "{\n  \"field\": \"id\",\n  \"value\": \"01JA2B3C4D5E6F7G8H9JKMNPQR\",\n  \"operator\": \"EQUALS\"\n}",
+        }))
+    );
+}

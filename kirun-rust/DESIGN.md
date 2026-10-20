@@ -116,6 +116,11 @@ browser keeps kirun-js):
 * **Strings** (`util/string/java_string.rs`): `ReplaceFirst` and `Split` take a regular expression
   as `String.replaceFirst` / `String.split` do (`$n` and `\` in the replacement; trailing empty
   parts dropped), where kirun-js matches plain text.
+* **Printing values** (`util/json/gson.rs`): `ToString` prints as kirun-java's pretty Gson and
+  `JSONStringify` as its plain Gson: a string comes back quoted (`DESC` gives `"DESC"`), escaping is
+  Gson's HTML-safe set (`<` is `\u003c`), object members whose value is null are left out, and
+  numbers print as Java's `toString` (`5.0`, `1.0E7`). kirun-js gives `'' + input` and
+  `JSON.stringify`. Object keys keep the order they arrive in, as kirun-java's `JsonObject` does.
 * **In-place conversion**: kirun-java's `System.ValidateSchema` converts its source object in place,
   and stored functions read it again afterwards (`Arguments.query.size` sent as 3 reads "3"). The
   runtime writes the converted object back when the source is one plain path (`Arguments.x`,
