@@ -24,7 +24,7 @@ use crate::runtime::expression::operators::unary::{
     UnaryOperator,
 };
 use crate::runtime::expression::tokenextractor::expression_internal_value_extractor::ExpressionInternalValueExtractor;
-use crate::runtime::expression::tokenextractor::literal_token_value_extractor::LiteralTokenValueExtractor;
+use crate::runtime::expression::tokenextractor::literal_token_value_extractor::{java_number_or_text, LiteralTokenValueExtractor};
 use crate::runtime::expression::tokenextractor::token_value_extractor::{
     normalize_root_bracket, TokenValueExtractor, ValuesMap,
 };
@@ -212,7 +212,8 @@ fn evaluate_literal(exp_str: &str) -> Value {
                 return Value::from(i);
             }
         }
-        return exp_str.parse::<f64>().map(js::num).unwrap_or(Value::Null);
+        // A decimal stays a decimal, `5.0` included, as the literal extractor reads it.
+        return java_number_or_text(exp_str);
     }
     if single_quote_regex().is_match(exp_str) || double_quote_regex().is_match(exp_str) {
         return Value::String(exp_str[1..exp_str.len() - 1].to_string());

@@ -6,7 +6,6 @@
 
 use super::token_value_extractor::{TokenValueExtractor, ValuesMap};
 use crate::runtime::expression::exception::expression_evaluation_exception;
-use crate::runtime::expression::js;
 use crate::util::string::string_formatter::StringFormatter;
 use crate::util::string::string_util::StringUtil;
 use crate::{Result, Value};
@@ -97,7 +96,9 @@ impl TokenValueExtractor for LiteralTokenValueExtractor {
 /// dot are all digits (`Double.parseDouble`); anything else is the token's text.
 ///
 /// kirun-java hands decimals back as `float` (`2.5` → `2.5f`) unless that is zero or infinite;
-/// kirun-rust keeps the `f64` (see the crate's number notes: the result is the double).
+/// kirun-rust keeps the `f64` (see the crate's number notes: the result is the double). A decimal
+/// stays a decimal even with no fraction (`1000000000.0`, `5.0`): Java's operators then work in
+/// floating point, where an integer would wrap at 32 bits (`3 * 1000000000.0` is `3.0E9`).
 pub fn java_number_or_text(token: &str) -> Value {
     let text = || Value::String(token.to_string());
     match token.find('.') {
@@ -119,7 +120,10 @@ pub fn java_number_or_text(token: &str) -> Value {
             }
             // Rust's parser wants digits on both sides (`5.`, `.5` are Java decimals).
             let normalized = format!("{}0{whole}.{after}0", &before[..before.len() - whole.len()]);
-            normalized.parse::<f64>().map(js::num).unwrap_or_else(|_| text())
+            match normalized.parse::<f64>() {
+                Ok(d) => serde_json::Number::from_f64(d).map(Value::Number).unwrap_or(Value::Null),
+                Err(_) => text(),
+            }
         }
     }
 }
