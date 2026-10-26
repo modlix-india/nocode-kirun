@@ -47,8 +47,10 @@ async fn absolute_keeps_the_type() {
     assert_eq!(math("Absolute", args! { "value" => -5 }).await, json!(5));
     assert_eq!(math("Absolute", args! { "value" => -2.5 }).await, json!(2.5));
     assert_eq!(math("Absolute", args! { "value" => -9007199254740993i64 }).await, json!(9007199254740993i64));
-    // Java `Math.abs` of the smallest int stays negative.
-    assert_eq!(math("Absolute", args! { "value" => -2147483648i64 }).await, json!(-2147483648i64));
+    // Java `Math.abs` of the smallest int stays negative; kirun-rust widens instead (kirun-js
+    // numbers never wrap): the smallest int gives a long, the smallest long a double.
+    assert_eq!(math("Absolute", args! { "value" => -2147483648i64 }).await, json!(2147483648i64));
+    assert_eq!(math("Absolute", args! { "value" => i64::MIN }).await, json!(9.223372036854776e18));
 }
 
 #[tokio::test]
@@ -58,8 +60,10 @@ async fn round_is_java_math_round() {
     assert_eq!(math("Round", args! { "value" => -2.5 }).await, json!(-2));
     assert_eq!(math("Round", args! { "value" => -0.5 }).await, json!(0));
     assert_eq!(math("Round", args! { "value" => 5 }).await, json!(5));
-    // An `int` goes through `Math.round(float)`: 16777217 is not a float.
-    assert_eq!(math("Round", args! { "value" => 16777217 }).await, json!(16777216));
+    // kirun-java sends an `int` through `Math.round(float)` and loses 16777217 (not a float);
+    // a whole number is already round, as in kirun-js.
+    assert_eq!(math("Round", args! { "value" => 16777217 }).await, json!(16777217));
+    assert_eq!(math("Round", args! { "value" => 2147483647 }).await, json!(2147483647));
     assert_eq!(math("Round", args! { "value" => 2147483648i64 }).await, json!(2147483648i64));
     assert_eq!(math("Round", args! { "value" => 1e300 }).await, json!(9223372036854775807i64));
 }
@@ -70,9 +74,13 @@ async fn add_keeps_the_widest_type() {
     assert_eq!(add(json!([1, 2])).await.unwrap(), json!(3));
     assert_eq!(add(json!([1.0, 2.0])).await.unwrap(), json!(3.0));
     assert_eq!(add(json!([1, 2.5])).await.unwrap(), json!(3.5));
-    // `int` + `int` wraps; a `long` widens.
-    assert_eq!(add(json!([2147483647, 1])).await.unwrap(), json!(-2147483648i64));
+    // Nothing wraps (kirun-java's `int` + `int` did): an `int` sum widens to a `long`, a `long`
+    // past its range to a double.
+    assert_eq!(add(json!([2147483647, 1])).await.unwrap(), json!(2147483648i64));
     assert_eq!(add(json!([2147483648i64, 1])).await.unwrap(), json!(2147483649i64));
+    assert_eq!(add(json!([480000000, 4320000000i64])).await.unwrap(), json!(4800000000i64));
+    assert_eq!(add(json!([i64::MAX, 1])).await.unwrap(), json!(9.223372036854776e18));
+    assert_eq!(add(json!([-2147483648i64, -1])).await.unwrap(), json!(-2147483649i64));
     // No values: kirun-java raises no event (kirun-js outputs 0).
     let out = Add::new().execute(&mut fep_with_args(args! { "value" => json!([]) })).await.unwrap();
     assert!(out.all_results().is_empty());

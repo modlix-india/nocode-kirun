@@ -24,18 +24,39 @@ use crate::{expr_ref, hybrid_with, shared_lock, value_ref};
 #[tokio::test]
 async fn ki_runtime_test_1() {
     let _lock = shared_lock();
-    let num: usize = 7000;
-    // kirun-java's KIRuntimeTest: the expression `+` adds Java `int`s, which wrap at 32 bits,
-    // so the expected series is built with `int` addition (kirun-js adds doubles, losing
-    // precision from fib(79) and reaching Infinity at fib(1477)).
-    let mut array: Vec<i32> = Vec::with_capacity(num);
-    array.push(0);
-    array.push(1);
+    // The expression `+` does not wrap (kirun-js numbers never do; kirun-java's 32-bit `int`s
+    // did): whole sums stay exact up to the `long` range (fib(92)), then are doubles. kirun-js
+    // reaches Infinity at fib(1477), which JSON cannot hold, so the series stops before it.
+    let num: usize = 1400;
+    #[derive(Clone, Copy)]
+    enum N {
+        Whole(i64),
+        Double(f64),
+    }
+    let f = |n: N| match n {
+        N::Whole(i) => i as f64,
+        N::Double(d) => d,
+    };
+    let mut array: Vec<N> = Vec::with_capacity(num);
+    array.push(N::Whole(0));
+    array.push(N::Whole(1));
 
     for i in 2..num {
-        array.push(array[i - 2].wrapping_add(array[i - 1]));
+        let (a, b) = (array[i - 2], array[i - 1]);
+        array.push(match (a, b) {
+            (N::Whole(x), N::Whole(y)) => x.checked_add(y).map_or(N::Double(x as f64 + y as f64), N::Whole),
+            _ => N::Double(f(a) + f(b)),
+        });
     }
-    let expected = Value::Array(array.iter().map(|&n| json!(n)).collect());
+    let expected = Value::Array(
+        array
+            .iter()
+            .map(|&n| match n {
+                N::Whole(i) => json!(i),
+                N::Double(d) => json!(d),
+            })
+            .collect(),
+    );
 
     let integer_schema = json!({ "name": "EachElement", "type": "INTEGER" });
     let array_of_integer_schema = json!({

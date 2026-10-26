@@ -18,6 +18,16 @@ use serde_json::json;
 
 const CASES: &str = include_str!("java_expression_cases.jsonl");
 
+/// Cases where kirun-rust follows kirun-js arithmetic on purpose (2026-10-26): kirun-java 4.9.2 does
+/// a whole division with a remainder as a 32-bit `float` (`10 / 3` is 3.3333333); kirun-js and
+/// kirun-rust as a double. (Whole-number overflow, where Java wraps, is not in the file.)
+fn kirun_js_arithmetic(expr: &str) -> Option<Value> {
+    match expr {
+        "Arguments.n / 3" => Some(json!(10.0 / 3.0)),
+        _ => None,
+    }
+}
+
 fn values(args: &Value) -> ValuesMap {
     let store: Map<Value> = args.as_object().map(|o| o.iter().map(|(k, v)| (k.clone(), v.clone())).collect()).unwrap_or_default();
     let ate = ArgumentsTokenValueExtractor::new(store);
@@ -35,7 +45,8 @@ fn expressions_evaluate_as_kirun_java() {
         let case: Value = serde_json::from_str(line).unwrap();
         let expr = case["expr"].as_str().unwrap();
         let got = ExpressionEvaluator::new(expr).evaluate(&values(&case["args"])).map_err(|e| e.to_string());
-        let ok = match (&got, case.get("ok"), case.get("err")) {
+        let js = kirun_js_arithmetic(expr);
+        let ok = match (&got, js.as_ref().or(case.get("ok")), case.get("err")) {
             (Ok(v), Some(expected), _) => v == expected,
             (Err(e), _, Some(Value::String(expected))) => e == expected,
             _ => false,
@@ -80,7 +91,8 @@ fn missing_and_null_are_told_apart() {
 #[test]
 fn whole_decimal_literals_stay_decimal() {
     // kirun-java reads `1000000000.0` as a float, so the arithmetic is floating point: Java gives
-    // 3.0E9 for `3 * 1000000000.0`, where 32-bit integer maths wraps to -1294967296.
+    // 3.0E9 for `3 * 1000000000.0`. Whole numbers no longer wrap either (kirun-js arithmetic), so
+    // `3 * 1000000000` is 3000000000, a whole number, not Java's 32-bit -1294967296.
     let vm = values(&json!({ "w": 3 }));
     let eval = |e: &str| ExpressionEvaluator::new(e).evaluate(&vm).unwrap();
     assert_eq!(eval("5.0"), json!(5.0));
@@ -89,7 +101,8 @@ fn whole_decimal_literals_stay_decimal() {
     assert!(eval("Arguments.w * 1000000000.0").is_f64());
     assert_eq!(eval("Arguments.w * 1000000000.0"), json!(3.0e9));
     assert_eq!(eval("Arguments.w * 604800000.0"), json!(1814400000.0));
-    assert_eq!(eval("Arguments.w * 1000000000"), json!(-1294967296));
+    assert_eq!(eval("Arguments.w * 1000000000"), json!(3000000000_i64));
+    assert!(eval("Arguments.w * 1000000000").is_i64());
     assert_eq!(eval("5.0 = 5"), json!(true));
     assert_eq!(eval("2.5"), json!(2.5));
     assert_eq!(eval("7"), json!(7));

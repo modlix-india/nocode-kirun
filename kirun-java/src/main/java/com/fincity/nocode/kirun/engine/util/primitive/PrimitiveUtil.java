@@ -79,15 +79,8 @@ public class PrimitiveUtil {
 				return Tuples.of(SchemaType.LONG, num);
 			} else {
 
-				Double d = number.doubleValue();
-				Float f = d.floatValue();
-
-				if (d == 0.0d)
-					return Tuples.of(SchemaType.FLOAT, f);
-
-				return f != 0.0f && f != Float.POSITIVE_INFINITY && f != Float.NEGATIVE_INFINITY
-						? Tuples.of(SchemaType.FLOAT, f)
-						: Tuples.of(SchemaType.DOUBLE, d);
+				// A decimal is a double, as a kirun-js number is.
+				return Tuples.of(SchemaType.DOUBLE, number.doubleValue());
 			}
 		} catch (Exception ex) {
 

@@ -13,6 +13,7 @@ import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.BITWI
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.CONDITIONAL_TERNARY_OPERATOR;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.DIVISION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.EQUAL;
+import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.INTEGER_DIVISION;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.GREATER_THAN;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.GREATER_THAN_EQUAL;
 import static com.fincity.nocode.kirun.engine.runtime.expression.Operation.LESS_THAN;
@@ -40,6 +41,7 @@ import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.runtime.expression.exception.ExpressionEvaluationException;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticAdditionOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticDivisionOperator;
+import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticIntegerDivisionOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticModulusOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticMultiplicationOperator;
 import com.fincity.nocode.kirun.engine.runtime.expression.operators.binary.ArithmeticSubtractionOperator;
@@ -98,6 +100,7 @@ public class ExpressionEvaluator {
     private static final Map<Operation, BinaryOperator> BINARY_OPERATORS_MAP = new EnumMap<>(Map.ofEntries(
             Map.entry(ADDITION, new ArithmeticAdditionOperator()),
             Map.entry(DIVISION, new ArithmeticDivisionOperator()), Map.entry(MOD, new ArithmeticModulusOperator()),
+            Map.entry(INTEGER_DIVISION, new ArithmeticIntegerDivisionOperator()),
             Map.entry(MULTIPLICATION, new ArithmeticMultiplicationOperator()),
             Map.entry(SUBTRACTION, new ArithmeticSubtractionOperator()),
 

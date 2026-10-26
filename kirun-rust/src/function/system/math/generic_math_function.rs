@@ -10,7 +10,7 @@ use crate::json::schema::Schema;
 use crate::model::{Event, EventResult, FunctionOutput, FunctionSignature, Parameter};
 use crate::namespaces::Namespaces;
 use crate::runtime::function_execution_parameters::FunctionExecutionParameters;
-use crate::runtime::expression::operators::java_semantics::{number_kind, JNum};
+use crate::runtime::expression::operators::java_semantics::{number_kind, whole, JNum};
 use crate::util::primitive::primitive_util::PrimitiveUtil;
 use crate::{Map, Result, Value};
 
@@ -27,8 +27,8 @@ pub enum MathOutput {
     /// kirun-java `ofEntryAnyNumberDoubleOutput` and `AbstractBinaryMathFunction.ofEntryDouble`:
     /// always a `double` (`Floor(5)` is `5.0`).
     Double,
-    /// kirun-java `Absolute`: the argument's own type (`int` stays `int`, `Math.abs` of the
-    /// smallest `int` or `long` stays negative).
+    /// kirun-java `Absolute`: the argument's own type (`int` stays `int`), except that the
+    /// smallest `int` or `long` widens instead of staying negative.
     SameType,
     /// kirun-java `Round`: `Math.round(float)` (an `int`) for an `int`, `Math.round(double)` (a
     /// `long`) for a `long` or `double`; halves go up (`-2.5` is `-2`).
@@ -102,14 +102,16 @@ impl AbstractFunction for GenericMathFunction {
                 JNum::Double((self.math_function)(v1, v2)).to_value()
             }
             MathOutput::SameType => match java_number_arg(context, first)? {
-                JNum::Int(i) => JNum::Int(i.wrapping_abs()),
-                JNum::Long(l) => JNum::Long(l.wrapping_abs()),
+                // `abs` of the smallest `int` is a `long`, of the smallest `long` a `double`.
+                JNum::Int(i) => whole((i as i64).abs()),
+                JNum::Long(l) => l.checked_abs().map_or(JNum::Double((l as f64).abs()), whole),
                 JNum::Float(f) => JNum::Float(f.abs()),
                 JNum::Double(d) => JNum::Double(d.abs()),
             }
             .to_value(),
             MathOutput::Round => match java_number_arg(context, first)? {
-                JNum::Int(i) => JNum::Int(java_round_float(i as f32)),
+                // A whole number is already round (through a `float` it lost digits past 2^24).
+                JNum::Int(i) => JNum::Int(i),
                 JNum::Float(f) => JNum::Int(java_round_float(f)),
                 JNum::Long(l) => JNum::Long(java_round(l as f64)),
                 JNum::Double(d) => JNum::Long(java_round(d)),
