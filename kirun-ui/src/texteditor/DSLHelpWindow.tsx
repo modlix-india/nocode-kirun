@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { EditorTheme } from './KIRunTextEditor';
+import { editorThemeClassName } from '../editor/editorTheme';
 
 interface DSLHelpWindowProps {
     onClose: () => void;
     isVisible: boolean;
-    theme?: EditorTheme;
+    theme?: string;
 }
 
 type HelpSection =
@@ -778,7 +778,7 @@ LOGIC
     ];
 
     return (
-        <div className={`_dsl-help-container _theme-${theme}`} data-theme={theme}>
+        <div className={`_dsl-help-container ${editorThemeClassName(theme)}`} data-theme={theme}>
             <div className="_help-header">
                 <h2>KIRun Language</h2>
             </div>

@@ -36,8 +36,17 @@ import StatementParameters from '../components/StatementParameters';
 import { StoreNode } from '../components/StoreNode';
 import { autoLayoutFunctionDefinition } from '../util/autoLayout';
 import { correctStatementNames } from '../util/stringValue';
+import { elementById } from '../util/scopedElement';
 import { COPY_STMT_KEY } from '../constants';
-import { KIRunTextEditor, EditorTheme } from '../texteditor/KIRunTextEditor';
+import { KIRunTextEditor } from '../texteditor/KIRunTextEditor';
+import {
+    appThemeLabel,
+    BUILT_IN_EDITOR_THEME_LABELS,
+    BUILT_IN_EDITOR_THEMES,
+    editorThemeClassName,
+    isBuiltInEditorTheme,
+    resolveEditorTheme,
+} from './editorTheme';
 import { DSLHelpWindow } from '../texteditor/DSLHelpWindow';
 import { KIRunEditorProps, PersonalizationData } from '../types';
 import {
@@ -58,6 +67,8 @@ import {
     ZoomIn,
     ZoomOut,
     Code,
+    Maximize2,
+    Minimize2,
 } from 'lucide-react';
 
 const gridSize = 20;
@@ -200,7 +211,21 @@ export default function KIRunEditor({
     onPaste: onPasteProp,
     className,
     style,
+    defaultTheme,
+    showThemeSelector = true,
+    allowLightbox = false,
 }: KIRunEditorProps) {
+    // The lightbox: the same editor, fixed over the page (not portalled, so the host's styles and
+    // CSS variables keep applying). Esc closes it.
+    const [lightbox, setLightbox] = useState(false);
+    useEffect(() => {
+        if (!lightbox) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setLightbox(false);
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [lightbox]);
     const currentFunctionName = useMemo(() => {
         if (!propFunctionDefinition) return undefined;
         const ns =
@@ -266,7 +291,7 @@ export default function KIRunEditor({
             const defaultHeight = 180;
 
             for (const name of stepNames) {
-                const element = document.getElementById(`statement_${name}`);
+                const element = elementById(designerRef.current, `statement_${name}`);
                 if (element) {
                     const height = element.offsetHeight;
                     heights.set(name, height > 0 ? height : defaultHeight);
@@ -466,8 +491,12 @@ export default function KIRunEditor({
         }
     }, [propFunctionDefinition, functionRepository, schemaRepository, functionKey]);
 
-    const textEditorTheme: EditorTheme =
-        (preference?.textEditorTheme as EditorTheme) ?? 'light';
+    const textEditorTheme = resolveEditorTheme(
+        showThemeSelector,
+        defaultTheme,
+        preference?.textEditorTheme,
+    );
+    const themeClassName = editorThemeClassName(textEditorTheme);
     const textEditorWordWrap = preference?.textEditorWordWrap ?? 'on';
 
     const [textEditorRef, setTextEditorRef] = useState<any>(null);
@@ -764,7 +793,7 @@ export default function KIRunEditor({
                 if (!isNaN(boxRect.width) && !isNaN(boxRect.height)) {
                     const nodes = Object.keys(rawDef?.steps || {})
                         .filter((k) => {
-                            const el = document.getElementById(`statement_${k}`);
+                            const el = elementById(designerRef.current, `statement_${k}`);
                             const rect = el?.getBoundingClientRect();
                             if (!rect) return false;
 
@@ -1097,10 +1126,10 @@ export default function KIRunEditor({
                     <div
                         style={{
                             padding: '10px',
-                            backgroundColor: '#f44336',
+                            backgroundColor: 'var(--kirun-danger, #f44336)',
                             color: 'white',
                             margin: '10px',
-                            borderRadius: '4px',
+                            borderRadius: 'var(--kirun-radius-sm, 4px)',
                             flexShrink: 0,
                         }}
                     >
@@ -1125,7 +1154,7 @@ export default function KIRunEditor({
         containerContents = (
             <>
                 <div
-                    className={`_designer ${scrMove.dragStart ? '_moving' : ''} _theme-${textEditorTheme}`}
+                    className={`_designer ${scrMove.dragStart ? '_moving' : ''} ${themeClassName}`}
                     style={designerStyle}
                     data-theme={textEditorTheme}
                     onMouseDown={designerMouseDown}
@@ -1266,9 +1295,21 @@ export default function KIRunEditor({
 
     const iconStyle = { cursor: 'pointer', padding: '8px' };
 
+    const lightboxIcon = !allowLightbox ? null : lightbox ? (
+        <Minimize2 size={16} role="button" className="_active" onClick={() => setLightbox(false)}>
+            <title>Close (Esc)</title>
+        </Minimize2>
+    ) : (
+        <Maximize2 size={16} role="button" onClick={() => setLightbox(true)}>
+            <title>Open larger</title>
+        </Maximize2>
+    );
+
     return (
+        <>
+        {lightbox && <div className="_kirunLightboxBackdrop" onClick={() => setLightbox(false)} />}
         <div
-            className={`_kirun-editor ${debugViewMode ? '_debugView' : ''} _theme-${textEditorTheme} ${className ?? ''}`}
+            className={`_kirun-editor ${debugViewMode ? '_debugView' : ''} ${themeClassName} ${className ?? ''} ${lightbox ? '_lightbox' : ''}`}
             style={{
                 ...(style ?? {}),
                 display: 'flex',
@@ -1295,6 +1336,8 @@ export default function KIRunEditor({
                             <Variable
                                 size={16}
                                 role="button"
+                                className={preference?.showParamValues ? '_active' : undefined}
+                                aria-pressed={!!preference?.showParamValues}
                                 onClick={() => {
                                     savePersonalization(
                                         'showParamValues',
@@ -1307,6 +1350,8 @@ export default function KIRunEditor({
                             <MessageCircle
                                 size={16}
                                 role="button"
+                                className={!preference?.showComments ? '_active' : undefined}
+                                aria-pressed={!preference?.showComments}
                                 onClick={() => {
                                     savePersonalization(
                                         'showComments',
@@ -1321,6 +1366,8 @@ export default function KIRunEditor({
                             <Database
                                 size={16}
                                 role="button"
+                                className={!preference?.showStores ? '_active' : undefined}
+                                aria-pressed={!preference?.showStores}
                                 onClick={() => {
                                     savePersonalization(
                                         'showStores',
@@ -1410,29 +1457,45 @@ export default function KIRunEditor({
                             </Replace>
                         </>
                     )}
-                    <div className="_separator" />
-                    <select
-                        value={textEditorTheme}
-                        onChange={(e) =>
-                            savePersonalization('textEditorTheme', e.target.value)
-                        }
-                        title="Editor Theme"
-                        style={{
-                            padding: '4px 8px',
-                            marginLeft: '8px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc',
-                            backgroundColor: 'var(--background-color, white)',
-                            color: 'var(--font-color, black)',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="high-contrast">High Contrast</option>
-                        <option value="easy-on-eyes">Easy on Eyes</option>
-                        <option value="flared-up">Flared Up</option>
-                    </select>
+                    {showThemeSelector && (
+                        <>
+                            <div className="_separator" />
+                            <select
+                                value={textEditorTheme}
+                                onChange={(e) =>
+                                    savePersonalization('textEditorTheme', e.target.value)
+                                }
+                                title="Editor Theme"
+                                style={{
+                                    padding: '4px 8px',
+                                    marginLeft: '8px',
+                                    borderRadius: 'var(--kirun-radius-sm, 4px)',
+                                    border: '1px solid var(--kirun-line-strong, #ccc)',
+                                    backgroundColor:
+                                        'var(--kirun-surface, var(--background-color, white))',
+                                    color: 'var(--kirun-text, var(--font-color, black))',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {/* An app theme the user can return to after trying a built-in one. */}
+                                {[defaultTheme, textEditorTheme]
+                                    .filter(
+                                        (t, i, all): t is string =>
+                                            !!t && !isBuiltInEditorTheme(t) && all.indexOf(t) === i,
+                                    )
+                                    .map((t) => (
+                                        <option key={t} value={t}>
+                                            {appThemeLabel(t)}
+                                        </option>
+                                    ))}
+                                {BUILT_IN_EDITOR_THEMES.map((t) => (
+                                    <option key={t} value={t}>
+                                        {BUILT_IN_EDITOR_THEME_LABELS[t]}
+                                    </option>
+                                ))}
+                            </select>
+                        </>
+                    )}
                     {!debugViewMode && editorMode !== 'help' && (
                         <>
                             <div className="_separator" />
@@ -1494,11 +1557,13 @@ export default function KIRunEditor({
                             </ZoomOut>
                         </>
                     )}
+                    {lightboxIcon}
                 </div>
             </div>
             <div className="_container" ref={container}>
                 {containerContents}
             </div>
         </div>
+        </>
     );
 }

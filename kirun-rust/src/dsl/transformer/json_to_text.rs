@@ -640,6 +640,7 @@ impl JSONToTextTransformer {
     fn entry_text(&self, key: &str, value: &Value, expr_key: Option<&str>) -> String {
         match value["value"].as_str() {
             Some(e) if Some(key) == expr_key && is_plain_expression(value) => json_expression_text(e),
+            _ if Some(key) == expr_key && is_plain_literal(value) => self.compact_json(&value["value"], None),
             _ => self.compact_json(value, None),
         }
     }
@@ -669,6 +670,10 @@ impl JSONToTextTransformer {
                         let head = format!("{inner}{}: ", json_key(k));
                         match v["value"].as_str() {
                             Some(e) if Some(k.as_str()) == expr_key && is_plain_expression(v) => head + &json_expression_text(e),
+                            _ if Some(k.as_str()) == expr_key && is_plain_literal(v) => {
+                                let text = self.format_json(&v["value"], level + 1, js_len(&head), None);
+                                head + &text
+                            }
                             _ => {
                                 let text = self.format_json(v, level + 1, js_len(&head), None);
                                 head + &text
@@ -714,6 +719,11 @@ impl JSONToTextTransformer {
 /// `{isExpression: true, value: "<text>"}` and nothing else.
 fn is_plain_expression(value: &Value) -> bool {
     ExpressionHandler::is_expression(value) && value.as_object().is_some_and(|o| o.len() == 2)
+}
+
+/// `{isExpression: false, value}` and nothing else: a GenerateEvent result given as a literal.
+fn is_plain_literal(value: &Value) -> bool {
+    value.as_object().is_some_and(|o| o.len() == 2 && o.get("isExpression") == Some(&Value::Bool(false)) && o.contains_key("value"))
 }
 
 fn json_key(key: &str) -> String {

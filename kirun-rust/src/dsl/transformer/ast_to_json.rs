@@ -67,7 +67,12 @@ impl ASTToJSONTransformer {
         json.insert("namespace".into(), Value::String(stmt.function_call.namespace.clone()));
         json.insert("name".into(), Value::String(stmt.function_call.name.clone()));
 
-        let parameter_map = self.transform_parameter_map(&stmt.function_call.arguments_map)?;
+        let mut parameter_map = self.transform_parameter_map(&stmt.function_call.arguments_map)?;
+        if stmt.function_call.namespace == "System" && stmt.function_call.name == "GenerateEvent" {
+            if let Some(results) = parameter_map.get_mut("results") {
+                wrap_result_values(results);
+            }
+        }
         if !parameter_map.is_empty() {
             json.insert("parameterMap".into(), Value::Object(parameter_map));
         }
@@ -224,4 +229,32 @@ fn js_parse_float_prefix(s: &str) -> Option<&str> {
         }
     }
     Some(&s[..i])
+}
+
+/// GenerateEvent returns named values: each `results` entry is `{name, value}`, and its `value` is
+/// always an object, `{isExpression, value}`. A backtick or bare expression already parses to
+/// `{isExpression: true, value}`; a literal (`value: "odd"`, `value: 5`) is wrapped here as
+/// `{isExpression: false, value}`, or the runtime rejects it. json_to_text prints it back as the
+/// literal. Same as kirun-js `ASTToJSON.wrapResultValues`.
+fn wrap_result_values(results: &mut Value) {
+    let Some(refs) = results.as_object_mut() else { return };
+    for r in refs.values_mut() {
+        if r["type"] != "VALUE" {
+            continue;
+        }
+        let wrap = |entry: &mut Value| {
+            let Some(o) = entry.as_object_mut() else { return };
+            let Some(v) = o.get_mut("value") else { return };
+            if v.as_object().is_some_and(|vo| vo.contains_key("isExpression")) {
+                return;
+            }
+            let literal = v.take();
+            *v = json!({"isExpression": false, "value": literal});
+        };
+        match r.get_mut("value") {
+            Some(Value::Array(entries)) => entries.iter_mut().for_each(wrap),
+            Some(entry) => wrap(entry),
+            None => {}
+        }
+    }
 }

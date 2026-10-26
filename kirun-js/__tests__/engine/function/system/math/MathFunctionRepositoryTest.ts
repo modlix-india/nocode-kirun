@@ -140,3 +140,26 @@ test('test Math Functions 10', async () => {
             ?.get('value'),
     ).toBe(3.605551275463989);
 });
+
+// ToDegrees and ToRadians were swapped (ToDegrees multiplied by PI/180). kirun-java (Math::toDegrees)
+// and kirun-rust always had them the right way round, so the browser disagreed with the server.
+test('ToDegrees and ToRadians convert the right way', async () => {
+    const run = async (name: string, value: number) =>
+        (
+            await (
+                await MathFunction.find(Namespaces.MATH, name)
+            )?.execute(
+                new FunctionExecutionParameters(
+                    new KIRunFunctionRepository(),
+                    new KIRunSchemaRepository(),
+                ).setArguments(new Map([['value', value]])),
+            )
+        )
+            ?.allResults()[0]
+            ?.getResult()
+            ?.get('value');
+
+    expect(await run('ToDegrees', Math.PI)).toBeCloseTo(180);
+    expect(await run('ToRadians', 180)).toBeCloseTo(Math.PI);
+    expect(await run('ToDegrees', 1)).toBeCloseTo(57.29577951308232);
+});

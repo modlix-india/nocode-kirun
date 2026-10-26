@@ -276,6 +276,91 @@
 	cursor: pointer;
 }
 
+/* App Theme
+   Any theme name outside the built-in list puts `_theme-app` on the editor. No colours are set
+   here: the host sets the core palette below (nocode-ui does it from the app theme's Editor
+   Palette) and this block derives the rest of the editor's variables from it. A host may also set
+   any derived variable directly; its own rule is more specific than this one. Unset variables fall
+   back to the light look, so an app theme with no palette still reads well.
+
+   Core palette (host sets these):
+     --kirun-bg-primary, --kirun-bg-secondary, --kirun-bg-tertiary   header, canvas, wells
+     --kirun-text-primary, --kirun-text-secondary                    text
+     --kirun-border-color, --kirun-node-bg, --kirun-node-border      lines and step cards
+     --kirun-node-shadow                                             card shadow colour (or transparent)
+     --kirun-accent, --kirun-accent-hover, --kirun-on-accent         accent and text on it
+     --kirun-danger, --kirun-success, --kirun-warning                states
+     --kirun-radius-sm, --kirun-radius, --kirun-radius-lg            corners (0 for square)
+     --kirun-font-family, --kirun-code-font-family                   type
+     --kirun-code-bg, --kirun-code-fg, --kirun-code-keyword, --kirun-code-control,
+     --kirun-code-type, --kirun-code-function, --kirun-code-tag, --kirun-code-variable,
+     --kirun-code-predefined, --kirun-code-value, --kirun-code-number, --kirun-code-string,
+     --kirun-code-expression, --kirun-code-comment, --kirun-code-error,
+     --kirun-code-line-highlight, --kirun-code-selection, --kirun-code-cursor
+                                                                     text editor (Monaco) colours */
+/* Root only: the designer and text editor inherit, and a host's own values stay in force inside. */
+._kirun-editor._theme-app {
+	--kirun-primary: var(--kirun-accent, #3B82F6);
+	--kirun-primary-hover: var(--kirun-accent-hover, var(--kirun-accent, #2563EB));
+	--kirun-primary-soft: color-mix(in srgb, var(--kirun-primary) 10%, transparent);
+	--kirun-primary-tint: color-mix(in srgb, var(--kirun-primary) 18%, transparent);
+	--kirun-on-primary: var(--kirun-on-accent, #fff);
+	--kirun-connector: var(--kirun-accent, #60A5FA);
+
+	--kirun-surface: var(--kirun-node-bg, var(--kirun-bg-primary, #fff));
+	--kirun-surface-2: var(--kirun-bg-secondary, #F9FAFB);
+	--kirun-surface-3: var(--kirun-bg-tertiary, #F3F4F6);
+	--kirun-surface-4: var(--kirun-bg-primary, #E5E7EB);
+
+	--kirun-text-strong: var(--kirun-text-primary, #1F2937);
+	--kirun-text: var(--kirun-text-primary, #374151);
+	--kirun-text-muted: var(--kirun-text-secondary, #6B7280);
+	--kirun-text-faint: color-mix(in srgb, var(--kirun-text-muted) 75%, transparent);
+
+	--kirun-line: var(--kirun-border-color, #E5E7EB);
+	--kirun-line-soft: color-mix(in srgb, var(--kirun-line) 60%, transparent);
+	--kirun-line-strong: var(--kirun-node-border, #D1D5DB);
+	--kirun-line-hover: var(--kirun-text-muted);
+	--kirun-canvas-dot: var(--kirun-line);
+	--kirun-scrollbar: var(--kirun-line-strong);
+	--kirun-scrollbar-hover: var(--kirun-text-muted);
+
+	--kirun-danger-soft: color-mix(in srgb, var(--kirun-danger, #DC2626) 10%, var(--kirun-surface));
+	--kirun-danger-line: color-mix(in srgb, var(--kirun-danger, #DC2626) 35%, transparent);
+	--kirun-comment-bg: color-mix(in srgb, var(--kirun-warning, #F59E0B) 10%, var(--kirun-surface));
+	--kirun-comment-line: color-mix(in srgb, var(--kirun-warning, #F59E0B) 40%, transparent);
+	--kirun-comment-focus: var(--kirun-warning, #FCD34D);
+	--kirun-comment-text: var(--kirun-text);
+	--kirun-backdrop: color-mix(in srgb, var(--kirun-bg-primary, #000) 30%, rgba(0, 0, 0, 0.4));
+
+	--kirun-shadow-card: 0 1px 3px var(--kirun-node-shadow, rgba(0, 0, 0, 0.1));
+	--kirun-shadow-node: 0 0 0 1px var(--kirun-line-strong), 0 4px 12px var(--kirun-node-shadow, rgba(0, 0, 0, 0.08));
+	--kirun-shadow-node-hover: 0 0 0 1px var(--kirun-primary), 0 8px 20px var(--kirun-node-shadow, rgba(0, 0, 0, 0.1));
+	--kirun-shadow-selected: 0 0 0 2px var(--kirun-primary), 0 0 0 5px var(--kirun-primary-soft);
+	--kirun-shadow-focus: 0 0 0 3px var(--kirun-primary-soft);
+	--kirun-shadow-popup: 0 0 0 1px var(--kirun-line), 0 20px 60px var(--kirun-node-shadow, rgba(0, 0, 0, 0.2));
+
+	color: var(--kirun-text-primary, #1F2937);
+}
+
+._kirun-editor._theme-app ._statement {
+	background-color: var(--kirun-surface);
+	color: var(--kirun-text-primary, #1F2937);
+}
+
+._kirun-editor._theme-app ._connector {
+	stroke: var(--kirun-connector);
+}
+
+._kirun-editor._theme-app ._connector:hover,
+._kirun-editor._theme-app ._connector._selected {
+	stroke: var(--kirun-primary-hover);
+}
+
+._kirun-editor._theme-app ._paramToggleContainer ._paramToggleOption._active {
+	color: var(--kirun-on-primary);
+}
+
 /* Statement nodes - apply theme variables */
 ._statement {
 	background-color: var(--kirun-node-bg, #ffffff);
