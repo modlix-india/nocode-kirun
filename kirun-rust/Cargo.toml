@@ -1,6 +1,6 @@
 [package]
 name = "kirun"
-version = "2.0.5"
+version = "2.1.0"
 edition = "2021"
 description = "Rust runtime for Kinetic Instructions (KIRun)"
 license = "MIT"
