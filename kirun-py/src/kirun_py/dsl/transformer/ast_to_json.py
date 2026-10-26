@@ -93,6 +93,8 @@ class ASTToJSONTransformer:
         }
 
         parameter_map = self._transform_parameter_map(stmt.function_call.arguments_map)
+        if stmt.function_call.namespace == 'System' and stmt.function_call.name == 'GenerateEvent':
+            _wrap_result_values(parameter_map.get('results'))
         if parameter_map:
             json_obj['parameterMap'] = parameter_map
 
@@ -271,3 +273,24 @@ class ASTToJSONTransformer:
                 self._collect_nested_statements(nested_stmt, all_statements)
 
         stmt.nested_blocks.clear()
+
+
+def _wrap_result_values(results: Any) -> None:
+    """GenerateEvent returns named values: each `results` entry is `{name, value}`, and its
+    `value` is always an object, `{isExpression, value}`. A backtick or bare expression already
+    parses to `{isExpression: true, value}`; a literal (`value: "odd"`, `value: 5`) is wrapped here
+    as `{isExpression: false, value}`, or the runtime rejects it. json_to_text prints it back as
+    the literal. Same as kirun-js `ASTToJSON.wrapResultValues`."""
+    if not isinstance(results, dict):
+        return
+    for ref in results.values():
+        if not isinstance(ref, dict) or ref.get('type') != 'VALUE':
+            continue
+        entries = ref.get('value')
+        for entry in entries if isinstance(entries, list) else [entries]:
+            if not isinstance(entry, dict) or 'value' not in entry:
+                continue
+            v = entry['value']
+            if isinstance(v, dict) and 'isExpression' in v:
+                continue
+            entry['value'] = {'isExpression': False, 'value': v}

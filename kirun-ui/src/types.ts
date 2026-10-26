@@ -8,14 +8,15 @@ import type {
     TokenValueExtractor,
 } from '@fincity/kirun-js';
 
-export type EditorTheme = 'light' | 'dark' | 'high-contrast' | 'easy-on-eyes' | 'flared-up';
+export type { EditorTheme } from './editor/editorTheme';
 
 export interface PersonalizationData {
     magnification?: number;
     showComments?: boolean;
     showStores?: boolean;
     showParamValues?: boolean;
-    textEditorTheme?: EditorTheme;
+    /** A built-in theme name or an app theme name (see KIRunEditorProps.defaultTheme). */
+    textEditorTheme?: string;
     textEditorWordWrap?: 'on' | 'off';
     editorMode?: 'visual' | 'text';
 }
@@ -63,6 +64,26 @@ export interface KIRunEditorProps {
     className?: string;
     /** Additional inline styles for the root element */
     style?: CSSProperties;
+
+    /**
+     * The theme to start with. A built-in name ('light', 'dark', 'high-contrast', 'easy-on-eyes',
+     * 'flared-up') picks that theme. Any other name is an app theme: the editor gets the classes
+     * `_theme-app _theme-<name>` and takes its look from the host's `--kirun-*` CSS variables
+     * (see KIRunEditorThemes.css), and the text editor builds its Monaco theme from them.
+     * Defaults to 'light'.
+     */
+    defaultTheme?: string;
+    /**
+     * Show the theme picker in the header. Default true. When false, the user's saved theme is
+     * ignored and `defaultTheme` always applies.
+     */
+    showThemeSelector?: boolean;
+    /**
+     * Show an expand icon at the right of the header that opens the editor in a lightbox: large,
+     * centred over a dimmed page. Esc, a click on the backdrop or the icon again closes it.
+     * Default false.
+     */
+    allowLightbox?: boolean;
 }
 
 export interface SchemaFormProps {

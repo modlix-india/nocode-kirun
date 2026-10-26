@@ -16,14 +16,27 @@ import {
     setCompletionFunctionRepository,
 } from './syntax/kirunCompletion';
 import { setMonacoForJsonEditor } from '../components/JsonEditorPopup';
+import {
+    APP_MONACO_THEME,
+    buildAppMonacoTheme,
+    domColorReader,
+    isBuiltInEditorTheme,
+    readCodeFont,
+    watchHostStyles,
+} from '../editor/editorTheme';
+import type { EditorTheme } from '../editor/editorTheme';
 
 // Set monaco instance immediately at module load for components that need it
 // (e.g. JsonEditorPopup used by visual editor before text editor mounts)
 setMonacoForJsonEditor(monaco);
 
-export type EditorTheme = 'light' | 'dark' | 'high-contrast' | 'easy-on-eyes' | 'flared-up';
+export type { EditorTheme };
 
-function getMonacoThemeName(theme: EditorTheme): string {
+// Monaco's own platform default, restored when leaving an app theme that set a font.
+const DEFAULT_CODE_FONT = monaco.editor.EditorOptions.fontFamily.defaultValue;
+
+function getMonacoThemeName(theme: string): string {
+    if (!isBuiltInEditorTheme(theme)) return APP_MONACO_THEME;
     const themeMap: Record<EditorTheme, string> = {
         light: 'kirun-light',
         dark: 'kirun-dark',
@@ -38,7 +51,8 @@ interface KIRunTextEditorProps {
     value: string;
     onChange: (value: string) => void;
     onValidate?: (errors: monaco.editor.IMarker[]) => void;
-    theme?: EditorTheme;
+    /** A built-in theme name, or any other name to take the colours from the host's --kirun-* variables. */
+    theme?: string;
     readOnly?: boolean;
     wordWrap?: 'on' | 'off';
     functionRepository?: Repository<Function>;
@@ -235,9 +249,28 @@ export function KIRunTextEditor({
     }, [value]);
 
     useEffect(() => {
-        if (monacoRef.current) {
+        if (!monacoRef.current) return;
+        if (isBuiltInEditorTheme(theme)) {
             monacoRef.current.editor.setTheme(getMonacoThemeName(theme));
+            editorRef.current?.updateOptions({ fontFamily: DEFAULT_CODE_FONT });
+            return;
         }
+        // An app theme: Monaco cannot read CSS variables, so build its theme from them now and
+        // again whenever the host's styles change (a light/dark switch, for one).
+        const applyAppTheme = () => {
+            const root = containerRef.current;
+            if (!root || !monacoRef.current) return;
+            const reader = domColorReader(root);
+            try {
+                monacoRef.current.editor.defineTheme(APP_MONACO_THEME, buildAppMonacoTheme(reader.read));
+            } finally {
+                reader.dispose();
+            }
+            monacoRef.current.editor.setTheme(APP_MONACO_THEME);
+            editorRef.current?.updateOptions({ fontFamily: readCodeFont(root) ?? DEFAULT_CODE_FONT });
+        };
+        applyAppTheme();
+        return watchHostStyles(applyAppTheme);
     }, [theme]);
 
     useEffect(() => {

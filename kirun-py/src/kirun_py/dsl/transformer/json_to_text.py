@@ -690,9 +690,16 @@ class JSONToTextTransformer:
             f"{self._json_key(k)}: {self._entry_text(k, v, expr_key)}" for k, v in value.items()
         ) + '}'
 
+    @staticmethod
+    def _is_plain_literal(value: Any) -> bool:
+        """`{isExpression: false, value}` and nothing else: a GenerateEvent result given as a literal."""
+        return isinstance(value, dict) and len(value) == 2 and value.get('isExpression') is False and 'value' in value
+
     def _entry_text(self, key: str, value: Any, expr_key: Optional[str]) -> str:
         if key == expr_key and self._is_plain_expression(value):
             return self._json_expression_text(value['value'])
+        if key == expr_key and self._is_plain_literal(value):
+            return self._compact_json(value['value'])
         return self._compact_json(value)
 
     def _format_json(self, value: Any, level: int, column: int, expr_key: Optional[str] = None) -> str:
@@ -719,6 +726,8 @@ class JSONToTextTransformer:
                 head = f"{inner}{self._json_key(k)}: "
                 if k == expr_key and self._is_plain_expression(v):
                     items.append(head + self._json_expression_text(v['value']))
+                elif k == expr_key and self._is_plain_literal(v):
+                    items.append(head + self._format_json(v['value'], level + 1, _js_length(head)))
                 else:
                     items.append(head + self._format_json(v, level + 1, _js_length(head)))
             open_, close = '{', '}'

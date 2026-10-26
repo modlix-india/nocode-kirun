@@ -786,9 +786,23 @@ export class JSONToTextTransformer {
         return `{${entries.map(([k, v]) => `${this.jsonKey(k)}: ${this.entryText(k, v, exprKey)}`).join(', ')}}`;
     }
 
+    /** `{isExpression: false, value}` and nothing else: a GenerateEvent result given as a literal. */
+    private static isPlainLiteral(value: any): boolean {
+        return (
+            !!value &&
+            typeof value === 'object' &&
+            value.isExpression === false &&
+            'value' in value &&
+            Object.keys(value).length === 2
+        );
+    }
+
     private entryText(key: string, value: any, exprKey?: string): string {
         if (key === exprKey && JSONToTextTransformer.isPlainExpression(value)) {
             return this.jsonExpressionText(value.value);
+        }
+        if (key === exprKey && JSONToTextTransformer.isPlainLiteral(value)) {
+            return this.compactJson(value.value);
         }
         return this.compactJson(value);
     }
@@ -812,6 +826,9 @@ export class JSONToTextTransformer {
                       const head = `${inner}${this.jsonKey(k)}: `;
                       if (k === exprKey && JSONToTextTransformer.isPlainExpression(v)) {
                           return head + this.jsonExpressionText(v.value);
+                      }
+                      if (k === exprKey && JSONToTextTransformer.isPlainLiteral(v)) {
+                          return head + this.formatJson(v.value, level + 1, head.length);
                       }
                       return head + this.formatJson(v, level + 1, head.length);
                   });

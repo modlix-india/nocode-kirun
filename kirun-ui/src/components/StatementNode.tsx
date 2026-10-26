@@ -132,7 +132,7 @@ export default function StatementNode({
     const [mouseMove, setMouseMove] = useState(false);
     const alwaysColor =
         validationMessages.size > 0 || executionPlanMessage?.length
-            ? '#DC2626'
+            ? 'var(--kirun-danger, #DC2626)'
             : `#${generateColor(statement.namespace, statement.name)}`;
 
     const [editComment, setEditComment] = useState(false);
@@ -450,7 +450,9 @@ export default function StatementNode({
                         e.preventDefault();
                         e.stopPropagation();
 
-                        if (e.button !== 0 || debugViewMode) return;
+                        // Steps move in the trace view too: the editor keeps a read-only move
+                        // local (it is never emitted), so a crowded trace can be rearranged.
+                        if (e.button !== 0) return;
 
                         const rect = container.current!.getBoundingClientRect();
                         const left = Math.round(
@@ -487,7 +489,7 @@ export default function StatementNode({
                     {(() => {
                         const StepIcon = ICONS_GROUPS.get(statement.namespace) ?? Cpu;
                         return (
-                            <span className="_icon" style={{ backgroundColor: `#${alwaysColor.replace('#', '')}` }}>
+                            <span className="_icon" style={{ backgroundColor: alwaysColor }}>
                                 <StepIcon size={16} />
                             </span>
                         );

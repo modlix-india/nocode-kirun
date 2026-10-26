@@ -15,6 +15,7 @@ import { UIError } from '../util/errorHandling';
 import { generateColor } from '../colors';
 import { shortUUID } from '../util/shortUUID';
 import { paramRefType } from '../util/paramRefType';
+import { elementById } from '../util/scopedElement';
 
 interface ExecutionGraphLinesProps {
     executionPlan: ExecutionGraph<string, StatementExecution> | UIError | undefined;
@@ -91,7 +92,7 @@ export default function ExecutionGraphLines({
     let gradients: Map<string, ReactNode> = new Map();
     const lines = Array.from(nodeMap.values()).flatMap((v) => {
         const statement = v.getData().getStatement();
-        const depNode = document.getElementById(
+        const depNode = elementById(designerRef.current, 
             `eventNode_dependentNode_${statement.getStatementName()}`,
         );
         if (!depNode) return [];
@@ -102,7 +103,7 @@ export default function ExecutionGraphLines({
             .map((e) => {
                 const names = e.split('.');
                 if (names.length < 3) return;
-                const fromNode = document.getElementById(
+                const fromNode = elementById(designerRef.current, 
                     names.length > 3
                         ? `eventParameter_${names[1]}_${names[2]}_${names[3]}`
                         : `eventNode_${names[1]}_${names[2]}`,
@@ -171,7 +172,7 @@ export default function ExecutionGraphLines({
                 const paramValue = statement.getParameterMap()?.get(p.getParameterName());
                 if (!paramValue) return undefined;
 
-                const toNode = document.getElementById(
+                const toNode = elementById(designerRef.current, 
                     `paramNode_${statement.getStatementName()}_${p.getParameterName()}`,
                 );
                 if (!toNode) return undefined;
@@ -298,7 +299,7 @@ function makeLineFromExpression(
                         : `_storeNode_${type}`;
                 if (redundancyCheck.has(fromId + '-' + toNode.id)) return undefined;
                 redundancyCheck.add(fromId + '-' + toNode.id);
-                const fromNode = document.getElementById(fromId);
+                const fromNode = elementById(designerRef.current, fromId);
 
                 if (!fromNode || (type === 'Steps' && !rawDef.steps[names[1]])) return undefined;
 
