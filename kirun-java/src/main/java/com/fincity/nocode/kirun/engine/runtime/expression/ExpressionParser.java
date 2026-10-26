@@ -267,9 +267,7 @@ public class ExpressionParser {
             return new Expression("", expr, right, Operation.DIVISION, true);
         } else if (matchOperator("//")) {
             Expression right = parseMultiplicative();
-            // Note: Java doesn't have INTEGER_DIVISION operation, use DIVISION for now
-            // The evaluator should handle // differently if needed
-            return new Expression("", expr, right, Operation.DIVISION, true);
+            return new Expression("", expr, right, Operation.INTEGER_DIVISION, true);
         } else if (matchOperator("%")) {
             Expression right = parseMultiplicative();
             return new Expression("", expr, right, Operation.MOD, true);

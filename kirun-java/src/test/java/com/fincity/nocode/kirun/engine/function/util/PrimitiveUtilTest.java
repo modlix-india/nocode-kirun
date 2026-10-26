@@ -45,8 +45,9 @@ class PrimitiveUtilTest {
 		assertEquals(false, new JsonPrimitive("true").isBoolean());
 		assertEquals(false, new JsonPrimitive(2).isString());
 
+		// A decimal is a double, as a kirun-js number is.
 		assertEquals(PrimitiveUtil.findPrimitiveNumberType(new JsonPrimitive("2.234")),
-		        Tuples.of(SchemaType.FLOAT, 2.234f));
+		        Tuples.of(SchemaType.DOUBLE, 2.234d));
 	}
 
 	@Test

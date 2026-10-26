@@ -11,8 +11,11 @@
 //! - `and` / `or` / `not` treat every string, even `''`, as true;
 //! - `<`, `<=`, `>`, `>=` answer null when either side is null, and compare by text when either
 //!   side is a string;
-//! - integers follow Java's `int` / `long`: they wrap on overflow, `/` and `%` by zero fail
-//!   ("/ by zero"), and an `int` division with a remainder is a `float` division.
+//! - whole numbers never wrap (kirun-js numbers, not Java's `int` / `long`): `+`, `-`, `*` and
+//!   unary `-` widen an `int` result to a `long`, and a `long` that overflows to a `double`
+//!   (`40000 * 12 * 10000` is 4800000000); a whole division with a remainder is a `double` one
+//!   (`7 / 2` is 3.5, `1 / 3` 0.3333333333333333), an exact one stays whole (`6 / 3` is 2);
+//!   `/` and `%` by a whole zero fail ("/ by zero"), and `%` keeps the dividend's sign.
 //!
 //! Numbers are read as kirun-java's `PrimitiveUtil.findPrimitiveNumberType` would read the same
 //! JSON: a whole number is an `int` when it fits, else a `long`; a decimal is a `double`. (Java
@@ -297,31 +300,51 @@ pub fn add(t: &Value, u: &Value) -> Result<Value> {
             "class com.google.gson.JsonNull cannot be cast to class java.lang.Number (com.google.gson.JsonNull is in unnamed module of loader 'app'; java.lang.Number is in module java.base of loader 'bootstrap')".into(),
         ));
     };
-    Ok(arith(*a, *b, |x, y| x.wrapping_add(y), |x, y| x.wrapping_add(y), |x, y| x + y, |x, y| x + y))
+    Ok(arith(*a, *b, i64::checked_add, |x, y| x + y, |x, y| x + y))
+}
+
+/// A whole number kept as small as it fits: an `int` when it does, else a `long`.
+pub fn whole(n: i64) -> JNum {
+    match i32::try_from(n) {
+        Ok(i) => JNum::Int(i),
+        Err(_) => JNum::Long(n),
+    }
+}
+
+/// `+`, `-` and `*` on two numbers. Whole operands are worked as `long`s and a result past the
+/// `long` range becomes a `double`, so nothing wraps (kirun-js numbers never do).
+pub fn arith_num(
+    a: JNum,
+    b: JNum,
+    long: fn(i64, i64) -> Option<i64>,
+    float: fn(f32, f32) -> f32,
+    double: fn(f64, f64) -> f64,
+) -> JNum {
+    match wider(a, b) {
+        3 => JNum::Double(double(a.as_f64(), b.as_f64())),
+        2 => JNum::Float(float(a.as_f32(), b.as_f32())),
+        _ => match long(a.as_i64(), b.as_i64()) {
+            Some(r) => whole(r),
+            None => JNum::Double(double(a.as_f64(), b.as_f64())),
+        },
+    }
 }
 
 fn arith(
     a: JNum,
     b: JNum,
-    int: fn(i32, i32) -> i32,
-    long: fn(i64, i64) -> i64,
+    long: fn(i64, i64) -> Option<i64>,
     float: fn(f32, f32) -> f32,
     double: fn(f64, f64) -> f64,
 ) -> Value {
-    match wider(a, b) {
-        3 => JNum::Double(double(a.as_f64(), b.as_f64())),
-        2 => JNum::Float(float(a.as_f32(), b.as_f32())),
-        1 => JNum::Long(long(a.as_i64(), b.as_i64())),
-        _ => JNum::Int(int(a.as_i32(), b.as_i32())),
-    }
-    .to_value()
+    arith_num(a, b, long, float, double).to_value()
 }
 
 /// `ArithmeticSubtractionOperator`.
 pub fn subtract(t: &Value, u: &Value) -> Result<Value> {
     null_check(t, u, "-")?;
     let (a, b) = (find_number(t)?, find_number(u)?);
-    Ok(arith(a, b, |x, y| x.wrapping_sub(y), |x, y| x.wrapping_sub(y), |x, y| x - y, |x, y| x - y))
+    Ok(arith(a, b, i64::checked_sub, |x, y| x - y, |x, y| x - y))
 }
 
 /// `ArithmeticMultiplicationOperator`: a string times a number repeats it.
@@ -336,7 +359,7 @@ pub fn multiply(t: &Value, u: &Value) -> Result<Value> {
         (Prim::Str(a), Prim::Str(b)) => Err(execution(format!("Cannot multiply strings {a} and {b}"))),
         (Prim::Str(s), Prim::Num(n)) | (Prim::Num(n), Prim::Str(s)) => Ok(Value::String(repeat(s, *n))),
         (Prim::Num(a), Prim::Num(b)) => {
-            Ok(arith(*a, *b, |x, y| x.wrapping_mul(y), |x, y| x.wrapping_mul(y), |x, y| x * y, |x, y| x * y))
+            Ok(arith(*a, *b, i64::checked_mul, |x, y| x * y, |x, y| x * y))
         }
         _ => Err(execution(format!("Cannot multiply the values {} and {}", tp.java_string(), up.java_string()))),
     }
@@ -367,60 +390,45 @@ fn repeat(s: &str, n: JNum) -> String {
     String::from_utf16_lossy(&out)
 }
 
-/// `ArithmeticDivisionOperator`: an `int` division with a remainder is a `float` one, a `long`
-/// one a `double` one.
+/// `ArithmeticDivisionOperator`, answering as kirun-js: a whole division with a remainder is a
+/// `double` one (`7 / 2` is 3.5, `480000 / 6000000` 0.08), an exact one stays whole (`6 / 3`
+/// is 2). A whole zero divisor fails as kirun-java's does ("/ by zero").
 pub fn divide(t: &Value, u: &Value) -> Result<Value> {
     null_check(t, u, "/")?;
     let (a, b) = (find_number(t)?, find_number(u)?);
     Ok(match wider(a, b) {
         3 => JNum::Double(a.as_f64() / b.as_f64()),
         2 => JNum::Float(a.as_f32() / b.as_f32()),
-        1 => {
+        _ => {
             let (x, y) = (a.as_i64(), b.as_i64());
             if y == 0 {
                 return Err(int_div_zero());
             }
-            if x.wrapping_rem(y) != 0 {
-                JNum::Double(a.as_f64() / b.as_f64())
-            } else {
-                JNum::Long(x.wrapping_div(y))
-            }
-        }
-        _ => {
-            let (x, y) = (a.as_i32(), b.as_i32());
-            if y == 0 {
-                return Err(int_div_zero());
-            }
-            if x.wrapping_rem(y) != 0 {
-                JNum::Float(a.as_f32() / b.as_f32())
-            } else {
-                JNum::Int(x.wrapping_div(y))
+            match (x.checked_rem(y), x.checked_div(y)) {
+                (Some(0), Some(q)) => whole(q),
+                // A remainder, or `long` MIN / -1 (past the `long` range).
+                _ => JNum::Double(x as f64 / y as f64),
             }
         }
     }
     .to_value())
 }
 
-/// `ArithmeticModulusOperator`.
+/// `ArithmeticModulusOperator`: the remainder takes the dividend's sign (`-7 % 3` is -1), as
+/// in kirun-js and Java.
 pub fn modulus(t: &Value, u: &Value) -> Result<Value> {
     null_check(t, u, "%")?;
     let (a, b) = (find_number(t)?, find_number(u)?);
     Ok(match wider(a, b) {
         3 => JNum::Double(a.as_f64() % b.as_f64()),
         2 => JNum::Float(a.as_f32() % b.as_f32()),
-        1 => {
+        _ => {
             let y = b.as_i64();
             if y == 0 {
                 return Err(int_div_zero());
             }
-            JNum::Long(a.as_i64().wrapping_rem(y))
-        }
-        _ => {
-            let y = b.as_i32();
-            if y == 0 {
-                return Err(int_div_zero());
-            }
-            JNum::Int(a.as_i32().wrapping_rem(y))
+            // `long` MIN % -1 is 0 (checked_rem refuses it only for the overflowing quotient).
+            whole(a.as_i64().checked_rem(y).unwrap_or(0))
         }
     }
     .to_value())
@@ -585,8 +593,9 @@ pub fn negate(t: &Value) -> Result<Value> {
         return Err(execution("- cannot be applied to a null value".into()));
     }
     Ok(match find_number(t)? {
-        JNum::Int(i) => JNum::Int(i.wrapping_neg()),
-        JNum::Long(l) => JNum::Long(l.wrapping_neg()),
+        // `-(int MIN)` is a `long`, `-(long MIN)` a `double`: nothing wraps.
+        JNum::Int(i) => whole(-(i as i64)),
+        JNum::Long(l) => l.checked_neg().map_or(JNum::Double(-(l as f64)), whole),
         JNum::Float(f) => JNum::Float(-f),
         JNum::Double(d) => JNum::Double(-d),
     }
@@ -647,9 +656,9 @@ mod tests {
         assert_eq!(add(&json!("abc"), &Value::Null).unwrap(), json!("abcnull"));
         assert_eq!(add(&Value::Null, &json!(5)).unwrap(), json!(5));
         assert!(add(&json!(1), &json!(true)).unwrap_err().to_string().contains("Cannot add the values 1 and true"));
-        assert_eq!(add(&json!(2147483647), &json!(1)).unwrap(), json!(-2147483648));
+        assert_eq!(add(&json!(2147483647), &json!(1)).unwrap(), json!(2147483648_i64));
         assert_eq!(subtract(&json!("5"), &json!(1)).unwrap(), json!(4));
-        assert_eq!(divide(&json!(10), &json!(3)).unwrap(), json!(3.3333333));
+        assert_eq!(divide(&json!(10), &json!(3)).unwrap(), json!(10.0 / 3.0));
         assert_eq!(divide(&json!(9), &json!(3)).unwrap(), json!(3));
         assert_eq!(divide(&json!(0), &json!(0)).unwrap_err().to_string(), "/ by zero");
         assert!(equal(&Value::Null, &json!(false)).unwrap());

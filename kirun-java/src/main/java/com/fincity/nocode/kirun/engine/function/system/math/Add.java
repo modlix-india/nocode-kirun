@@ -18,6 +18,7 @@ import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.model.Parameter;
 import com.fincity.nocode.kirun.engine.runtime.reactive.ReactiveFunctionExecutionParameters;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
+import com.fincity.nocode.kirun.engine.util.primitive.WholeNumberArithmetic;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -59,12 +60,13 @@ public class Add extends AbstractReactiveFunction {
 					if (a instanceof Float || b instanceof Float)
 						return a.floatValue() + b.floatValue();
 					if (a instanceof Long || b instanceof Long)
-						return a.longValue() + b.longValue();
+						return WholeNumberArithmetic.addNumber(a, b);
 					if (a instanceof BigInteger || b instanceof BigInteger)
 						return BigInteger.valueOf(a.longValue()).add(BigInteger.valueOf(b.longValue()));
 					if (a instanceof BigDecimal || b instanceof BigDecimal)
 						return BigDecimal.valueOf(a.doubleValue()).add(BigDecimal.valueOf(b.doubleValue()));
-					return (int) a + (int) b;
+					// int + int widens to a long, a long past its range to a double: no wrapping.
+					return WholeNumberArithmetic.addNumber(a, b);
 				})
 				.map(Number.class::cast);
 

@@ -4,6 +4,7 @@ import com.fincity.nocode.kirun.engine.exception.ExecutionException;
 import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.runtime.expression.Operation;
 import com.fincity.nocode.kirun.engine.util.primitive.PrimitiveUtil;
+import com.fincity.nocode.kirun.engine.util.primitive.WholeNumberArithmetic;
 import com.fincity.nocode.kirun.engine.util.string.StringFormatter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -22,11 +23,12 @@ public class ArithmeticUnaryMinusOperator implements UnaryOperator {
 		case DOUBLE:
 			return new JsonPrimitive(((Double) primitiveTypeTuple.getT2()) * -1);
 		case LONG:
-			return new JsonPrimitive(((Long) primitiveTypeTuple.getT2()) * -1);
+			// -(long MIN) is a double, -(int MIN) a long: nothing wraps.
+			return WholeNumberArithmetic.negate(primitiveTypeTuple.getT2());
 		case FLOAT:
 			return new JsonPrimitive(((Float) primitiveTypeTuple.getT2()) * -1);
 		case INTEGER:
-			return new JsonPrimitive(((Integer) primitiveTypeTuple.getT2()) * -1);
+			return WholeNumberArithmetic.negate(primitiveTypeTuple.getT2());
 		default:
 			throw new ExecutionException(StringFormatter.format("Unable to apply minus operator on $", t));
 		}

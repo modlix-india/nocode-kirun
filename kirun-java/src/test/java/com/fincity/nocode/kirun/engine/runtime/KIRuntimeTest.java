@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
+import com.fincity.nocode.kirun.engine.util.primitive.WholeNumberArithmetic;
 import com.fincity.nocode.kirun.engine.json.schema.type.Type;
 import com.fincity.nocode.kirun.engine.runtime.expression.tokenextractor.ObjectValueSetterExtractor;
 import com.google.gson.*;
@@ -57,12 +58,16 @@ class KIRuntimeTest {
 		array.add(a);
 		array.add(b);
 
+		// The expression `+` does not wrap (kirun-js numbers never do): an int sum widens to a
+		// long, a long past its range to a double, which reaches Infinity at fib(1477) as in JS.
 		for (int i = 2; i < num; i++) {
 
-			array.add(array.get(i - 2)
-					.getAsInt()
-					+ array.get(i - 1)
-							.getAsInt());
+			Number x = array.get(i - 2)
+					.getAsNumber();
+			Number y = array.get(i - 1)
+					.getAsNumber();
+			array.add(x instanceof Double || y instanceof Double ? (Number) (x.doubleValue() + y.doubleValue())
+					: WholeNumberArithmetic.addNumber(x, y));
 		}
 
 		System.out.println("Normal Logic : " + (System.currentTimeMillis() - start));

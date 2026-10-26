@@ -9,6 +9,7 @@ import com.fincity.nocode.kirun.engine.json.schema.type.SchemaType;
 import com.fincity.nocode.kirun.engine.model.FunctionSignature;
 import com.fincity.nocode.kirun.engine.namespaces.Namespaces;
 import com.fincity.nocode.kirun.engine.reactive.ReactiveRepository;
+import com.fincity.nocode.kirun.engine.util.primitive.WholeNumberArithmetic;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,10 +18,13 @@ public class MathFunctionRepository implements ReactiveRepository<ReactiveFuncti
 
 	private static final Map<String, ReactiveFunction> REPO_MAP = Map.ofEntries(
 			AbstractUnaryFunction.ofEntryNumber("Absolute",
-					Map.of(Integer.class.getName(), n -> Math.abs(n.intValue()), Float.class.getName(),
+					// abs of the smallest int is a long, of the smallest long a double (no wrapping).
+					Map.of(Integer.class.getName(), n -> WholeNumberArithmetic.whole(Math.abs(n.longValue())),
+							Float.class.getName(),
 							n -> Math.abs(n.floatValue()),
 							Double.class.getName(), n -> Math.abs(n.doubleValue()), Long.class.getName(),
-							n -> Math.abs(n.longValue())),
+							n -> n.longValue() == Long.MIN_VALUE ? (Number) Math.abs(n.doubleValue())
+									: (Number) Math.abs(n.longValue())),
 					SchemaType.INTEGER, SchemaType.FLOAT, SchemaType.DOUBLE, SchemaType.LONG),
 			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ArcCosine", Math::acos),
 			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("ArcSine", Math::asin),
@@ -35,7 +39,8 @@ public class MathFunctionRepository implements ReactiveRepository<ReactiveFuncti
 			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("LogNatural", Math::log),
 			AbstractUnaryFunction.ofEntryAnyNumberDoubleOutput("Log10", Math::log10),
 			AbstractUnaryFunction.ofEntryNumber("Round",
-					Map.of(Integer.class.getName(), n -> Math.round(n.floatValue()), Float.class.getName(),
+					// A whole int is already round (through a float it lost digits past 2^24).
+					Map.of(Integer.class.getName(), n -> n.intValue(), Float.class.getName(),
 							n -> Math.round(n.floatValue()),
 							Double.class.getName(), n -> Math.round(n.doubleValue()), Long.class.getName(),
 							n -> Math.round(n.doubleValue())),

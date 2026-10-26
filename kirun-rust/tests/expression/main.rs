@@ -3,6 +3,7 @@
 #[path = "../common/mod.rs"]
 mod common;
 
+mod arithmetic_test;
 mod expression_array_string_indexing;
 mod expression_double_equals_chip_label_test;
 mod expression_equality_test;
