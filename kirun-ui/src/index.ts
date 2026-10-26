@@ -7,6 +7,13 @@ export type { KIRunEditorProps, PersonalizationData, SchemaFormProps } from './t
 // Text editor types
 export type { EditorTheme } from './texteditor/KIRunTextEditor';
 
+// Editor themes: the built-in list, and how a theme name is resolved (any other name is an app theme)
+export {
+	BUILT_IN_EDITOR_THEMES,
+	isBuiltInEditorTheme,
+	resolveEditorTheme,
+} from './editor/editorTheme';
+
 // SchemaForm (standalone form generator)
 export { default as SchemaForm } from './components/SchemaForm/SchemaForm';
 

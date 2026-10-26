@@ -1,7 +1,8 @@
 //! Port of kirun-js `runtime/tokenextractor/ContextTokenValueExtractor.ts`.
 
 use crate::runtime::expression::tokenextractor::token_value_extractor::{
-    key_and_parts_ref, retrieve_element_from, TokenValueExtractor, ValuesMap,
+    key_and_parts_ref, plain_path_segments, retrieve_element_from, split_path_ref, value_at_mut, TokenValueExtractor,
+    ValuesMap,
 };
 use crate::{Result, Value};
 #[allow(unused_imports)]
@@ -37,5 +38,20 @@ impl TokenValueExtractor for ContextTokenValueExtractor {
         let store = self.store.read_recursive();
         let element = store.get(key).map_or(&Value::Null, |e| e.get_element());
         retrieve_element_from(token, &parts, from_index, element, values_map)
+    }
+
+    fn write_back(&self, token: &str, value: Value) -> bool {
+        let parts = split_path_ref(token);
+        let Some(segments) = parts.get(1..).and_then(plain_path_segments) else { return false };
+        let Some((key, rest)) = segments.split_first() else { return false };
+        let mut store = self.store.write();
+        let Some(el) = store.get_mut(key) else { return false };
+        match value_at_mut(&mut el.element, rest) {
+            Some(slot) => {
+                *slot = value;
+                true
+            }
+            None => false,
+        }
     }
 }

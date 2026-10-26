@@ -8,8 +8,8 @@ use crate::json::schema::Schema;
 use crate::model::{Event, EventResult, FunctionOutput, FunctionSignature, Parameter};
 use crate::namespaces::Namespaces;
 use crate::runtime::function_execution_parameters::FunctionExecutionParameters;
-use crate::util::primitive::number_value;
-use crate::{Map, Result};
+use crate::runtime::expression::operators::java_semantics::JNum;
+use crate::{Map, Result, Value};
 
 use super::add::number_args;
 
@@ -50,14 +50,17 @@ impl AbstractFunction for Hypotenuse {
 
     async fn internal_execute(&self, context: &mut FunctionExecutionParameters) -> Result<FunctionOutput> {
         let nums = number_args(context, VALUE);
-        let sum = nums.iter().fold(0.0, |a, c| {
-            let c = c.as_f64().unwrap_or(f64::NAN);
-            a + c * c
-        });
+        // kirun-java: no values give the `int` 0, otherwise a `double`.
+        let value = if nums.is_empty() {
+            Value::from(0)
+        } else {
+            let sum = nums.iter().fold(0.0, |a, c| {
+                let c = c.as_f64().unwrap_or(f64::NAN);
+                a + c * c
+            });
+            JNum::Double(sum.sqrt()).to_value()
+        };
 
-        Ok(FunctionOutput::new(vec![EventResult::output_of(Map::from([(
-            VALUE.to_string(),
-            number_value(sum.sqrt()),
-        )]))]))
+        Ok(FunctionOutput::new(vec![EventResult::output_of(Map::from([(VALUE.to_string(), value)]))]))
     }
 }

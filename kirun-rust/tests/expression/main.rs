@@ -3,6 +3,7 @@
 #[path = "../common/mod.rs"]
 mod common;
 
+mod arithmetic_test;
 mod expression_array_string_indexing;
 mod expression_double_equals_chip_label_test;
 mod expression_equality_test;
@@ -14,6 +15,7 @@ mod expression_evaluator_string_literal_test;
 mod expression_evaluator_ternary_operator_test;
 mod expression_parsing_test;
 mod expression_test;
+mod java_parity_test;
 mod logical_not_operator_test;
 mod object_value_setter_extractor_test;
 mod output_map_token_value_extractor_test;

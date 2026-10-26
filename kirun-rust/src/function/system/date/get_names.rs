@@ -1,23 +1,17 @@
-//! Port of kirun-js `function/system/date/GetNames.ts`.
+//! kirun-java `function/system/date/GetNames.java`: month or weekday names in the default
+//! locale (the `locale` parameter only applies to zone names there), or every zone's display
+//! name; an unknown unit gives null. The signature declares a `names` event, but the result is
+//! raised as `output` (kirun-java's `EventResult.outputOf`).
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_format::{month_names, weekday_names, zone_names_list};
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::model::{Event, Parameter};
+use crate::{Map, Value};
 
 pub struct GetNames(DateFunction);
 
@@ -29,7 +23,6 @@ impl GetNames {
     pub fn new() -> Self {
         Self(DateFunction::new(
             "GetNames",
-            // JS raises an event named "names" (not "output").
             Event::new(
                 Self::EVENT_NAMES_NAME,
                 Map::from([(
@@ -52,16 +45,19 @@ impl GetNames {
                 ),
             ],
             Arc::new(|a| {
-                let lang = luxon::Lang::of(arg_str(a, Self::PARAMETER_LOCALE_NAME));
-                let names: Vec<String> = match arg_str(a, Self::PARAMETER_UNIT_NAME) {
-                    "TIMEZONES" => luxon::time_zone_names(),
-                    "MONTHS" => (1..=12).map(|m| luxon::month_name(lang, m, true).to_string()).collect(),
-                    "WEEKDAYS" => (1..=7).map(|d| luxon::weekday_name(lang, d, true).to_string()).collect(),
-                    _ => Vec::new(),
+                let names = match arg_string(a, Self::PARAMETER_UNIT_NAME)?.as_str() {
+                    "TIMEZONES" => Some(zone_names_list()),
+                    "MONTHS" => Some(month_names()),
+                    "WEEKDAYS" => Some(weekday_names()),
+                    _ => None,
                 };
-                Ok(result_map(Self::EVENT_NAMES_NAME, Value::Array(names.into_iter().map(Value::String).collect())))
+                Ok(result_map(
+                    Self::EVENT_NAMES_NAME,
+                    names.map_or(Value::Null, |n| Value::Array(n.into_iter().map(Value::String).collect())),
+                ))
             }),
-        ))
+        )
+        .raising(Event::OUTPUT))
     }
 }
 

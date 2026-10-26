@@ -2,7 +2,7 @@
 
 use crate::json::schema::array::ArraySchemaType;
 use crate::json::schema::convertor::ConversionMode;
-use crate::json::schema::validator::schema_validator::{format_value, js_strict_equal, SchemaParents};
+use crate::json::schema::validator::schema_validator::{java_json, js_deep_equal, SchemaParents};
 use crate::json::schema::validator::SchemaValidator;
 use crate::json::schema::Schema;
 use crate::repository::Repository;
@@ -50,7 +50,8 @@ impl ArrayValidator {
             other => {
                 return Err(KIRunError::schema_validation(
                     parents.path(),
-                    format!("Expected an array but found {}", format_value(&other)),
+                    // kirun-java's wording: `<value> is not an Array`, the value as JSON.
+                    format!("{} is not an Array", java_json(&other)),
                 ))
             }
         };
@@ -140,18 +141,13 @@ impl ArrayValidator {
         count
     }
 
-    /// JS `new Set(array).size !== array.length`: primitives compare by value, while objects and
-    /// arrays are distinct references and so always unique.
+    /// kirun-java puts the items in a `HashSet<JsonElement>`: objects and arrays compare by
+    /// content (kirun-js's `new Set` keeps every object and array as unique).
     fn check_unique_items(parents: &SchemaParents, schema: &Schema, array: &[Value]) -> Result<()> {
         if schema.get_unique_items() == Some(&true) {
-            let mut seen: Vec<&Value> = Vec::new();
-            for v in array {
-                let primitive = !(v.is_array() || v.is_object());
-                if primitive && seen.iter().any(|s| js_strict_equal(s, v)) {
+            for (i, v) in array.iter().enumerate() {
+                if array[..i].iter().any(|s| js_deep_equal(s, v)) {
                     return Err(KIRunError::schema_validation(parents.path(), "Items on the array are not unique"));
-                }
-                if primitive {
-                    seen.push(v);
                 }
             }
         }
@@ -159,7 +155,7 @@ impl ArrayValidator {
     }
 
     fn check_min_max_items(parents: &SchemaParents, schema: &Schema, array: &[Value]) -> Result<()> {
-        if let Some(min) = schema.get_min_items().copied().filter(|m| *m != 0) {
+        if let Some(min) = schema.get_min_items().copied() {
             if min > array.len() {
                 return Err(KIRunError::schema_validation(
                     parents.path(),
@@ -168,7 +164,8 @@ impl ArrayValidator {
             }
         }
 
-        if let Some(max) = schema.get_max_items().copied().filter(|m| *m != 0) {
+        // kirun-java checks a maximum of 0 too (kirun-js skips a falsy one).
+        if let Some(max) = schema.get_max_items().copied() {
             if max < array.len() {
                 return Err(KIRunError::schema_validation(
                     parents.path(),

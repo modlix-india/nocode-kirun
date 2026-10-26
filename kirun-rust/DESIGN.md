@@ -1,7 +1,7 @@
 # kirun-rust design rules
 
 kirun-rust is a port of **kirun-js** ([`kirun-js/src/engine`](https://github.com/modlix-india/nocode-kirun/tree/master/kirun-js/src/engine)), the reference
-implementation. When behaviour is unclear, kirun-js wins; kirun-java and kirun-py
+implementation. When behaviour is unclear, kirun-js wins (except where kirun-rust answers as kirun-java: see the last section); kirun-java and kirun-py
 are secondary references. Every rule below exists so the four ports stay
 diffable file-by-file.
 
@@ -82,3 +82,56 @@ assert `err.to_string()` contains / equals the JS message.
 Each ported test keeps the JS test name (snake_case) and the same inputs and
 expected outputs. Do not weaken an assertion to make it pass; if the Rust port
 must differ (undefined vs null, float formatting), comment why at the assertion.
+
+## Where kirun-rust answers as kirun-java
+
+The Rust core runs stored server functions on this crate, and those were written against
+kirun-java (the Java core's runtime). Since 2026-10-17 kirun-rust keeps kirun-js's layout and
+names but answers as kirun-java 4.9.2 where the two differ in what a function returns (the
+browser keeps kirun-js):
+
+* **Arguments**: a variable argument drops references that come to null; an absent argument
+  whose schema has no type fails with kirun-java's `value`.
+* **Planning**: kirun-java's unguarded reads fail the run (a parameter the function lacks, an
+  unnamed OBJECT schema given a VALUE object, a `{isExpression, value}` without its keys, a
+  typeless parameter left out, events declared without `output`); definition errors print as
+  its `[StatementMessage(...)]` list.
+* **Errors**: a function's own runtime error is passed on unwrapped; only argument validation
+  names the function and parameter. kirun-java's unchecked exceptions carry their Java message
+  (`KIRunError::Uncaught`).
+* **Schemas**: messages carry the schema path (`path - message`) and kirun-java's wording;
+  `INTEGER` / `LONG` ranges; full-match `pattern`; zero maxima; content equality for enums and
+  `uniqueItems`; `$ref` and typeless schemas in conversion; kirun-java's number and string
+  convertors, and a refused primitive conversion leaving the type check at once.
+* **Expressions** (`operators::java_semantics`, `java_null`): bare words are text, number literals
+  follow `processNumbers` (a decimal stays a decimal with no fraction, so `3 * 1000000000.0` is
+  `3.0E9`, not a wrapped `int`); operators use kirun-java's null, string, boolean and `int` / `long`
+  rules; Java null and JSON null are told apart where a result can be Java null.
+* **Dates** (`function/system/date/java_time.rs`, `java_format.rs`): `java.time` semantics,
+  `DateTimeFormatter` patterns, kirun-java's output names, the JVM's default zone and locale.
+* **Math** (`function/system/math`): result types as kirun-java's (`Floor`, `Ceiling`, the
+  trigonometric and log functions, `SquareRoot`, `Power`, `ArcTangent2` always a double;
+  `Absolute` keeps the type; `Round` is `Math.round`; `Add` keeps the widest type and raises no
+  event for no values; `Maximum` / `Minimum` keep the later of equal values), and `ToDegrees` /
+  `ToRadians` the right way round.
+* **Strings** (`util/string/java_string.rs`): `ReplaceFirst` and `Split` take a regular expression
+  as `String.replaceFirst` / `String.split` do (`$n` and `\` in the replacement; trailing empty
+  parts dropped), where kirun-js matches plain text.
+* **Printing values** (`util/json/gson.rs`): `ToString` prints as kirun-java's pretty Gson and
+  `JSONStringify` as its plain Gson: a string comes back quoted (`DESC` gives `"DESC"`), escaping is
+  Gson's HTML-safe set (`<` is `\u003c`), object members whose value is null are left out, and
+  numbers print as Java's `toString` (`5.0`, `1.0E7`). kirun-js gives `'' + input` and
+  `JSON.stringify`. Object keys keep the order they arrive in, as kirun-java's `JsonObject` does.
+* **In-place conversion**: kirun-java's `System.ValidateSchema` converts its source object in place,
+  and stored functions read it again afterwards (`Arguments.query.size` sent as 3 reads "3"). The
+  runtime writes the converted object back when the source is one plain path (`Arguments.x`,
+  `Context.x`, `Steps.s.e.p`, optionally `?? default`) to an object or array
+  (`write_back_validated_source`, `TokenValueExtractor::write_back`).
+
+Not reproduced: kirun-java's sharing of JSON objects by reference beyond `ValidateSchema` (a callee
+changing its caller's argument object, a loop's `each` changing the array it came from), kirun-java's 32-bit `float` arithmetic on decimals parsed from text, NaN and
+Infinity values, output orders kirun-java takes from hash sets that change per JVM run, and the
+last digit of some trigonometric, hyperbolic and exponential results (kirun-java's fdlibm or
+CPU intrinsics against the platform libm).
+Tests asserting a kirun-js answer that changed say so at the assertion; the `java_*` test files
+and fixtures hold answers measured on kirun-java.

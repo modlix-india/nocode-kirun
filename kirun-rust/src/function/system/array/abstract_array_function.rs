@@ -285,8 +285,13 @@ pub(crate) fn js_less_than(a: &Value, b: &Value) -> bool {
 
 /// Reads a dotted path (`a.b`, `a[0].b`, `a["key"]`) from `store`, like
 /// `new ObjectValueSetterExtractor(store, 'Data.').getValue('Data.' + path)`.
-/// Missing values are `Value::Null` (JS `undefined`).
+/// Missing values are `Value::Null` (JS `undefined`). An empty path reads `Data.`, which is the
+/// store itself: `ArrayToObjects` with `keyPath: ""` keys each string by itself (stored
+/// functions collect distinct row keys that way).
 pub(crate) fn get_path_value(store: &Value, path: &str) -> Value {
+    if path.is_empty() {
+        return store.clone();
+    }
     let mut parts: Vec<String> = Vec::new();
     for seg in path.split('.') {
         let mut rest = seg;

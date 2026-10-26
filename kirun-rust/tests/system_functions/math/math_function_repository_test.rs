@@ -23,14 +23,19 @@ async fn find_and_get_value(name: &str, args: kirun::Map<Value>) -> kirun::Resul
 
 #[tokio::test]
 async fn test_math_functions_1() {
-    assert_json_eq!(find_and_get_value("Ceiling", args! { "value" => 1.2 }).await.unwrap(), json!(2));
+    // kirun-js answers 2; kirun-java's Ceiling always outputs a double (stored server functions
+    // run on kirun-java).
+    assert_eq!(find_and_get_value("Ceiling", args! { "value" => 1.2 }).await.unwrap(), json!(2.0));
 }
 
 #[tokio::test]
 async fn test_math_functions_2() {
+    // kirun-java's wording (stored server functions run on it): each schema error carries its
+    // path (`value - ...`) and a non-number reads `<value> is not a <Type>`. The `[Expected: ...]`
+    // type list keeps kirun-rust's order (kirun-java's follows a per-run hash order).
     assert_err_contains(
         find_and_get_value("Absolute", args! { "value" => "-1.2" }).await,
-        "Error while executing the function System.Math.Absolute's parameter value [Expected: Integer | Long | Float | Double]: Value \"-1.2\" is not of valid type(s)\nExpected a Double but found \"-1.2\"\nExpected a Float but found \"-1.2\"\nExpected a Long but found \"-1.2\"\nExpected a Integer but found \"-1.2\"",
+        "Error while executing the function System.Math.Absolute's parameter value [Expected: Integer | Long | Float | Double]: value - Value \"-1.2\" is not of valid type(s)\nvalue - \"-1.2\" is not a Double\nvalue - \"-1.2\" is not a Float\nvalue - \"-1.2\" is not a Long\nvalue - \"-1.2\" is not a Integer",
     );
 }
 
@@ -69,17 +74,18 @@ async fn test_math_functions_6() {
 
 #[tokio::test]
 async fn test_math_functions_7() {
-    assert_json_eq!(
-        find_and_get_value("Power", args! { "value1" => 2, "value2" => 3 }).await.unwrap(),
-        json!(8)
-    );
+    // kirun-js answers 8; kirun-java's Power always outputs a double.
+    assert_eq!(find_and_get_value("Power", args! { "value1" => 2, "value2" => 3 }).await.unwrap(), json!(8.0));
 }
 
 #[tokio::test]
 async fn test_math_functions_8() {
+    // kirun-java's wording (stored server functions run on it): each schema error carries its
+    // path (`value - ...`) and a non-number reads `<value> is not a <Type>`. The `[Expected: ...]`
+    // type list keeps kirun-rust's order (kirun-java's follows a per-run hash order).
     assert_err_contains(
         find_and_get_value("Power", args! { "value1" => "1", "value2" => "1" }).await,
-        "Error while executing the function System.Math.Power's parameter value1 [Expected: Integer | Long | Float | Double]: Value \"1\" is not of valid type(s)\nExpected a Double but found \"1\"\nExpected a Float but found \"1\"\nExpected a Long but found \"1\"\nExpected a Integer but found \"1\"",
+        "Error while executing the function System.Math.Power's parameter value1 [Expected: Integer | Long | Float | Double]: value1 - Value \"1\" is not of valid type(s)\nvalue1 - \"1\" is not a Double\nvalue1 - \"1\" is not a Float\nvalue1 - \"1\" is not a Long\nvalue1 - \"1\" is not a Integer",
     );
 }
 

@@ -12,20 +12,14 @@ async fn should_return_the_names_of_the_units() {
 
     let result = first_value(&get_names, fep, "names").await.unwrap();
 
-    // JS: `toEqual(Intl.supportedValuesOf('timeZone'))`, i.e. whatever list the JS runtime's ICU
-    // ships (418 entries on Node at the time of porting, ICU-canonical names such as
-    // `Asia/Calcutta`, no `UTC`). That list cannot be reproduced exactly from Rust, so the intent
-    // is asserted: a non-empty array of distinct IANA zone names that chrono-tz understands,
-    // containing well-known zones.
+    // JS: `toEqual(Intl.supportedValuesOf('timeZone'))`. kirun-java lists every zone's display
+    // name (in `Locale.forLanguageTag("system")`, in its `HashSet`'s order), which kirun-rust
+    // cannot reproduce exactly: it lists a display name for every tzdb zone the JVM knows, by ID.
     let names = result.as_array().expect("names is an array");
-    assert!(!names.is_empty());
-    let mut seen = std::collections::HashSet::new();
-    for n in names {
-        let s = n.as_str().expect("every name is a string");
-        assert!(s.parse::<chrono_tz::Tz>().is_ok(), "{s} is not an IANA zone");
-        assert!(seen.insert(s.to_string()), "duplicate zone {s}");
-    }
-    for z in ["Africa/Abidjan", "America/New_York", "Europe/London", "Asia/Tokyo"] {
+    assert!(names.len() > 500);
+    let seen: std::collections::HashSet<String> =
+        names.iter().map(|n| n.as_str().expect("every name is a string").to_string()).collect();
+    for z in ["Coordinated Universal Time", "Eastern Time", "London Time", "Japan Time", "Kolkata Time"] {
         assert!(seen.contains(z), "missing {z}");
     }
 }
@@ -71,6 +65,8 @@ async fn should_return_the_names_of_the_weekdays() {
 
 #[tokio::test]
 async fn should_return_the_names_of_months_in_french() {
+    // kirun-java ignores `locale` for months (it formats in the default locale); kirun-js gave
+    // janvier ... décembre.
     let get_names = GetNames::new();
     let fep = fep().set_arguments(args! { "unit" => "MONTHS", "locale" => "fr" });
 
@@ -79,18 +75,18 @@ async fn should_return_the_names_of_months_in_french() {
     assert_json_eq!(
         result,
         json!([
-            "janvier",
-            "février",
-            "mars",
-            "avril",
-            "mai",
-            "juin",
-            "juillet",
-            "août",
-            "septembre",
-            "octobre",
-            "novembre",
-            "décembre"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
         ])
     );
 }

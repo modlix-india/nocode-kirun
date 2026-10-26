@@ -93,8 +93,9 @@ fn expression_with_string_literal_2() {
     assert_json_eq!(eval(&vm, "-0.5*Arguments.a"), json!("rik"));
     assert_json_eq!(eval(&vm, "'asdf' * -1"), json!("fdsa"));
     assert_json_eq!(eval(&vm, "'asdf' * 0"), json!(""));
-    // JS toBe(undefined)
-    assert_json_eq!(eval(&vm, "2.val"), Value::Null);
+    // kirun-java (ExpressionEvaluatorStringLiteralTest): a literal with an unknown property is
+    // the literal text "2.val"; kirun-js reads it as `undefined`.
+    assert_json_eq!(eval(&vm, "2.val"), json!("2.val"));
 }
 
 fn surendhar_args() -> ValuesMap {

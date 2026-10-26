@@ -1,23 +1,12 @@
-//! Port of kirun-js `function/system/date/GetCurrent.ts`.
+//! kirun-java `function/system/date/GetCurrentTimestamp.java`: now, in the system zone.
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
-use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::function::system::date::java_time::ZonedDateTime;
+use crate::Value;
 
 pub struct GetCurrentTimestamp(DateFunction);
 
@@ -27,9 +16,7 @@ impl GetCurrentTimestamp {
             "GetCurrentTimestamp",
             A::event_timestamp(),
             vec![],
-            Arc::new(|_| {
-                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(DateTime::now(Zone::default_zone()).to_iso())))
-            }),
+            Arc::new(|_| Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(ZonedDateTime::now().format_iso())))),
         ))
     }
 }

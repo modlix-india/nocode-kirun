@@ -67,8 +67,9 @@ async fn concatenate_test_5() {
     // JS passes `undefined` for secondSource; it is null here.
     let fep = fep_with_args(args! { "source" => second_source, "secondSource" => Value::Null });
 
+    // kirun-java's wording: each schema error carries its path (`eachSecondSource - ...`).
     assert_err_contains(
         first_value(&add, fep, "result").await,
-        "Error while executing the function System.Array.Concatenate's parameter secondSource [Expected: Array<Integer | Long | Float | Double | String | Boolean | Array | Null | Object>]: Expected an array but found null",
+        "Error while executing the function System.Array.Concatenate's parameter secondSource [Expected: Array<Integer | Long | Float | Double | String | Boolean | Array | Null | Object>]: eachSecondSource - eachSecondSource - Expected an array but found null",
     );
 }

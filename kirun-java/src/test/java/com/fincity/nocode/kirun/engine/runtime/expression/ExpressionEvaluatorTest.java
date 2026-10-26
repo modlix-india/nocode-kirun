@@ -105,7 +105,7 @@ class ExpressionEvaluatorTest {
 				new ExpressionEvaluator("Steps.step1.output.obj.array[-Steps.step1.output.obj.num + 3]+2")
 						.evaluate(parameters.getValuesMap()));
 
-		assertEquals(new JsonPrimitive(17.3533f),
+		assertEquals(new JsonPrimitive(17.3533),
 				new ExpressionEvaluator("2.43*4.22+7.0987").evaluate(parameters.getValuesMap()));
 	}
 

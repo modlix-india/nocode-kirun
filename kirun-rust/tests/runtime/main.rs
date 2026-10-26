@@ -10,6 +10,7 @@ mod ki_runtime_extended;
 mod ki_runtime_fib_test;
 mod ki_runtime_function_in_function;
 mod ki_runtime_iteration_guard_test;
+mod ki_runtime_java_parity_test;
 mod ki_runtime_loop_bug_branch_test;
 mod ki_runtime_messages_test;
 mod ki_runtime_no_param_map_test;

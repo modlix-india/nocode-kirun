@@ -1,4 +1,6 @@
-//! Port of kirun-js `function/system/json/JSONStringify.ts`.
+//! Port of kirun-js `function/system/json/JSONStringify.ts`, answering as kirun-java's
+//! `JSONStringify` (`new Gson().toJson(source)`: HTML-safe escaping, null members left out, Java
+//! number text; see [`gson`]). kirun-js gives `JSON.stringify(source)`.
 
 use async_trait::async_trait;
 
@@ -7,7 +9,7 @@ use crate::json::schema::Schema;
 use crate::model::{EventResult, Event, FunctionOutput, FunctionSignature, Parameter};
 use crate::namespaces::Namespaces;
 use crate::runtime::function_execution_parameters::FunctionExecutionParameters;
-use crate::util::primitive::js_stringify;
+use crate::util::json::gson;
 use crate::{Map, Result, Value};
 
 const VALUE: &str = "value";
@@ -47,7 +49,7 @@ impl AbstractFunction for JSONStringify {
         let source = context.get_arguments().and_then(|a| a.get(SOURCE)).cloned().unwrap_or(Value::Null);
         Ok(FunctionOutput::new(vec![EventResult::output_of(Map::from([(
             VALUE.to_string(),
-            Value::String(js_stringify(&source)),
+            Value::String(gson::to_json(&source)),
         )]))]))
     }
 }

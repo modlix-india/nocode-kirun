@@ -1,10 +1,9 @@
-//! Port of kirun-js `json/schema/convertor/StringConvertor.ts`.
+//! Port of kirun-js `json/schema/convertor/StringConvertor.ts`, printing values as kirun-java's does.
 
 use crate::json::schema::convertor::ConversionMode;
 use crate::json::schema::validator::schema_validator::SchemaPath;
 use crate::json::schema::Schema;
 use crate::util::json::convertor_util::ConvertorUtil;
-use crate::util::primitive::js_to_string;
 use crate::{Result, Value};
 
 pub struct StringConvertor;
@@ -32,9 +31,12 @@ impl StringConvertor {
             );
         }
 
-        // JS `element ?? JSON.stringify(...)` keeps the element itself (never null here), then
-        // calls `toString()` on it: objects become "[object Object]", arrays join with ",".
-        let value = js_to_string(element);
+        // kirun-java: a primitive's `getAsString()` (a number as written), anything else as JSON
+        // (kirun-js prints "[object Object]" and joins arrays with ",").
+        let value = match element {
+            Value::String(s) => s.clone(),
+            other => serde_json::to_string(other).unwrap_or_default(),
+        };
         Ok(Value::String(Self::get_converted_string(value, mode)))
     }
 

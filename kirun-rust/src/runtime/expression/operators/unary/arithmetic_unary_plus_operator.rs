@@ -1,9 +1,9 @@
-//! Port of kirun-js `runtime/expression/operators/unary/ArithmeticUnaryPlusOperator.ts`.
+//! Port of kirun-js `runtime/expression/operators/unary/ArithmeticUnaryPlusOperator.ts`, answering as kirun-java's
+//! (see `java_semantics`).
 
 use super::unary_operator::UnaryOperator;
+use crate::runtime::expression::operators::java_semantics as java;
 use crate::{Result, Value};
-use crate::runtime::expression::js;
-use crate::runtime::expression::operation::Operation;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct ArithmeticUnaryPlusOperator;
@@ -16,8 +16,6 @@ impl ArithmeticUnaryPlusOperator {
 
 impl UnaryOperator for ArithmeticUnaryPlusOperator {
     fn apply(&self, t: &Value) -> Result<Value> {
-                self.null_check(t, &Operation::UNARY_PLUS)?;
-        js::find_primitive_number_type(t)?;
-        Ok(t.clone())
+        java::plus(t)
     }
 }

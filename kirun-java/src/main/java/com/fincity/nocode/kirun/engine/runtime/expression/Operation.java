@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public enum Operation {
 
-	MULTIPLICATION("*"), DIVISION("/"), MOD("%"), ADDITION("+"), SUBTRACTION("-"),
+	MULTIPLICATION("*"), DIVISION("/"), INTEGER_DIVISION("//"), MOD("%"), ADDITION("+"), SUBTRACTION("-"),
 
 	NOT("not", true), AND("and", true), OR("or", true), LESS_THAN("<"), LESS_THAN_EQUAL("<="), GREATER_THAN(">"),
 	GREATER_THAN_EQUAL(">="), EQUAL("="), NOT_EQUAL("!="), NULLISH_COALESCING_OPERATOR("??"),
@@ -31,7 +31,7 @@ public enum Operation {
 	public static final Set<Operation> UNARY_OPERATORS = Set.of(ADDITION, SUBTRACTION, NOT, BITWISE_COMPLEMENT,
 	        UNARY_PLUS, UNARY_MINUS, UNARY_LOGICAL_NOT, UNARY_BITWISE_COMPLEMENT);
 
-	public static final Set<Operation> ARITHMETIC_OPERATORS = Set.of(MULTIPLICATION, DIVISION, MOD, ADDITION,
+	public static final Set<Operation> ARITHMETIC_OPERATORS = Set.of(MULTIPLICATION, DIVISION, INTEGER_DIVISION, MOD, ADDITION,
 	        SUBTRACTION);
 
 	public static final Set<Operation> LOGICAL_OPERATORS = Set.of(NOT, AND, OR, LESS_THAN, LESS_THAN_EQUAL,
@@ -46,7 +46,7 @@ public enum Operation {
 	        Map.ofEntries(Map.entry(UNARY_PLUS, 1), Map.entry(UNARY_MINUS, 1), Map.entry(UNARY_LOGICAL_NOT, 1),
 	                Map.entry(UNARY_BITWISE_COMPLEMENT, 1), Map.entry(ARRAY_OPERATOR, 1), Map.entry(OBJECT_OPERATOR, 1),
 					Map.entry(ARRAY_RANGE_INDEX_OPERATOR, 2),
-	                Map.entry(MULTIPLICATION, 2), Map.entry(DIVISION, 2), Map.entry(MOD, 2), Map.entry(ADDITION, 3),
+	                Map.entry(MULTIPLICATION, 2), Map.entry(DIVISION, 2), Map.entry(INTEGER_DIVISION, 2), Map.entry(MOD, 2), Map.entry(ADDITION, 3),
 	                Map.entry(SUBTRACTION, 3), Map.entry(BITWISE_LEFT_SHIFT, 4), Map.entry(BITWISE_RIGHT_SHIFT, 4),
 	                Map.entry(BITWISE_UNSIGNED_RIGHT_SHIFT, 4), Map.entry(LESS_THAN, 5), Map.entry(LESS_THAN_EQUAL, 5),
 	                Map.entry(GREATER_THAN, 5), Map.entry(GREATER_THAN_EQUAL, 5), Map.entry(EQUAL, 6),

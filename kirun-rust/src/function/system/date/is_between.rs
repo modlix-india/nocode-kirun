@@ -1,23 +1,14 @@
-//! Port of kirun-js `function/system/date/IsBetween.ts`.
+//! kirun-java `function/system/date/IsBetween.java`: `equals` either end (the same local time,
+//! offset and zone, not just the same instant), or strictly after the start and before the end.
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
-use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::function::system::date::java_time::get_date_time;
+use crate::model::Parameter;
+use crate::Value;
 
 pub struct IsBetween(DateFunction);
 
@@ -36,13 +27,13 @@ impl IsBetween {
                 Parameter::of(Self::PARAMETER_CHECK_TIMESTAMP_NAME, A::timestamp_schema(), false),
             ],
             Arc::new(|a| {
-                let mut start = get_date_time(arg_str(a, Self::PARAMETER_START_TIMESTAMP_NAME))?.to_millis();
-                let mut end = get_date_time(arg_str(a, Self::PARAMETER_END_TIMESTAMP_NAME))?.to_millis();
-                let check = get_date_time(arg_str(a, Self::PARAMETER_CHECK_TIMESTAMP_NAME))?.to_millis();
-                if start > end {
-                    std::mem::swap(&mut start, &mut end);
-                }
-                Ok(result_map(A::EVENT_RESULT_NAME, Value::Bool(start <= check && check <= end)))
+                let start = get_date_time(&arg_string(a, Self::PARAMETER_START_TIMESTAMP_NAME)?)?;
+                let end = get_date_time(&arg_string(a, Self::PARAMETER_END_TIMESTAMP_NAME)?)?;
+                let check = get_date_time(&arg_string(a, Self::PARAMETER_CHECK_TIMESTAMP_NAME)?)?;
+                let between = check.java_equals(&start)
+                    || check.java_equals(&end)
+                    || (check.is_after(&start) && check.is_before(&end));
+                Ok(result_map(A::EVENT_RESULT_NAME, Value::Bool(between)))
             }),
         ))
     }

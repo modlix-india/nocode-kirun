@@ -270,6 +270,26 @@ impl AbstractStringFunction {
         )
     }
 
+    /// `of_entry_string_string_string_and_string_output` for a function that can fail (a Java
+    /// regex that does not compile, an illegal group reference in a replacement).
+    pub fn of_entry_string_string_string_and_string_output_or_error(
+        name: &str,
+        fun: impl Fn(&str, &str, &str) -> Result<String> + Send + Sync + 'static,
+    ) -> (String, Arc<dyn Function>) {
+        Self::entry(
+            name,
+            vec![Self::p_string(), Self::p_second_string(), Self::p_third_string()],
+            Self::event_string(),
+            Arc::new(move |a| {
+                Ok(Value::String(fun(
+                    arg_str(a, Self::PARAMETER_STRING_NAME),
+                    arg_str(a, Self::PARAMETER_SECOND_STRING_NAME),
+                    arg_str(a, Self::PARAMETER_THIRD_STRING_NAME),
+                )?))
+            }),
+        )
+    }
+
     pub fn of_entry_string_and_integer_output(
         name: &str,
         fun: impl Fn(&str) -> f64 + Send + Sync + 'static,

@@ -543,12 +543,13 @@ impl fmt::Display for Expression {
     /// JS `toString()`: fully parenthesised form, e.g. `(2+3)`.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = if self.ops.is_empty() {
+            // kirun-java `Expression.toString`: the expression text only when nothing was parsed.
             if self.tokens.len() == 1 {
                 token_to_string(&self.tokens[0])
-            } else if !self.expression.is_empty() {
+            } else if self.tokens.is_empty() && !self.expression.is_empty() {
                 self.expression.clone()
             } else {
-                "Error: No tokens".to_string()
+                "Error: No operations but has tokens".to_string()
             }
         } else {
             let op = self.ops[0];

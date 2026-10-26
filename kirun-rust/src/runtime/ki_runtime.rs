@@ -14,6 +14,7 @@ use futures::future::{join_all, BoxFuture};
 use parking_lot::Mutex;
 use regex::Regex;
 
+use crate::function::system::validate_schema::ValidateSchema;
 use crate::function::{AbstractFunction, Function};
 use crate::json::schema::r#type::SchemaType;
 use crate::json::schema::schema_util::SchemaUtil;
@@ -30,7 +31,6 @@ use crate::runtime::graph::{ExecutionGraph, GraphVertex, GraphVertexType};
 use crate::runtime::statement_execution::StatementExecution;
 use crate::runtime::statement_message::StatementMessageType;
 use crate::runtime::tokenextractor::{ArgumentsTokenValueExtractor, ContextTokenValueExtractor, OutputMapTokenValueExtractor};
-use crate::util::primitive::js_truthy;
 use crate::util::string::string_util::StringUtil;
 use crate::{KIRunError, Map, Result, Value};
 
@@ -170,7 +170,13 @@ impl KIRuntime {
         let mut param_set: Map<Parameter> = fun.get_signature().get_parameters().clone();
 
         for (param_name, refs) in s.get_parameter_map() {
-            let Some(p) = param_set.get(param_name).cloned() else { continue };
+            // kirun-java reads `p.isVariableArgument()` on a parameter the function does not
+            // have and fails the whole run; kirun-js skips the reference.
+            let Some(p) = param_set.get(param_name).cloned() else {
+                return Err(KIRunError::uncaught(
+                    "Cannot invoke \"com.fincity.nocode.kirun.engine.model.Parameter.isVariableArgument()\" because \"p\" is null",
+                ));
+            };
             let mut ref_list: Vec<&ParameterReference> = refs.values().collect();
 
             if ref_list.is_empty() && !p.is_variable_argument() {
@@ -233,42 +239,50 @@ impl KIRuntime {
                     return Ok(());
                 }
 
-                // Walk the value alongside its schema to find `{isExpression, value}` objects,
-                // whose expressions make this step depend on others.
+                // kirun-java walks the value alongside its schema to find `{isExpression, value}`
+                // objects, whose expressions make this step depend on others. It reads them
+                // without null checks, so a malformed one fails the run here, before any step
+                // runs: see `expression_dependency`.
                 let mut param_elements: Vec<(Schema, Value)> = vec![(p.get_schema().clone(), r.get_value().clone())];
                 while let Some((schema, value)) = param_elements.pop() {
                     let Some(t) = schema.get_type() else { continue };
 
-                    if t.contains(SchemaType::Array) {
-                        if let Value::Array(arr) = &value {
-                            let Some(ast) = schema.get_items() else { continue };
-                            if let Some(single) = ast.get_single_schema() {
-                                for je in arr {
-                                    param_elements.push((single.clone(), je.clone()));
-                                }
-                            } else if let Some(tuple) = ast.get_tuple_schema() {
-                                for (i, je) in arr.iter().enumerate() {
-                                    if let Some(ts) = tuple.get(i) {
-                                        param_elements.push((ts.clone(), je.clone()));
-                                    }
-                                }
+                    if t.contains(SchemaType::Array) && value.is_array() {
+                        let Value::Array(arr) = value else { continue };
+                        let Some(ast) = schema.get_items() else { continue };
+                        if let Some(single) = ast.get_single_schema() {
+                            for je in arr {
+                                param_elements.push((single.clone(), je));
                             }
-                            continue;
+                        } else {
+                            let tuple = ast.get_tuple_schema().map(Vec::as_slice).unwrap_or(&[]);
+                            for (i, je) in arr.into_iter().enumerate() {
+                                // Java `List.get(i)` past the tuple's end.
+                                let Some(ts) = tuple.get(i) else {
+                                    return Err(KIRunError::uncaught(format!(
+                                        "Index {i} out of bounds for length {}",
+                                        tuple.len()
+                                    )));
+                                };
+                                param_elements.push((ts.clone(), je));
+                            }
                         }
-                    }
-
-                    if t.contains(SchemaType::Object) && (value.is_object() || value.is_array()) {
+                    } else if t.contains(SchemaType::Object) && value.is_object() {
                         let expr_schema = Parameter::expression();
-                        if schema.get_name() == expr_schema.get_name()
-                            && schema.get_namespace() == expr_schema.get_namespace()
-                        {
-                            if js_truthy(&value["isExpression"]) {
-                                add_dependencies(se, value["value"].as_str());
+                        let Some(name) = schema.get_name() else {
+                            return Err(KIRunError::uncaught(
+                                "Cannot invoke \"String.equals(Object)\" because the return value of \"com.fincity.nocode.kirun.engine.json.schema.Schema.getName()\" is null",
+                            ));
+                        };
+                        let Value::Object(obj) = value else { continue };
+                        if Some(name) == expr_schema.get_name() && schema.get_namespace() == expr_schema.get_namespace() {
+                            if let Some(expression) = expression_dependency(&obj)? {
+                                add_dependencies(se, Some(&expression));
                             }
-                        } else if let (Some(props), Value::Object(obj)) = (schema.get_properties(), &value) {
+                        } else if let Some(props) = schema.get_properties() {
                             for (k, v) in obj {
-                                if let Some(ps) = props.get(k) {
-                                    param_elements.push((ps.clone(), v.clone()));
+                                if let Some(ps) = props.get(&k) {
+                                    param_elements.push((ps.clone(), v));
                                 }
                             }
                         }
@@ -320,10 +334,17 @@ impl KIRuntime {
 
             if !e_graph.is_sub_graph() && events.is_empty() {
                 let event_map = self.fd.get_events();
-                if !event_map.is_empty()
-                    && event_map.get(Event::OUTPUT).is_some_and(|e| !e.get_parameters().is_empty())
-                {
-                    return Err(KIRunError::runtime("No events raised"));
+                if !event_map.is_empty() {
+                    // kirun-java reads `eventMap.get(OUTPUT).getParameters()` without a null
+                    // check: events declared without `output` fail a run that raised none.
+                    let Some(output) = event_map.get(Event::OUTPUT) else {
+                        return Err(KIRunError::uncaught(
+                            "Cannot invoke \"com.fincity.nocode.kirun.engine.model.Event.getParameters()\" because the return value of \"java.util.Map.get(Object)\" is null",
+                        ));
+                    };
+                    if !output.get_parameters().is_empty() {
+                        return Err(KIRunError::runtime("No events raised"));
+                    }
                 }
             }
 
@@ -499,6 +520,7 @@ impl KIRuntime {
         };
 
         let args = get_arguments_from_parameters_map(in_context, s, fun.get_signature().get_parameters())?;
+        let validate_schema_args = is_validate_schema(s).then(|| args.clone());
 
         let debug = self.debug().filter(|d| d.is_enabled());
         let step_id = debug.and_then(|dc| {
@@ -564,6 +586,12 @@ impl KIRuntime {
 
         if let (Some(dc), Some(id)) = (debug, &step_id) {
             dc.end_step(in_context.get_execution_id(), id, er.get_name(), Some(map_to_value(er.get_result())), None);
+        }
+
+        if let Some(vs_args) = validate_schema_args {
+            if er.get_result().get("isValid") == Some(&Value::Bool(true)) {
+                write_back_validated_source(in_context, s, &vs_args).await;
+            }
         }
 
         if er.get_name() != Event::OUTPUT {
@@ -633,15 +661,19 @@ impl AbstractFunction for KIRuntime {
             .get_execution_plan(context.get_function_repository(), context.get_schema_repository())
             .await?;
 
+        // kirun-java prints the messages as its `List<StatementMessage>`: Lombok's
+        // `StatementMessage(messageType=ERROR, message=...)` for each, in a `[a, b]` list. Its
+        // vertices sit in a `ConcurrentHashMap`, so with messages on several steps the order
+        // can differ; kirun-rust lists the steps in definition order.
         let messages: Vec<String> = plan
             .get_vertices_data()
             .iter()
-            .filter(|e| !e.get_messages().is_empty())
-            .map(|e| {
+            .flat_map(|e| e.get_messages().iter())
+            .map(|m| {
                 format!(
-                    "{}: \n{}",
-                    e.get_statement().get_statement_name(),
-                    e.get_messages().iter().map(|m| m.to_string()).collect::<Vec<_>>().join(",")
+                    "StatementMessage(messageType={}, message={})",
+                    m.get_message_type().map(|t| t.name()).unwrap_or("null"),
+                    m.get_message().unwrap_or("null")
                 )
             })
             .collect();
@@ -651,8 +683,8 @@ impl AbstractFunction for KIRuntime {
                 dc.mark_errored(context.get_execution_id());
             }
             return Err(KIRunError::runtime(format!(
-                "Please fix the errors in the function definition before execution : \n{}",
-                messages.join(",\n")
+                "Please fix the errors in the function definition before execution : \n[{}]",
+                messages.join(", ")
             )));
         }
 
@@ -697,6 +729,37 @@ fn add_dependencies(se: &mut StatementExecution, expression: Option<&str>) {
     let Some(expression) = expression else { return };
     for m in STEP_REGEX.find_iter(expression) {
         se.add_dependency(m.as_str());
+    }
+}
+
+/// kirun-java's read of a `{isExpression, value}` object in a VALUE parameter: the expression
+/// when `isExpression` is true. Gson's errors for a missing or null `isExpression` (or `value`)
+/// leave the run as kirun-java's do.
+fn expression_dependency(obj: &serde_json::Map<String, Value>) -> Result<Option<String>> {
+    const GET: &str = "the return value of \"com.google.gson.JsonObject.get(String)\"";
+    let npe = |method: &str| {
+        KIRunError::uncaught(format!("Cannot invoke \"com.google.gson.JsonElement.{method}\" because {GET} is null"))
+    };
+    let is_expression = match obj.get("isExpression") {
+        None => return Err(npe("getAsBoolean()")),
+        Some(Value::Null) => return Err(KIRunError::uncaught("JsonNull")),
+        Some(Value::Bool(b)) => *b,
+        Some(Value::String(s)) => s.eq_ignore_ascii_case("true"),
+        Some(Value::Number(_)) => false,
+        Some(Value::Object(_)) => return Err(KIRunError::uncaught("JsonObject")),
+        Some(Value::Array(a)) => return Err(KIRunError::uncaught(format!("Array must have size 1, but has size {}", a.len()))),
+    };
+    if !is_expression {
+        return Ok(None);
+    }
+    match obj.get("value") {
+        None => Err(npe("getAsString()")),
+        Some(Value::Null) => Err(KIRunError::uncaught("JsonNull")),
+        Some(Value::String(s)) => Ok(Some(s.clone())),
+        Some(Value::Number(n)) => Ok(Some(n.to_string())),
+        Some(Value::Bool(b)) => Ok(Some(b.to_string())),
+        Some(Value::Object(_)) => Err(KIRunError::uncaught("JsonObject")),
+        Some(Value::Array(a)) => Err(KIRunError::uncaught(format!("Array must have size 1, but has size {}", a.len()))),
     }
 }
 
@@ -748,7 +811,54 @@ fn split_dependency(d: &str) -> (String, String) {
     (step, event)
 }
 
-/// JS `getArgumentsFromParametersMap`.
+fn is_validate_schema(s: &Statement) -> bool {
+    s.get_namespace() == "System" && s.get_name() == "ValidateSchema"
+}
+
+/// kirun-java's `System.ValidateSchema` converts the source object in place (its validators
+/// put each converted property back into the same `JsonObject`), and the source is the very
+/// object the step read, so `Arguments.query.size` sent as 3 reads "3" after a STRING check.
+/// Stored functions rely on it (`leadPrepQuery` trims `Arguments.query.size` after the check).
+/// kirun-rust copies values, so the converted object is written back to the path the source
+/// came from. Only a source that is one expression naming a plain path (optionally followed by
+/// `?? default`) to an object or array is written back: a primitive is never changed in place
+/// in Java either. Java's sharing across function calls (a caller's argument object changing
+/// when the callee converts it) is not reproduced.
+async fn write_back_validated_source(in_context: &FunctionExecutionParameters, s: &Statement, args: &Map<Value>) {
+    let Some(original) = args.get("source").filter(|v| v.is_object() || v.is_array()) else { return };
+    let Some(path) = validated_source_path(s) else { return };
+    let Some(converted) = ValidateSchema::converted_source(args, in_context.get_schema_repository().as_ref()).await
+    else {
+        return;
+    };
+    if &converted == original {
+        return;
+    }
+    let prefix = &path[..path.find('.').map_or(path.len(), |i| i + 1)];
+    if let Some(extractor) = in_context.get_values_map().get(prefix) {
+        extractor.write_back(&path, converted);
+    }
+}
+
+/// The plain path a `ValidateSchema` step's source reads, when the source is a single
+/// expression such as `Arguments.query` or `Context.q ?? {}`.
+fn validated_source_path(s: &Statement) -> Option<String> {
+    let refs = s.get_parameter_map().get("source")?;
+    let [r] = refs.values().collect::<Vec<_>>()[..] else { return None };
+    if r.get_type() != ParameterReferenceType::Expression {
+        return None;
+    }
+    let expression = r.get_expression()?;
+    let path = expression.split("??").next()?.trim();
+    let rooted = ["Arguments.", "Context.", "Steps."].iter().any(|p| path.starts_with(p));
+    let plain = path.chars().all(|c| c.is_alphanumeric() || matches!(c, '_' | '$' | '.' | '[' | ']'));
+    (rooted && plain).then(|| path.to_string())
+}
+
+/// kirun-java `ReactiveKIRuntime.getArgumentsFromParametersMap`. A variable argument drops the
+/// references that come to `null` (an empty expression, a path to nothing) before it spreads
+/// arrays, as kirun-java does; kirun-js keeps them and the argument then fails validation.
+/// Nulls inside an array a reference gives are kept (kirun-java filters before it flattens).
 fn get_arguments_from_parameters_map(
     in_context: &FunctionExecutionParameters,
     s: &Statement,
@@ -767,6 +877,7 @@ fn get_arguments_from_parameters_map(
             let mut values = Vec::new();
             for r in list {
                 match parameter_reference_evaluation(in_context, r)? {
+                    Value::Null => {}
                     Value::Array(a) => values.extend(a),
                     v => values.push(v),
                 }

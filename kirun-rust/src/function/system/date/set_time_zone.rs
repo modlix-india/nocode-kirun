@@ -1,23 +1,15 @@
-//! Port of kirun-js `function/system/date/SetTimeZone.ts`.
+//! kirun-java `function/system/date/SetTimeZone.java`: `withZoneSameInstant(ZoneId.of(zone))`,
+//! with Java's zone IDs and errors (`local` is not one).
 
 use std::sync::Arc;
 
-#[allow(unused_imports)]
 use crate::function::system::date::abstract_date_function::{
-    arg_num, arg_str, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
+    arg_string, delegate_date_function, result_map, AbstractDateFunction as A, DateFunction,
 };
-#[allow(unused_imports)]
-use crate::function::system::date::common::get_date_time;
-#[allow(unused_imports)]
-use crate::function::system::date::luxon::{self, DateTime, Duration, Zone};
-#[allow(unused_imports)]
+use crate::function::system::date::java_time::{get_date_time, ZoneId};
 use crate::json::schema::Schema;
-#[allow(unused_imports)]
-use crate::model::{Event, FunctionSignature, Parameter};
-#[allow(unused_imports)]
-use crate::namespaces::Namespaces;
-#[allow(unused_imports)]
-use crate::{KIRunError, Map, Value};
+use crate::model::Parameter;
+use crate::Value;
 
 pub struct SetTimeZone(DateFunction);
 
@@ -33,11 +25,10 @@ impl SetTimeZone {
                 Parameter::of(Self::PARAMETER_TIMEZONE_NAME, Schema::of_string(Self::PARAMETER_TIMEZONE_NAME), false),
             ],
             Arc::new(|a| {
-                let dt = get_date_time(arg_str(a, A::PARAMETER_TIMESTAMP_NAME))?;
-                // luxon setZone to an unknown zone gives an invalid DateTime: toISO() is null.
-                let iso = Zone::parse(arg_str(a, Self::PARAMETER_TIMEZONE_NAME))
-                    .map_or(Value::Null, |z| Value::String(dt.set_zone(z).to_iso()));
-                Ok(result_map(A::EVENT_TIMESTAMP_NAME, iso))
+                let dt = get_date_time(&arg_string(a, A::PARAMETER_TIMESTAMP_NAME)?)?;
+                let zone = ZoneId::of(&arg_string(a, Self::PARAMETER_TIMEZONE_NAME)?)?;
+                let out = dt.with_zone_same_instant(zone)?;
+                Ok(result_map(A::EVENT_TIMESTAMP_NAME, Value::String(out.format_iso())))
             }),
         ))
     }

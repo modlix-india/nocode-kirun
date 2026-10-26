@@ -1,6 +1,7 @@
 #[path = "../common/mod.rs"]
 mod common;
 
+mod generate_event_literal;
 mod graph_debug_test;
 mod param_type_array_round_trip;
 mod readable_layout;

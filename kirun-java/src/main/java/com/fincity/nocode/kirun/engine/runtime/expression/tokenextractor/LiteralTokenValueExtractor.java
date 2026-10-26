@@ -70,14 +70,9 @@ public class LiteralTokenValueExtractor extends TokenValueExtractor {
 					return new JsonPrimitive(token);
 				}
 
-				Double d = Double.parseDouble(token);
-				Float f = d.floatValue();
-
-				if (d == 0.0d)
-					return new JsonPrimitive(f);
-
-				return f != 0.0f && f != Float.POSITIVE_INFINITY && f != Float.NEGATIVE_INFINITY ? new JsonPrimitive(f)
-						: new JsonPrimitive(d);
+				// A decimal literal is a double, as a kirun-js number is (a float would make
+				// 480000 / 6000000 = 0.08 false and 0.1 + 0.2 lose digits).
+				return new JsonPrimitive(Double.parseDouble(token));
 			}
 		} catch (Exception ex) {
 			// If parsing fails, treat as string literal

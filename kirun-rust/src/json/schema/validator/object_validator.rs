@@ -4,11 +4,12 @@ use indexmap::IndexSet;
 
 use crate::json::schema::convertor::ConversionMode;
 use crate::json::schema::schema_util::SchemaUtil;
-use crate::json::schema::validator::schema_validator::{format_value, SchemaParents};
-use crate::json::schema::validator::string_validator::js_regex_test;
+use crate::json::schema::validator::schema_validator::{java_json, SchemaParents};
+use crate::json::schema::validator::string_validator::java_regex_matches;
 use crate::json::schema::validator::SchemaValidator;
 use crate::json::schema::Schema;
 use crate::repository::Repository;
+use crate::util::java_hash::hash_set_order;
 use crate::{KIRunError, Map, Result, Value};
 
 type JsonObject = serde_json::Map<String, Value>;
@@ -55,12 +56,14 @@ impl ObjectValidator {
             other => {
                 return Err(KIRunError::schema_validation(
                     parents.path(),
-                    format!("Expected an object but found {}", format_value(&other)),
+                    // kirun-java's wording: `<value> is not an Object`, the value as JSON.
+                    format!("{} is not an Object", java_json(&other)),
                 ))
             }
         };
 
         let mut keys: IndexSet<String> = json_object.keys().cloned().collect();
+        let all_keys = keys.len();
 
         Self::check_min_max_properties(parents, schema, &keys)?;
 
@@ -77,13 +80,27 @@ impl ObjectValidator {
                 .await?;
         }
 
+        // kirun-java copies the leftover keys into a `HashSet` after the properties and again
+        // after the pattern properties; the additional-properties message prints the last one.
+        let after_properties: Vec<String> = if schema.get_properties().is_some() {
+            hash_set_order(keys.iter().map(String::as_str), all_keys)
+        } else {
+            keys.iter().cloned().collect()
+        };
+
         if let Some(pattern_properties) = schema.get_pattern_properties() {
             Self::check_pattern_properties(parents, pattern_properties, repository, &mut json_object, &mut keys)
                 .await?;
         }
 
         if schema.get_additional_properties().is_some() {
-            Self::check_additional_properties(parents, schema, repository, &mut json_object, &keys).await?;
+            let left = after_properties.iter().filter(|k| keys.contains(*k)).map(String::as_str);
+            let order = if schema.get_pattern_properties().is_some() {
+                hash_set_order(left, after_properties.len())
+            } else {
+                left.map(str::to_string).collect()
+            };
+            Self::check_additional_properties(parents, schema, repository, &mut json_object, &keys, &order).await?;
         }
 
         Ok(Value::Object(json_object))
@@ -138,6 +155,7 @@ impl ObjectValidator {
         repository: Option<&dyn Repository<Schema>>,
         json_object: &mut JsonObject,
         keys: &IndexSet<String>,
+        java_order: &[String],
     ) -> Result<()> {
         let apt = schema.get_additional_properties().expect("checked by caller");
         if let Some(sv) = apt.get_schema_value() {
@@ -150,10 +168,8 @@ impl ObjectValidator {
         } else if apt.get_boolean_value() == Some(false) && !keys.is_empty() {
             return Err(KIRunError::schema_validation(
                 parents.path(),
-                format!(
-                    "{} is/are additional properties which are not allowed.",
-                    keys.iter().cloned().collect::<Vec<_>>().join(",")
-                ),
+                // kirun-java prints its `HashSet` of the keys: `[a, b]`, in hash order.
+                format!("[{}] are additional properties which are not allowed.", java_order.join(", ")),
             ));
         }
         Ok(())
@@ -169,7 +185,8 @@ impl ObjectValidator {
         for key in keys.clone() {
             let mut new_parents = parents.clone();
             for (pattern, pschema) in pattern_properties {
-                let matched = js_regex_test(pattern, &key).map_err(|e| {
+                // kirun-java `Pattern.matcher(key).matches()`: the whole key.
+                let matched = java_regex_matches(pattern, &key).map_err(|e| {
                     KIRunError::schema_validation(
                         parents.path(),
                         format!("Invalid regular expression: /{pattern}/: {e}"),
@@ -225,7 +242,7 @@ impl ObjectValidator {
     }
 
     fn check_min_max_properties(parents: &SchemaParents, schema: &Schema, keys: &IndexSet<String>) -> Result<()> {
-        if let Some(min) = schema.get_min_properties().copied().filter(|m| *m != 0) {
+        if let Some(min) = schema.get_min_properties().copied() {
             if keys.len() < min {
                 return Err(KIRunError::schema_validation(
                     parents.path(),
@@ -234,7 +251,8 @@ impl ObjectValidator {
             }
         }
 
-        if let Some(max) = schema.get_max_properties().copied().filter(|m| *m != 0) {
+        // kirun-java checks a maximum of 0 too (kirun-js skips a falsy one).
+        if let Some(max) = schema.get_max_properties().copied() {
             if keys.len() > max {
                 return Err(KIRunError::schema_validation(
                     parents.path(),

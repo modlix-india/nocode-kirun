@@ -40,7 +40,8 @@ async fn all_of_needs_every_schema_to_match() {
     let all_of = Schema::new()
         .set_all_of(vec![Schema::of_number("min").set_minimum(5.0), Schema::of_number("max").set_maximum(10.0)]);
     assert_json_eq!(validate(&all_of, json!(7)).await.unwrap(), json!(7));
-    assert_err_contains(validate(&all_of, json!(12)).await, "The value doesn't satisfy some of the schemas.");
+    // kirun-java's wording ("don't"); kirun-js writes "doesn't".
+    assert_err_contains(validate(&all_of, json!(12)).await, "The value don't satisfy some of the schemas.");
 }
 
 #[tokio::test]

@@ -1,4 +1,6 @@
 //! Port of validator/StringFormatSchemaValidatorTest.ts.
+// kirun-java prints the value as JSON in pattern messages (`"x" is not matched with the ...`);
+// kirun-js printed it bare. Stored server functions run on kirun-java.
 
 use kirun::json::schema::r#type::{SchemaType, TypeUtil};
 use kirun::json::schema::string::StringFormat;
@@ -111,7 +113,7 @@ async fn schema_validator_fail_with_time_test() {
 
     let time_obj = json!({ "intSchema": 95, "time": "22:23:61", "name": "s.surendhar" });
 
-    let err_msg = "22:23:61 is not matched with the time pattern";
+    let err_msg = "\"22:23:61\" is not matched with the time pattern";
 
     assert_err_contains(
         SchemaValidator::validate(Some(vec![]), Some(&obj_schema), Some(&repo), time_obj).await,
@@ -184,7 +186,7 @@ async fn schema_validator_fail_with_email_test() {
 
     let email_obj = json!({ "intSchema": 0, "email": "asdasdf@@*.com" });
 
-    let err_msg = "asdasdf@@*.com is not matched with the email pattern";
+    let err_msg = "\"asdasdf@@*.com\" is not matched with the email pattern";
 
     assert_err_contains(
         SchemaValidator::validate(Some(vec![]), Some(&obj_schema), Some(&repo), email_obj).await,
@@ -255,7 +257,7 @@ async fn schema_validator_fail_with_date_time_test() {
 
     let date_time_obj = json!({ "dateTime": "2023-08-221T07:56:45+12:12" });
 
-    let err_msg = "2023-08-221T07:56:45+12:12 is not matched with the date time pattern";
+    let err_msg = "\"2023-08-221T07:56:45+12:12\" is not matched with the date time pattern";
 
     assert_err_contains(
         SchemaValidator::validate(Some(vec![]), Some(&obj_schema), Some(&repo), date_time_obj).await,

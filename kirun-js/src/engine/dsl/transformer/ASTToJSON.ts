@@ -112,6 +112,9 @@ export class ASTToJSONTransformer {
 
         // Only add parameterMap if not empty
         const parameterMap = this.transformParameterMap(stmt.functionCall.argumentsMap);
+        if (stmt.functionCall.namespace === 'System' && stmt.functionCall.name === 'GenerateEvent') {
+            ASTToJSONTransformer.wrapResultValues(parameterMap.results);
+        }
         if (Object.keys(parameterMap).length > 0) {
             json.parameterMap = parameterMap;
         }
@@ -134,6 +137,28 @@ export class ASTToJSONTransformer {
         }
 
         return json;
+    }
+
+    /**
+     * GenerateEvent returns named values: each `results` entry is `{name, value}`, and its
+     * `value` is always an object, `{isExpression, value}`. A backtick or bare expression in
+     * the text already parses to `{isExpression: true, value}`; a literal (`value: "odd"`,
+     * `value: 5`, `value: [1, 2]`) is wrapped here as `{isExpression: false, value}`, or the
+     * runtime rejects it ("Expected an object"). JSONToText writes it back as the literal.
+     */
+    private static wrapResultValues(results: any): void {
+        if (!results || typeof results !== 'object') return;
+        for (const ref of Object.values<any>(results)) {
+            if (ref?.type !== 'VALUE') continue;
+            const entries = Array.isArray(ref.value) ? ref.value : [ref.value];
+            for (const entry of entries) {
+                if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+                if (!('value' in entry)) continue;
+                const v = entry.value;
+                if (v && typeof v === 'object' && !Array.isArray(v) && 'isExpression' in v) continue;
+                entry.value = { isExpression: false, value: v };
+            }
+        }
     }
 
     /**

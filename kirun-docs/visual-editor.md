@@ -106,6 +106,8 @@ function MyEditor() {
 |------|------|-------------|
 | `className` | `string` | Additional CSS class name |
 | `style` | `CSSProperties` | Inline styles |
+| `defaultTheme` | `string` | Theme to start with (default `light`). A built-in name picks that theme; any other name is an app theme (see below) |
+| `showThemeSelector` | `boolean` | Show the theme picker in the header (default `true`). When `false`, the saved `textEditorTheme` is ignored and `defaultTheme` always applies |
 
 ## Personalization
 
@@ -117,7 +119,7 @@ interface PersonalizationData {
     showComments?: boolean;       // Show step comments
     showStores?: boolean;         // Show store nodes
     showParamValues?: boolean;    // Show parameter values on nodes
-    textEditorTheme?: EditorTheme; // Text editor theme
+    textEditorTheme?: string;     // Built-in or app theme name
     textEditorWordWrap?: 'on' | 'off';
     editorMode?: 'visual' | 'text'; // Which editor mode to show
 }
@@ -134,6 +136,48 @@ The text editor ships with 5 built-in themes:
 | `high-contrast` | High contrast for accessibility |
 | `easy-on-eyes` | Muted colors, reduced strain |
 | `flared-up` | Vibrant, colorful syntax highlighting |
+
+With the selector shown, a user's saved `textEditorTheme` wins over `defaultTheme`. With
+`showThemeSelector={false}` the host decides alone.
+
+### App Themes (the host styles the editor)
+
+Pass any name that is not in the list above as `defaultTheme`, for example `defaultTheme="app"`.
+The editor root then gets the classes `_theme-app _theme-<name>`, none of the built-in theme rules
+match, and the editor takes its look from CSS variables the host sets on that root:
+
+```css
+.my-host ._kirun-editor._theme-app {
+    --kirun-bg-primary: #0d0e16;      /* header */
+    --kirun-bg-secondary: #06070b;    /* canvas */
+    --kirun-bg-tertiary: #141824;     /* wells, hover */
+    --kirun-text-primary: #e4e8f7;
+    --kirun-text-secondary: #9ba3c4;
+    --kirun-border-color: #c0caf517;
+    --kirun-node-bg: #0d0e16;
+    --kirun-node-border: #c0caf533;
+    --kirun-node-shadow: transparent; /* no card shadows */
+    --kirun-accent: #fbbf24;
+    --kirun-on-accent: #06070b;
+    --kirun-radius-sm: 0; --kirun-radius: 0; --kirun-radius-lg: 0;
+    --kirun-font-family: 'JetBrains Mono', monospace;
+    --kirun-code-font-family: 'JetBrains Mono', monospace;
+    /* text editor (Monaco) */
+    --kirun-code-bg: #0e111a;
+    --kirun-code-keyword: #bb9af7;
+    --kirun-code-function: #7aa2f7;
+    --kirun-code-string: #9ece6a;
+    --kirun-code-number: #ff9e64;
+    --kirun-code-comment: #565f89;
+}
+```
+
+Everything else (hover, soft accent, focus rings, comment notes, error wells, shadows) is derived
+from these in `KIRunEditorThemes.css`; the full list of variables is in the comment above the
+`_theme-app` block. Unset variables fall back to the light look. Monaco cannot read CSS variables,
+so the text editor resolves them into a `kirun-app` Monaco theme, starting from the built-in light or
+dark theme depending on how dark `--kirun-code-bg` is, and rebuilds it when the page's styles change
+(a `<style>` element changing, or a class, style or `data-theme` change on `<html>` or `<body>`).
 
 ## Editor Modes
 
