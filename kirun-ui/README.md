@@ -23,7 +23,10 @@
 ---
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/modlix-india/nocode-kirun/master/kirun-docs/images/medium.png" alt="A KIRun function in the visual editor" width="760">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/modlix-india/nocode-kirun/master/.github/assets/visual-editor-light.png">
+    <img src="https://raw.githubusercontent.com/modlix-india/nocode-kirun/master/.github/assets/visual-editor-dark.png" alt="A KIRun function as a graph in the visual editor, with the run's output beside it" width="760">
+  </picture>
 </p>
 
 A React component library for editing KIRun function definitions: a node graph you can drag steps
