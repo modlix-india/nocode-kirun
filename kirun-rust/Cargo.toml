@@ -1,8 +1,8 @@
 [package]
 name = "kirun"
-version = "2.1.0"
+version = "2.1.1"
 edition = "2021"
-description = "Rust runtime for Kinetic Instructions (KIRun)"
+description = "Rust runtime for KIRun: functions are JSON data, and the same definition runs in JavaScript, Java, Rust and Python"
 license = "MIT"
 authors = ["Kiran Kumar Grandhi"]
 repository = "https://github.com/modlix-india/nocode-kirun"
