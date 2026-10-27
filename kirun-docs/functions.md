@@ -1,6 +1,6 @@
 # Built-in Functions Reference
 
-KIRun ships with 120+ built-in functions across 9 namespaces. All functions are available in both the Java and JavaScript runtimes.
+KIRun ships with 166 built-in functions across 9 namespaces, and every runtime (JavaScript, Java, Rust and Python) has them. The exceptions are `System.WaitUntil` and `System.WaitForSignal`, which are kirun-java only. The [function catalog](https://kirun.modlix.com/functions) on kirun.modlix.com lists every function with its signature and a one-step example you can run.
 
 ## System Functions
 
@@ -128,6 +128,8 @@ limiting, backing off, letting something settle. For longer waits use `System.Wa
 
 ### WaitUntil (`System.WaitUntil`)
 
+*kirun-java only.*
+
 Stops the execution until a point in time, to be resumed later by the host. Unlike `System.Wait`
 this holds nothing open: the execution is snapshotted and can be resumed minutes or months later, in
 a different process. This is the primitive long-running workflows are built from - "wait three days,
@@ -150,6 +152,8 @@ Raises the reserved `suspended` event instead of `output` when it stops. See
 ---
 
 ### WaitForSignal (`System.WaitForSignal`)
+
+*kirun-java only.*
 
 Stops the execution until a named signal arrives. The gate for anything the workflow cannot decide
 by itself - an approval, a reply, a webhook, a link being clicked. The host decides what a signal is

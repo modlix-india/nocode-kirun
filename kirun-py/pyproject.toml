@@ -11,6 +11,13 @@ license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["python-dateutil>=2.8"]
+keywords = ["kirun", "low-code", "no-code", "workflow", "runtime"]
+
+[project.urls]
+Homepage = "https://kirun.modlix.com"
+Documentation = "https://kirun.modlix.com/docs/kirun-py"
+Repository = "https://github.com/modlix-india/nocode-kirun"
+Issues = "https://github.com/modlix-india/nocode-kirun/issues"
 
 [project.optional-dependencies]
 dev = [

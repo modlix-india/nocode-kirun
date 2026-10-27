@@ -330,6 +330,23 @@ ReactiveKIRuntime runtime = new ReactiveKIRuntime(fd, debugMode);
 Mono<FunctionOutput> result = runtime.execute(fep);
 ```
 
+### Rust (`KIRuntime`)
+
+A port of kirun-js on `async`/`await`; where kirun-js and kirun-java differ it answers as kirun-java
+(see [kirun-rust](../kirun-rust/README.md)):
+
+```rust
+let mut output = KIRuntime::new(fd, debug_mode)?.execute(&mut fep).await?;
+```
+
+### Python (`KIRuntime`)
+
+A port of kirun-js on `asyncio` (see [kirun-py](../kirun-py/README.md)):
+
+```python
+output = await KIRuntime(fd).execute(fep)
+```
+
 ## Repository Pattern
 
 KIRun uses repositories to look up functions and schemas at runtime. This is how the engine finds both built-in and custom functions.

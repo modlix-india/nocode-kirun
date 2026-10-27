@@ -2,6 +2,15 @@
     "name": "@fincity/kirun-js",
     "version": "3.17.2",
     "description": "Javascript Runtime for Kinetic Instructions",
+    "homepage": "https://kirun.modlix.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/modlix-india/nocode-kirun.git",
+        "directory": "kirun-js"
+    },
+    "bugs": {
+        "url": "https://github.com/modlix-india/nocode-kirun/issues"
+    },
     "source": "src/index.ts",
     "main": "dist/index.js",
     "module": "dist/module.js",
