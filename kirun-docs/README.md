@@ -1,8 +1,14 @@
 # KIRun Documentation
 
-Comprehensive documentation for the KIRun (Kinetic Instruction Runtime) engine.
+Documentation for KIRun (Kinetic Instruction Runtime): functions stored as data, run the same way on
+JavaScript, Java, Rust and Python. It is also published at
+[kirun.modlix.com/docs](https://kirun.modlix.com/docs), beside the
+[playground](https://kirun.modlix.com/playground) where every example can be run in the browser.
 
-## Table of Contents
+New to KIRun? The [Learn](https://kirun.modlix.com/learn) tour is twelve small functions you can run in the
+browser, and the [Examples](https://kirun.modlix.com/examples) are more of them.
+
+## Contents
 
 ### Getting Started
 
@@ -12,7 +18,7 @@ Comprehensive documentation for the KIRun (Kinetic Instruction Runtime) engine.
 
 ### Reference
 
-- [Built-in Functions](./functions.md) - Complete reference for all 120+ built-in functions across 9 namespaces
+- [Built-in Functions](./functions.md) - Reference for the 166 built-in functions across 9 namespaces
 - [Schema & Types](./schemas.md) - Type system, JSON Schema validation, and schema composition
 - [JSON Definition Format](./json-format.md) - Full JSON format specification for function definitions
 
@@ -27,16 +33,30 @@ Comprehensive documentation for the KIRun (Kinetic Instruction Runtime) engine.
 ### Installation
 
 ```bash
-# JavaScript/TypeScript
-npm install @fincity/kirun-js
+npm install @fincity/kirun-js     # JavaScript / TypeScript
+cargo add kirun                   # Rust
+pip install kirun-py              # Python
+npm install @fincity/kirun-ui     # the visual editor (React)
+```
 
-# Java (Maven)
+```xml
+<!-- Java 21+ (Maven Central) -->
 <dependency>
     <groupId>com.fincity.nocode</groupId>
     <artifactId>kirun-java</artifactId>
-    <version>4.3.0</version>
+    <version><!-- latest --></version>
 </dependency>
 ```
+
+### Runtimes
+
+| Runtime | Package | Read more |
+|---------|---------|-----------|
+| JavaScript / TypeScript | `@fincity/kirun-js` | [kirun-js](../kirun-js/README.md) |
+| Java | `com.fincity.nocode:kirun-java` | [kirun-java](../kirun-java/README.md) |
+| Rust | `kirun` | [kirun-rust](../kirun-rust/README.md) |
+| Python | `kirun-py` | [kirun-py](../kirun-py/README.md) |
+| Visual editor | `@fincity/kirun-ui` | [kirun-ui](../kirun-ui/README.md) |
 
 ### Minimal Example
 
@@ -108,14 +128,19 @@ obj["key.with.dots"]         → Bracket notation
 
 ### Function Namespaces
 
-| Namespace | Functions |
-|-----------|-----------|
-| `System` | If, GenerateEvent, Make, Print, Wait, ValidateSchema |
-| `System.Math` | Add, Minimum, Maximum, Random, RandomAny, Hypotenuse |
-| `System.String` | Concatenate, Split, Reverse, Matches, PrePad, PostPad, TrimTo, ToString, ... |
-| `System.Array` | AddFirst, InsertLast, Delete, Sort, Reverse, IndexOf, SubArray, Join, ... (33 functions) |
-| `System.Object` | ObjectKeys, ObjectValues, ObjectEntries, ObjectPutValue, ObjectDeleteKey, ObjectConvert |
-| `System.Date` | GetCurrent, FromNow, AddSubtractTime, Difference, EpochToTimestamp, ... (16 functions) |
-| `System.Loop` | CountLoop, ForEachLoop, RangeLoop, Break |
-| `System.Context` | Create, Get, Set |
-| `System.Json` | JSONParse, JSONStringify |
+Counted in kirun-js; browse and run each one in the [function catalog](https://kirun.modlix.com/functions).
+
+| Namespace | Count | Some of them |
+|-----------|------:|--------------|
+| `System` | 6 | If, GenerateEvent, Make, Print, Wait, ValidateSchema |
+| `System.Math` | 32 | Add, Absolute, Round, Power, Minimum, Maximum, Random, Hypotenuse, ... |
+| `System.String` | 33 | Concatenate, Split, Replace, SubString, Matches, PrePad, PostPad, ToString, ... |
+| `System.Array` | 31 | AddFirst, InsertLast, Delete, Sort, Reverse, IndexOf, SubArray, Join, ... |
+| `System.Object` | 6 | ObjectKeys, ObjectValues, ObjectEntries, ObjectPutValue, ObjectDeleteKey, ObjectConvert |
+| `System.Date` | 49 | GetCurrentTimestamp, AddTime, SubtractTime, Difference, FromNow, StartOf, IsBefore, ... |
+| `System.Loop` | 4 | CountLoop, ForEachLoop, RangeLoop, Break |
+| `System.Context` | 3 | Create, Get, Set |
+| `System.JSON` | 2 | JSONParse, JSONStringify |
+
+kirun-java adds `System.WaitUntil` and `System.WaitForSignal`, which stop an execution so a host can
+resume it later (see [Stopping and resuming](./architecture.md#stopping-and-resuming-an-execution)).
