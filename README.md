@@ -41,6 +41,20 @@
   </a>
 </p>
 
+<p align="center">
+  <strong>The same function in the visual editor.</strong><br>
+  Every step is a node and every <code>AFTER</code> is a wire. Edit the graph or the text; both change the same definition.
+</p>
+
+<p align="center">
+  <a href="https://kirun.modlix.com/playground">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset=".github/assets/visual-editor-light.png">
+      <img src=".github/assets/visual-editor-dark.png" alt="The Fizz function as a graph in the KIRun visual editor: an If step wired to two GenerateEvent steps, with the run's output beside it" width="820">
+    </picture>
+  </a>
+</p>
+
 ---
 
 ## What is KIRun?
