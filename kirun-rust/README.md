@@ -171,6 +171,22 @@ All of these are deliberate. Each is also commented in the code.
   so a round trip keeps int vs float (as kirun-py does).
 * `dependentStatements` stored as a list of keys is accepted (kirun-py fix).
 
+**Runtime: `catchErrors`, an opt-in extension (kirun-rust only)**
+* A step may carry `"catchErrors": true` (DSL: `... AFTER ... IF ... CATCH ERRORS`). When the
+  function it calls fails (a nested definition or any other function returning an error) and
+  steps of the definition wait on that step's `error` event (`dependentStatements`
+  `Steps.<step>.error`, or an expression reading it), those steps run with
+  `{"status": 500, "reason": "CHILD_FAILED", "message": <the error's message>,
+  "details": {"step": <step>, "function": <namespace.name>}}` (the shape functions raise `error`
+  with on purpose) and the run goes on; the steps on its `output` event do not run.
+* `reason` is the error's own code when the embedding names one, and the embedding can keep
+  its own limits from being caught (`runtime::catch_errors::set_policy`). The runtime's
+  iteration guard is never caught.
+* Without the property, or with nothing on the step's `error` event, a failure ends the run,
+  exactly as before and as in kirun-js and kirun-java. The property is written only when set,
+  so other definitions read and write unchanged; kirun-js, kirun-java and kirun-py ignore it
+  when they run a definition (their runs end on the failure).
+
 **Kept from JS on purpose**
 * `exclusiveMaximum` passes a value equal to the limit.
 

@@ -88,6 +88,10 @@ impl ASTToJSONTransformer {
             json.insert("executeIftrue".into(), Value::Object(exec_if));
         }
 
+        if stmt.catch_errors {
+            json.insert("catchErrors".into(), Value::Bool(true));
+        }
+
         if !stmt.comment.trim().is_empty() {
             json.insert("comment".into(), Value::String(stmt.comment.clone()));
         }

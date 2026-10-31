@@ -25,6 +25,7 @@ class StatementNode(ASTNode):
         nested_blocks: Optional[Dict[str, List[StatementNode]]] = None,
         location: Optional[SourceLocation] = None,
         comment: str = '',
+        catch_errors: bool = False,
     ) -> None:
         super().__init__(
             'Statement',
@@ -36,6 +37,8 @@ class StatementNode(ASTNode):
         self.execute_if_steps: List[str] = execute_if_steps if execute_if_steps is not None else []
         self.nested_blocks: Dict[str, List[StatementNode]] = nested_blocks if nested_blocks is not None else {}
         self.comment = comment
+        # `CATCH ERRORS`: the step's `catchErrors` (a kirun-rust runtime extension).
+        self.catch_errors = catch_errors
 
     def to_json(self) -> Any:
         return {
@@ -49,4 +52,5 @@ class StatementNode(ASTNode):
                 for block_name, statements in self.nested_blocks.items()
             },
             'comment': self.comment,
+            'catchErrors': self.catch_errors,
         }

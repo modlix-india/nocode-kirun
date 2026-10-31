@@ -528,6 +528,10 @@ class JSONToTextTransformer:
         if if_steps:
             tail += f" IF {', '.join(if_steps)}"
 
+        # Add CATCH ERRORS (`catchErrors`, a kirun-rust runtime extension)
+        if step.get('catchErrors') is True:
+            tail += " CATCH ERRORS"
+
         # Add comment
         comment = step.get('comment', '')
         if comment and comment.strip():

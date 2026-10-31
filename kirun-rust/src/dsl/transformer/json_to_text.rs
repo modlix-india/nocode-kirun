@@ -332,6 +332,10 @@ impl JSONToTextTransformer {
             tail.push_str(&format!(" IF {}", if_steps.join(", ")));
         }
 
+        if step["catchErrors"] == Value::Bool(true) {
+            tail.push_str(" CATCH ERRORS");
+        }
+
         if let Some(c) = step["comment"].as_str().filter(|c| !c.trim().is_empty()) {
             tail.push_str(&format!(" /* {} */", c.replace("*/", "*\\/")));
         }

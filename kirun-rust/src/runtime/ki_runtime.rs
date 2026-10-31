@@ -24,6 +24,7 @@ use crate::model::{
     ParameterReferenceType, Statement,
 };
 use crate::repository::Repository;
+use crate::runtime::catch_errors;
 use crate::runtime::debug::debug_collector::DebugCollector;
 use crate::runtime::expression::ExpressionEvaluator;
 use crate::runtime::function_execution_parameters::{FunctionExecutionParameters, StepsMap};
@@ -322,7 +323,8 @@ impl KIRuntime {
                 let max = MAX_EXECUTION_ITERATIONS.load(Ordering::Relaxed);
                 if count >= max {
                     return Err(KIRunError::runtime(format!(
-                        "Execution locked in an infinite loop : {}.{} exceeded {} statement iterations",
+                        "{} : {}.{} exceeded {} statement iterations",
+                        catch_errors::ITERATION_GUARD,
                         self.fd.get_namespace(),
                         self.fd.get_name(),
                         max
@@ -576,6 +578,26 @@ impl KIRuntime {
 
         let (result, er) = match executed {
             Ok(x) => x,
+            // A step marked `catchErrors` whose function failed, with steps waiting on its
+            // `error` event: they get the failure as that event and the run goes on
+            // (`catch_errors`). Any other failure ends the run, as in kirun-js and kirun-java.
+            Err(err) if s.is_catch_errors() && handles_errors(vertex) => {
+                let function = format!("{}.{}", s.get_namespace(), s.get_name());
+                let Some(er) = catch_errors::caught(&err, s.get_statement_name(), &function) else {
+                    if let (Some(dc), Some(id)) = (debug, &step_id) {
+                        dc.end_step(in_context.get_execution_id(), id, "error", None, Some(&err.to_string()));
+                    }
+                    return Err(err);
+                };
+                if let Some(steps) = in_context.get_steps() {
+                    steps
+                        .write()
+                        .entry(s.get_statement_name().to_string())
+                        .or_default()
+                        .insert(er.get_name().to_string(), er.get_result().clone());
+                }
+                (FunctionOutput::new(Vec::new()), er)
+            }
             Err(err) => {
                 if let (Some(dc), Some(id)) = (debug, &step_id) {
                     dc.end_step(in_context.get_execution_id(), id, "error", None, Some(&err.to_string()));
@@ -701,6 +723,11 @@ impl AbstractFunction for KIRuntime {
     fn as_any(&self) -> Option<&dyn Any> {
         Some(self)
     }
+}
+
+/// Whether some step of the graph waits on this step's `error` event.
+fn handles_errors(vertex: &GraphVertex<Arc<StatementExecution>>) -> bool {
+    vertex.get_out_vertices().get(Event::ERROR).is_some_and(|outs| !outs.is_empty())
 }
 
 fn needs_a_value(parameter_name: &str) -> String {
