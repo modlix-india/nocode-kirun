@@ -246,6 +246,21 @@ class DSLParser:
                 else:
                     break
 
+        # Parse optional CATCH ERRORS: the step's `catchErrors` (a kirun-rust runtime
+        # extension). Two plain words, so they reserve nothing: a step or block named CATCH is
+        # followed by a colon instead.
+        catch_errors = False
+        nxt = self._peek_ahead(1)
+        if (
+            self._match(DSLTokenType.IDENTIFIER, 'CATCH')
+            and nxt is not None
+            and nxt.type == DSLTokenType.IDENTIFIER
+            and nxt.value == 'ERRORS'
+        ):
+            self._advance()
+            self._advance()
+            catch_errors = True
+
         # Parse optional trailing comment
         comment = ''
         if self._match(DSLTokenType.COMMENT):
@@ -265,6 +280,7 @@ class DSLParser:
             nested_blocks,
             name_token.location,
             comment,
+            catch_errors,
         )
 
     def _parse_nested_blocks(self, min_block_column: int = 0) -> Dict[str, List[StatementNode]]:

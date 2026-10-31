@@ -1,6 +1,6 @@
 [package]
 name = "kirun"
-version = "2.1.1"
+version = "2.2.0"
 edition = "2021"
 description = "Rust runtime for KIRun: functions are JSON data, and the same definition runs in JavaScript, Java, Rust and Python"
 license = "MIT"

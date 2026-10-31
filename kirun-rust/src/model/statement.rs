@@ -16,6 +16,10 @@ pub struct Statement {
     pub description: Option<String>,
     pub position: Option<Position>,
     pub r#override: bool,
+    /// `catchErrors` (kirun-rust only): when the step's function fails and steps wait on this
+    /// step's `error` event, they get the failure as that event instead of the run failing.
+    /// Written only when set, so a definition without it reads and writes as before.
+    pub catch_errors: bool,
 }
 
 impl Statement {
@@ -101,6 +105,14 @@ impl Statement {
         self
     }
 
+    pub fn is_catch_errors(&self) -> bool {
+        self.catch_errors
+    }
+    pub fn set_catch_errors(mut self, v: bool) -> Self {
+        self.catch_errors = v;
+        self
+    }
+
     pub fn of_entry(statement: Statement) -> (String, Statement) {
         (statement.statement_name.clone(), statement)
     }
@@ -135,6 +147,7 @@ impl Statement {
             description: json["description"].as_str().map(str::to_string),
             position: Position::from_value(&json["position"]),
             r#override: json["override"].as_bool().unwrap_or(false),
+            catch_errors: json["catchErrors"].as_bool().unwrap_or(false),
         })
     }
 
@@ -166,6 +179,9 @@ impl Statement {
             obj.insert("description".into(), Value::String(d.clone()));
         }
         obj.insert("override".into(), Value::Bool(self.r#override));
+        if self.catch_errors {
+            obj.insert("catchErrors".into(), Value::Bool(true));
+        }
         Value::Object(obj)
     }
 }

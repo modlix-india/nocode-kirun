@@ -4,6 +4,7 @@ mod common;
 mod debug_collector_test;
 mod debug_formatter_test;
 mod ki_run_function_repository_test;
+mod ki_runtime_child_error_test;
 mod ki_runtime_debug_integration_test;
 mod ki_runtime_dependency_test;
 mod ki_runtime_extended;

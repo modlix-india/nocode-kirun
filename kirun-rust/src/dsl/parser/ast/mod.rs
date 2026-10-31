@@ -73,6 +73,8 @@ pub struct StatementNode {
     pub nested_blocks: Map<Vec<StatementNode>>,
     pub location: SourceLocation,
     pub comment: String,
+    /// `CATCH ERRORS` (kirun-rust only): the step's `catchErrors`.
+    pub catch_errors: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
