@@ -308,3 +308,21 @@ async fn to_string_quotes_a_string_so_quoted_regexes_match() {
         }))
     );
 }
+
+#[tokio::test]
+async fn make_keeps_a_literal_null_in_its_result_shape() {
+    // A literal null in a Make shape must reach the result as a key with value null (kirun-js
+    // keeps it), so a partial update built from it clears that field.
+    let steps = json!({
+        "mk": step("mk", "System", "Make", json!({ "resultShape": value(json!({ "a": "x", "b": null, "c": { "d": null } })) })),
+        "top": after(step("top", "System.Object", "ObjectKeys", json!({ "source": expr("Steps.mk.output.value") })), "Steps.mk.output"),
+        "inner": after(step("inner", "System.Object", "ObjectKeys", json!({ "source": expr("Steps.mk.output.value.c") })), "Steps.mk.output"),
+        "ge": generate(json!([result("top", "Steps.top.output.value"), result("inner", "Steps.inner.output.value")])),
+    });
+    let mut steps = steps;
+    steps["ge"]["dependentStatements"] = json!({ "Steps.top.output": true, "Steps.inner.output": true });
+    assert_eq!(
+        run(def(steps, json!({})), json!({}), vec![]).await,
+        output(json!({ "top": ["a", "b", "c"], "inner": ["d"] }))
+    );
+}
