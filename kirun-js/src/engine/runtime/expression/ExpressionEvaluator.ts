@@ -42,6 +42,7 @@ import {
 import { LiteralTokenValueExtractor } from './tokenextractor/LiteralTokenValueExtractor';
 import { TokenValueExtractor } from './tokenextractor/TokenValueExtractor';
 import { Tuple2 } from '../../util/Tuples';
+import { isNullValue } from '../../util/NullCheck';
 import { ConditionalTernaryOperator } from './operators/ternary';
 import { TernaryOperator } from './operators/ternary/TernaryOperator';
 import { ExpressionInternalValueExtractor } from './tokenextractor/ExpressionInternalValueExtractor';
@@ -594,7 +595,13 @@ export class ExpressionEvaluator {
                 const token2: ExpressionToken = popToken();
                 let v1 = this.getValueFromToken(valuesMap, token2);
                 let v2 = this.getValueFromToken(valuesMap, token);
-                workingStack.push(this.applyBinaryOperation(operator, v1, v2, valuesMap));
+                // A `??` result is evaluated again only when the side that won read a stored expression.
+                const storedExpression =
+                    operator === Operation.NULLISH_COALESCING_OPERATOR &&
+                    this.readsStoredExpression(isNullValue(v1) ? token : token2);
+                workingStack.push(
+                    this.applyBinaryOperation(operator, v1, v2, storedExpression ? valuesMap : undefined),
+                );
             }
         }
         
@@ -929,7 +936,10 @@ export class ExpressionEvaluator {
 
         let result = op.apply(v1, v2);
 
-        // When ?? yields a string that looks like an expression (e.g. from location.expression), evaluate it
+        // When ?? yields a stored expression (a field named `expression`, e.g. a page title's location.expression),
+        // evaluate it. valuesMap is passed only then: any other value, data included, is returned as it is. Before,
+        // every string result that held an operator character was parsed again, so a date '2026-11-20' became 1995,
+        // '27/11/2026' a fraction, and a time '10:00' or a phone '+91...' changed.
         if (
             operator === Operation.NULLISH_COALESCING_OPERATOR &&
             typeof result === 'string' &&
@@ -945,6 +955,22 @@ export class ExpressionEvaluator {
         }
 
         return new ExpressionTokenValue(operator.toString(), result);
+    }
+
+    /**
+     * True when a `??` operand reads a field named `expression` (a path ending in `.expression`, such as
+     * `Store.pageDefinition.home.properties.title.name.location.expression`): a stored expression by design.
+     * A quoted literal or any other path is not one.
+     */
+    private readsStoredExpression(token: ExpressionToken): boolean {
+        if (token instanceof ExpressionTokenValue) return false;
+        let path: string;
+        try {
+            path = token instanceof Expression ? this.buildPathString(token) : token.getExpression();
+        } catch {
+            return false;
+        }
+        return (path ?? '').trim().endsWith('.expression');
     }
 
     private looksLikeExpression(str: string): boolean {
