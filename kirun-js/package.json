@@ -1,6 +1,6 @@
 {
     "name": "@fincity/kirun-js",
-    "version": "3.17.2",
+    "version": "3.17.3",
     "description": "Javascript Runtime for Kinetic Instructions",
     "homepage": "https://kirun.modlix.com",
     "repository": {

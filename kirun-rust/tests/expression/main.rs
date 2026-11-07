@@ -13,6 +13,7 @@ mod expression_evaluator_length_subtraction_bug_test;
 mod expression_evaluator_length_subtraction_test;
 mod expression_evaluator_string_literal_test;
 mod expression_evaluator_ternary_operator_test;
+mod expression_nullish_data_test;
 mod expression_parsing_test;
 mod expression_test;
 mod java_parity_test;

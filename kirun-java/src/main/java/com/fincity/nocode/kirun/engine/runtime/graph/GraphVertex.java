@@ -88,17 +88,25 @@ public class GraphVertex<K, T extends GraphVertexType<K>> {
 		        .map(GraphVertex::getData)
 		        .forEach(subGraph::addVertex);
 
+		// Breadth first, each vertex queued once. Without the visited set a vertex was queued
+		// once per PATH that reaches it, so a branch over a chain of diamonds cost 2^depth
+		// (ADZ-1423). The queue is FIFO, so the vertices are added to the sub-graph in the same
+		// order as before. Keys are unique within a graph, so they identify the vertex.
+		Set<K> visited = new HashSet<>();
+		for (var e : typeVertices)
+			visited.add(e.getKey());
+
 		while (!typeVertices.isEmpty()) {
 
 			var vertex = typeVertices.pop();
-			vertex.outVertices.values()
-			        .stream()
-			        .flatMap(Set::stream)
-			        .forEach(e ->
-					{
-				        subGraph.addVertex(e.getData());
-				        typeVertices.add(e);
-			        });
+			for (var outs : vertex.outVertices.values()) {
+				for (var e : outs) {
+					if (!visited.add(e.getKey()))
+						continue;
+					subGraph.addVertex(e.getData());
+					typeVertices.add(e);
+				}
+			}
 		}
 
 		// Cache the subgraph
