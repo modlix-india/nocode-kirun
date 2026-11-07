@@ -2,6 +2,15 @@
     "name": "@fincity/kirun-ui",
     "version": "1.4.0",
     "description": "Visual and Text Editor UI for KIRun Function Definitions",
+    "homepage": "https://kirun.modlix.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/modlix-india/nocode-kirun.git",
+        "directory": "kirun-ui"
+    },
+    "bugs": {
+        "url": "https://github.com/modlix-india/nocode-kirun/issues"
+    },
     "source": "src/index.ts",
     "main": "dist/index.js",
     "module": "dist/module.js",

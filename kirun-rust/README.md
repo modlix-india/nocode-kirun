@@ -1,4 +1,28 @@
-# kirun-rust
+<p align="center">
+  <a href="https://kirun.modlix.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/modlix-india/nocode-kirun/master/.github/assets/logo-dark.png">
+      <img src="https://raw.githubusercontent.com/modlix-india/nocode-kirun/master/.github/assets/logo-light.png" alt="kirun" width="280">
+    </picture>
+  </a>
+</p>
+
+<h3 align="center">kirun-rust: the Rust runtime for KIRun</h3>
+
+<p align="center">
+  <a href="https://kirun.modlix.com/playground"><strong>Playground</strong></a> ·
+  <a href="https://kirun.modlix.com/docs">Docs</a> ·
+  <a href="https://kirun.modlix.com/functions">Functions</a> ·
+  <a href="https://github.com/modlix-india/nocode-kirun">GitHub</a>
+</p>
+
+<p align="center">
+  <a href="https://crates.io/crates/kirun"><img src="https://img.shields.io/crates/v/kirun?style=flat-square&color=7AA2F7&labelColor=0A0B11" alt="crates.io"></a>
+  <a href="https://docs.rs/kirun"><img src="https://img.shields.io/docsrs/kirun?style=flat-square&labelColor=0A0B11" alt="docs.rs"></a>
+  <a href="https://github.com/modlix-india/nocode-kirun/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-9ECE6A?style=flat-square&labelColor=0A0B11" alt="MIT License"></a>
+</p>
+
+---
 
 Rust runtime for **KIRun** (Kinetic Instructions), the function-graph engine behind
 Modlix. It is a port of [kirun-js](https://github.com/modlix-india/nocode-kirun/tree/master/kirun-js) (same layout and names) and runs the
@@ -146,6 +170,22 @@ All of these are deliberate. Each is also commented in the code.
 * Integer literals stay integers and literals written with a fraction stay floats,
   so a round trip keeps int vs float (as kirun-py does).
 * `dependentStatements` stored as a list of keys is accepted (kirun-py fix).
+
+**Runtime: `catchErrors`, an opt-in extension (kirun-rust only)**
+* A step may carry `"catchErrors": true` (DSL: `... AFTER ... IF ... CATCH ERRORS`). When the
+  function it calls fails (a nested definition or any other function returning an error) and
+  steps of the definition wait on that step's `error` event (`dependentStatements`
+  `Steps.<step>.error`, or an expression reading it), those steps run with
+  `{"status": 500, "reason": "CHILD_FAILED", "message": <the error's message>,
+  "details": {"step": <step>, "function": <namespace.name>}}` (the shape functions raise `error`
+  with on purpose) and the run goes on; the steps on its `output` event do not run.
+* `reason` is the error's own code when the embedding names one, and the embedding can keep
+  its own limits from being caught (`runtime::catch_errors::set_policy`). The runtime's
+  iteration guard is never caught.
+* Without the property, or with nothing on the step's `error` event, a failure ends the run,
+  exactly as before and as in kirun-js and kirun-java. The property is written only when set,
+  so other definitions read and write unchanged; kirun-js, kirun-java and kirun-py ignore it
+  when they run a definition (their runs end on the failure).
 
 **Kept from JS on purpose**
 * `exclusiveMaximum` passes a value equal to the limit.

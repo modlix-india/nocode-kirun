@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Set
 from kirun_py.exception.execution_exception import ExecutionException
 from kirun_py.util.string.string_formatter import StringFormatter
 from kirun_py.util.tuples import Tuple2
+from kirun_py.util.null_check import is_null_value
 from kirun_py.runtime.expression.exception.expression_evaluation_exception import ExpressionEvaluationException
 from kirun_py.runtime.expression.expression_token import ExpressionToken
 from kirun_py.runtime.expression.expression_token_value import ExpressionTokenValue
@@ -414,7 +415,11 @@ class ExpressionEvaluator:
                 token2 = pop_token()
                 v1 = self._get_value_from_token(values_map, token2)
                 v2 = self._get_value_from_token(values_map, token)
-                working_stack.append(self._apply_binary_operation(operator, v1, v2, values_map))
+                # A `??` result is evaluated again only when the side that won read a stored expression.
+                stored_expression = (operator is Operation.NULLISH_COALESCING_OPERATOR and
+                                     self._reads_stored_expression(token if is_null_value(v1) else token2))
+                working_stack.append(self._apply_binary_operation(
+                    operator, v1, v2, values_map if stored_expression else None))
 
         while ctx['src_idx'] < len(tokens_source):
             working_stack.append(tokens_source[ctx['src_idx']])
@@ -605,6 +610,9 @@ class ExpressionEvaluator:
 
         result = op.apply(v1, v2)
 
+        # When ?? yields a stored expression (a field named `expression`, e.g. a page title's location.expression),
+        # evaluate it. values_map is passed only then: any other value, data included, is returned as it is. Before,
+        # every text result holding an operator character was parsed again ('2026-11-20' became 1995).
         if (operator is Operation.NULLISH_COALESCING_OPERATOR and
                 isinstance(result, str) and values_map and
                 result.strip() and self._looks_like_expression(result)):
@@ -614,6 +622,18 @@ class ExpressionEvaluator:
                 pass
 
         return ExpressionTokenValue(str(operator), result)
+
+    def _reads_stored_expression(self, token) -> bool:
+        """True when a `??` operand reads a field named `expression` (a path ending in `.expression`): a stored
+        expression by design. A quoted literal or any other path is not one."""
+        from kirun_py.runtime.expression.expression import Expression
+        if isinstance(token, ExpressionTokenValue):
+            return False
+        try:
+            path = self._build_path_string(token) if isinstance(token, Expression) else token.get_expression()
+        except Exception:
+            return False
+        return (path or '').strip().endswith('.expression')
 
     def _looks_like_expression(self, s: str) -> bool:
         trimmed = s.strip()

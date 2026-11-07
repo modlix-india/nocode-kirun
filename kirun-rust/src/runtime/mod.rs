@@ -1,5 +1,6 @@
 //! Port of kirun-js `runtime/*`.
 
+pub mod catch_errors;
 pub mod context_element;
 pub mod debug;
 pub mod expression;

@@ -91,11 +91,18 @@ class GraphVertex(Generic[K, T]):
         for v in type_vertices:
             sub_graph.add_vertex(v.get_data())
 
+        # Breadth first, each vertex queued once. Without the visited set a vertex was queued once per PATH that
+        # reaches it, so a branch over a chain of diamonds cost 2^depth (ADZ-1423, same fix as kirun-js and
+        # kirun-java). The queue is FIFO, so the vertices are added to the sub-graph in the same order as before.
+        visited: Set[GraphVertex[K, T]] = set(type_vertices)
         i = 0
         while i < len(type_vertices):
             vertex = type_vertices[i]
             for out_set in vertex._out_vertices.values():
                 for e in out_set:
+                    if e in visited:
+                        continue
+                    visited.add(e)
                     sub_graph.add_vertex(e.get_data())
                     type_vertices.append(e)
             i += 1

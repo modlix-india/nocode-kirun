@@ -235,6 +235,15 @@ impl DSLParser {
             }
         }
 
+        // `CATCH ERRORS` (kirun-rust only): two plain words, so they reserve nothing; a step or a
+        // block named CATCH is followed by a colon instead.
+        let catch_errors = self.matches(T::Identifier, Some("CATCH"))
+            && self.peek_ahead(1).is_some_and(|t| t.is(T::Identifier, Some("ERRORS")));
+        if catch_errors {
+            self.advance();
+            self.advance();
+        }
+
         let mut comment = String::new();
         if self.matches(T::Comment, None) {
             let t = self.advance();
@@ -253,6 +262,7 @@ impl DSLParser {
             nested_blocks,
             location,
             comment,
+            catch_errors,
         })
     }
 

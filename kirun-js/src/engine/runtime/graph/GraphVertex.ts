@@ -87,18 +87,27 @@ export class GraphVertex<K, T extends GraphVertexType<K>> {
 
         let subGraph: ExecutionGraph<K, T> = new ExecutionGraph(true);
 
-        var typeVertices = new LinkedList(Array.from(this.outVertices.get(type) ?? []));
+        const start = Array.from(this.outVertices.get(type) ?? []);
+        const typeVertices = new LinkedList(start);
 
-        typeVertices.map((e) => e.getData()).forEach((e) => subGraph.addVertex(e));
+        for (const e of start) subGraph.addVertex(e.getData());
+
+        // Breadth first, each vertex queued once. Without the visited set a vertex was queued
+        // once per PATH that reaches it, so a branch over a chain of diamonds cost 2^depth
+        // (ADZ-1423: 87 million iterations for one If over 811 steps). The queue is FIFO, so
+        // the vertices are added to the sub-graph in exactly the same order as before.
+        const visited: Set<GraphVertex<K, T>> = new Set(start);
 
         while (!typeVertices.isEmpty()) {
-            var vertex = typeVertices.pop();
-            Array.from(vertex.outVertices.values())
-                .flatMap((e) => Array.from(e))
-                .forEach((e) => {
+            const vertex = typeVertices.pop();
+            for (const outs of vertex.outVertices.values()) {
+                for (const e of outs) {
+                    if (visited.has(e)) continue;
+                    visited.add(e);
                     subGraph.addVertex(e.getData());
                     typeVertices.add(e);
-                });
+                }
+            }
         }
 
         // Cache for reuse

@@ -106,6 +106,9 @@ class ASTToJSONTransformer:
         if execute_if_true:
             json_obj['executeIftrue'] = execute_if_true
 
+        if stmt.catch_errors:
+            json_obj['catchErrors'] = True
+
         if stmt.comment and stmt.comment.strip():
             json_obj['comment'] = stmt.comment
 

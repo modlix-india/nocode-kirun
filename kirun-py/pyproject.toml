@@ -4,13 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kirun-py"
-version = "3.8.2"
+version = "3.9.1"
 description = "Python Runtime for Kinetic Instructions"
 authors = [{ name = "Kiran Kumar Grandhi" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["python-dateutil>=2.8"]
+keywords = ["kirun", "low-code", "no-code", "workflow", "runtime"]
+
+[project.urls]
+Homepage = "https://kirun.modlix.com"
+Documentation = "https://kirun.modlix.com/docs/kirun-py"
+Repository = "https://github.com/modlix-india/nocode-kirun"
+Issues = "https://github.com/modlix-india/nocode-kirun/issues"
 
 [project.optional-dependencies]
 dev = [

@@ -14,7 +14,7 @@ npm install @fincity/kirun-ui
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `@fincity/kirun-js` | `>=3.0.0` | Runtime library (FunctionDefinition, Repository, Schema) |
+| `@fincity/kirun-js` | `>=3.17.2` | Runtime library (FunctionDefinition, Repository, Schema) |
 | `monaco-editor` | `>=0.40.0` | Text editor for DSL mode |
 | `react` | `>=17.0.0` | UI framework |
 | `react-dom` | `>=17.0.0` | DOM binding |
