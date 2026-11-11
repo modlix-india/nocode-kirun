@@ -119,11 +119,18 @@ async fn generate_event_fails_as_gson_and_collectors_do() {
         Err(format!("Cannot invoke \"com.google.gson.JsonElement.{method}\" because {receiver} is null"))
     };
     let get = "the return value of \"com.google.gson.JsonObject.get(String)\"";
-    // Read while planning, even for a step that would never run.
+    // Read while planning, even for a step that would never run. Since KIRUN-754 the planning
+    // failure is reported on the step, naming it and the parameter.
+    let on_step = |e: Result<J, String>| {
+        Err(format!(
+            "Please fix the errors in the function definition before execution : \n[StatementMessage(messageType=ERROR, message=Step \"ge\", parameter \"results\": {})]",
+            e.unwrap_err()
+        ))
+    };
     let no_is_expression = def(json!({ "ge": generate(json!({ "name": "s", "value": { "value": 5 } })) }), json!({}));
-    assert_eq!(run(no_is_expression, json!({}), vec![]).await, npe("getAsBoolean()", get));
+    assert_eq!(run(no_is_expression, json!({}), vec![]).await, on_step(npe("getAsBoolean()", get)));
     let no_expression = def(json!({ "ge": generate(json!({ "name": "s", "value": { "isExpression": true } })) }), json!({}));
-    assert_eq!(run(no_expression, json!({}), vec![]).await, npe("getAsString()", get));
+    assert_eq!(run(no_expression, json!({}), vec![]).await, on_step(npe("getAsString()", get)));
     let no_name = def(json!({ "ge": generate(json!({ "value": { "isExpression": false, "value": 1 } })) }), json!({}));
     assert_eq!(run(no_name, json!({}), vec![]).await, npe("getAsString()", get));
     let no_value = def(json!({ "ge": generate(json!({ "name": "s" })) }), json!({}));
@@ -156,7 +163,8 @@ async fn planning_fails_where_kirun_java_reads_without_a_null_check() {
         Err("Cannot invoke \"com.fincity.nocode.kirun.engine.model.Parameter.isVariableArgument()\" because \"p\" is null".to_string())
     );
 
-    // A VALUE object for an OBJECT parameter whose schema has no name.
+    // A VALUE object for an OBJECT parameter whose schema has no name. kirun-java failed the
+    // whole function here (KIRUN-754); kirun-rust now runs it the way kirun-js does.
     let inner = json!({
         "name": "b", "namespace": "T",
         "parameters": { "o": { "parameterName": "o", "schema": { "type": "OBJECT" } } },
@@ -169,10 +177,7 @@ async fn planning_fails_where_kirun_java_reads_without_a_null_check() {
         }),
         json!({}),
     );
-    assert_eq!(
-        run(outer.clone(), json!({}), vec![inner.clone()]).await,
-        Err("Cannot invoke \"String.equals(Object)\" because the return value of \"com.fincity.nocode.kirun.engine.json.schema.Schema.getName()\" is null".to_string())
-    );
+    assert_eq!(run(outer.clone(), json!({}), vec![inner.clone()]).await, output(json!({ "s": { "x": 1 } })));
     let mut named = inner;
     named["parameters"]["o"]["schema"]["name"] = json!("o");
     assert_eq!(run(outer, json!({}), vec![named]).await, output(json!({ "s": { "x": 1 } })));
@@ -324,5 +329,46 @@ async fn make_keeps_a_literal_null_in_its_result_shape() {
     assert_eq!(
         run(def(steps, json!({})), json!({}), vec![]).await,
         output(json!({ "top": ["a", "b", "c"], "inner": ["d"] }))
+    );
+}
+
+// KIRUN-754: the shape from LeadZumpV2.waNumDiscover. A literal object given as a VALUE to an
+// app function's OBJECT parameter (no schema name, a default of {}) runs like kirun-js.
+#[tokio::test]
+async fn a_literal_object_for_an_unnamed_object_parameter_runs() {
+    let graph = json!({
+        "name": "g", "namespace": "T",
+        "parameters": { "q": { "parameterName": "q", "schema": { "type": ["OBJECT"], "defaultValue": {} } } },
+        "steps": { "ge": generate(result("r", "Arguments.q.fields")) }
+    });
+    let outer = def(
+        json!({
+            "wn": step("wn", "T", "g", json!({ "q": value(json!({ "fields": "name" })) })),
+            "ge": generate(result("s", "Steps.wn.output.r"))
+        }),
+        json!({}),
+    );
+    assert_eq!(run(outer, json!({}), vec![graph]).await, output(json!({ "s": "name" })));
+}
+
+// KIRUN-754: a parameter value the engine cannot walk is reported on its step, naming the step
+// and the parameter, instead of a bare engine error.
+#[tokio::test]
+async fn a_bad_parameter_value_names_the_step_and_the_parameter() {
+    let inner = json!({
+        "name": "t", "namespace": "T",
+        "parameters": { "pair": { "parameterName": "pair", "schema": { "type": "ARRAY", "items": [{ "type": "STRING" }] } } },
+        "steps": { "ge": generate(result("r", "Arguments.pair")) }
+    });
+    let outer = def(
+        json!({
+            "call": step("call", "T", "t", json!({ "pair": value(json!(["a", "b"])) })),
+            "ge": generate(result("s", "Steps.call.output.r"))
+        }),
+        json!({}),
+    );
+    assert_eq!(
+        run(outer, json!({}), vec![inner]).await,
+        Err("Please fix the errors in the function definition before execution : \n[StatementMessage(messageType=ERROR, message=Step \"call\", parameter \"pair\": Index 1 out of bounds for length 1)]".to_string())
     );
 }
