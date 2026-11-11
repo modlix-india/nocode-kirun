@@ -188,13 +188,34 @@ impl KIRuntime {
                 continue;
             }
 
-            if p.is_variable_argument() {
+            // A parameter value the engine cannot walk is a problem of this step: report it on
+            // the step, naming the step and the parameter, instead of failing with a bare engine
+            // error that names neither (KIRUN-754).
+            let checked = if p.is_variable_argument() {
                 ref_list.sort_by_key(|r| r.get_order().unwrap_or(0));
+                let mut res = Ok(());
                 for r in ref_list {
-                    self.parameter_reference_validation(&mut se, &p, r, s_repo).await?;
+                    res = self.parameter_reference_validation(&mut se, &p, r, s_repo).await;
+                    if res.is_err() {
+                        break;
+                    }
                 }
+                res
             } else if let Some(r) = ref_list.first() {
-                self.parameter_reference_validation(&mut se, &p, r, s_repo).await?;
+                self.parameter_reference_validation(&mut se, &p, r, s_repo).await
+            } else {
+                Ok(())
+            };
+            if let Err(e) = checked {
+                se.add_message(
+                    StatementMessageType::Error,
+                    format!(
+                        "Step \"{}\", parameter \"{}\": {}",
+                        s.get_statement_name(),
+                        p.get_parameter_name(),
+                        e.get_message()
+                    ),
+                );
             }
 
             param_set.shift_remove(p.get_parameter_name());
@@ -270,13 +291,14 @@ impl KIRuntime {
                         }
                     } else if t.contains(SchemaType::Object) && value.is_object() {
                         let expr_schema = Parameter::expression();
-                        let Some(name) = schema.get_name() else {
-                            return Err(KIRunError::uncaught(
-                                "Cannot invoke \"String.equals(Object)\" because the return value of \"com.fincity.nocode.kirun.engine.json.schema.Schema.getName()\" is null",
-                            ));
-                        };
+                        // kirun-java called `getName().equals(...)` and failed the whole function
+                        // on a schema without a name (every app-defined parameter schema). Compare
+                        // null safely, as kirun-js does with `===` (KIRUN-754).
                         let Value::Object(obj) = value else { continue };
-                        if Some(name) == expr_schema.get_name() && schema.get_namespace() == expr_schema.get_namespace() {
+                        if schema.get_name().is_some()
+                            && schema.get_name() == expr_schema.get_name()
+                            && schema.get_namespace() == expr_schema.get_namespace()
+                        {
                             if let Some(expression) = expression_dependency(&obj)? {
                                 add_dependencies(se, Some(&expression));
                             }

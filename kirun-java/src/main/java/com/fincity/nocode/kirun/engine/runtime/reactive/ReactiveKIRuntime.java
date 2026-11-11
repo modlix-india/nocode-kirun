@@ -1117,10 +1117,11 @@ public class ReactiveKIRuntime extends AbstractReactiveFunction implements IDefi
 
 						Schema sch = e.getT1();
 
-						if (sch.getName()
-								.equals(Parameter.EXPRESSION.getName())
-								&& sch.getNamespace()
-										.equals(Parameter.EXPRESSION.getNamespace())) {
+						// Null safe: app-defined parameter schemas have no name (KIRUN-754).
+						if (Parameter.EXPRESSION.getName()
+								.equals(sch.getName())
+								&& Parameter.EXPRESSION.getNamespace()
+										.equals(sch.getNamespace())) {
 							JsonObject obj = e.getT2()
 									.getAsJsonObject();
 							boolean isExpression = obj.get("isExpression")
