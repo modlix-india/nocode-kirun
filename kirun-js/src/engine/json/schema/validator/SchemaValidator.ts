@@ -1,5 +1,6 @@
 import { Repository } from '../../../Repository';
 import { deepEqual } from '../../../util/deepEqual';
+import { ErrorMessageFormatter } from '../../../util/ErrorMessageFormatter';
 import { isNullValue } from '../../../util/NullCheck';
 import { StringUtil } from '../../../util/string/StringUtil';
 import { Schema } from '../Schema';
@@ -180,6 +181,30 @@ export class SchemaValidator {
                 (this.ORDER[a] ?? Infinity) - (this.ORDER[b] ?? Infinity),
         );
 
+        // A text value fails OBJECT, ARRAY and every number type when conversion is off, so trying
+        // those first only builds (and throws away) an error per type. Try STRING first. If it fails,
+        // fall through to the full ordered loop so the error message stays exactly as before.
+        if (
+            !convert &&
+            typeof element === 'string' &&
+            allowedTypes.length > 1 &&
+            allowedTypes.includes(SchemaType.STRING)
+        ) {
+            try {
+                return await TypeValidator.validate(
+                    parents,
+                    SchemaType.STRING,
+                    schema,
+                    repository,
+                    element,
+                    convert,
+                    mode,
+                );
+            } catch (err: any) {
+                // fall through to the ordered loop below
+            }
+        }
+
         let errors: SchemaValidationException[] = [];
 
         for (const type of allowedTypes) {
@@ -206,7 +231,11 @@ export class SchemaValidator {
 
         throw new SchemaValidationException(
             SchemaValidator.path(parents),
-            'Value ' + JSON.stringify(element) + ' is not of valid type(s)',
+            'Value ' +
+                (typeof element === 'string' && element.length > ErrorMessageFormatter.MAX_TEXT_LENGTH
+                    ? ErrorMessageFormatter.formatValue(element)
+                    : JSON.stringify(element)) +
+                ' is not of valid type(s)',
             errors,
         );
     }
