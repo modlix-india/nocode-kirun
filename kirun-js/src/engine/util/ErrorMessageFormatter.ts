@@ -5,23 +5,33 @@ import { SchemaType } from '../json/schema/type/SchemaType';
  * Utility class for formatting error messages with proper value representation
  */
 export class ErrorMessageFormatter {
+    /** Longest text value written into an error message as is; longer texts are described by length. */
+    public static readonly MAX_TEXT_LENGTH: number = 200;
+
     /**
      * Formats a value for display in error messages.
      * - JSON.stringify for objects and arrays
-     * - toString() for primitives
+     * - toString() for primitives; a text longer than maxLength becomes "a text of N characters"
      * - Handles circular references
      * @param value - The value to format
      * @param maxLength - Maximum length of the formatted string (default: 200)
      * @returns Formatted string representation
      */
-    public static formatValue(value: any, maxLength: number = 200): string {
+    public static formatValue(
+        value: any,
+        maxLength: number = ErrorMessageFormatter.MAX_TEXT_LENGTH,
+    ): string {
         if (value === null) return 'null';
         if (value === undefined) return 'undefined';
 
         const type = typeof value;
 
-        // For primitives, use toString()
-        if (type === 'string') return `"${value}"`;
+        // For primitives, use toString(). A long text is described by its length only: copying a
+        // large text into every error message (most are caught and dropped) is slow in browsers.
+        if (type === 'string')
+            return value.length > maxLength
+                ? `a text of ${value.length} characters`
+                : `"${value}"`;
         if (type === 'number' || type === 'boolean') return String(value);
 
         // For objects and arrays, use JSON.stringify with circular reference handling
